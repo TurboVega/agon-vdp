@@ -136,6 +136,7 @@ void IRAM_ATTR on_lines_painted() {
 	while (ESPSerial.available() > 0) {
 		di_terminal->store_character(ESPSerial.read());
 	}
+	do_keyboard();
 }
 
 void setup() {
