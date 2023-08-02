@@ -164,6 +164,8 @@ void setup() {
 	copy_font();
 	//set_mode(1);
 
+    // Start in video mode 19 (800x600x64);
+    videoMode = 19;
 	DiManager manager;
 	di_terminal = manager.create_terminal(0, 0, 128, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
 	boot_screen();
@@ -1471,7 +1473,7 @@ void vdu_sys_video() {
 			sendGeneralPoll();			// Send a general poll packet
 		}	break;
 		case VDP_KEYCODE: {				// VDU 23, 0, &81, layout
-			vdu_sys_video_kblayout();
+			vdu_sys_video_kblayout(0);
 		}	break;
 		case VDP_CURSOR: {				// VDU 23, 0, &82
 			sendCursorPosition();		// Send cursor position
@@ -1542,8 +1544,10 @@ void vdu_sys_keystate() {
 
 // Set the keyboard layout
 //
-void vdu_sys_video_kblayout() {
-	int	region = readByte_t();			// Fetch the region
+void vdu_sys_video_kblayout(byte region) {
+	if (!region) {
+		region = readByte_t(); // Fetch the region
+	}
 	switch(region) {
 		case 1:	PS2Controller.keyboard()->setLayout(&fabgl::USLayout); break;
 		case 2:	PS2Controller.keyboard()->setLayout(&fabgl::GermanLayout); break;

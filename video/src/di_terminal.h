@@ -126,6 +126,13 @@ class DiTerminal: public DiTileMap {
   uint8_t peek_into_buffer();
   uint8_t read_from_buffer();
   void skip_from_buffer();
+  void send_cursor_position();
+  void send_screen_char(int32_t x, int32_t y);
+  void send_screen_pixel(int32_t x, int32_t y);
+  void send_mode_information();
+  void send_general_poll(uint8_t b);
+  int8_t get_param_8(uint32_t index);
+  int16_t get_param_16(uint32_t index);
 
   protected:
   int32_t   m_current_column;

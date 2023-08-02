@@ -28,6 +28,18 @@
 #include <cstring>
 #include "../agon.h"
 
+// These things are defined in video.ino, already.
+typedef uint8_t byte;
+void send_packet(byte code, byte len, byte data[]);
+void sendTime();
+void sendKeyboardState();
+void sendPlayNote(int channel, int success);
+void vdu_sys_video_kblayout(byte region);
+extern bool initialised;
+extern bool logicalCoords;
+extern bool terminalMode;
+extern int videoMode;
+
 extern "C" {
 IRAM_ATTR void DiTerminal_paint(void* this_ptr, const DiPaintParams *params);
 }
@@ -42,6 +54,9 @@ DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint32_t codes,
   m_next_buffer_read = 0;
   m_num_buffer_chars = 0;
   m_num_command_chars = 0;
+
+  logicalCoords = false; // this mode always uses regular coordinates
+  terminalMode = true; // this mode is terminal mode
 
   // Copy built-in font pixel data to the bitmaps for this terminal.
   for (int b = 0; b < 128; b++) {
@@ -97,6 +112,31 @@ void DiTerminal::set_position(int32_t column, int32_t row) {
   m_current_row = row;
 }
 
+/*
+From Agon Wiki: https://github.com/breakintoprogram/agon-docs/wiki/VDP
+VDU 8: Cursor left
+VDU 9: Cursor right
+VDU 10: Cursor down
+VDU 11: Cursor up
+VDU 12: CLS
+VDU 13: Carriage return
+VDU 14: Page mode ON (VDP 1.03 or greater)
+VDU 15: Page mode OFF (VDP 1.03 or greater)
+VDU 16: CLG
+VDU 17 colour: COLOUR colour
+VDU 18, mode, colour: GCOL mode, colour
+VDU 19, l, p, r, g, b: COLOUR l, p / COLOUR l, r, g, b
+VDU 22, n: Mode n
+VDU 23, n: UDG / System Commands
+VDU 24, left; bottom; right; top;: Set graphics viewport (VDP 1.04 or greater)
+VDU 25, mode, x; y;: PLOT mode, x, y
+VDU 26: Reset graphics and text viewports (VDP 1.04 or greater)
+VDU 28, left, bottom, right, top: Set text viewport (VDP 1.04 or greater)
+VDU 29, x; y;: Graphics origin
+VDU 30: Home cursor
+VDU 31, x, y: TAB(x, y)
+VDU 127: Backspace
+*/
 bool DiTerminal::process_character(int8_t character) {
   if (m_num_command_chars) {
     return handle_udg_sys_cmd(character);
@@ -330,6 +370,7 @@ void DiTerminal::skip_from_buffer() {
 }
 
 /*
+From Agon Wiki: https://github.com/breakintoprogram/agon-docs/wiki/VDP
 VDU 23, 0, &80, b: General poll
 VDU 23, 0, &81, n: Set the keyboard locale (0=UK, 1=US, etc)
 VDU 23, 0, &82: Request cursor position
@@ -341,6 +382,14 @@ VDU 23, 0, &87: RTC control (Requires MOS 1.03 or above)
 VDU 23, 0, &88, delay; rate; led: Keyboard Control (Requires MOS 1.03 or above)
 VDU 23, 0, &C0, n: Turn logical screen scaling on and off, where 1=on and 0=off (Requires MOS 1.03 or above)
 VDU 23, 0, &FF: Switch to terminal mode for CP/M (This will disable keyboard entry in BBC BASIC/MOS)
+
+From Julian Regel's tile map commands: https://github.com/julianregel/agonnotes
+VDU 23, 0, &C2, 0:	Initialise/Reset Tile Layer
+VDU 23, 0, &C2, 1:	Set Layer Properties
+VDU 23, 0, &C2, 2:	Set Tile Properties
+VDU 23, 0, &C2, 3:	Draw Layer
+VDU 23, 0, &C4, 0:	Set Border Colour
+VDU 23, 0, &C4, 1:	Draw Border
 */
 bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
   m_incoming_command[m_num_command_chars++] = character;
@@ -349,6 +398,8 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
       case VDP_GP: /*0x80*/ {
         if (m_num_command_chars == 4) {
+          int8_t echo = get_param_8(3);
+          send_general_poll(echo);
           m_num_command_chars = 0;
           return true;
         }
@@ -356,6 +407,8 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
       case VDP_KEYCODE: /*0x81*/ {
         if (m_num_command_chars == 4) {
+          int8_t region = get_param_8(3);
+          vdu_sys_video_kblayout(region);
           m_num_command_chars = 0;
           return true;
         }
@@ -363,6 +416,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
       case VDP_CURSOR: /*0x82*/ {
         if (m_num_command_chars == 3) {
+          send_cursor_position();
           m_num_command_chars = 0;
           return true;
         }
@@ -370,6 +424,9 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
       case VDP_SCRCHAR: /*0x83*/ {
         if (m_num_command_chars == 7) {
+          int32_t x = get_param_16(3);
+          int32_t y = get_param_16(5);
+          send_screen_char(x, y);
           m_num_command_chars = 0;
           return true;
         }
@@ -377,6 +434,9 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
       case VDP_SCRPIXEL: /*0x84*/ {
         if (m_num_command_chars == 7) {
+          int32_t x = get_param_16(3);
+          int32_t y = get_param_16(5);
+          send_screen_pixel(x, y);
           m_num_command_chars = 0;
           return true;
         }
@@ -391,6 +451,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
       case VDP_MODE: /*0x86*/ {
         if (m_num_command_chars == 3) {
+          send_mode_information();
           m_num_command_chars = 0;
           return true;
         }
@@ -405,6 +466,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
       case VDP_KEYSTATE: /*0x88*/ {
         if (m_num_command_chars == 8) {
+          sendKeyboardState();
           m_num_command_chars = 0;
           return true;
         }
@@ -412,6 +474,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
       case VDP_LOGICALCOORDS: /*0xC0*/ {
         if (m_num_command_chars == 4) {
+          // This command is ignored; this mode always uses regular coordinates.
           m_num_command_chars = 0;
           return true;
         }
@@ -419,6 +482,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
       case VDP_TERMINALMODE: /*0xFF*/ {
         if (m_num_command_chars == 3) {
+          // This command is ignored; this mode is terminal mode.
           m_num_command_chars = 0;
           return true;
         }
@@ -427,4 +491,70 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
     }
   }
   return false;
+}
+
+int8_t DiTerminal::get_param_8(uint32_t index) {
+  return m_incoming_command[index];
+}
+
+int16_t DiTerminal::get_param_16(uint32_t index) {
+  return (((int16_t)m_incoming_command[index+1]) << 8) | m_incoming_command[index];
+}
+
+// Send the cursor position back to MOS
+//
+void DiTerminal::send_cursor_position() {
+	byte packet[] = {
+		(byte) m_current_column,
+		(byte) m_current_row & 0xFF,
+	};
+	send_packet(PACKET_CURSOR, sizeof packet, packet);	
+}
+
+// Send a character back to MOS
+//
+void DiTerminal::send_screen_char(int32_t x, int32_t y) {
+	uint8_t c = read_character(x, y);
+	byte packet[] = {
+		c,
+	};
+	send_packet(PACKET_SCRCHAR, sizeof packet, packet);
+}
+
+// Send a pixel value back to MOS
+//
+void DiTerminal::send_screen_pixel(int32_t x, int32_t y) {
+	byte packet[] = {
+		0,	// R
+		0,  // G
+		0,  // B
+		0,	// There is no palette in this mode.
+	};
+	send_packet(PACKET_SCRPIXEL, sizeof packet, packet);	
+}
+
+// Send MODE information (screen details)
+//
+void DiTerminal::send_mode_information() {
+	byte packet[] = {
+		ACT_PIXELS & 0xFF,	 				// Width in pixels (L)
+		(ACT_PIXELS >> 8) & 0xFF,		// Width in pixels (H)
+		ACT_LINES & 0xFF,						// Height in pixels (L)
+		(ACT_LINES >> 8) & 0xFF,		// Height in pixels (H)
+		(ACT_PIXELS / 8),					  // Width in characters (byte)
+		(ACT_LINES / 8),					  // Height in characters (byte)
+		64,						              // Colour depth
+		videoMode & 0xFF            // The video mode number
+	};
+	send_packet(PACKET_MODE, sizeof packet, packet);
+}
+
+// Send a general poll
+//
+void DiTerminal::send_general_poll(uint8_t b) {
+	byte packet[] = {
+		b,
+	};
+	send_packet(PACKET_GP, sizeof packet, packet);
+	initialised = true;	
 }
