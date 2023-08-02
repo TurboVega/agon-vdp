@@ -56,6 +56,10 @@ class DiManager {
     // and the vertical blanking time begins.
     void set_on_vertical_blank_cb(DiVoidCallback callback_fcn);
 
+    // Setup a callback for when a pair of visible scan lines has been painted,
+    // before the next lines are painted.
+    void set_on_lines_painted_cb(DiVoidCallback callback_fcn);
+
     // Setup and run the main loop to do continuous drawing.
     // For the demo, the loop never ends.
     void IRAM_ATTR run();
@@ -71,6 +75,7 @@ class DiManager {
     volatile DiVideoBuffer *   m_vertical_sync;
     volatile DiVideoScanLine * m_back_porch;
     DiVoidCallback             m_on_vertical_blank_cb;
+    DiVoidCallback             m_on_lines_painted_cb;
 
     std::map<DiPrimitive*, bool> m_primitives; // Top-level primitives (which might include groups)
     std::vector<DiPrimitive*> m_groups[NUM_VERTICAL_GROUPS]; // Vertical scan groups (for optimizing paint calls)

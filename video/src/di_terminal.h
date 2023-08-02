@@ -28,6 +28,7 @@
 #include "di_tile_map.h"
 
 #define INCOMING_DATA_BUFFER_SIZE  2048
+#define INCOMING_COMMAND_SIZE      20
 
 class DiTerminal: public DiTileMap {
   public:
@@ -73,8 +74,9 @@ class DiTerminal: public DiTileMap {
   // Process an incoming character, which could be printable data or part of some
   // VDU command. If the character is printable, it will be written to the terminal
   // display. If the character is non-printable, or part of a VDU command, it will
-  // be treated accordingly.
-  void process_character(int8_t character);
+  // be treated accordingly. This function returns true if the character was fully
+  // processed, and false otherwise.
+  bool process_character(int8_t character);
 
   // Process an incoming string, which could be printable data and/or part of some
   // VDU command(s). This function calls process_character(), for each character
@@ -118,8 +120,12 @@ class DiTerminal: public DiTileMap {
   void move_cursor_tab();
   void move_cursor_boln();
   void do_backspace();
+  bool handle_udg_sys_cmd(uint8_t character);
   void report(uint8_t character);
   static uint8_t to_hex(uint8_t value);
+  uint8_t peek_into_buffer();
+  uint8_t read_from_buffer();
+  void skip_from_buffer();
 
   protected:
   int32_t   m_current_column;
@@ -127,6 +133,8 @@ class DiTerminal: public DiTileMap {
   uint32_t  m_next_buffer_write;
   uint32_t  m_next_buffer_read;
   uint32_t  m_num_buffer_chars;
+  uint32_t  m_num_command_chars;
   uint8_t   m_incoming_data[INCOMING_DATA_BUFFER_SIZE];
+  uint8_t   m_incoming_command[INCOMING_COMMAND_SIZE];
 };
 

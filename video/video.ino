@@ -121,11 +121,21 @@ ESP32Time	rtc(0);								// The RTC
 HardwareSerial DBGSerial(0);
 #endif 
 
-DiTerminal* di_terminal;
+DiTerminal* di_terminal; // used for 800x600x64 mode
 
+// This function is called when vertical blanking starts.
 void IRAM_ATTR on_vertical_blank_start() {
-  di_terminal->store_string((const uint8_t*)"AaBbCcDdEeFfGg HhIk JjKkLlMn OoPpQqRrSsTtUu VvWwXxYyZz AaBbCcDdEeFfGg HhIk JjKkLlMn OoPpQqRrSsTtUu VvWwXxYyZz ");
-  di_terminal->process_stored_characters();
+	while (ESPSerial.available() > 0) {
+		di_terminal->store_character(ESPSerial.read());
+	}
+	di_terminal->process_stored_characters();
+}
+
+// This function is called between painting sets of scan lines.
+void IRAM_ATTR on_lines_painted() {
+	while (ESPSerial.available() > 0) {
+		di_terminal->store_character(ESPSerial.read());
+	}
 }
 
 void setup() {
@@ -152,14 +162,14 @@ void setup() {
 	PS2Controller.keyboard()->setTypematicRateAndDelay(kbRepeatRate, kbRepeatDelay);
 	init_audio();
 	copy_font();
-  //set_mode(1);
-	//boot_screen();
+	//set_mode(1);
 
-  DiManager manager;
-  di_terminal = manager.create_terminal(0, 0, 128, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
-  di_terminal->store_string((const uint8_t*)"Using 800x600x64 mode, copyright (c) 2023 by Curtis Whitley.");
-  manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
-  manager.run();
+	DiManager manager;
+	di_terminal = manager.create_terminal(0, 0, 128, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
+	boot_screen();
+	manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
+	manager.set_on_lines_painted_cb(&on_lines_painted);
+	manager.run();
 }
 
 // The main loop
@@ -760,9 +770,13 @@ void set_mode(int mode) {
 }
 
 void print(char const * text) {
-	for(int i = 0; i < strlen(text); i++) {
-    	vdu(text[i]);
-  	}
+	if (di_terminal) {
+		di_terminal->store_string((const uint8_t*) text);
+	} else {
+		for(int i = 0; i < strlen(text); i++) {
+			vdu(text[i]);
+		}
+	}
 }
 
 void printFmt(const char *format, ...) {

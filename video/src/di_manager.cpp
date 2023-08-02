@@ -49,8 +49,13 @@
 //#include "fabgl.h"
 #include "HardwareSerial.h"
 
+void default_on_vertical_blank() {}
+
+void default_on_lines_painted() {}
+
 DiManager::DiManager() {
-  m_on_vertical_blank_cb = NULL;
+  m_on_vertical_blank_cb = &default_on_vertical_blank;
+  m_on_lines_painted_cb = &default_on_lines_painted;
 }
 
 DiManager::~DiManager() {
@@ -386,6 +391,7 @@ void IRAM_ATTR DiManager::loop() {
         }
       }
       end_of_frame = false;
+      (*m_on_lines_painted_cb)();
     } else if (!end_of_frame) {
       // Handle modifying primitives before the next frame starts.
       on_vertical_blank();
@@ -424,13 +430,23 @@ void IRAM_ATTR DiManager::draw_primitives(DiPaintParams* params) {
 }
 
 void DiManager::set_on_vertical_blank_cb(DiVoidCallback callback_fcn) {
-  m_on_vertical_blank_cb = callback_fcn;
+  if (callback_fcn) {
+    m_on_vertical_blank_cb = callback_fcn;
+  } else {
+    m_on_vertical_blank_cb = default_on_vertical_blank;
+  }
+}
+
+void DiManager::set_on_lines_painted_cb(DiVoidCallback callback_fcn) {
+  if (callback_fcn) {
+    m_on_lines_painted_cb = callback_fcn;
+  } else {
+    m_on_lines_painted_cb = default_on_lines_painted;
+  }
 }
 
 void IRAM_ATTR DiManager::on_vertical_blank() {
-  if (m_on_vertical_blank_cb) {
-    (*m_on_vertical_blank_cb)();
-  }
+  (*m_on_vertical_blank_cb)();
 }
 
 void DiManager::init_dma_descriptor(volatile DiVideoScanLine* vline, uint32_t descr_index) {
