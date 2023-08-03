@@ -296,9 +296,7 @@ void DiTerminal::move_cursor_right() {
 }
 
 void DiTerminal::move_cursor_down() {
-  if (m_current_row < m_rows - 1) {
-    m_current_row++;
-  }
+  m_current_row++;
 }
 
 void DiTerminal::move_cursor_up() {
@@ -335,10 +333,10 @@ void DiTerminal::do_backspace() {
 }
 
 void DiTerminal::report(uint8_t character) {
-  process_character('[');
-  process_character(to_hex(character >> 4));
-  process_character(to_hex(character & 0xF));
-  process_character(']');
+  write_character('[');
+  write_character(to_hex(character >> 4));
+  write_character(to_hex(character & 0xF));
+  write_character(']');
 }
 
 uint8_t DiTerminal::to_hex(uint8_t value) {
