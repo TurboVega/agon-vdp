@@ -137,10 +137,11 @@ VDU 30: Home cursor
 VDU 31, x, y: TAB(x, y)
 VDU 127: Backspace
 */
-bool DiTerminal::process_character(int8_t character) {
+bool DiTerminal::process_character(uint8_t character) {
   if (m_num_command_chars) {
     switch (m_incoming_command[0]) {
-      case 0x17: return handle_udg_sys_cmd(character); // handle UDG/system command
+      case 0x11: return ignore_cmd(character, 2);
+      case 0x17: return handle_udg_sys_cmd(character);
       case 0x1F: return move_cursor_tab(character);
     }
     return false;
@@ -161,7 +162,7 @@ bool DiTerminal::process_character(int8_t character) {
       case 0x0E: report(character); break; // paged mode ON
       case 0x0F: report(character); break; // paged mode OFF
       case 0x10: report(character); break; // clear graphics screen
-      case 0x11: report(character); break; // set color
+      case 0x11: return ignore_cmd(character, 2); // set color
       case 0x12: report(character); break; // set graphics mode, color
       case 0x13: report(character); break; // define logical color (palette)
       case 0x16: report(character); break; // set vdu mode
@@ -180,7 +181,7 @@ bool DiTerminal::process_character(int8_t character) {
   return true;
 }
 
-void DiTerminal::process_string(const int8_t* string) {
+void DiTerminal::process_string(const uint8_t* string) {
   while (uint8_t character = *string++) {
     if (!process_character(character)) {
       break;
@@ -188,7 +189,7 @@ void DiTerminal::process_string(const int8_t* string) {
   }
 }
 
-void DiTerminal::write_character(int8_t character) {
+void DiTerminal::write_character(uint8_t character) {
   if (m_current_column < 0) {
     // scroll text to the right (insert on the left)
     int32_t move = m_columns + m_current_column;
@@ -232,7 +233,7 @@ void DiTerminal::write_character(int8_t character) {
   }
 }
 
-void DiTerminal::write_character(int32_t column, int32_t row, int8_t character) {
+void DiTerminal::write_character(int32_t column, int32_t row, uint8_t character) {
   set_tile(column, row, character);
 }
 
@@ -316,11 +317,20 @@ void DiTerminal::move_cursor_home() {
   m_current_column = 0;
 }
 
+bool DiTerminal::ignore_cmd(uint8_t character, uint8_t len) {
+  m_incoming_command[m_num_command_chars++] = character;
+  if (m_num_command_chars >= len) {
+    m_num_command_chars = 0;
+    return true;
+  }
+  return false;
+}
+
 bool DiTerminal::move_cursor_tab(uint8_t character) {
   m_incoming_command[m_num_command_chars++] = character;
   if (m_num_command_chars >= 3) {
-      int8_t x = get_param_8(1);
-      int8_t y = get_param_8(2);
+      uint8_t x = get_param_8(1);
+      uint8_t y = get_param_8(2);
       set_position(x, y);
       m_num_command_chars = 0;
       return true;
@@ -344,10 +354,10 @@ bool DiTerminal::define_graphics_viewport(uint8_t character) {
 bool DiTerminal::define_text_viewport(uint8_t character) {
   m_incoming_command[m_num_command_chars++] = character;
   if (m_num_command_chars >= 5) {
-      int8_t left = get_param_8(1);
-      int8_t bottom = get_param_8(2);
-      int8_t right = get_param_8(3);
-      int8_t top = get_param_8(4);
+      uint8_t left = get_param_8(1);
+      uint8_t bottom = get_param_8(2);
+      uint8_t right = get_param_8(3);
+      uint8_t top = get_param_8(4);
       m_num_command_chars = 0;
       return true;
   }
@@ -428,7 +438,7 @@ VDU 23, 0, &C4, 1:	Draw Border
 */
 bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
   m_incoming_command[m_num_command_chars++] = character;
-  if (m_num_command_chars >= 2 && get_param_8[1] == 30) {
+  if (m_num_command_chars >= 2 && get_param_8(1) == 30) {
     return handle_otf_cmd();
   }
   if (m_num_command_chars >= 3) {
@@ -437,7 +447,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
       // VDU 23, 0, &80, b: General poll
       case VDP_GP: /*0x80*/ {
         if (m_num_command_chars == 4) {
-          int8_t echo = get_param_8(3);
+          uint8_t echo = get_param_8(3);
           send_general_poll(echo);
           m_num_command_chars = 0;
           return true;
@@ -447,7 +457,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
       // VDU 23, 0, &81, n: Set the keyboard locale (0=UK, 1=US, etc)
       case VDP_KEYCODE: /*0x81*/ {
         if (m_num_command_chars == 4) {
-          int8_t region = get_param_8(3);
+          uint8_t region = get_param_8(3);
           vdu_sys_video_kblayout(region);
           m_num_command_chars = 0;
           return true;
@@ -578,7 +588,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 0, p; e: Enable/disable primitive
       case 0: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 6) {
           m_num_command_chars = 0;
           return true;
         }
@@ -586,7 +596,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 1, p; x; y;: Move primitive: absolute
       case 1: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 9) {
           m_num_command_chars = 0;
           return true;
         }
@@ -594,7 +604,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 2, p; x; y;: Move primitive: relative
       case 2: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 9) {
           m_num_command_chars = 0;
           return true;
         }
@@ -602,7 +612,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 3, p;: Delete primitive
       case 3: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 5) {
           m_num_command_chars = 0;
           return true;
         }
@@ -610,7 +620,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 4, p; x; y; c: Create primitive: Pixel
       case 4: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 10) {
           m_num_command_chars = 0;
           return true;
         }
@@ -618,7 +628,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 5, p; x1; y1; x2; y2; c: Create primitive: Line
       case 5: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 14) {
           m_num_command_chars = 0;
           return true;
         }
@@ -626,7 +636,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 6, p; x1; y1; x2; y2; x3; y3; c: Create primitive: Triangle Outline
       case 6: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 18) {
           m_num_command_chars = 0;
           return true;
         }
@@ -634,7 +644,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 7, p; x1; y1; x2; y2; x3; y3; c: Create primitive: Solid Triangle
       case 7: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 18) {
           m_num_command_chars = 0;
           return true;
         }
@@ -642,7 +652,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 8, p; x; y; w; h; c: Create primitive: Rectangle Outline
       case 8: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 14) {
           m_num_command_chars = 0;
           return true;
         }
@@ -650,7 +660,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 9, p; x; y; w; h; c: Create primitive: Solid Rectangle
       case 9: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 14) {
           m_num_command_chars = 0;
           return true;
         }
@@ -658,7 +668,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 10, p; x; y; w; h; c: Create primitive: Ellipse Outline
       case 10: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 14) {
           m_num_command_chars = 0;
           return true;
         }
@@ -666,7 +676,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 11, p; x; y; w; h; c: Create primitive: Solid Ellipse
       case 11: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 14) {
           m_num_command_chars = 0;
           return true;
         }
@@ -674,7 +684,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 12, p; bitmaps, cols; rows; w; h; hs: Create primitive: Tile Map
       case 12: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 15) {
           m_num_command_chars = 0;
           return true;
         }
@@ -682,7 +692,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 13, p; w; h; hs, vs: Create primitive: Solid Bitmap
       case 13: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 11) {
           m_num_command_chars = 0;
           return true;
         }
@@ -690,7 +700,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 14, p; w; h; hs, vs: Create primitive: Masked Bitmap
       case 14: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 11) {
           m_num_command_chars = 0;
           return true;
         }
@@ -698,7 +708,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 15, p; w; h; hs, vs, c: Create primitive: Transparent Bitmap
       case 15: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 12) {
           m_num_command_chars = 0;
           return true;
         }
@@ -706,7 +716,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 16, p; x; y;: Create primitive: Group
       case 16: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 9) {
           m_num_command_chars = 0;
           return true;
         }
@@ -714,7 +724,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 17, p; x; y; s; h;: Move & slice bitmap: absolute
       case 17: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 13) {
           m_num_command_chars = 0;
           return true;
         }
@@ -722,7 +732,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 18, p; x; y; s; h;: Move & slice bitmap: relative
       case 18: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 13) {
           m_num_command_chars = 0;
           return true;
         }
@@ -730,7 +740,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 19, p; x; y; c: Set bitmap pixel
       case 19: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 10) {
           m_num_command_chars = 0;
           return true;
         }
@@ -738,7 +748,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 20, p; x; y; n; c0, c1, c2, ...: Set bitmap pixels
       case 20: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars >= 11) {
           m_num_command_chars = 0;
           return true;
         }
@@ -746,7 +756,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 21, p; g;: Add primitive to group
       case 21: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 7) {
           m_num_command_chars = 0;
           return true;
         }
@@ -754,7 +764,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 22, p; g;: Remove primitive from group
       case 22: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 7) {
           m_num_command_chars = 0;
           return true;
         }
@@ -762,7 +772,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 23, p; col, row, bi: Set bitmap index for tile in tile map
       case 23: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 8) {
           m_num_command_chars = 0;
           return true;
         }
@@ -770,7 +780,7 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 24, p; bi, x; y; c: Set bitmap pixel in tile map
       case 24: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars == 11) {
           m_num_command_chars = 0;
           return true;
         }
@@ -778,21 +788,22 @@ bool DiTerminal::handle_otf_cmd() {
 
       // VDU 23, 30, 25, p; bi, x; y; n; c0, c1, c2, ...: Set bitmap pixels in tile map
       case 25: {
-        if (m_num_command_chars == ) {
+        if (m_num_command_chars >= 12) {
           m_num_command_chars = 0;
           return true;
         }
       } break;
     }
-    return false;
+  }
+  return false;
 }
 
-int8_t DiTerminal::get_param_8(uint32_t index) {
+uint8_t DiTerminal::get_param_8(uint32_t index) {
   return m_incoming_command[index];
 }
 
 int16_t DiTerminal::get_param_16(uint32_t index) {
-  return (((int16_t)m_incoming_command[index+1]) << 8) | m_incoming_command[index];
+  return (int16_t)((((uint16_t)m_incoming_command[index+1]) << 8) | m_incoming_command[index]);
 }
 
 // Send the cursor position back to MOS
@@ -800,7 +811,7 @@ int16_t DiTerminal::get_param_16(uint32_t index) {
 void DiTerminal::send_cursor_position() {
 	byte packet[] = {
 		(byte) m_current_column,
-		(byte) m_current_row & 0xFF,
+		(byte) m_current_row,
 	};
 	send_packet(PACKET_CURSOR, sizeof packet, packet);	
 }

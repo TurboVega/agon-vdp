@@ -76,25 +76,25 @@ class DiTerminal: public DiTileMap {
   // display. If the character is non-printable, or part of a VDU command, it will
   // be treated accordingly. This function returns true if the character was fully
   // processed, and false otherwise.
-  bool process_character(int8_t character);
+  bool process_character(uint8_t character);
 
   // Process an incoming string, which could be printable data and/or part of some
   // VDU command(s). This function calls process_character(), for each character
   // in the given string. The string is null-terminated.
-  void process_string(const int8_t* string);
+  void process_string(const uint8_t* string);
 
   // Write a character at the current character position. This may cause scrolling
   // BEFORE writing the character (not after), if the current character position is
   // off the visible terminal area. This function will advance the current character
   // position. The character is treated as a tile bitmap index, and is not interpreted
   // as a terminal command of any kind.
-  void write_character(int8_t character);
+  void write_character(uint8_t character);
 
   // Set the bitmap index to use to draw a character at a specific row and column.
   // This function does not cause scrolling, nor does it change the current
   // character position. The character is treated as a tile bitmap index, and is not
   // interpreted as a terminal command of any kind.
-  void write_character(int32_t column, int32_t row, int8_t character);
+  void write_character(int32_t column, int32_t row, uint8_t character);
 
   // Read the character code at the current character position. If the current position
   // is outside of the terminal display, this function returns zero.
@@ -121,6 +121,8 @@ class DiTerminal: public DiTileMap {
   void move_cursor_boln();
   void do_backspace();
   bool handle_udg_sys_cmd(uint8_t character);
+  bool handle_otf_cmd();
+  bool ignore_cmd(uint8_t character, uint8_t len);
   bool define_graphics_viewport(uint8_t character);
   bool define_text_viewport(uint8_t character);
   void report(uint8_t character);
@@ -133,7 +135,7 @@ class DiTerminal: public DiTileMap {
   void send_screen_pixel(int32_t x, int32_t y);
   void send_mode_information();
   void send_general_poll(uint8_t b);
-  int8_t get_param_8(uint32_t index);
+  uint8_t get_param_8(uint32_t index);
   int16_t get_param_16(uint32_t index);
 
   protected:
