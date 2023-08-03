@@ -28,7 +28,7 @@
 #include "di_tile_map.h"
 
 #define INCOMING_DATA_BUFFER_SIZE  2048
-#define INCOMING_COMMAND_SIZE      20
+#define INCOMING_COMMAND_SIZE      24
 
 class DiTerminal: public DiTileMap {
   public:

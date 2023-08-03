@@ -428,9 +428,13 @@ VDU 23, 0, &C4, 1:	Draw Border
 */
 bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
   m_incoming_command[m_num_command_chars++] = character;
+  if (m_num_command_chars >= 2 && get_param_8[1] == 30) {
+    return handle_otf_cmd();
+  }
   if (m_num_command_chars >= 3) {
     switch (m_incoming_command[2]) {
 
+      // VDU 23, 0, &80, b: General poll
       case VDP_GP: /*0x80*/ {
         if (m_num_command_chars == 4) {
           int8_t echo = get_param_8(3);
@@ -440,6 +444,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &81, n: Set the keyboard locale (0=UK, 1=US, etc)
       case VDP_KEYCODE: /*0x81*/ {
         if (m_num_command_chars == 4) {
           int8_t region = get_param_8(3);
@@ -449,6 +454,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &82: Request cursor position
       case VDP_CURSOR: /*0x82*/ {
         if (m_num_command_chars == 3) {
           send_cursor_position();
@@ -457,6 +463,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &83, x; y;: Get ASCII code of character at character position x, y
       case VDP_SCRCHAR: /*0x83*/ {
         if (m_num_command_chars == 7) {
           int32_t x = get_param_16(3);
@@ -467,6 +474,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &84, x; y;: Get colour of pixel at pixel position x, y
       case VDP_SCRPIXEL: /*0x84*/ {
         if (m_num_command_chars == 7) {
           int32_t x = get_param_16(3);
@@ -477,6 +485,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &85, channel, waveform, volume, freq; duration;: Send a note to the VDP audio driver
       case VDP_AUDIO: /*0x85*/ {
         if (m_num_command_chars == 10) {
           m_num_command_chars = 0;
@@ -484,6 +493,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &86: Fetch the screen dimensions
       case VDP_MODE: /*0x86*/ {
         if (m_num_command_chars == 3) {
           send_mode_information();
@@ -492,6 +502,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &87: RTC control (Requires MOS 1.03 or above)
       case VDP_RTC: /*0x87*/ {
         if (m_num_command_chars == 3) {
           m_num_command_chars = 0;
@@ -499,6 +510,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &88, delay; rate; led: Keyboard Control (Requires MOS 1.03 or above)
       case VDP_KEYSTATE: /*0x88*/ {
         if (m_num_command_chars == 8) {
           sendKeyboardState();
@@ -507,6 +519,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &C0, n: Turn logical screen scaling on and off, where 1=on and 0=off (Requires MOS 1.03 or above)
       case VDP_LOGICALCOORDS: /*0xC0*/ {
         if (m_num_command_chars == 4) {
           // This command is ignored; this mode always uses regular coordinates.
@@ -515,6 +528,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      // VDU 23, 0, &FF: Switch to terminal mode for CP/M (This will disable keyboard entry in BBC BASIC/MOS)
       case VDP_TERMINALMODE: /*0xFF*/ {
         if (m_num_command_chars == 3) {
           // This command is ignored; this mode is terminal mode.
@@ -526,6 +540,251 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
     }
   }
   return false;
+}
+
+/*
+800x600x64 On-the-Fly Command Set:
+VDU 23, 30, 0, p; e:                             Enable/disable primitive
+VDU 23, 30, 1, p; x; y;:                         Move primitive: absolute
+VDU 23, 30, 2, p; x; y;:                         Move primitive: relative
+VDU 23, 30, 3, p;:                               Delete primitive
+VDU 23, 30, 4, p; x; y; c:                       Create primitive: Pixel
+VDU 23, 30, 5, p; x1; y1; x2; y2; c:             Create primitive: Line
+VDU 23, 30, 6, p; x1; y1; x2; y2; x3; y3; c:     Create primitive: Triangle Outline
+VDU 23, 30, 7, p; x1; y1; x2; y2; x3; y3; c:     Create primitive: Solid Triangle
+VDU 23, 30, 8, p; x; y; w; h; c:                 Create primitive: Rectangle Outline
+VDU 23, 30, 9, p; x; y; w; h; c:                 Create primitive: Solid Rectangle
+VDU 23, 30, 10, p; x; y; w; h; c:                Create primitive: Ellipse Outline
+VDU 23, 30, 11, p; x; y; w; h; c:                Create primitive: Solid Ellipse
+VDU 23, 30, 12, p; bitmaps, cols; rows; w; h; hs: Create primitive: Tile Map
+VDU 23, 30, 13, p; w; h; hs, vs:                 Create primitive: Solid Bitmap
+VDU 23, 30, 14, p; w; h; hs, vs:                 Create primitive: Masked Bitmap
+VDU 23, 30, 15, p; w; h; hs, vs, c:              Create primitive: Transparent Bitmap
+VDU 23, 30, 16, p; x; y;:                        Create primitive: Group
+VDU 23, 30, 17, p; x; y; s; h;:                  Move & slice bitmap: absolute
+VDU 23, 30, 18, p; x; y; s; h;:                  Move & slice bitmap: relative
+VDU 23, 30, 19, p; x; y; c:                      Set bitmap pixel
+VDU 23, 30, 20, p; x; y; n; c0, c1, c2, ...:     Set bitmap pixels
+VDU 23, 30, 21, p; g;:                           Add primitive to group
+VDU 23, 30, 22, p; g;:                           Remove primitive from group
+VDU 23, 30, 23, p; col, row, bi:                 Set bitmap index for tile in tile map
+VDU 23, 30, 24, p; bi, x; y; c:                  Set bitmap pixel in tile map
+VDU 23, 30, 25, p; bi, x; y; n; c0, c1, c2, ...: Set bitmap pixels in tile map
+*/
+bool DiTerminal::handle_otf_cmd() {
+  if (m_num_command_chars >= 5) {
+    int16_t p = get_param_16(3); // get primitive index number
+    switch (m_incoming_command[2]) {
+
+      // VDU 23, 30, 0, p; e: Enable/disable primitive
+      case 0: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 1, p; x; y;: Move primitive: absolute
+      case 1: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 2, p; x; y;: Move primitive: relative
+      case 2: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 3, p;: Delete primitive
+      case 3: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 4, p; x; y; c: Create primitive: Pixel
+      case 4: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 5, p; x1; y1; x2; y2; c: Create primitive: Line
+      case 5: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 6, p; x1; y1; x2; y2; x3; y3; c: Create primitive: Triangle Outline
+      case 6: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 7, p; x1; y1; x2; y2; x3; y3; c: Create primitive: Solid Triangle
+      case 7: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 8, p; x; y; w; h; c: Create primitive: Rectangle Outline
+      case 8: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 9, p; x; y; w; h; c: Create primitive: Solid Rectangle
+      case 9: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 10, p; x; y; w; h; c: Create primitive: Ellipse Outline
+      case 10: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 11, p; x; y; w; h; c: Create primitive: Solid Ellipse
+      case 11: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 12, p; bitmaps, cols; rows; w; h; hs: Create primitive: Tile Map
+      case 12: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 13, p; w; h; hs, vs: Create primitive: Solid Bitmap
+      case 13: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 14, p; w; h; hs, vs: Create primitive: Masked Bitmap
+      case 14: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 15, p; w; h; hs, vs, c: Create primitive: Transparent Bitmap
+      case 15: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 16, p; x; y;: Create primitive: Group
+      case 16: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 17, p; x; y; s; h;: Move & slice bitmap: absolute
+      case 17: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 18, p; x; y; s; h;: Move & slice bitmap: relative
+      case 18: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 19, p; x; y; c: Set bitmap pixel
+      case 19: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 20, p; x; y; n; c0, c1, c2, ...: Set bitmap pixels
+      case 20: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 21, p; g;: Add primitive to group
+      case 21: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 22, p; g;: Remove primitive from group
+      case 22: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 23, p; col, row, bi: Set bitmap index for tile in tile map
+      case 23: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 24, p; bi, x; y; c: Set bitmap pixel in tile map
+      case 24: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 25, p; bi, x; y; n; c0, c1, c2, ...: Set bitmap pixels in tile map
+      case 25: {
+        if (m_num_command_chars == ) {
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+    }
+    return false;
 }
 
 int8_t DiTerminal::get_param_8(uint32_t index) {
