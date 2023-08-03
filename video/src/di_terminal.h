@@ -121,6 +121,8 @@ class DiTerminal: public DiTileMap {
   void move_cursor_boln();
   void do_backspace();
   bool handle_udg_sys_cmd(uint8_t character);
+  bool define_graphics_viewport(uint8_t character);
+  bool define_text_viewport(uint8_t character);
   void report(uint8_t character);
   static uint8_t to_hex(uint8_t value);
   uint8_t peek_into_buffer();

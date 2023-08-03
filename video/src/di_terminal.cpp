@@ -59,7 +59,7 @@ DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint32_t codes,
   terminalMode = true; // this mode is terminal mode
 
   // Copy built-in font pixel data to the bitmaps for this terminal.
-  for (int b = 0; b < 128; b++) {
+  for (int b = 0; b < codes; b++) {
     uint32_t char_start = (uint32_t)b * 8;
     for (int y = 0; y < 8; y++) {
       uint8_t pixels = font[char_start+y];
@@ -166,13 +166,13 @@ bool DiTerminal::process_character(int8_t character) {
       case 0x13: report(character); break; // define logical color (palette)
       case 0x16: report(character); break; // set vdu mode
       case 0x17: return handle_udg_sys_cmd(character); // handle UDG/system command
-      case 0x18: report(character); break; // define graphics viewport
+      case 0x18: return define_graphics_viewport(character);
       case 0x19: report(character); break; // vdu plot
-      case 0x1A: report(character); break; // reset text and graphic viewports
-      case 0x1C: report(character); break; // define text viewport
+      case 0x1A: clear_screen(); break; // reset text and graphic viewports
+      case 0x1C: return define_text_viewport(character);
       case 0x1D: report(character); break; // set graphics origin
       case 0x1E: move_cursor_home(); break;
-      case 0x1F: return move_cursor_tab(character); break;
+      case 0x1F: return move_cursor_tab(character);
       case 0x7F: do_backspace(); break;
       default: report(character); break;
     }
@@ -319,17 +319,37 @@ void DiTerminal::move_cursor_home() {
 bool DiTerminal::move_cursor_tab(uint8_t character) {
   m_incoming_command[m_num_command_chars++] = character;
   if (m_num_command_chars >= 3) {
-    switch (m_incoming_command[0]) {
-      case 0x1F: {
-        if (m_num_command_chars == 3) {
-          int8_t x = get_param_8(1);
-          int8_t y = get_param_8(2);
-          set_position(x, y);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-    }
+      int8_t x = get_param_8(1);
+      int8_t y = get_param_8(2);
+      set_position(x, y);
+      m_num_command_chars = 0;
+      return true;
+  }
+  return false;
+}
+
+bool DiTerminal::define_graphics_viewport(uint8_t character) {
+  m_incoming_command[m_num_command_chars++] = character;
+  if (m_num_command_chars >= 9) {
+      int16_t left = get_param_16(1);
+      int16_t bottom = get_param_16(3);
+      int16_t right = get_param_16(5);
+      int16_t top = get_param_16(7);
+      m_num_command_chars = 0;
+      return true;
+  }
+  return false;
+}
+
+bool DiTerminal::define_text_viewport(uint8_t character) {
+  m_incoming_command[m_num_command_chars++] = character;
+  if (m_num_command_chars >= 5) {
+      int8_t left = get_param_8(1);
+      int8_t bottom = get_param_8(2);
+      int8_t right = get_param_8(3);
+      int8_t top = get_param_8(4);
+      m_num_command_chars = 0;
+      return true;
   }
   return false;
 }

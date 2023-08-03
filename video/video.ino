@@ -163,12 +163,13 @@ void setup() {
 	PS2Controller.keyboard()->setTypematicRateAndDelay(kbRepeatRate, kbRepeatDelay);
 	init_audio();
 	copy_font();
-	//set_mode(1);
+	set_mode(1);
+	//boot_screen();
 
     // Start in video mode 19 (800x600x64);
     videoMode = 19;
 	DiManager manager;
-	di_terminal = manager.create_terminal(0, 0, 128, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
+	di_terminal = manager.create_terminal(0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
 	boot_screen();
 	manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
 	manager.set_on_lines_painted_cb(&on_lines_painted);
