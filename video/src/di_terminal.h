@@ -117,7 +117,7 @@ class DiTerminal: public DiTileMap {
   void move_cursor_down();
   void move_cursor_up();
   void move_cursor_home();
-  void move_cursor_tab();
+  bool move_cursor_tab(uint8_t character);
   void move_cursor_boln();
   void do_backspace();
   bool handle_udg_sys_cmd(uint8_t character);

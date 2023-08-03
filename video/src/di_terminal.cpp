@@ -139,7 +139,11 @@ VDU 127: Backspace
 */
 bool DiTerminal::process_character(int8_t character) {
   if (m_num_command_chars) {
-    return handle_udg_sys_cmd(character);
+    switch (m_incoming_command[0]) {
+      case 0x17: return handle_udg_sys_cmd(character); // handle UDG/system command
+      case 0x1F: return move_cursor_tab(character);
+    }
+    return false;
   } else if (character >= 0x20 && character != 0x7F) {
     // printable character
     write_character(character);
@@ -168,7 +172,7 @@ bool DiTerminal::process_character(int8_t character) {
       case 0x1C: report(character); break; // define text viewport
       case 0x1D: report(character); break; // set graphics origin
       case 0x1E: move_cursor_home(); break;
-      case 0x1F: move_cursor_tab(); break;
+      case 0x1F: return move_cursor_tab(character); break;
       case 0x7F: do_backspace(); break;
       default: report(character); break;
     }
@@ -275,6 +279,8 @@ void DiTerminal::move_text(int32_t column, int32_t row, int32_t columns, int32_t
 
 void DiTerminal::clear_screen() {
   erase_text(0, 0, m_columns, m_rows);
+  m_current_column = 0;
+  m_current_row = 0;
 }
 
 void DiTerminal::move_cursor_left() {
@@ -310,11 +316,22 @@ void DiTerminal::move_cursor_home() {
   m_current_column = 0;
 }
 
-void DiTerminal::move_cursor_tab() {
-  int32_t tab = (m_current_column & 0x3) + 4;
-  if (tab < m_columns) {
-    m_current_column = tab;
+bool DiTerminal::move_cursor_tab(uint8_t character) {
+  m_incoming_command[m_num_command_chars++] = character;
+  if (m_num_command_chars >= 3) {
+    switch (m_incoming_command[0]) {
+      case 0x1F: {
+        if (m_num_command_chars == 3) {
+          int8_t x = get_param_8(1);
+          int8_t y = get_param_8(2);
+          set_position(x, y);
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+    }
   }
+  return false;
 }
 
 void DiTerminal::move_cursor_boln() {
