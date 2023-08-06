@@ -26,11 +26,14 @@
 #pragma once
 #include "di_primitive.h"
 
-class DiHorizontalLine: public DiPrimitiveXYWC {
+class DiHorizontalLine: public DiPrimitive {
   public:
+  // Construct a horizontal line. This requires calling init_params() afterward.
+  DiHorizontalLine();
+  
   // The line is horizontal, covering the given number of pixels. The upper
   // 2 bits of the color must be zeros.
-  DiHorizontalLine(int32_t x, int32_t y, uint32_t width, uint8_t color);
+  void init_params(int32_t x, int32_t y, uint32_t width, uint8_t color);
 
   virtual void IRAM_ATTR paint(const DiPaintParams *params);
 };

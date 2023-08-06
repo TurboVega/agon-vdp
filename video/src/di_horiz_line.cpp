@@ -29,12 +29,19 @@ extern "C" {
 IRAM_ATTR void DiHorizontalLine_paint(void* this_ptr, const DiPaintParams *params);
 }
 
-DiHorizontalLine::DiHorizontalLine(int32_t x, int32_t y, uint32_t width, uint8_t color)
-  : DiPrimitiveXYWC(x, y, width, color) {
-  m_color |= (((uint32_t)color) << 24) |
-      (((uint32_t)color) << 16) |
-      (((uint32_t)color) << 8) |
-      SYNCS_OFF_X4;
+DiHorizontalLine::DiHorizontalLine() {}
+
+void DiHorizontalLine::init_params(int32_t x, int32_t y, uint32_t width, uint8_t color) {
+  m_rel_x = x;
+  m_rel_y = y;
+  m_width = width;
+  m_height = 1;
+  color &= 0x3F; // remove any alpha bits
+  m_color =
+    (((uint32_t)color) << 24) |
+    (((uint32_t)color) << 16) |
+    (((uint32_t)color) << 8) |
+    ((uint32_t)color) | SYNCS_OFF_X4;
 }
 
 void IRAM_ATTR DiHorizontalLine::paint(const DiPaintParams *params) {

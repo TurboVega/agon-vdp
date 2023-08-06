@@ -29,17 +29,20 @@
 #include "di_primitive.h"
 #include "di_line_pieces.h"
 
-class DiGeneralLine: public DiPrimitiveXYWHC {
+class DiGeneralLine: public DiPrimitive {
   public:
   DiLinePieces m_line_pieces; // determines how pixels on each scan line are written
 
+  // Construct a general line. This requires calling init_params() afterward.
+  DiGeneralLine();
+
   // This function constructs a line from two points. The upper 2 bits of
   // the color must be zeros.
-  DiGeneralLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color);
+  void init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color);
 
   // This function constructs a solid (filled) triangle from three points. The
   // upper 2 bits of the color must be zeros.
-  DiGeneralLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color);
+  void init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color);
 
   virtual void IRAM_ATTR paint(const DiPaintParams *params);
 };

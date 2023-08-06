@@ -41,11 +41,12 @@ IRAM_ATTR void DiTileMap_paint(void* this_ptr, const DiPaintParams *params);
 
 DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
                       uint32_t bitmaps, uint32_t columns, uint32_t rows,
-                      uint32_t width, uint32_t height, bool hscroll):
-  DiPrimitiveXYWH(0, 0, width * columns, height * rows),
-  m_bitmaps(bitmaps),
-  m_columns(columns),
-  m_rows(rows) {
+                      uint32_t width, uint32_t height, bool hscroll) {
+  m_width = width * columns;
+  m_height = height * rows;
+  m_bitmaps = bitmaps;
+  m_rows = rows;
+  m_columns = columns;
   m_draw_words_per_line = (width + sizeof(uint32_t) - 1) / sizeof(uint32_t);
   m_words_per_line = m_draw_words_per_line + 2;
   m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
@@ -99,15 +100,6 @@ DiTileMap::~DiTileMap() {
   if (m_offsets) {
     delete [] m_offsets;
   }
-}
-
-void DiTileMap::set_position(int32_t x, int32_t y) {
-  //int32_t dx = x - m_x;
-  m_x = x;
-  //m_x_extent += dx;
-  //int32_t dy = y - m_y;
-  m_y = y;
-  //m_y_extent += dy;
 }
 
 void DiTileMap::set_pixel(int32_t bitmap, int32_t x, int32_t y, uint8_t color) { 

@@ -26,11 +26,14 @@
 #pragma once
 #include "di_primitive.h"
 
-class DiVerticalLine: public DiPrimitiveXYHC {
+class DiVerticalLine: public DiPrimitive {
   public:
+  // Construct a vertical line. This requires calling init_params() afterward.
+  DiVerticalLine();
+  
   // The line is vertical, covering the given number of pixels. The
   // upper 2 bits of the color must be zeros.
-  DiVerticalLine(int32_t x, int32_t y, uint32_t height, uint8_t color);
+  void init_params(int32_t x, int32_t y, uint32_t height, uint8_t color);
 
   virtual void IRAM_ATTR paint(const DiPaintParams *params);
 };

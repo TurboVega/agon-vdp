@@ -27,7 +27,6 @@
 #include <map>
 #include "rom/lldesc.h"
 #include "di_video_buffer.h"
-#include "di_primitive_group.h"
 #include "di_terminal.h"
 
 typedef void (*DiVoidCallback)();
@@ -50,8 +49,6 @@ class DiManager {
     DiTerminal* create_terminal(uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
                                 uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
 
-    //DiPrimitiveGroup* create_group();
-
     // Setup a callback for when the visible frame pixels have been sent to DMA,
     // and the vertical blanking time begins.
     void set_on_vertical_blank_cb(DiVoidCallback callback_fcn);
@@ -65,20 +62,20 @@ class DiManager {
     void IRAM_ATTR run();
 
     // Set the position of a top-level tile map.
-    void set_tile_map_position(DiTileMap* tile_map, int32_t x, int32_t y);
+    //void set_tile_map_position(DiTileMap* tile_map, int32_t x, int32_t y);
 
     protected:
     // Structures used to support DMA for video.
-    volatile lldesc_t *        m_dma_descriptor; // [DMA_TOTAL_DESCR]
-    volatile DiVideoBuffer *   m_video_buffer; // [NUM_ACTIVE_BUFFERS]
-    volatile DiVideoScanLine * m_front_porch;
-    volatile DiVideoBuffer *   m_vertical_sync;
-    volatile DiVideoScanLine * m_back_porch;
-    DiVoidCallback             m_on_vertical_blank_cb;
-    DiVoidCallback             m_on_lines_painted_cb;
+    volatile lldesc_t *         m_dma_descriptor; // [DMA_TOTAL_DESCR]
+    volatile DiVideoBuffer *    m_video_buffer; // [NUM_ACTIVE_BUFFERS]
+    volatile DiVideoScanLine *  m_front_porch;
+    volatile DiVideoBuffer *    m_vertical_sync;
+    volatile DiVideoScanLine *  m_back_porch;
+    DiVoidCallback              m_on_vertical_blank_cb;
+    DiVoidCallback              m_on_lines_painted_cb;
 
-    std::map<DiPrimitive*, bool> m_primitives; // Top-level primitives (which might include groups)
-    std::vector<DiPrimitive*> m_groups[NUM_VERTICAL_GROUPS]; // Vertical scan groups (for optimizing paint calls)
+    DiPrimitive *               m_primitives[MAX_NUM_PRIMITIVES]; // Indexes of array are primitive IDs
+    std::vector<DiPrimitive*>   m_groups[NUM_VERTICAL_GROUPS]; // Vertical scan groups (for optimizing paint calls)
 
     // Setup the DMA stuff.
     void initialize();
@@ -89,11 +86,11 @@ class DiManager {
     // Clear the primitive data, etc.
     void clear();
 
-    // Attach a top-level primitive to the manager. This could be a group (or not).
-    void add_primitive(DiPrimitive* prim);
+    // Add a primitive to the manager.
+    void add_primitive(DiPrimitive* prim, DiPrimitive* parent);
 
-    // Remove a top-level primitive from the manager.
-    void remove_primitive(DiPrimitive* prim);
+    // Delete a primitive from the manager.
+    void delete_primitive(DiPrimitive* prim);
 
     // Draw all primitives that belong to the active scan line group.
     void IRAM_ATTR draw_primitives(DiPaintParams* params);

@@ -41,24 +41,35 @@ static int32_t max3(int32_t a, int32_t b, int32_t c) {
   return MAX(m, c);
 }
 
-DiGeneralLine::DiGeneralLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color)
-  : DiPrimitiveXYWHC(MIN(x1,x2), MIN(y1,y2), MAX(x1,x2)-MIN(x1,x2)+1, MAX(y1,y2)-MIN(y1,y2)+1, color) {
+DiGeneralLine::DiGeneralLine() {}
+
+void DiGeneralLine::init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color) {
+  m_rel_x = MIN(x1,x2);
+  m_rel_y = MIN(y1,y2);
+  m_width = MAX(x1,x2) - m_rel_x + 1;
+  m_height = MAX(y1,y2) - m_rel_y + 1;
+
   m_color =
     (((uint32_t)color) << 24) |
     (((uint32_t)color) << 16) |
     (((uint32_t)color) << 8) |
-    ((uint32_t)color) | SYNCS_OFF;
+    ((uint32_t)color) | SYNCS_OFF_X4;
   
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2);
 }
 
-DiGeneralLine::DiGeneralLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color)
-  : DiPrimitiveXYWHC(min3(x1,x2,x3), min3(y1,y2,y3), max3(x1,x2,x3)-min3(x1,x2,x3)+1, max3(y1,y2,y3)-min3(y1,y2,y3)+1, color) {
+void DiGeneralLine::init_params(int32_t x1, int32_t y1,
+  int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color) {
+  m_rel_x = min3(x1,x2,x3);
+  m_rel_y = min3(y1,y2,y3);
+  m_width = max3(x1,x2,x3) - m_rel_x + 1;
+  m_height = max3(y1,y2,y3) - m_rel_y + 1;
+  color &= 0x3F; // remove any alpha bits
   m_color =
     (((uint32_t)color) << 24) |
     (((uint32_t)color) << 16) |
     (((uint32_t)color) << 8) |
-    ((uint32_t)color) | SYNCS_OFF;
+    ((uint32_t)color) | SYNCS_OFF_X4;
   
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2, x3, y3);
 }

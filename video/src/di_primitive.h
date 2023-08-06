@@ -59,6 +59,9 @@ class DiPrimitive {
   // Destroys an allocated RAM required by the primitive.
   virtual ~DiPrimitive();
 
+  // Initialize as a root primitive.
+  void init_root();
+
   // Set the ID of this primitive as defined by the BASIC application. This
   // ID is actually the index of the primitive in a table of pointers.
   void set_id(uint16_t id);
@@ -90,16 +93,30 @@ class DiPrimitive {
   // this primitive is based on the given viewport parameters and certain flags.
   void IRAM_ATTR compute_absolute_geometry(int32_t view_x, int32_t view_y, int32_t view_x_extent, int32_t view_y_extent);
 
+  // Gets various data members.
+  inline uint16_t get_id() { return m_id; }
+  inline uint8_t get_flags() { return m_flags; }
+  inline int32_t get_view_x() { return m_view_x; }
+  inline int32_t get_view_y() { return m_view_y; }
+  inline int32_t get_view_x_extent() { return m_view_x_extent; }
+  inline int32_t get_view_y_extent() { return m_view_y_extent; }
+  inline DiPrimitive* get_parent() { return m_parent; }
+  inline DiPrimitive* get_first_child() { return m_first_child; }
+  inline DiPrimitive* get_next_sibling() { return m_next_sibling; }
+
+  // Clear the pointers to children.
+  void clear_child_ptrs();
+
   protected:
   // Used to type-case some pointers. (Might be removed in future.)
   inline uint8_t* pixels(uint32_t* line) {
     return (uint8_t*)line;
   }
 
-  int32_t   m_view_x        // upper-left x coordinate of the enclosing viewport, relative to the screen
-  int32_t   m_view_y        // upper-left y coordinate of the enclosing viewport, relative to the screen
-  int32_t   m_view_x_extent // lower-right x coordinate plus 1, of the enclosing viewport
-  int32_t   m_view_y_extent // lower-right y coordinate plus 1, of the enclosing viewport
+  int32_t   m_view_x;       // upper-left x coordinate of the enclosing viewport, relative to the screen
+  int32_t   m_view_y;       // upper-left y coordinate of the enclosing viewport, relative to the screen
+  int32_t   m_view_x_extent; // lower-right x coordinate plus 1, of the enclosing viewport
+  int32_t   m_view_y_extent; // lower-right y coordinate plus 1, of the enclosing viewport
   int32_t   m_rel_x;        // upper-left x coordinate, relative to the parent
   int32_t   m_rel_y;        // upper-left y coordinate, relative to the parent
   int32_t   m_rel_dx;       // auto-delta-x as a 16-bit fraction, relative to the parent

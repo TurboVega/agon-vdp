@@ -29,13 +29,12 @@ extern "C" {
 IRAM_ATTR void DiSetPixel_paint(void* this_ptr, const DiPaintParams *params);
 }
 
-DiSetPixel::DiSetPixel() {
-  m_color = SYNCS_OFF;
-}
-
-DiSetPixel::DiSetPixel(int32_t x, int32_t y, uint8_t color)
-  : DiPrimitiveXYC(x, y, color) {
-  m_color |= SYNCS_OFF;
+DiSetPixel::DiSetPixel(int32_t x, int32_t y, uint8_t color) {
+  m_rel_x = x;
+  m_rel_y = y;
+  m_width = 1;
+  m_height = 1;
+  m_color = (color & 0x3F) | SYNCS_OFF;
 }
 
 void IRAM_ATTR DiSetPixel::paint(const DiPaintParams *params) {

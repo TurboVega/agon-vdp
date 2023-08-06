@@ -56,6 +56,14 @@ void default_on_lines_painted() {}
 DiManager::DiManager() {
   m_on_vertical_blank_cb = &default_on_vertical_blank;
   m_on_lines_painted_cb = &default_on_lines_painted;
+
+  // The root primitive covers the entire screen, and is not drawn.
+  // The application should define what the base layer of the screen
+  // is (e.g., solid rectangle, terminal, tile map, etc.).
+
+  DiPrimitive* root = new DiPrimitive;
+  root->init_root();
+  m_primitives[ROOT_PRIMITIVE_ID] = root;
 }
 
 DiManager::~DiManager() {
@@ -188,9 +196,12 @@ void DiManager::clear() {
         vp->clear();
     }
 
-    for (auto prim = m_primitives.begin(); prim != m_primitives.end(); ++prim) {
-      delete prim->first;
+    for (int i = FIRST_PRIMITIVE_ID; i <= LAST_PRIMITIVE_ID; i++) {
+      if (m_primitives[i]) {
+        delete m_primitives[i];
+      }
     }
+    m_primitives[ROOT_PRIMITIVE_ID]->clear_child_ptrs();
 
     heap_caps_free((void*)m_dma_descriptor);
     heap_caps_free((void*)m_video_buffer);
@@ -199,44 +210,66 @@ void DiManager::clear() {
     heap_caps_free((void*)m_back_porch);
 }
 
-void DiManager::add_primitive(DiPrimitive* prim) {
-    int32_t min_group, max_group;
-    prim->get_vertical_group_range(&min_group, &max_group);
-    for (int32_t g = min_group; g <= max_group; g++) {
-        m_groups[g].push_back(prim);
+void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
+    if (m_primitives[prim->get_id()]) {
+      delete m_primitives[prim->get_id()];
     }
-    m_primitives[prim] = true;
-}
 
-void DiManager::remove_primitive(DiPrimitive* prim) {
-  auto position = m_primitives.find(prim);
-  if (position != m_primitives.end()) {
-    m_primitives.erase(position);
+    parent->attach_child(prim);
+    while (parent != m_primitives[ROOT_PRIMITIVE_ID] && !(parent->get_flags() & PRIM_FLAG_CLIP_KIDS)) {
+      parent = parent->get_parent();
+    }
+    prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
+      parent->get_view_x_extent(), parent->get_view_y_extent());
 
-    int32_t min_group, max_group;
-    prim->get_vertical_group_range(&min_group, &max_group);
-    for (int32_t g = min_group; g <= max_group; g++) {
-      std::vector<DiPrimitive*> * vp = &m_groups[g];
-      auto position2 = std::find(vp->begin(), vp->end(), prim);
-      if (position2 != vp->end()) {
-        vp->erase(position2);
+    if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
+      int32_t min_group, max_group;
+      prim->get_vertical_group_range(min_group, max_group);
+      for (int32_t g = min_group; g <= max_group; g++) {
+          m_groups[g].push_back(prim);
       }
     }
 
+    m_primitives[prim->get_id()] = prim;
+}
+
+void DiManager::delete_primitive(DiPrimitive* prim) {
+  if (prim) {
+    if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
+      int32_t min_group, max_group;
+      prim->get_vertical_group_range(min_group, max_group);
+      for (int32_t g = min_group; g <= max_group; g++) {
+        std::vector<DiPrimitive*> * vp = &m_groups[g];
+        auto position2 = std::find(vp->begin(), vp->end(), prim);
+        if (position2 != vp->end()) {
+          vp->erase(position2);
+        }
+      }
+    }
+
+    prim->get_parent()->detach_child(prim);
+    DiPrimitive* child = prim->get_first_child();
+    while (child) {
+      DiPrimitive* next = child->get_next_sibling();
+      delete_primitive(child);
+      child = next;
+    }
+
+    m_primitives[prim->get_id()] = NULL;
     delete prim;
   }
 }
 
-void DiManager::set_tile_map_position(DiTileMap* tile_map, int32_t x, int32_t y) {
+/*void DiManager::set_tile_map_position(DiTileMap* tile_map, int32_t x, int32_t y) {
   tile_map->set_position(x, y);
   return;
   int32_t min_group1, max_group1;
-  tile_map->get_vertical_group_range(&min_group1, &max_group1);
+  tile_map->get_vertical_group_range(min_group1, max_group1);
 
   tile_map->set_position(x, y);
 
   int32_t min_group2, max_group2;
-  tile_map->get_vertical_group_range(&min_group2, &max_group2);
+  tile_map->get_vertical_group_range(min_group2, max_group2);
 
   for (int32_t g = min_group1; g <= max_group1; g++) {
     if (g < min_group2 || g > max_group2) {
@@ -256,11 +289,11 @@ void DiManager::set_tile_map_position(DiTileMap* tile_map, int32_t x, int32_t y)
       vp->push_back(tile_map);
     }
   }
-}
+}*/
 
 DiPrimitive* DiManager::create_point(int32_t x, int32_t y, uint8_t color) {
     DiPrimitive* prim = new DiSetPixel(x, y, color);
-    add_primitive(prim);
+    add_primitive(prim, m_primitives[ROOT_PRIMITIVE_ID]);
     return prim;
 }
 
@@ -270,57 +303,83 @@ DiPrimitive* DiManager::create_line(int32_t x1, int32_t y1, int32_t x2, int32_t 
         if (y1 == y2) {
             prim = new DiSetPixel(x1, y1, color);
         } else if (y1 < y2) {
-            prim = new DiVerticalLine(x1, y1, y2 - y1 + 1, color);
+            auto line = new DiVerticalLine();
+            line->init_params(x1, y1, y2 - y1 + 1, color);
+            prim = line;
         } else {
-            prim = new DiVerticalLine(x1, y2, y1 - y2 + 1, color);
+            auto line = new DiVerticalLine();
+            line->init_params(x1, y2, y1 - y2 + 1, color);
+            prim = line;
         }
     } else if (x1 < x2) {
         if (y1 == y2) {
-            prim = new DiHorizontalLine(x1, y1, x2 - x1 + 1, color);
+            auto line = new DiHorizontalLine();
+            line->init_params(x1, y1, x2 - x1 + 1, color);
+            prim = line;
         } else if (y1 < y2) {
             if (y2 - y1 == x2 - x1) {
-                prim = new DiDiagonalRightLine(x1, y1, x2 - x1 + 1, color);
+                auto line = new DiDiagonalRightLine();
+                line->init_params(x1, y1, x2 - x1 + 1, color);
+                prim = line;
             } else {
-                prim = new DiGeneralLine(x1, y1, x2, y2, color);
+                auto line = new DiGeneralLine();
+                line->init_params(x1, y1, x2, y2, color);
+                prim = line;
             }
         } else {
             if (y2 - y1 == x2 - x1) {
-                prim = new DiDiagonalLeftLine(x2, y1, x2 - x1 + 1, color);
+                auto line = new DiDiagonalLeftLine();
+                line->init_params(x2, y1, x2 - x1 + 1, color);
+                prim = line;
             } else {
-                prim = new DiGeneralLine(x1, y1, x2, y2, color);
+                auto line = new DiGeneralLine();
+                line->init_params(x1, y1, x2, y2, color);
+                prim = line;
             }
         }
     } else {
         if (y1 == y2) {
-            prim = new DiHorizontalLine(x2, y1, x1 - x2 + 1, color);
+            auto line = new DiHorizontalLine();
+            line->init_params(x2, y1, x1 - x2 + 1, color);
+            prim = line;
         } else if (y1 < y2) {
             if (y2 - y1 == x1 - x2) {
-                prim = new DiDiagonalLeftLine(x1, y1, x1 - x2 + 1, color);
+                auto line = new DiDiagonalLeftLine();
+                line->init_params(x1, y1, x1 - x2 + 1, color);
+                prim = line;
             } else {
-                prim = new DiGeneralLine(x1, y1, x2, y2, color);
+                auto line = new DiGeneralLine();
+                line->init_params(x1, y1, x2, y2, color);
+                prim = line;
             }
         } else {
             if (y2 - y1 == x1 - x2) {
-                prim = new DiDiagonalRightLine(x2, y1, x1 - x2 + 1, color);
+                auto line = new DiDiagonalRightLine();
+                line->init_params(x2, y1, x1 - x2 + 1, color);
+                prim = line;
             } else {
-                prim = new DiGeneralLine(x1, y1, x2, y2, color);
+                auto line = new DiGeneralLine();
+                line->init_params(x1, y1, x2, y2, color);
+                prim = line;
             }
         }
     }
 
-    add_primitive(prim);
+    add_primitive(prim, m_primitives[ROOT_PRIMITIVE_ID]);
     return prim;
 }
 
 DiPrimitive* DiManager::create_solid_rectangle(int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
-    DiPrimitive* prim = new DiSolidRectangle(x, y, width, height, color);
-    add_primitive(prim);
+    auto prim = new DiSolidRectangle();
+    prim->init_params(x, y, width, height, color);
+    add_primitive(prim, m_primitives[ROOT_PRIMITIVE_ID]);
     return prim;
 }
 
 DiPrimitive* DiManager::create_triangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color) {
-    DiPrimitive* prim = new DiGeneralLine(x1, y1, x2, y2, x3, y3, color);
-    add_primitive(prim);
+    auto prim = new DiGeneralLine();
+    prim->init_params(x1, y1, x2, y2, x3, y3, color);
+    add_primitive(prim, m_primitives[ROOT_PRIMITIVE_ID]);
     return prim;
 }
 
@@ -329,22 +388,16 @@ DiTileMap* DiManager::create_tile_map(int32_t screen_width, int32_t screen_heigh
             uint32_t width, uint32_t height, bool hscroll) {
     DiTileMap* tile_map =
       new DiTileMap(screen_width, screen_height, bitmaps, columns, rows, width, height, hscroll);
-    add_primitive(tile_map);
+    add_primitive(tile_map, m_primitives[ROOT_PRIMITIVE_ID]);
     return tile_map;
 }
 
 DiTerminal* DiManager::create_terminal(uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
                             uint8_t fg_color, uint8_t bg_color, const uint8_t* font) {
     DiTerminal* terminal = new DiTerminal(x, y, codes, columns, rows, fg_color, bg_color, font);
-    add_primitive(terminal);
+    add_primitive(terminal, m_primitives[ROOT_PRIMITIVE_ID]);
     return terminal;
 }
-
-//DiPrimitiveGroup* DiManager::create_group() {
-//  DiPrimitiveGroup* grp = new DiPrimitiveGroup();
-//  add_primitive(grp);
-//  return grp;
-//}
 
 void IRAM_ATTR DiManager::run() {
   initialize();

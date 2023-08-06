@@ -34,8 +34,41 @@
 #pragma once
 #include "di_primitive.h"
 
-class DiTileMap: public DiPrimitiveXYWH {
+class DiTileMap: public DiPrimitive {
   public:
+  // Construct a tile map. This will allocate RAM to contain the bitmap data for each tile
+  // (e.g., font glyph pixels), plus the tile indexes themselves (e.g., font character codes).
+  //
+  // Example:
+  // DiManager manager;
+  // DiTileMap* tile_map = manager.create_tile_map(800, 600, 256, 100, 77, 8, 8, false);
+  //
+  DiTileMap(uint32_t screen_width, uint32_t screen_height,
+            uint32_t bitmaps, uint32_t columns, uint32_t rows,
+            uint32_t width, uint32_t height, bool hscroll);
+
+  // Destroy a tile map, including its allocated data.
+  virtual ~DiTileMap();
+
+  // Save the pixel value of a particular pixel in a specific tile bitmap. A tile bitmap
+  // may appear many times on the screen, based on the use of the bitmap index.
+  // Use this function when the tile map should not support horizontal smooth scrolling.
+  void set_pixel(int32_t bitmap, int32_t x, int32_t y, uint8_t color);
+
+  // Save the pixel value of a particular pixel in a specific tile bitmap. A tile bitmap
+  // may appear many times on the screen, based on the use of the bitmap index.
+  // Use this function when the tile map should support horizontal smooth scrolling.
+  void set_pixel_hscroll(int32_t bitmap, int32_t x, int32_t y, uint8_t color);
+
+  // Set the bitmap index to use to draw a tile at a specific row and column.
+  void set_tile(int32_t column, int32_t row, int32_t bitmap);
+
+  // Get the bitmap index presently at the given row and column.
+  uint8_t get_tile(int32_t column, int32_t row);
+
+  virtual void IRAM_ATTR paint(const DiPaintParams *params);
+
+  protected:
   uint32_t m_bitmaps;
   uint32_t m_columns;
   uint32_t m_rows;
@@ -59,40 +92,5 @@ class DiTileMap: public DiPrimitiveXYWH {
   uint32_t** m_tiles;
   uint32_t* m_pixels;
   uint32_t* m_offsets;
-
-  // Construct a tile map. This will allocate RAM to contain the bitmap data for each tile
-  // (e.g., font glyph pixels), plus the tile indexes themselves (e.g., font character codes).
-  //
-  // Example:
-  // DiManager manager;
-  // DiTileMap* tile_map = manager.create_tile_map(800, 600, 256, 100, 77, 8, 8, false);
-  //
-  DiTileMap(uint32_t screen_width, uint32_t screen_height,
-            uint32_t bitmaps, uint32_t columns, uint32_t rows,
-            uint32_t width, uint32_t height, bool hscroll);
-
-  // Destroy a tile map, including its allocated data.
-  virtual ~DiTileMap();
-
-  // Set the screen position of the tile map (i.e., scroll it).
-  void set_position(int32_t x, int32_t y);
-
-  // Save the pixel value of a particular pixel in a specific tile bitmap. A tile bitmap
-  // may appear many times on the screen, based on the use of the bitmap index.
-  // Use this function when the tile map should not support horizontal smooth scrolling.
-  void set_pixel(int32_t bitmap, int32_t x, int32_t y, uint8_t color);
-
-  // Save the pixel value of a particular pixel in a specific tile bitmap. A tile bitmap
-  // may appear many times on the screen, based on the use of the bitmap index.
-  // Use this function when the tile map should support horizontal smooth scrolling.
-  void set_pixel_hscroll(int32_t bitmap, int32_t x, int32_t y, uint8_t color);
-
-  // Set the bitmap index to use to draw a tile at a specific row and column.
-  void set_tile(int32_t column, int32_t row, int32_t bitmap);
-
-  // Get the bitmap index presently at the given row and column.
-  uint8_t get_tile(int32_t column, int32_t row);
-
-  virtual void IRAM_ATTR paint(const DiPaintParams *params);
 };
 

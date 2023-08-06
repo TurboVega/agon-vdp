@@ -27,11 +27,14 @@
 #pragma once
 #include "di_primitive.h"
 
-class DiDiagonalLeftLine: public DiPrimitiveXYWHC {
+class DiDiagonalLeftLine: public DiPrimitive {
   public:
+  // Construct a diagonal left line. This requires calling init_params() afterward.
+  DiDiagonalLeftLine();
+
   // The line starts at its upper-right point, and goes diagonally down and left,
   // covering the given number of pixels. The upper 2 bits of the color must be zeros.
-  DiDiagonalLeftLine(int32_t x, int32_t y, int32_t length, uint8_t color);
+  void init_params(int32_t x, int32_t y, int32_t length, uint8_t color);
   
   virtual void IRAM_ATTR paint(const DiPaintParams *params);
 };

@@ -30,9 +30,15 @@ extern "C" {
 IRAM_ATTR void DiDiagonalLeftLine_paint(void* this_ptr, const DiPaintParams *params);
 }
 
-DiDiagonalLeftLine::DiDiagonalLeftLine(int32_t x, int32_t y, int32_t length, uint8_t color)
-  : DiPrimitiveXYWHC(x, y, length, length, color) {
-  m_color |= SYNCS_OFF;
+DiDiagonalLeftLine::DiDiagonalLeftLine() {
+}
+
+void DiDiagonalLeftLine::init_params(int32_t x, int32_t y, int32_t length, uint8_t color) {
+  m_rel_x = x;
+  m_rel_y = y;
+  m_width = length;
+  m_height = length;
+  m_color = (color & 0x3F) | SYNCS_OFF;
 }
 
 void IRAM_ATTR DiDiagonalLeftLine::paint(const DiPaintParams *params) {

@@ -26,15 +26,8 @@
 #pragma once
 #include "di_primitive.h"
 
-class DiOpaqueBitmap: public DiPrimitiveXYWH {
+class DiOpaqueBitmap: public DiPrimitive {
   public:
-  uint32_t m_words_per_line;
-  uint32_t m_bytes_per_line;
-  uint32_t m_words_per_position;
-  uint32_t m_bytes_per_position;
-  uint32_t* m_visible_start;
-  uint32_t m_pixels[1];
-
   // Construct a dynamically-sized opaque bitmap. The m_pixels array gets sized during 'new'.
   DiOpaqueBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode);
 
@@ -57,4 +50,11 @@ class DiOpaqueBitmap: public DiPrimitiveXYWH {
   protected:
   // Set a single pixel with an adjusted color value.
   void set_pixel(int32_t x, int32_t y, uint8_t color);
+
+  uint32_t m_words_per_line;
+  uint32_t m_bytes_per_line;
+  uint32_t m_words_per_position;
+  uint32_t m_bytes_per_position;
+  uint32_t* m_visible_start;
+  uint32_t m_pixels[1];
 };

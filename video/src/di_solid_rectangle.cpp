@@ -29,12 +29,19 @@ extern "C" {
 IRAM_ATTR void DiSolidRectangle_paint(void* this_ptr, const DiPaintParams *params);
 }
 
-DiSolidRectangle::DiSolidRectangle(int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color)
-  : DiPrimitiveXYWHC(x, y, width, height, color) {
-  m_color |= (((uint32_t)color) << 24) |
+DiSolidRectangle::DiSolidRectangle() {
+}
+
+void DiSolidRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
+  m_rel_x = x;
+  m_rel_y = y;
+  m_width = width;
+  m_height = height;
+  color &= 0x3F; // remove any alpha bits
+  m_color = (((uint32_t)color) << 24) |
       (((uint32_t)color) << 16) |
       (((uint32_t)color) << 8) |
-      SYNCS_OFF_X4;
+      (uint32_t)color | SYNCS_OFF_X4;
 }
 
 void IRAM_ATTR DiSolidRectangle::paint(const DiPaintParams *params) {
