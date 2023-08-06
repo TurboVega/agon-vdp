@@ -37,8 +37,9 @@ typedef enum ScrollMode {
   BOTH        // both horizontal and vertical
 };
 
-#pragma pack(push,4)
+#pragma pack(push,1)
 
+// Used to paint the primitives that belong to vertical groups of scan lines.
 typedef struct {
   volatile uint32_t* m_line32;  // address of the DMA visible data
   volatile uint8_t*  m_line8;   // address of the DMA visible data
@@ -58,123 +59,73 @@ class DiPrimitive {
   // Destroys an allocated RAM required by the primitive.
   virtual ~DiPrimitive();
 
+  // Set the ID of this primitive as defined by the BASIC application. This
+  // ID is actually the index of the primitive in a table of pointers.
+  void set_id(uint16_t id);
+
   // Gets the range of Y scan lines used by the primitive.
-  virtual void get_vertical_line_range(int32_t* min_y, int32_t* max_y);
+  void IRAM_ATTR get_vertical_line_range(int32_t& min_y, int32_t& max_y);
 
   // Draws the primitive to the DMA scan line buffer.
   virtual void IRAM_ATTR paint(const DiPaintParams *params);
 
   // Groups scan lines for optimizing paint calls.
-  void get_vertical_group_range(int32_t* min_group, int32_t* max_group);
+  void IRAM_ATTR get_vertical_group_range(int32_t& min_group, int32_t& max_group);
+
+  // Attach a child primitive.
+  void IRAM_ATTR attach_child(DiPrimitive* child);
+
+  // Detach a child primitive.
+  void IRAM_ATTR detach_child(DiPrimitive* child);
+
+  // Set the X, Y position relative to the parent.
+  void IRAM_ATTR set_relative_position(int32_t rel_x, int32_t rel_y);
+
+  // Set the delta X, Y position, relative to the parent, and the move count.
+  // These values are used to update the relative position automatically, frame-by-frame.
+  void IRAM_ATTR set_relative_deltas(int32_t rel_dx, int32_t rel_dy, uint32_t auto_moves);
+
+  // Compute the absolute position and related data members, based on the
+  // current position, relative to the parent primitive. The viewport of
+  // this primitive is based on the given viewport parameters and certain flags.
+  void IRAM_ATTR compute_absolute_geometry(int32_t view_x, int32_t view_y, int32_t view_x_extent, int32_t view_y_extent);
 
   protected:
   // Used to type-case some pointers. (Might be removed in future.)
   inline uint8_t* pixels(uint32_t* line) {
     return (uint8_t*)line;
   }
+
+  int32_t   m_view_x        // upper-left x coordinate of the enclosing viewport, relative to the screen
+  int32_t   m_view_y        // upper-left y coordinate of the enclosing viewport, relative to the screen
+  int32_t   m_view_x_extent // lower-right x coordinate plus 1, of the enclosing viewport
+  int32_t   m_view_y_extent // lower-right y coordinate plus 1, of the enclosing viewport
+  int32_t   m_rel_x;        // upper-left x coordinate, relative to the parent
+  int32_t   m_rel_y;        // upper-left y coordinate, relative to the parent
+  int32_t   m_rel_dx;       // auto-delta-x as a 16-bit fraction, relative to the parent
+  int32_t   m_rel_dy;       // auto-delta-y as a 16-bit fraction, relative to the parent
+  int32_t   m_auto_moves;   // number of times to move this primitive automatically
+  int32_t   m_abs_x;        // upper-left x coordinate, relative to the screen
+  int32_t   m_abs_y;        // upper-left y coordinate, relative to the screen
+  int32_t   m_width;        // coverage width in pixels
+  int32_t   m_height;       // coverage height in pixels
+  int32_t   m_x_extent;     // sum of m_abs_x + m_width
+  int32_t   m_y_extent;     // sum of m_abs_y + m_height
+  DiPrimitive* m_parent;       // id of parent primitive
+  DiPrimitive* m_first_child;  // id of first child primitive
+  DiPrimitive* m_last_child;   // id of last child primitive
+  DiPrimitive* m_prev_sibling; // id of previous sibling primitive
+  DiPrimitive* m_next_sibling; // id of next sibling primitive
+  int16_t   m_first_group;  // lowest index of drawing group in which it is a member
+  int16_t   m_last_group;   // highest index of drawing group in which it is a member
+  int16_t   m_id;           // id of this primitive
+  uint8_t   m_flags;        // flag bits to control painting, etc.
+  uint8_t   m_color;        // applies to some primitives, but not to others
 };
 
-class DiPrimitiveX: public DiPrimitive {
-  public:
-  int32_t m_x;
-
-  DiPrimitiveX();
-  DiPrimitiveX(int32_t x);
-};
-
-class DiPrimitiveXC: public DiPrimitiveX {
-  public:
-  uint32_t m_color;
-
-  DiPrimitiveXC();
-  DiPrimitiveXC(int32_t x, uint8_t color);
-};
-
-class DiPrimitiveY: public DiPrimitive {
-  public:
-  int32_t m_y;
-
-  DiPrimitiveY();
-  DiPrimitiveY(int32_t y);
-  virtual void get_vertical_line_range(int32_t* min_y, int32_t* max_y);
-};
-
-class DiPrimitiveYC: public DiPrimitiveY {
-  public:
-  uint32_t m_color;
-
-  DiPrimitiveYC();
-  DiPrimitiveYC(int32_t y, uint8_t color);
-};
-
-class DiPrimitiveXY: public DiPrimitiveX {
-  public:
-  int32_t m_y;
-
-  DiPrimitiveXY();
-  DiPrimitiveXY(int32_t x, int32_t y);
-  virtual void get_vertical_line_range(int32_t* min_y, int32_t* max_y);
-};
-
-class DiPrimitiveXYC: public DiPrimitiveXY {
-  public:
-  uint32_t m_color;
-
-  DiPrimitiveXYC();
-  DiPrimitiveXYC(int32_t x, int32_t y, uint8_t color);
-};
-
-class DiPrimitiveXYW: public DiPrimitiveXY {
-  public:
-  int32_t m_width;
-  int32_t m_x_extent;
-
-  DiPrimitiveXYW();
-  DiPrimitiveXYW(int32_t x, int32_t y, int32_t width);
-};
-
-class DiPrimitiveXYWC: public DiPrimitiveXYW {
-  public:
-  uint32_t m_color;
-
-  DiPrimitiveXYWC();
-  DiPrimitiveXYWC(int32_t x, int32_t y, int32_t width, uint8_t color);
-};
-
-class DiPrimitiveXYH: public DiPrimitiveXY {
-  public:
-  int32_t m_height;
-  int32_t m_y_extent;
-
-  DiPrimitiveXYH();
-  DiPrimitiveXYH(int32_t x, int32_t y, int32_t height);
-  virtual void get_vertical_line_range(int32_t* min_y, int32_t* max_y);
-};
-
-class DiPrimitiveXYHC: public DiPrimitiveXYH {
-  public:
-  uint32_t m_color;
-
-  DiPrimitiveXYHC();
-  DiPrimitiveXYHC(int32_t x, int32_t y, int32_t height, uint8_t color);
-};
-
-class DiPrimitiveXYWH: public DiPrimitiveXYW {
-  public:
-  int32_t m_height;
-  int32_t m_y_extent;
-
-  DiPrimitiveXYWH();
-  DiPrimitiveXYWH(int32_t x, int32_t y, int32_t width, int32_t height);
-  virtual void get_vertical_line_range(int32_t* min_y, int32_t* max_y);
-};
-
-class DiPrimitiveXYWHC: public DiPrimitiveXYWH {
-  public:
-  uint32_t m_color;
-
-  DiPrimitiveXYWHC();
-  DiPrimitiveXYWHC(int32_t x, int32_t y, int32_t width, int32_t height, uint8_t color);
-};
+#define PRIM_FLAG_PAINT_THIS  0x01  // whether to paint this primitive
+#define PRIM_FLAG_PAINT_KIDS  0x02  // whether to paint child primitives
+#define PRIM_FLAG_CLIP_THIS   0x04  // whether to clip this primitive
+#define PRIM_FLAG_CLIP_KIDS   0x08  // whether to clip child primitives
 
 #pragma pack(pop)

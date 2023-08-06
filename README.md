@@ -2,6 +2,16 @@
 
 Part of the official Quark firmware for the Agon series of microcomputers
 
+### WARNING!
+
+<b><i>The code in this fork is UNDER DEVELOPMENT, and may be checked into GitHub at various stages for
+backup purposes, whether it is functional or not. Until development is completed to a point of
+release, this code is not guaranteed to be compilable or runnable, but may be viewed. Use caution!
+
+The author of this fork is in the process of reworking how graphics primitives are arranged and
+referenced, in order better to facilitate using the primitives from BASIC, and this code update
+will definitely break functional operation, until it is completed.</b></i>
+
 ### What is the Agon
 
 Agon is a modern, fully open-source, 8-bit microcomputer and microcontroller in one small, low-cost board. As a computer, it is a standalone device that requires no host PC: it puts out its own video (VGA), audio (2 identical mono channels), accepts a PS/2 keyboard and has its own mass-storage in the form of a µSD card.

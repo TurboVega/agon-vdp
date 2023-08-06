@@ -554,7 +554,7 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
 /*
 800x600x64 On-the-Fly Command Set:
-VDU 23, 30, 0, p; e:                             Enable/disable primitive
+VDU 23, 30, 0, p; flags:                         Set flags for primitive
 VDU 23, 30, 1, p; x; y;:                         Move primitive: absolute
 VDU 23, 30, 2, p; x; y;:                         Move primitive: relative
 VDU 23, 30, 3, p;:                               Delete primitive
@@ -586,7 +586,7 @@ bool DiTerminal::handle_otf_cmd() {
     int16_t p = get_param_16(3); // get primitive index number
     switch (m_incoming_command[2]) {
 
-      // VDU 23, 30, 0, p; e: Enable/disable primitive
+      // VDU 23, 30, 0, p; flags: Set flags for primitive
       case 0: {
         if (m_num_command_chars == 6) {
           m_num_command_chars = 0;

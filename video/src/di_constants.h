@@ -113,3 +113,11 @@
 // to paint, relative to the current scan line.
 #define VERTICAL_GROUP_INDEX_SHIFT 4 // used to divide by a power of 2
 #define NUM_VERTICAL_GROUPS ((ACT_LINES >> VERTICAL_GROUP_INDEX_SHIFT) + 1)
+
+// This number determines how many primitives may exist simultaneously.
+// Some may exist without being drawn. Primitive #0 is the root primitive,
+// is created by default, and cannot be modified or deleted.
+#define MAX_NUM_PRIMITIVES    256
+#define ROOT_PRIMITIVE_ID     0
+#define FIRST_PRIMITIVE_ID    1
+#define LAST_PRIMITIVE_ID     (MAX_NUM_PRIMITIVES-1)

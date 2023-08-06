@@ -24,17 +24,24 @@
 // 
 
 #include "di_primitive.h"
+#include <cstring>
 
-DiPrimitive::DiPrimitive() {}
+DiPrimitive::DiPrimitive() {
+  memset(this, 0, sizeof(DiPrimitive));
+}
 
 DiPrimitive::~DiPrimitive() {}
 
-void DiPrimitive::get_vertical_line_range(int32_t* min_y, int32_t* max_y) {
+void set_id(uint16_t id) {
+  m_id = id;
+}
+
+void IRAM_ATTR DiPrimitive::get_vertical_line_range(int32_t* min_y, int32_t* max_y) {
   *min_y = 0;
   *max_y = 0;
 }
 
-void DiPrimitive::get_vertical_group_range(int32_t* min_group, int32_t* max_group) {
+void IRAM_ATTR DiPrimitive::get_vertical_group_range(int32_t* min_group, int32_t* max_group) {
   int32_t min_y, max_y;
   get_vertical_line_range(&min_y, &max_y);
   min_y = MAX(min_y, 0);
@@ -45,80 +52,74 @@ void DiPrimitive::get_vertical_group_range(int32_t* min_group, int32_t* max_grou
 
 void IRAM_ATTR DiPrimitive::paint(const DiPaintParams *params) {}
 
-DiPrimitiveX::DiPrimitiveX(): m_x(0) {}
-
-DiPrimitiveX::DiPrimitiveX(int32_t x): m_x(x) {}
-
-DiPrimitiveXC::DiPrimitiveXC(): m_color(0) {}
-
-DiPrimitiveXC::DiPrimitiveXC(int32_t x, uint8_t color):
-  DiPrimitiveX(x), m_color(color) {}
-
-DiPrimitiveY::DiPrimitiveY(): m_y(0) {}
-
-DiPrimitiveY::DiPrimitiveY(int32_t y): m_y(y) {}
-
-void DiPrimitiveY::get_vertical_line_range(int32_t* min_y, int32_t* max_y) {
-  *min_y = m_y;
-  *max_y = m_y;
+void IRAM_ATTR attach_child(DiPrimitive* child) {
+  if (m_last_child) {
+    m_last_child->m_next_sibling = child;
+    child->m_prev_sibling = m_last_child;
+  } else {
+    m_first_child = child;
+    child->m_prev_sibling = this;
+  }
+  m_last_child = child;
 }
 
-DiPrimitiveYC::DiPrimitiveYC(): m_color(0) {}
-
-DiPrimitiveYC::DiPrimitiveYC(int32_t y, uint8_t color):
-  DiPrimitiveY(y), m_color(color) {}
-
-DiPrimitiveXY::DiPrimitiveXY(): m_y(0) {}
-
-DiPrimitiveXY::DiPrimitiveXY(int32_t x, int32_t y):
-  DiPrimitiveX(x), m_y(y) {}
-
-void DiPrimitiveXY::get_vertical_line_range(int32_t* min_y, int32_t* max_y) {
-  *min_y = m_y;
-  *max_y = m_y;
+void IRAM_ATTR detach_child(DiPrimitive* child) {
+  if (child->m_next_sibling) {
+    child->m_next_sibling->m_prev_sibling = child->m_prev_sibling;
+  }
+  if (child->m_prev_sibling) {
+    child->m_prev_sibling->m_next_sibling = child->m_next_sibling;
+  }
+  if (m_first_child == child) {
+    m_first_child = child->m_next_sibling;
+  }
+  if (m_last_child == child) {
+    m_last_child = child->m_prev_sibling;
+  }
 }
 
-DiPrimitiveXYC::DiPrimitiveXYC(): m_color(0) {}
-
-DiPrimitiveXYC::DiPrimitiveXYC(int32_t x, int32_t y, uint8_t color):
-  DiPrimitiveXY(x, y), m_color(color) {}
-
-DiPrimitiveXYW::DiPrimitiveXYW(): m_width(0), m_x_extent(0) {}
-
-DiPrimitiveXYW::DiPrimitiveXYW(int32_t x, int32_t y, int32_t width):
-  DiPrimitiveXY(x, y), m_width(width), m_x_extent(x+width) {}
-
-DiPrimitiveXYWC::DiPrimitiveXYWC(): m_color(0) {}
-
-DiPrimitiveXYWC::DiPrimitiveXYWC(int32_t x, int32_t y, int32_t width, uint8_t color):
-  DiPrimitiveXYW(x, y, width), m_color(color) {}
-
-DiPrimitiveXYH::DiPrimitiveXYH(): m_height(0), m_y_extent(0) {}
-
-DiPrimitiveXYH::DiPrimitiveXYH(int32_t x, int32_t y, int32_t height):
-  DiPrimitiveXY(x, y), m_height(height), m_y_extent(y+height) {}
-
-void DiPrimitiveXYH::get_vertical_line_range(int32_t* min_y, int32_t* max_y) {
-  *min_y = m_y;
-  *max_y = m_y_extent - 1;
+void IRAM_ATTR set_relative_position(int32_t rel_x, int32_t rel_y) {
+  m_rel_x = rel_x;
+  m_rel_y = rel_y;
 }
 
-DiPrimitiveXYHC::DiPrimitiveXYHC(): m_color(0) {}
-
-DiPrimitiveXYHC::DiPrimitiveXYHC(int32_t x, int32_t y, int32_t height, uint8_t color):
-  DiPrimitiveXYH(x, y, height), m_color(color) {}
-
-DiPrimitiveXYWH::DiPrimitiveXYWH(): m_height(0), m_y_extent(0) {}
-
-DiPrimitiveXYWH::DiPrimitiveXYWH(int32_t x, int32_t y, int32_t width, int32_t height):
-  DiPrimitiveXYW(x, y, width), m_height(height), m_y_extent(y+height) {}
-
-void DiPrimitiveXYWH::get_vertical_line_range(int32_t* min_y, int32_t* max_y) {
-  *min_y = m_y;
-  *max_y = m_y_extent - 1;
+void IRAM_ATTR set_relative_deltas(int32_t rel_dx, int32_t rel_dy, uint32_t auto_moves) {
+  m_rel_dx = rel_dx;
+  m_rel_dy = rel_dy;
+  m_auto_moves = auto_moves;
 }
 
-DiPrimitiveXYWHC::DiPrimitiveXYWHC(): m_color(0) {}
+void IRAM_ATTR compute_absolute_geometry(
+  int32_t view_x, int32_t view_y, int32_t view_x_extent, int32_t view_y_extent)) {
+  m_abs_x = m_parent->m_abs_x + m_rel_x;
+  m_abs_y = m_parent->m_abs_y + m_rel_y;
+  m_x_extent = m_abs_x + m_width;
+  m_y_extent = m_abs_y + m_height;
 
-DiPrimitiveXYWHC::DiPrimitiveXYWHC(int32_t x, int32_t y, int32_t width, int32_t height, uint8_t color):
-  DiPrimitiveXYWH(x, y, width, height), m_color(color) {}
+  if (m_flags & PRIM_FLAG_CLIP_THIS) {
+    m_view_x = view_x;
+    m_view_y = view_y;
+    m_view_w_extent = view_w_extent;
+    m_view_y_extent = view_y_extent;
+  } else {
+    m_view_x = 0;
+    m_view_y = 0;
+    m_view_w_extent = ACT_PIXELS;
+    m_view_y_extent = ACT_LINES;
+  }
+
+  DiPrimitive* child = m_first_child;
+  while (child) {
+    if (m_flags & PRIM_FLAG_CLIP_KIDS) {
+      child->compute_absolute_geometry(m_view_x, m_view_y, m_view_x_extent, m_view_y_extent);
+    } else {
+      child->compute_absolute_geometry(view_x, view_y, view_x_extent, view_y_extent);
+    }
+    child = child->m_next_sibling;
+  }
+}
+
+void DiPrimitive::get_vertical_line_range(int32_t& min_y, int32_t& max_y) {
+  min_y = m_y;
+  max_y = m_y_extent - 1;
+}
