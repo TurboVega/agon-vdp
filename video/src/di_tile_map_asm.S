@@ -6,7 +6,7 @@
 // area of the screen may be displayed at any given moment. In other words
 // multiple tiles show at the same time.
 //
-// The tile map may be scrolled in any of 8 directions, by setting m_x and m_y
+// The tile map may be scrolled in any of 8 directions, by setting m_abs_x and m_abs_y
 // to the scroll distances on the 2 axes. Just be careful not to scroll too far,
 // such that the visible screen would contain pixels not in the logical map.
 //
@@ -25,45 +25,32 @@
 // a1: stack pointer
 // a2: DiTileMap* pointer (i.e., 'this')
 //     [a2] vtable pointer
-//     [a2+4] m_x
-//     [a2+8] m_y
-//     [a2+12] m_width
-//     [a2+16] m_x_extent
-//     [a2+20] m_height
-//     [a2+24] m_y_extent
-//     [a2+28] m_bitmaps
-//     [a2+32] m_columns
-//     [a2+36] m_rows
-//     [a2+40] m_words_per_line
-//     [a2+44] m_bytes_per_line
-//     [a2+48] m_words_per_bitmap
-//     [a2+52] m_bytes_per_bitmap
-//     [a2+56] m_words_for_bitmaps
-//     [a2+60] m_bytes_for_bitmaps
-//     [a2+64] m_words_per_row
-//     [a2+68] m_bytes_per_row
-//     [a2+72] m_words_for_tiles
-//     [a2+76] m_bytes_for_tiles
-//     [a2+80] m_words_for_offsets
-//     [a2+84] m_bytes_for_offsets
-//     [a2+88] m_visible_columns
-//     [a2+92] m_visible_rows
-//     [a2+96] m_words_per_position
-//     [a2+100] m_bytes_per_position
-//     [a2+104] m_draw_words_per_line
-//     [a2+108] m_tiles
-//     [a2+112] m_pixels
-//     [a2+116] m_offsets
+//     [a2+4] DiPrimitive base class data members
+//     [a2 + sizeof_DiPrimitive + 0] m_bitmaps
+//     [a2 + sizeof_DiPrimitive + 4] m_columns
+//     [a2 + sizeof_DiPrimitive + 8] m_rows
+//     [a2 + sizeof_DiPrimitive + 12] m_words_per_line
+//     [a2 + sizeof_DiPrimitive + 16] m_bytes_per_line
+//     [a2 + sizeof_DiPrimitive + 20] m_words_per_bitmap
+//     [a2 + sizeof_DiPrimitive + 24] m_bytes_per_bitmap
+//     [a2 + sizeof_DiPrimitive + 28] m_words_for_bitmaps
+//     [a2 + sizeof_DiPrimitive + 32] m_bytes_for_bitmaps
+//     [a2 + sizeof_DiPrimitive + 36] m_words_per_row
+//     [a2 + sizeof_DiPrimitive + 40] m_bytes_per_row
+//     [a2 + sizeof_DiPrimitive + 44] m_words_for_tiles
+//     [a2 + sizeof_DiPrimitive + 48] m_bytes_for_tiles
+//     [a2 + sizeof_DiPrimitive + 52] m_words_for_offsets
+//     [a2 + sizeof_DiPrimitive + 56] m_bytes_for_offsets
+//     [a2 + sizeof_DiPrimitive + 60] m_visible_columns
+//     [a2 + sizeof_DiPrimitive + 64] m_visible_rows
+//     [a2 + sizeof_DiPrimitive + 68] m_words_per_position
+//     [a2 + sizeof_DiPrimitive + 72] m_bytes_per_position
+//     [a2 + sizeof_DiPrimitive + 76] m_draw_words_per_line
+//     [a2 + sizeof_DiPrimitive + 80] m_tiles
+//     [a2 + sizeof_DiPrimitive + 84] m_pixels
+//     [a2 + sizeof_DiPrimitive + 88] m_offsets
 //
 // a3: const DiPaintParams *params
-//     [a3] m_line32
-//     [a3+4] m_line8
-//     [a3+8] m_line_index
-//     [a3+12] m_scrolled_y
-//     [a3+16] m_horiz_scroll
-//     [a3+20] m_vert_scroll
-//     [a3+24] m_screen_width
-//     [a3+28] m_screen_height
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -84,6 +71,7 @@
 // SOFTWARE.
 // 
 
+  .include "src/di_primitive_const.INC"
   .section .iram1.text
   .align
   .global   DiTileMap_paint
@@ -91,20 +79,20 @@
 
 DiTileMap_paint:
   entry     sp,16
-  l32i      a4,a3,12    // a4 <-- m_scrolled_y
-  l32i      a5,a2,8     // a5 <-- m_y
-  add       a4,a5,a4    // a4 <-- m_y + m_scrolled_y <-- index
+  l32i      a4,a3,m_line_index // a4 <-- m_line_index
+  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
+  add       a4,a5,a4    // a4 <-- m_abs_y + m_line_index <-- index
   slli      a4,a4,3     // a4 <-- (index * 2) * 4
-  l32i      a5,a2,116   // a5 <-- m_offsets
+  l32i      a5,a2,(sizeof_DiPrimitive+88) // a5 <-- m_offsets
   add       a4,a4,a5    // a4 <-- m_offsets + index * 8, i.e., &m_offsets[index * 2]
   l32i      a5,a4,4     // a5 <-- m_offsets[index * 2 + 1], i.e., offset to bitmap line
   l32i      a4,a4,0     // a4 <-- m_offsets[index * 2], i.e.,  points to tile map row
-  l32i      a6,a2,88    // a6 <-- m_visible_columns
+  l32i      a6,a2,(sizeof_DiPrimitive+60) // a6 <-- m_visible_columns
   movi      a11,1       // a11 <-- count for decrements
-  l32i      a8,a3,0     // a8 <-- m_line32
+  l32i      a8,a3,m_line32 // a8 <-- m_line32
 
-  l32i      a12,a2,4          // a12 <-- m_x
-  l32i      a14,a2,12         // a14 <-- m_width
+  l32i      a12,a2,m_abs_x    // a12 <-- m_abs_x
+  l32i      a14,a2,m_width    // a14 <-- m_width
   blt       a12,a14,within_tile // go if x is within tile width
 adjust_width:
   sub       a12,a12,a14       // a12 <-- x reduced by tile width
@@ -116,7 +104,7 @@ within_tile:
 no_extra_col:
 
   movi      a14,0             // a14 <-- assume offset based on position is zero
-  l32i      a13,a2,100        // a13 <-- m_bytes_per_position
+  l32i      a13,a2,(sizeof_DiPrimitive+72) // a13 <-- m_bytes_per_position
   bbci      a12,1,not_2_or_3  // go if lower 2 bits less than 2
   bbsi      a12,0,x_off_3     // go if lower 2 bits equal 3
   slli      a14,a13,1         // a14 <-- bitmap start + 2 more position
@@ -129,11 +117,11 @@ x_off_3:
 inc_done:
 
   movi      a13,0xFFFFFFFC    // a13 <-- mask to clear lower 2 bits
-  and       a3,a12,a13        // a3 <-- adjustment to offset to bitmap data word, based on m_x
+  and       a3,a12,a13        // a3 <-- adjustment to offset to bitmap data word, based on m_abs_x
   l32i      a7,a4,0           // a7 <-- points to bitmap for current tile
-  add       a7,a7,a3          // a7 <-- adjusted for top bits of m_x byte offset
+  add       a7,a7,a3          // a7 <-- adjusted for top bits of m_abs_x byte offset
 
-  l32i      a10,a2,104        // a10 <-- m_draw_words_per_line
+  l32i      a10,a2,(sizeof_DiPrimitive+76) // a10 <-- m_draw_words_per_line
   srli      a3,a12,2          // a3 <-- (reduced x) / 4
   sub       a10,a10,a3        // a10 <-- adjusted count of words in bitmap line
 
@@ -172,7 +160,7 @@ do_tiles:
 end_loop:
 
   l32i      a3,a7,0           // a3 <-- tail-end src pixels
-  l32i      a10,a2,104        // a10 <-- m_draw_words_per_line
+  l32i      a10,a2,(sizeof_DiPrimitive+76) // a10 <-- m_draw_words_per_line
   addi      a4,a4,4           // a4 <-- points to next bitmap address
   l32i      a7,a4,0           // a7 <-- points to bitmap for current tile
   sub       a6,a6,a11         // a6 <-- remaining number of columns

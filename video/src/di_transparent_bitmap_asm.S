@@ -37,30 +37,17 @@
 // a1: stack pointer
 // a2: DiTransparentBitmap* pointer (i.e., 'this')
 //     [a2] vtable pointer
-//     [a2+4] m_x
-//     [a2+8] m_y
-//     [a2+12] m_width
-//     [a2+16] m_x_extent
-//     [a2+20] m_height
-//     [a2+24] m_y_extent
-//     [a2+28] m_words_per_line
-//     [a2+32] m_bytes_per_line
-//     [a2+36] m_words_per_position;
-//     [a2+40] m_bytes_per_position;
-//     [a2+44] m_visible_start
-//     [a2+48] m_scroll_mode
-//     [a2+52] m_transparent_color
-//     [a2+56] m_pixels
+//     [a2+4] DiPrimitive base class data members
+//     [a2 + sizeof_DiPrimitive + 0] m_words_per_line
+//     [a2 + sizeof_DiPrimitive + 4] m_bytes_per_line
+//     [a2 + sizeof_DiPrimitive + 8] m_words_per_position;
+//     [a2 + sizeof_DiPrimitive + 12] m_bytes_per_position;
+//     [a2 + sizeof_DiPrimitive + 16] m_visible_start
+//     [a2 + sizeof_DiPrimitive + 20] m_scroll_mode
+//     [a2 + sizeof_DiPrimitive + 24] m_transparent_color
+//     [a2 + sizeof_DiPrimitive + 28] m_pixels
 //
 // a3: const DiPaintParams *params
-//     [a3] m_line32
-//     [a3+4] m_line8
-//     [a3+8] m_line_index
-//     [a3+12] m_scrolled_y
-//     [a3+16] m_horiz_scroll
-//     [a3+20] m_vert_scroll
-//     [a3+24] m_screen_width
-//     [a3+28] m_screen_height
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -81,6 +68,7 @@
 // SOFTWARE.
 // 
 
+  .include "src/di_primitive_const.INC"
   .section .iram1.text
   .global   DiTransparentBitmap_paint
   .type     DiTransparentBitmap_paint,@function
@@ -138,34 +126,32 @@
   .align    4
 DiTransparentBitmap_paint:
   entry     sp,16
-  l32i      a4,a3,12      // a4 <-- m_scrolled_y
-  l32i      a5,a2,8       // a5 <-- m_y
+  l32i      a4,a3,12      // a4 <-- m_line_index
+  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
   blt       a4,a5,skip2   // skip if scan line is above bitmap area
-  l32i      a6,a2,24      // a6 <-- m_y_extent
+  l32i      a6,a2,m_y_extent // a6 <-- m_y_extent
   bge       a4,a6,skip2   // skip if scan line is below bitmap area
-  sub       a12,a4,a5     // a12 <-- m_scrolled_y - m_y
+  sub       a12,a4,a5     // a12 <-- m_line_index - m_abs_y
   l32i      a4,a3,4       // a4 <-- m_line8
 
-  l32i      a5,a2,4       // a5 <-- m_x
-  l32i      a6,a3,16      // a6 <-- m_horiz_scroll
-  add       a5,a5,a6      // a5 (left_hand_x) <-- m_x + m_horiz_scroll
-  mov       a13,a5        // a13 (left_hand_x) <-- m_x + m_horiz_scroll
-  l32i      a7,a3,24      // a7 <-- m_screen_width
+  l32i      a5,a2,m_abs_x // a5 <-- m_abs_x
+  mov       a13,a5        // a13 (left_hand_x) <-- m_abs_x
+  l32i      a7,a3,24      // a7 <-- m_view_x_extent
   mov       a3,a13        // a3 <-- left_hand_x
-  bge       a5,a7,skip2   // skip if left_hand_x >= m_screen_width
+  bge       a5,a7,skip2   // skip if left_hand_x >= m_view_x_extent
   bgez      a5,left_ok    // don't shorten line if left_hand_x >= 0
   xor       a5,a5,a5      // a5 (left_hand_x) <-- 0
 left_ok:
   sub       a13,a5,a13    // a13 <-- offset to first visible pixel
-  l32i      a8,a2,16      // a8 <-- m_x_extent  
-  add       a8,a8,a6      // a8 (right_hand_x) <-- m_x_extent + m_horiz_scroll
+  l32i      a8,a2,m_x_extent // a8 <-- m_x_extent  
+  add       a8,a8,a6      // a8 (right_hand_x) <-- m_x_extent
   beqz      a8,skip2      // skip if right_hand_x == 0
   bltz      a8,skip2      // skip if right_hand_x < 0
-  blt       a8,a7,right_ok  // don't shorten line if right_hand_x < m_screen_width
-  mov       a8,a7         // a8 (right_hand_x) <-- m_screen_width
+  blt       a8,a7,right_ok  // don't shorten line if right_hand_x < m_view_x_extent
+  mov       a8,a7         // a8 (right_hand_x) <-- m_view_x_extent
 right_ok:
 
-  l32i      a7,a2,44      // a14 <-- m_visible_start
+  l32i      a7,a2,(sizeof_DiPrimitive+16) // a7 <-- m_visible_start
 //  bgez      a3,dont_move  // don't move start if left_hand_x >= 0
 //  bbsi      a3,0,move_start // go move start if left_hand_x is not a multiple of 4
 //  bbci      a3,1,dont_move // do not move start if left_hand_x is a multiple of 4
@@ -177,10 +163,10 @@ right_ok:
   beqz      a3,skip2      // skip if nothing to draw
   bltz      a3,skip2      // skip if nothing to draw
 
-  l32i      a14,a2,32     // a14 <-- m_bytes_per_line
-  mul16u    a14,a14,a12   // a14 <-- m_bytes_per_line * (m_scrolled_y - m_y)
+  l32i      a14,a2,(sizeof_DiPrimitive+4) // a14 <-- m_bytes_per_line
+  mul16u    a14,a14,a12   // a14 <-- m_bytes_per_line * (m_line_index - m_abs_y)
   add       a14,a14,a7    // a14 <-- pointer to bitmap data line
-  l32i      a11,a2,40     // a11 <-- m_bytes_per_position
+  l32i      a11,a2,(sizeof_DiPrimitive+12) // a11 <-- m_bytes_per_position
   movi      a7,1          // a7 <-- value of 1 for adjusting
   movi      a8,2          // a8 <-- value of 2 for adjusting
   movi      a9,3          // a9 <-- value of 3 for adjusting

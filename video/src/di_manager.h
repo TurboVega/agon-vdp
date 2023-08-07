@@ -40,14 +40,25 @@ class DiManager {
     ~DiManager();
 
     // Create various types of drawing primitives.
-    DiPrimitive* create_point(int32_t x, int32_t y, uint8_t color);
-    DiPrimitive* create_line(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color);
-    DiPrimitive* create_solid_rectangle(int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color);
-    DiPrimitive* create_triangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color);
-    DiTileMap* create_tile_map(int32_t screen_width, int32_t screen_height, uint32_t bitmaps,
-                                uint32_t columns, uint32_t rows, uint32_t width, uint32_t height, bool hscroll);
-    DiTerminal* create_terminal(uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
-                                uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
+    DiPrimitive* create_point(uint16_t id, uint16_t parent,
+                            int32_t x, int32_t y, uint8_t color);
+
+    DiPrimitive* create_line(uint16_t id, uint16_t parent,
+                            int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color);
+
+    DiPrimitive* create_solid_rectangle(uint16_t id, uint16_t parent,
+                            int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color);
+
+    DiPrimitive* create_triangle(uint16_t id, uint16_t parent,
+                            int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color);
+
+    DiTileMap* create_tile_map(uint16_t id, uint16_t parent,
+                            int32_t screen_width, int32_t screen_height, uint32_t bitmaps,
+                            uint32_t columns, uint32_t rows, uint32_t width, uint32_t height, bool hscroll);
+
+    DiTerminal* create_terminal(uint16_t id, uint16_t parent,
+                            uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
+                            uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
 
     // Setup a callback for when the visible frame pixels have been sent to DMA,
     // and the vertical blanking time begins.

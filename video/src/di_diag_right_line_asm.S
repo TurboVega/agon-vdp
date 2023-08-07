@@ -18,23 +18,9 @@
 // a1: stack pointer
 // a2: DiDiagonalRightLine* pointer (i.e., 'this')
 //     [a2] vtable pointer
-//     [a2+4] m_x
-//     [a2+8] m_y
-//     [a2+12] m_width
-//     [a2+16] m_x_extent
-//     [a2+20] m_height
-//     [a2+24] m_y_extent
-//     [a2+28] m_color
+//     [a2+4] DiPrimitive base class data members
 //
 // a3: const DiPaintParams *params
-//     [a3] m_line32
-//     [a3+4] m_line8
-//     [a3+8] m_line_index
-//     [a3+12] m_scrolled_y
-//     [a3+16] m_horiz_scroll
-//     [a3+20] m_vert_scroll
-//     [a3+24] m_screen_width
-//     [a3+28] m_screen_height
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -55,6 +41,7 @@
 // SOFTWARE.
 // 
 
+  .include "src/di_primitive_const.INC"
   .section .iram1.text
   .align
   .global   DiDiagonalRightLine_paint
@@ -62,24 +49,22 @@
 
 DiDiagonalRightLine_paint:
   entry     sp,16
-  l32i      a4,a3,12      // a4 <-- m_scrolled_y
-  l32i      a5,a2,8       // a5 <-- m_y
+  l32i      a4,a3,m_line_index // a4 <-- m_line_index
+  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
   blt       a4,a5,skip    // skip if scan line is above diagonal line
-  l32i      a6,a2,24      // a6 <-- m_y_extent
+  l32i      a6,a2,m_y_extent // a6 <-- m_y_extent
   bge       a4,a6,skip    // skip if scan line is below diagonal line
-  sub       a7,a4,a5      // a7 <-- m_scrolled_y - m_y
-  l32i      a4,a3,4       // a4 <-- m_line8
-  l32i      a5,a2,4       // a5 <-- m_x
-  l32i      a6,a3,16      // a6 <-- m_horiz_scroll
-  add       a5,a5,a6      // a5 <-- m_x + m_horiz_scroll
-  add       a5,a5,a7      // a5 <-- (m_x + m_horiz_scroll) + (m_scrolled_y - m_y)
+  sub       a7,a4,a5      // a7 <-- m_line_index - m_abs_y
+  l32i      a4,a3,m_line8 // a4 <-- m_line8
+  l32i      a5,a2,m_abs_x // a5 <-- m_abs_x
+  add       a5,a5,a7      // a5 <-- m_abs_x + (m_line_index - m_abs_y)
   bltz      a5,skip       // skip if final x < 0
-  l32i      a6,a3,24      // a6 <-- m_screen_width
-  bge       a5,a6,skip    // skip if final x >= m_screen_width
+  l32i      a6,a3,m_view_x_extent // a6 <-- m_view_x_extent
+  bge       a5,a6,skip    // skip if final x >= m_view_x_extent
   movi      a6,2          // value for adjusting index
   xor       a5,a5,a6      // a5 <-- final x ^ 2
-  add       a4,a4,a5      // a4 <-- m_line8 + m_x
-  l8ui      a5,a2,28      // a5 <-- m_color
+  add       a4,a4,a5      // a4 <-- m_line8 + m_abs_x
+  l8ui      a5,a2,m_color // a5 <-- m_color
   s8i       a5,a4,0       // m_line8[index] <-- m_color
 skip:
   retw.n

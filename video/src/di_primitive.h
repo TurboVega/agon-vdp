@@ -1,4 +1,5 @@
-// primitive.h - Function declarations for base drawing primitives
+// di_primitive.h - Function declarations for base drawing primitives
+// NOTE: This file must track exactly with constants in di_primitive_const.INC.
 //
 // A drawing primitive tells how to draw a particular type of simple graphic object.
 //
@@ -44,11 +45,6 @@ typedef struct {
   volatile uint32_t* m_line32;  // address of the DMA visible data
   volatile uint8_t*  m_line8;   // address of the DMA visible data
   int32_t   m_line_index;       // scan line index on the screen (0=top, 599=bottom)
-  int32_t   m_scrolled_y;       // sum of m_line_index + m_vert_scroll
-  int32_t   m_horiz_scroll;     // used to move all top-level primitives in the X direction
-  int32_t   m_vert_scroll;      // used to move all top-level primitives in the Y direction
-  int32_t   m_screen_width;     // fixed at 800
-  int32_t   m_screen_height;    // fixed at 600
 } DiPaintParams;
 
 class DiPrimitive {
@@ -128,6 +124,8 @@ class DiPrimitive {
   int32_t   m_height;       // coverage height in pixels
   int32_t   m_x_extent;     // sum of m_abs_x + m_width
   int32_t   m_y_extent;     // sum of m_abs_y + m_height
+  uint32_t  m_color;        // applies to some primitives, but not to others
+  uint32_t  m_future32;     // for potential future use
   DiPrimitive* m_parent;       // id of parent primitive
   DiPrimitive* m_first_child;  // id of first child primitive
   DiPrimitive* m_last_child;   // id of last child primitive
@@ -137,7 +135,7 @@ class DiPrimitive {
   int16_t   m_last_group;   // highest index of drawing group in which it is a member
   int16_t   m_id;           // id of this primitive
   uint8_t   m_flags;        // flag bits to control painting, etc.
-  uint8_t   m_color;        // applies to some primitives, but not to others
+  uint8_t   m_future8;      // for potential future use
 };
 
 #define PRIM_FLAG_PAINT_THIS  0x01  // whether to paint this primitive

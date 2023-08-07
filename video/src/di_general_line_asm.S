@@ -19,33 +19,19 @@
 // a1: stack pointer
 // a2: DiGeneralLine* pointer (i.e., 'this')
 //     [a2] vtable pointer
-//     [a2+4] m_x
-//     [a2+8] m_y
-//     [a2+12] m_width
-//     [a2+16] m_x_extent
-//     [a2+20] m_height
-//     [a2+24] m_y_extent
-//     [a2+28] m_color
-//     [a2+32] m_line_pieces.m_pieces
-//               [0] m_x
-//               [2] m_y
+//     [a2 + 4] DiPrimitive base class data members
+//     [a2 + sizeof_DiPrimitive + 0] m_line_pieces.m_pieces
+//               [0] m_abs_x
+//               [2] m_abs_y
 //               [4] m_width
 //               [6] m_flags
-//     [a2+36] m_line_pieces.m_min_x
-//     [a2+38] m_line_pieces.m_min_y
-//     [a2+40] m_line_pieces.m_max_x
-//     [a2+42] m_line_pieces.m_max_y
-//     [a2+44] m_line_pieces.m_num_pieces
+//     [a2 + sizeof_DiPrimitive + 4] m_line_pieces.m_min_x
+//     [a2 + sizeof_DiPrimitive + 6] m_line_pieces.m_min_y
+//     [a2 + sizeof_DiPrimitive + 8] m_line_pieces.m_max_x
+//     [a2 + sizeof_DiPrimitive + 10] m_line_pieces.m_max_y
+//     [a2 + sizeof_DiPrimitive + 12] m_line_pieces.m_num_pieces
 //
 // a3: const DiPaintParams *params
-//     [a3] m_line32
-//     [a3+4] m_line8
-//     [a3+8] m_line_index
-//     [a3+12] m_scrolled_y
-//     [a3+16] m_horiz_scroll
-//     [a3+20] m_vert_scroll
-//     [a3+24] m_screen_width
-//     [a3+28] m_screen_height
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -66,6 +52,7 @@
 // SOFTWARE.
 // 
 
+  .include "src/di_primitive_const.INC"
   .section .iram1.text
   .align
   .global   DiGeneralLine_paint
@@ -73,10 +60,10 @@
 
 DiGeneralLine_paint:
   entry     sp,16
-  l32i      a4,a3,12      // a4 <-- m_scrolled_y
-  l32i      a5,a2,8       // a5 <-- m_y
-  l32i      a6,a2,24      // a6 <-- m_y_extent
-  l32i      a12,a2,32     // a12 <-- m_line_pieces.m_pieces
+  l32i      a4,a3,m_line_index // a4 <-- m_line_index
+  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
+  l32i      a6,a2,m_y_extent // a6 <-- m_y_extent
+  l32i      a12,a2,(sizeof_DiPrimitive+0) // a12 <-- m_line_pieces.m_pieces
 
   blt       a4,a5,skip    // skip if scan line is above this line
   bge       a4,a6,skip    // skip if scan line is below this line
@@ -84,27 +71,25 @@ DiGeneralLine_paint:
   slli      a4,a4,3       // a4 <-- array offset to proper DiLinePiece
   add       a12,a12,a4    // a12 <-- pointer to proper DiLinePiece
 
-  l32i      a4,a3,4       // a4 <-- m_line8
+  l32i      a4,a3,m_line8 // a4 <-- m_line8
   l16ui     a5,a12,0      // a5 <-- x
   l16ui     a8,a12,4      // a8 <-- width
   add       a8,a8,a5      // a8 <-- x + width (current x extent)
-  l32i      a6,a3,16      // a6 <-- m_horiz_scroll
-  add       a5,a5,a6      // a5 (left_hand_x) <-- x + m_horiz_scroll
-  l32i      a7,a3,24      // a7 <-- m_screen_width
-  bge       a5,a7,skip    // skip if left_hand_x >= m_screen_width
+  l32i      a7,a3,m_view_x_extent // a7 <-- m_view_x_extent
+  bge       a5,a7,skip    // skip if left_hand_x >= m_view_x_extent
   bgez      a5,left_ok    // don't shorten line if left_hand_x >= 0
   xor       a5,a5,a5      // a5 (left_hand_x) <-- 0
 left_ok:
-  add       a8,a8,a6      // a8 (right_hand_x) <-- x extent + m_horiz_scroll
+  add       a8,a8,a6      // a8 (right_hand_x) <-- x extent
   beqz      a8,skip       // skip if right_hand_x == 0
   bltz      a8,skip       // skip if right_hand_x < 0
-  blt       a8,a7,right_ok  // don't shorten line if right_hand_x < m_screen_width
-  mov       a8,a7         // a8 (right_hand_x) <-- m_screen_width
+  blt       a8,a7,right_ok  // don't shorten line if right_hand_x < m_view_x_extent
+  mov       a8,a7         // a8 (right_hand_x) <-- m_view_x_extent
 right_ok:
   sub       a3,a8,a5      // a3 <-- final line width
   beqz      a3,skip       // skip if nothing to draw
   bltz      a3,skip       // skip if nothing to draw
-  l32i      a2,a2,28      // a2 <-- m_color (4 bytes of same color)
+  l32i      a2,a2,m_color // a2 <-- m_color (4 bytes of same color)
 
   movi      a6,3          // a6 <-- mask for checking byte alignment
   movi      a8,2          // value for adjusting index
