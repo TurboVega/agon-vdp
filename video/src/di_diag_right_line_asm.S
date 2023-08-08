@@ -50,17 +50,19 @@
 DiDiagonalRightLine_paint:
   entry     sp,16
   l32i      a4,a3,m_line_index // a4 <-- m_line_index
-  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
+  l32i      a5,a2,m_draw_y // a5 <-- m_draw_y
   blt       a4,a5,skip    // skip if scan line is above diagonal line
-  l32i      a6,a2,m_y_extent // a6 <-- m_y_extent
+  l32i      a6,a2,m_draw_y_extent // a6 <-- m_draw_y_extent
   bge       a4,a6,skip    // skip if scan line is below diagonal line
-  sub       a7,a4,a5      // a7 <-- m_line_index - m_abs_y
+  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
+  sub       a7,a4,a5      // a7 <-- m_line_index - m_abs_y = X (or Y) offset
   l32i      a4,a3,m_line8 // a4 <-- m_line8
   l32i      a5,a2,m_abs_x // a5 <-- m_abs_x
-  add       a5,a5,a7      // a5 <-- m_abs_x + (m_line_index - m_abs_y)
-  bltz      a5,skip       // skip if final x < 0
-  l32i      a6,a3,m_view_x_extent // a6 <-- m_view_x_extent
-  bge       a5,a6,skip    // skip if final x >= m_view_x_extent
+  add       a5,a5,a7      // a5 <-- m_abs_x + X offset
+  l32i      a6,a2,m_draw_x // a6 <-- m_draw_x
+  blt       a5,a6,skip    // skip if m_abs_x < m_draw_x
+  l32i      a6,a2,m_draw_x_extent // a6 <-- m_draw_x_extent
+  bge       a5,a6,skip    // skip if final x >= m_draw_x_extent
   movi      a6,2          // value for adjusting index
   xor       a5,a5,a6      // a5 <-- final x ^ 2
   add       a4,a4,a5      // a4 <-- m_line8 + m_abs_x
