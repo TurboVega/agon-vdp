@@ -28,6 +28,7 @@
 
 DiPrimitive::DiPrimitive() {
   memset(this, 0, sizeof(DiPrimitive));
+  m_flags = PRIM_FLAGS_DEFAULT;
 }
 
 DiPrimitive::~DiPrimitive() {}
@@ -37,7 +38,7 @@ void DiPrimitive::init_root() {
   // The application should define what the base layer of the screen
   // is (e.g., solid rectangle, terminal, tile map, etc.).
 
-  m_flags = PRIM_FLAG_CLIP_THIS|PRIM_FLAG_CLIP_KIDS;
+  m_flags = PRIM_FLAG_PAINT_KIDS|PRIM_FLAG_CLIP_KIDS;
   m_width = ACT_PIXELS;
   m_height = ACT_LINES;
   m_x_extent = ACT_PIXELS;
@@ -67,8 +68,8 @@ void IRAM_ATTR DiPrimitive::attach_child(DiPrimitive* child) {
     child->m_prev_sibling = m_last_child;
   } else {
     m_first_child = child;
-    child->m_prev_sibling = this;
   }
+  child->m_parent = this;
   m_last_child = child;
 }
 

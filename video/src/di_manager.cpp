@@ -56,6 +56,7 @@ void default_on_lines_painted() {}
 DiManager::DiManager() {
   m_on_vertical_blank_cb = &default_on_vertical_blank;
   m_on_lines_painted_cb = &default_on_lines_painted;
+  memset(m_primitives, 0, sizeof(m_primitives));
 
   // The root primitive covers the entire screen, and is not drawn.
   // The application should define what the base layer of the screen
@@ -199,6 +200,7 @@ void DiManager::clear() {
     for (int i = FIRST_PRIMITIVE_ID; i <= LAST_PRIMITIVE_ID; i++) {
       if (m_primitives[i]) {
         delete m_primitives[i];
+        m_primitives[i] = NULL;
       }
     }
     m_primitives[ROOT_PRIMITIVE_ID]->clear_child_ptrs();
@@ -438,13 +440,15 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line_index = current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
-        //draw_primitives(&paint_params);
+        //memset((void*)paint_params.m_line32, 0, 800); // debugging
+        draw_primitives(&paint_params);
         paint_params.m_line8[10] = 0x10;
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
-        //draw_primitives(&paint_params);
+        //memset((void*)paint_params.m_line32, 0, 800); // debugging
+        draw_primitives(&paint_params);
         paint_params.m_line8[20] = 0x02;
 
         ++current_line_index;
@@ -466,13 +470,13 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line_index = current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
-        //draw_primitives(&paint_params);
+        draw_primitives(&paint_params);
         paint_params.m_line8[30] = 0x33;
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
-        //draw_primitives(&paint_params);
+        draw_primitives(&paint_params);
         paint_params.m_line8[40] = 0x27;
       }
 

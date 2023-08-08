@@ -173,7 +173,7 @@ void setup() {
 	//boot_screen();
 	//manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
 	//manager.set_on_lines_painted_cb(&on_lines_painted);
-  //DiPrimitive* prim = manager.create_point(1, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
+  DiPrimitive* prim = manager.create_point(1, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
 	manager.run();
 }
 

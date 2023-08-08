@@ -142,5 +142,6 @@ class DiPrimitive {
 #define PRIM_FLAG_PAINT_KIDS  0x02  // whether to paint child primitives
 #define PRIM_FLAG_CLIP_THIS   0x04  // whether to clip this primitive
 #define PRIM_FLAG_CLIP_KIDS   0x08  // whether to clip child primitives
+#define PRIM_FLAGS_DEFAULT    0x0F  // flags set when a new base primitive is constructed
 
 #pragma pack(pop)
