@@ -213,8 +213,9 @@ void DiManager::clear() {
 }
 
 void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
-    if (m_primitives[prim->get_id()]) {
-      delete m_primitives[prim->get_id()];
+    auto old_prim = m_primitives[prim->get_id()];
+    if (old_prim) {
+      delete_primitive(old_prim);
     }
 
     parent->attach_child(prim);
@@ -440,14 +441,14 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line_index = current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
-        //memset((void*)paint_params.m_line32, 0, 800); // debugging
+        memset((void*)paint_params.m_line32, 0, 800); // debugging
         draw_primitives(&paint_params);
         paint_params.m_line8[10] = 0x10;
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
-        //memset((void*)paint_params.m_line32, 0, 800); // debugging
+        memset((void*)paint_params.m_line32, 0, 800); // debugging
         draw_primitives(&paint_params);
         paint_params.m_line8[20] = 0x02;
 
@@ -470,12 +471,14 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line_index = current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
+        memset((void*)paint_params.m_line32, 0, 800); // debugging
         draw_primitives(&paint_params);
         paint_params.m_line8[30] = 0x33;
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
+        memset((void*)paint_params.m_line32, 0, 800); // debugging
         draw_primitives(&paint_params);
         paint_params.m_line8[40] = 0x27;
       }

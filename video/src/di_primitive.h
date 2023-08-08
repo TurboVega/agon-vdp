@@ -124,6 +124,10 @@ class DiPrimitive {
   int32_t   m_height;       // coverage height in pixels
   int32_t   m_x_extent;     // sum of m_abs_x + m_width
   int32_t   m_y_extent;     // sum of m_abs_y + m_height
+  int32_t   m_draw_x;       // max of m_abs_x and m_view_x
+  int32_t   m_draw_y;       // max of m_abs_y and m_view_y
+  int32_t   m_draw_x_extent; // min of m_x_extent and m_view_x_extent
+  int32_t   m_draw_y_extent; // min of m_y_extent and m_view_y_extent
   uint32_t  m_color;        // applies to some primitives, but not to others
   uint32_t  m_future32;     // for potential future use
   DiPrimitive* m_parent;       // id of parent primitive
@@ -142,6 +146,8 @@ class DiPrimitive {
 #define PRIM_FLAG_PAINT_KIDS  0x02  // whether to paint child primitives
 #define PRIM_FLAG_CLIP_THIS   0x04  // whether to clip this primitive
 #define PRIM_FLAG_CLIP_KIDS   0x08  // whether to clip child primitives
+#define PRIM_FLAG_H_SCROLL    0x10  // whether to support horizontal scrolling
+#define PRIM_FLAG_V_SCROLL    0x20  // whether to support vertical scrolling
 #define PRIM_FLAGS_DEFAULT    0x0F  // flags set when a new base primitive is constructed
 
 #pragma pack(pop)

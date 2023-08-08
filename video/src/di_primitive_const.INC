@@ -42,19 +42,27 @@ m_width = 48            // coverage width in pixels
 m_height = 52           // coverage height in pixels
 m_x_extent = 56         // sum of m_abs_x + m_width
 m_y_extent = 60         // sum of m_abs_y + m_height
-m_color = 64            // applies to some primitives, but not to others
-m_future32 = 68         // for potential future use
-m_parent = 72           // id of parent primitive
-m_first_child = 76      // id of first child primitive
-m_last_child = 80       // id of last child primitive
-m_prev_sibling = 84     // id of previous sibling primitive
-m_next_sibling = 88     // id of next sibling primitive
-m_first_group = 92      // lowest index of drawing group in which it is a member
-m_last_group = 94       // highest index of drawing group in which it is a member
-m_id = 96               // id of this primitive
-m_flags = 98            // flag bits to control painting, etc.
-m_future8 = 99          // for potential future use
-sizeof_DiPrimitive = 100 // total size of the base class structure
+
+m_draw_x = 64           // max of m_abs_x and m_view_x
+m_draw_y = 68           // max of m_abs_y and m_view_y
+m_draw_x_extent = 72    // min of m_x_extent and m_view_x_extent
+m_draw_y_extent = 76    // min of m_y_extent and m_view_y_extent
+
+m_color = 80            // applies to some primitives, but not to others
+m_future32 = 84         // for potential future use
+m_parent = 88           // id of parent primitive
+m_first_child = 92      // id of first child primitive
+m_last_child = 96       // id of last child primitive
+m_prev_sibling = 100    // id of previous sibling primitive
+m_next_sibling = 104    // id of next sibling primitive
+
+m_first_group = 108     // lowest index of drawing group in which it is a member
+m_last_group = 110      // highest index of drawing group in which it is a member
+m_id = 112              // id of this primitive
+
+m_flags = 114           // flag bits to control painting, etc.
+m_future8 = 115         // for potential future use
+sizeof_DiPrimitive = 116 // total size of the base class structure
 
 // Offsets into DiPaintParams structure:
 

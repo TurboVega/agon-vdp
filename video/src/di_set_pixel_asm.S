@@ -48,19 +48,19 @@
 
 DiSetPixel_paint:
   entry     sp,16
-  l32i      a4,a3,m_line_index // a4 <-- m_line_index
-  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
-  bne       a4,a5,skip    // skip if this is not line for pixel
-  l32i      a4,a3,m_line8 // a4 <-- m_line8
-  l32i      a5,a2,m_abs_x // a5 <-- m_abs_x
-  l32i      a6,a2,m_view_x // a6 <-- m_view_x
-  blt       a5,a6,skip    // skip if m_abs_x < m_view_x
-  l32i      a6,a2,m_view_x_extent // a6 <-- m_view_x_extent
-  bge       a5,a6,skip    // skip if m_abs_x >= m_view_x_extent
-  movi      a6,2          // value for adjusting index
-  xor       a5,a5,a6      // a5 <-- m_abs_x ^ 2
-  add       a4,a4,a5      // a4 <-- m_line8 + m_abs_x
-  l8ui      a5,a2,m_color // a5 <-- m_color
-  s8i       a5,a4,0       // m_line8[index] <-- m_color
+  l32i      a4,a3,m_line_index    // a4 <-- m_line_index
+  l32i      a5,a2,m_draw_y        // a5 <-- m_draw_y
+  bne       a4,a5,skip            // skip if this is not line for pixel
+  l32i      a5,a2,m_abs_x         // a5 <-- m_abs_x
+  l32i      a6,a2,m_draw_x        // a6 <-- m_draw_x
+  blt       a5,a6,skip            // skip if m_abs_x < m_draw_x
+  l32i      a6,a2,m_draw_x_extent // a6 <-- m_draw_x_extent
+  bge       a5,a6,skip            // skip if m_abs_x >= m_draw_x_extent
+  movi      a6,2                  // value for adjusting index
+  xor       a5,a5,a6              // a5 <-- m_abs_x ^ 2
+  l32i      a4,a3,m_line8         // a4 <-- m_line8
+  add       a4,a4,a5              // a4 <-- m_line8 + m_abs_x
+  l8ui      a5,a2,m_color         // a5 <-- m_color
+  s8i       a5,a4,0               // m_line8[index] <-- m_color
 skip:
   retw.n

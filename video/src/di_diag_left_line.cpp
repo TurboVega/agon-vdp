@@ -34,7 +34,7 @@ DiDiagonalLeftLine::DiDiagonalLeftLine() {
 }
 
 void DiDiagonalLeftLine::init_params(int32_t x, int32_t y, int32_t length, uint8_t color) {
-  m_rel_x = x;
+  m_rel_x = x - length + 1;
   m_rel_y = y;
   m_width = length;
   m_height = length;

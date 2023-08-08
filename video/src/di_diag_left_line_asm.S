@@ -56,9 +56,14 @@ DiDiagonalLeftLine_paint:
   bge       a4,a6,skip    // skip if scan line is below diagonal line
   sub       a7,a4,a5      // a7 <-- m_line_index - m_abs_y
   l32i      a4,a3,m_line8 // a4 <-- m_line8
+  l32i      a6,a2,m_width // a6 <-- m_width
+  movi      a8,1          // a8 <-- value to subtract
+  sub       a6,a6,a8      // a6 <-- m_width - 1
+  sub       a6,a6,a7      // a6 <-- (m_width - 1) - (m_line_index - m_abs_y)) = X offset
   l32i      a5,a2,m_abs_x // a5 <-- m_abs_x
-  sub       a5,a5,a7      // a5 <-- m_abs_x - (m_line_index - m_abs_y)
-  bltz      a5,skip       // skip if final x < 0
+  add       a5,a5,a6      // a5 <-- m_abs_x + X offset
+  l32i      a6,a2,m_view_x // a6 <-- m_view_x
+  blt       a5,a6,skip    // skip if m_abs_x < m_view_x
   l32i      a6,a3,m_view_x_extent // a6 <-- m_view_x_extent
   bge       a5,a6,skip    // skip if final x >= m_view_x_extent
   movi      a6,2          // value for adjusting index

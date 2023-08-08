@@ -554,245 +554,371 @@ bool DiTerminal::handle_udg_sys_cmd(uint8_t character) {
 
 /*
 800x600x64 On-the-Fly Command Set:
-VDU 23, 30, 0, p; flags:                         Set flags for primitive
-VDU 23, 30, 1, p; x; y;:                         Move primitive: absolute
-VDU 23, 30, 2, p; x; y;:                         Move primitive: relative
-VDU 23, 30, 3, p;:                               Delete primitive
-VDU 23, 30, 4, p; x; y; c:                       Create primitive: Pixel
-VDU 23, 30, 5, p; x1; y1; x2; y2; c:             Create primitive: Line
-VDU 23, 30, 6, p; x1; y1; x2; y2; x3; y3; c:     Create primitive: Triangle Outline
-VDU 23, 30, 7, p; x1; y1; x2; y2; x3; y3; c:     Create primitive: Solid Triangle
-VDU 23, 30, 8, p; x; y; w; h; c:                 Create primitive: Rectangle Outline
-VDU 23, 30, 9, p; x; y; w; h; c:                 Create primitive: Solid Rectangle
-VDU 23, 30, 10, p; x; y; w; h; c:                Create primitive: Ellipse Outline
-VDU 23, 30, 11, p; x; y; w; h; c:                Create primitive: Solid Ellipse
-VDU 23, 30, 12, p; bitmaps, cols; rows; w; h; hs: Create primitive: Tile Map
-VDU 23, 30, 13, p; w; h; hs, vs:                 Create primitive: Solid Bitmap
-VDU 23, 30, 14, p; w; h; hs, vs:                 Create primitive: Masked Bitmap
-VDU 23, 30, 15, p; w; h; hs, vs, c:              Create primitive: Transparent Bitmap
-VDU 23, 30, 16, p; x; y;:                        Create primitive: Group
-VDU 23, 30, 17, p; x; y; s; h;:                  Move & slice bitmap: absolute
-VDU 23, 30, 18, p; x; y; s; h;:                  Move & slice bitmap: relative
-VDU 23, 30, 19, p; x; y; c:                      Set bitmap pixel
-VDU 23, 30, 20, p; x; y; n; c0, c1, c2, ...:     Set bitmap pixels
-VDU 23, 30, 21, p; g;:                           Add primitive to group
-VDU 23, 30, 22, p; g;:                           Remove primitive from group
-VDU 23, 30, 23, p; col, row, bi:                 Set bitmap index for tile in tile map
-VDU 23, 30, 24, p; bi, x; y; c:                  Set bitmap pixel in tile map
-VDU 23, 30, 25, p; bi, x; y; n; c0, c1, c2, ...: Set bitmap pixels in tile map
+VDU 23, 30, 0, id; flags: [6] Set flags for primitive
+VDU 23, 30, 1, id; x; y;: [9] Move primitive: absolute
+VDU 23, 30, 2, id; x; y;: [9] Move primitive: relative
+VDU 23, 30, 3, id;: [5] Delete primitive
+VDU 23, 30, 4, id; pid; flags, x; y; c: [13] Create primitive: Point
+VDU 23, 30, 5, id; pid; flags, x1; y1; x2; y2; c: [17] Create primitive: Line
+VDU 23, 30, 6, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Triangle Outline
+VDU 23, 30, 7, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Solid Triangle
+VDU 23, 30, 8, id; pid; flags, x; y; w; h; c: [17] Create primitive: Rectangle Outline
+VDU 23, 30, 9, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Rectangle
+VDU 23, 30, 10, id; pid; flags, x; y; w; h; c: [17] Create primitive: Ellipse Outline
+VDU 23, 30, 11, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Ellipse
+VDU 23, 30, 12, id; pid; flags, cols; rows; bitmaps, w; h;: [17] Create primitive: Tile Map
+VDU 23, 30, 13, id; pid; flags, w; h;: [12] Create primitive: Solid Bitmap
+VDU 23, 30, 14, id; pid; flags, w; h;: [12] Create primitive: Masked Bitmap
+VDU 23, 30, 15, id; pid; flags, w; h; c: [13] Create primitive: Transparent Bitmap
+VDU 23, 30, 16, id; pid; flags, x; y;: [12] Create primitive: Group
+VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice bitmap: absolute
+VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice bitmap: relative
+VDU 23, 30, 19, id; x; y; c: [10] Set bitmap pixel
+VDU 23, 30, 20, id; x; y; n; c0, c1, c2, ...: [11+n] Set bitmap pixels
+VDU 23, 30, 21, id; col; row; bi: [10] Set bitmap index for tile in tile map
+VDU 23, 30, 22, id; bi, x; y; c: [11] Set bitmap pixel in tile map
+VDU 23, 30, 23, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map
 */
 bool DiTerminal::handle_otf_cmd() {
   if (m_num_command_chars >= 5) {
     int16_t p = get_param_16(3); // get primitive index number
     switch (m_incoming_command[2]) {
 
-      // VDU 23, 30, 0, p; flags: Set flags for primitive
+      // VDU 23, 30, 0, id; flags: [6] Set flags for primitive
       case 0: {
         if (m_num_command_chars == 6) {
+          auto id = get_param_16(3);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 1, p; x; y;: Move primitive: absolute
+      // VDU 23, 30, 1, id; x; y;: [9] Move primitive: absolute
       case 1: {
         if (m_num_command_chars == 9) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 2, p; x; y;: Move primitive: relative
+      // VDU 23, 30, 2, id; x; y;: [9] Move primitive: relative
       case 2: {
         if (m_num_command_chars == 9) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 3, p;: Delete primitive
+      // VDU 23, 30, 3, id;: [5] Delete primitive
       case 3: {
         if (m_num_command_chars == 5) {
+          auto id = get_param_16(3);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 4, p; x; y; c: Create primitive: Pixel
+      // VDU 23, 30, 4, id; pid; flags, x; y; c: [13] Create primitive: Point
       case 4: {
-        if (m_num_command_chars == 10) {
+        if (m_num_command_chars == 13) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto x = get_param_16(8);
+          auto y = get_param_16(10);
+          auto c = get_param_8(12);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 5, p; x1; y1; x2; y2; c: Create primitive: Line
+      // VDU 23, 30, 5, id; pid; flags, x1; y1; x2; y2; c: [17] Create primitive: Line
       case 5: {
-        if (m_num_command_chars == 14) {
+        if (m_num_command_chars == 17) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto x1 = get_param_16(8);
+          auto y1 = get_param_16(10);
+          auto x2 = get_param_16(12);
+          auto y2 = get_param_16(14);
+          auto c = get_param_8(16);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 6, p; x1; y1; x2; y2; x3; y3; c: Create primitive: Triangle Outline
+      // VDU 23, 30, 6, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Triangle Outline
       case 6: {
-        if (m_num_command_chars == 18) {
+        if (m_num_command_chars == 21) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto x1 = get_param_16(8);
+          auto y1 = get_param_16(10);
+          auto x2 = get_param_16(12);
+          auto y2 = get_param_16(14);
+          auto x3 = get_param_16(16);
+          auto y3 = get_param_16(18);
+          auto c = get_param_8(20);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 7, p; x1; y1; x2; y2; x3; y3; c: Create primitive: Solid Triangle
+      // VDU 23, 30, 7, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Solid Triangle
       case 7: {
-        if (m_num_command_chars == 18) {
+        if (m_num_command_chars == 21) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto x1 = get_param_16(8);
+          auto y1 = get_param_16(10);
+          auto x2 = get_param_16(12);
+          auto y2 = get_param_16(14);
+          auto x3 = get_param_16(16);
+          auto y3 = get_param_16(18);
+          auto c = get_param_8(20);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 8, p; x; y; w; h; c: Create primitive: Rectangle Outline
+      // VDU 23, 30, 8, id; pid; flags, x; y; w; h; c: [17] Create primitive: Rectangle Outline
       case 8: {
-        if (m_num_command_chars == 14) {
+        if (m_num_command_chars == 17) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto x = get_param_16(8);
+          auto y = get_param_16(10);
+          auto w = get_param_16(12);
+          auto h = get_param_16(14);
+          auto c = get_param_8(16);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 9, p; x; y; w; h; c: Create primitive: Solid Rectangle
+      // VDU 23, 30, 9, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Rectangle
       case 9: {
-        if (m_num_command_chars == 14) {
+        if (m_num_command_chars == 17) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto x = get_param_16(8);
+          auto y = get_param_16(10);
+          auto w = get_param_16(12);
+          auto h = get_param_16(14);
+          auto c = get_param_8(16);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 10, p; x; y; w; h; c: Create primitive: Ellipse Outline
+      // VDU 23, 30, 10, id; pid; flags, x; y; w; h; c: [17] Create primitive: Ellipse Outline
       case 10: {
-        if (m_num_command_chars == 14) {
+        if (m_num_command_chars == 17) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto x = get_param_16(8);
+          auto y = get_param_16(10);
+          auto w = get_param_16(12);
+          auto h = get_param_16(14);
+          auto c = get_param_8(16);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 11, p; x; y; w; h; c: Create primitive: Solid Ellipse
+      // VDU 23, 30, 11, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Ellipse
       case 11: {
-        if (m_num_command_chars == 14) {
+        if (m_num_command_chars == 17) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto x = get_param_16(8);
+          auto y = get_param_16(10);
+          auto w = get_param_16(12);
+          auto h = get_param_16(14);
+          auto c = get_param_8(16);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 12, p; bitmaps, cols; rows; w; h; hs: Create primitive: Tile Map
+      // VDU 23, 30, 12, id; pid; flags, cols; rows; bitmaps, w; h;: [17] Create primitive: Tile Map
       case 12: {
-        if (m_num_command_chars == 15) {
+        if (m_num_command_chars == 17) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto cols = get_param_16(8);
+          auto rows = get_param_16(10);
+          auto bitmaps = get_param_8(12);
+          auto w = get_param_16(13);
+          auto h = get_param_16(15);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 13, p; w; h; hs, vs: Create primitive: Solid Bitmap
+      // VDU 23, 30, 13, id; pid; flags, w; h;: [12] Create primitive: Solid Bitmap
       case 13: {
-        if (m_num_command_chars == 11) {
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 14, p; w; h; hs, vs: Create primitive: Masked Bitmap
-      case 14: {
-        if (m_num_command_chars == 11) {
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 15, p; w; h; hs, vs, c: Create primitive: Transparent Bitmap
-      case 15: {
         if (m_num_command_chars == 12) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto w = get_param_16(8);
+          auto h = get_param_16(10);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 16, p; x; y;: Create primitive: Group
+      // VDU 23, 30, 14, id; pid; flags, w; h;: [12] Create primitive: Masked Bitmap
+      case 14: {
+        if (m_num_command_chars == 12) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto w = get_param_16(8);
+          auto h = get_param_16(10);
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 15, id; pid; flags, w; h; c: [13] Create primitive: Transparent Bitmap
+      case 15: {
+        if (m_num_command_chars == 13) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto w = get_param_16(8);
+          auto h = get_param_16(10);
+          auto c = get_param_8(12);
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 16, id; pid; flags, x; y;: [12] Create primitive: Group
       case 16: {
-        if (m_num_command_chars == 9) {
+        if (m_num_command_chars == 12) {
+          auto id = get_param_16(3);
+          auto pid = get_param_16(5);
+          auto flags = get_param_16(7);
+          auto x = get_param_16(8);
+          auto y = get_param_16(10);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 17, p; x; y; s; h;: Move & slice bitmap: absolute
+      // VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice bitmap: absolute
       case 17: {
         if (m_num_command_chars == 13) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto s = get_param_16(9);
+          auto h = get_param_16(11);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 18, p; x; y; s; h;: Move & slice bitmap: relative
+      // VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice bitmap: relative
       case 18: {
         if (m_num_command_chars == 13) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto s = get_param_16(9);
+          auto h = get_param_16(11);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 19, p; x; y; c: Set bitmap pixel
+      // VDU 23, 30, 19, id; x; y; c: [10] Set bitmap pixel
       case 19: {
         if (m_num_command_chars == 10) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto c = get_param_8(9);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 20, p; x; y; n; c0, c1, c2, ...: Set bitmap pixels
+      // VDU 23, 30, 20, id; x; y; n; c0, c1, c2, ...: [11+n] Set bitmap pixels
       case 20: {
-        if (m_num_command_chars >= 11) {
+        if ((m_num_command_chars >= 11) &&
+            (m_num_command_chars >= 11 + get_param_16(9))) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto n = get_param_16(9);
+          for (uint16_t i = 0; i < n; i++) {
+
+          }
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 21, p; g;: Add primitive to group
+      // VDU 23, 30, 21, id; col; row; bi: [10] Set bitmap index for tile in tile map
       case 21: {
-        if (m_num_command_chars == 7) {
+        if (m_num_command_chars == 10) {
+          auto id = get_param_16(3);
+          auto col = get_param_16(5);
+          auto row = get_param_16(7);
+          auto bi = get_param_8(9);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 22, p; g;: Remove primitive from group
+      // VDU 23, 30, 22, id; bi, x; y; c: [11] Set bitmap pixel in tile map
       case 22: {
-        if (m_num_command_chars == 7) {
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 23, p; col, row, bi: Set bitmap index for tile in tile map
-      case 23: {
-        if (m_num_command_chars == 8) {
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 24, p; bi, x; y; c: Set bitmap pixel in tile map
-      case 24: {
         if (m_num_command_chars == 11) {
+          auto id = get_param_16(3);
+          auto bi = get_param_8(5);
+          auto x = get_param_16(6);
+          auto y = get_param_16(8);
+          auto c = get_param_8(10);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 25, p; bi, x; y; n; c0, c1, c2, ...: Set bitmap pixels in tile map
-      case 25: {
-        if (m_num_command_chars >= 12) {
+      // VDU 23, 30, 23, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map
+      case 23: {
+        if ((m_num_command_chars >= 12) &&
+            (m_num_command_chars >= 12 + get_param_16(10))) {
+          auto id = get_param_16(3);
+          auto bi = get_param_8(5);
+          auto x = get_param_16(6);
+          auto y = get_param_16(8);
+          auto n = get_param_16(10);
+          for (uint16_t i = 0; i < n; i++) {
+
+          }
           m_num_command_chars = 0;
           return true;
         }
       } break;
+
     }
   }
   return false;

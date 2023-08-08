@@ -167,13 +167,15 @@ void setup() {
 	//boot_screen();
 
   // Start in video mode 19 (800x600x64);
-  videoMode = 19;
+	videoMode = 19;
 	DiManager manager;
 	//di_terminal = manager.create_terminal(0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
 	//boot_screen();
 	//manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
 	//manager.set_on_lines_painted_cb(&on_lines_painted);
-  DiPrimitive* prim = manager.create_point(1, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
+	manager.create_point(1, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
+	//manager.create_line(2, ROOT_PRIMITIVE_ID, 200, 20, 100, 120, 0x20);
+	//manager.create_solid_rectangle(3, ROOT_PRIMITIVE_ID, 600, 400, 25, 37, 0x22);
 	manager.run();
 }
 
