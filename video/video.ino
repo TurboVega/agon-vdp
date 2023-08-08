@@ -174,7 +174,9 @@ void setup() {
 	//manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
 	//manager.set_on_lines_painted_cb(&on_lines_painted);
 	manager.create_point(1, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
-	//manager.create_line(2, ROOT_PRIMITIVE_ID, 200, 20, 100, 120, 0x20);
+	manager.create_point(4, ROOT_PRIMITIVE_ID, 405, 305, 0x31);
+	manager.create_line(2, ROOT_PRIMITIVE_ID, 200, 20, 100, 120, 0x20); // diagonal left
+	manager.create_line(3, ROOT_PRIMITIVE_ID, 205, 20, 105, 120, 0x23); // diagonal left
 	//manager.create_solid_rectangle(3, ROOT_PRIMITIVE_ID, 600, 400, 25, 37, 0x22);
 	manager.run();
 }

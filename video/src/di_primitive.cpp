@@ -120,8 +120,8 @@ void IRAM_ATTR DiPrimitive::compute_absolute_geometry(
 
   m_draw_x = MAX(m_abs_x, m_view_x);
   m_draw_y = MAX(m_abs_y, m_view_y);
-  m_draw_x_extent = MAX(m_x_extent, m_view_x_extent);
-  m_draw_y_extent = MAX(m_y_extent, m_view_y_extent);
+  m_draw_x_extent = MIN(m_x_extent, m_view_x_extent);
+  m_draw_y_extent = MIN(m_y_extent, m_view_y_extent);
 
   DiPrimitive* child = m_first_child;
   while (child) {
