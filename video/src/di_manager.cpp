@@ -432,6 +432,7 @@ DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent,
     DiTerminal* terminal = new DiTerminal(x, y, codes, columns, rows, fg_color, bg_color, font);
     terminal->set_id(id);
     add_primitive(terminal, m_primitives[parent]);
+    m_terminal = terminal;
     return terminal;
 }
 
@@ -478,6 +479,11 @@ void IRAM_ATTR DiManager::loop() {
         }
       }
       end_of_frame = false;
+
+      while (ESPSerial.available() > 0) {
+        store_character(ESPSerial.read());
+      }
+
       (*m_on_lines_painted_cb)();
     } else if (!end_of_frame) {
       // Handle modifying primitives before the next frame starts.
@@ -519,11 +525,6 @@ void IRAM_ATTR DiManager::draw_primitives(DiPaintParams* params) {
 }
 
 void DiManager::set_on_vertical_blank_cb(DiVoidCallback callback_fcn) {
-	process_stored_characters();
-	while (ESPSerial.available() > 0) {
-		process_character(ESPSerial.read());
-	}
-
   if (callback_fcn) {
     m_on_vertical_blank_cb = callback_fcn;
   } else {
@@ -532,10 +533,6 @@ void DiManager::set_on_vertical_blank_cb(DiVoidCallback callback_fcn) {
 }
 
 void DiManager::set_on_lines_painted_cb(DiVoidCallback callback_fcn) {
-	while (ESPSerial.available() > 0) {
-		store_character(ESPSerial.read());
-	}
-
   if (callback_fcn) {
     m_on_lines_painted_cb = callback_fcn;
   } else {
@@ -544,6 +541,10 @@ void DiManager::set_on_lines_painted_cb(DiVoidCallback callback_fcn) {
 }
 
 void IRAM_ATTR DiManager::on_vertical_blank() {
+	process_stored_characters();
+	while (ESPSerial.available() > 0) {
+		process_character(ESPSerial.read());
+	}
   (*m_on_vertical_blank_cb)();
 }
 

@@ -49,6 +49,8 @@
 //     [a2 + sizeof_DiPrimitive + 80] m_tiles
 //     [a2 + sizeof_DiPrimitive + 84] m_pixels
 //     [a2 + sizeof_DiPrimitive + 88] m_offsets
+//     [a2 + sizeof_DiPrimitive + 92] m_tile_width
+//     [a2 + sizeof_DiPrimitive + 96] m_tile_height
 //
 // a3: const DiPaintParams *params
 //
@@ -92,7 +94,7 @@ DiTileMap_paint:
   l32i      a8,a3,m_line32 // a8 <-- m_line32
 
   l32i      a12,a2,m_abs_x    // a12 <-- m_abs_x
-  l32i      a14,a2,m_width    // a14 <-- m_width
+  l32i      a14,a2,(sizeof_DiPrimitive+92) // a14 <-- m_tile_width
   blt       a12,a14,within_tile // go if x is within tile width
 adjust_width:
   sub       a12,a12,a14       // a12 <-- x reduced by tile width

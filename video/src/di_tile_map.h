@@ -45,7 +45,7 @@ class DiTileMap: public DiPrimitive {
   //
   DiTileMap(uint32_t screen_width, uint32_t screen_height,
             uint32_t bitmaps, uint32_t columns, uint32_t rows,
-            uint32_t width, uint32_t height, bool hscroll);
+            uint32_t tile_width, uint32_t tile_height, bool hscroll);
 
   // Destroy a tile map, including its allocated data.
   virtual ~DiTileMap();
@@ -92,5 +92,7 @@ class DiTileMap: public DiPrimitive {
   uint32_t** m_tiles;
   uint32_t* m_pixels;
   uint32_t* m_offsets;
+  uint32_t m_tile_width;
+  uint32_t m_tile_height;
 };
 

@@ -41,16 +41,16 @@ IRAM_ATTR void DiTileMap_paint(void* this_ptr, const DiPaintParams *params);
 
 DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
                       uint32_t bitmaps, uint32_t columns, uint32_t rows,
-                      uint32_t width, uint32_t height, bool hscroll) {
-  m_width = width * columns;
-  m_height = height * rows;
+                      uint32_t tile_width, uint32_t tile_height, bool hscroll) {
+  m_width = tile_width * columns;
+  m_height = tile_height * rows;
   m_bitmaps = bitmaps;
   m_rows = rows;
   m_columns = columns;
-  m_draw_words_per_line = (width + sizeof(uint32_t) - 1) / sizeof(uint32_t);
+  m_draw_words_per_line = (tile_width + sizeof(uint32_t) - 1) / sizeof(uint32_t);
   m_words_per_line = m_draw_words_per_line + 2;
   m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
-  m_words_per_position = m_words_per_line * height;
+  m_words_per_position = m_words_per_line * tile_height;
   m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
   m_words_per_bitmap = m_words_per_position * (hscroll ? 4 : 1);
   m_bytes_per_bitmap = m_words_per_bitmap * sizeof(uint32_t);
@@ -60,10 +60,12 @@ DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
   m_bytes_for_bitmaps = m_words_for_bitmaps * sizeof(uint32_t);
   m_words_for_tiles = columns * rows;
   m_bytes_for_tiles = m_words_for_tiles * sizeof(uint32_t);
-  m_words_for_offsets = rows * height * 2;
+  m_words_for_offsets = rows * tile_height * 2;
   m_bytes_for_offsets = m_words_for_offsets * sizeof(uint32_t);
-  m_visible_columns = screen_width / width;
-  m_visible_rows = screen_height / height;
+  m_tile_width = tile_width;
+  m_tile_height = tile_height;
+  m_visible_columns = screen_width / tile_width;
+  m_visible_rows = screen_height / tile_height;
 
   size_t new_size = (size_t)(m_bytes_for_tiles);
   void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_INTERNAL);
@@ -79,9 +81,9 @@ DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
   m_offsets = (uint32_t*)p;
 
   for (uint32_t row = 0; row < rows; row++) {
-    for (uint32_t y = 0; y < height; y++) {
-      m_offsets[(row * height + y) * 2] = (uint32_t)(m_tiles + row * m_words_per_row); // points to tile map row
-      m_offsets[(row * height + y) * 2 + 1] = y * m_bytes_per_line; // offset to bitmap line
+    for (uint32_t y = 0; y < tile_height; y++) {
+      m_offsets[(row * tile_height + y) * 2] = (uint32_t)(m_tiles + row * m_words_per_row); // points to tile map row
+      m_offsets[(row * tile_height + y) * 2 + 1] = y * m_bytes_per_line; // offset to bitmap line
     }
 
     for (uint32_t col = 0; col < columns; col++) {

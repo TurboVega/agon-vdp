@@ -117,6 +117,8 @@ audio_channel *	audio_channels[AUDIO_CHANNELS];	// Storage for the channel data
 
 ESP32Time	rtc(0);								// The RTC
 
+DiManager* di_manager;  // used for 800x600x64 mode
+
 #if DEBUG == 1 || SERIALKB == 1
 HardwareSerial DBGSerial(0);
 #endif 
@@ -160,11 +162,12 @@ void setup() {
   // Start in video mode 19 (800x600x64);
 	videoMode = 19;
 	DiManager manager;
-	//di_terminal = manager.create_terminal(0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
-	//boot_screen();
+  di_manager = &manager;
+	manager.create_terminal(1, ROOT_PRIMITIVE_ID, 0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
+	boot_screen();
 	//manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
 	//manager.set_on_lines_painted_cb(&on_lines_painted);
-	manager.create_point(1, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
+	manager.create_point(10, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
 	manager.create_point(4, ROOT_PRIMITIVE_ID, 405, 305, 0x31);
 	manager.create_line(2, ROOT_PRIMITIVE_ID, 200, 20, 100, 120, 0x20); // diagonal left
 	manager.create_line(3, ROOT_PRIMITIVE_ID, 205, 20, 105, 120, 0x23); // diagonal left
@@ -775,13 +778,13 @@ void set_mode(int mode) {
 }
 
 void print(char const * text) {
-	//if (di_terminal) {
-	//	di_terminal->store_string((const uint8_t*) text);
-	//} else {
+	if (di_manager) {
+		di_manager->store_string((const uint8_t*) text);
+	} else {
 		for(int i = 0; i < strlen(text); i++) {
 			vdu(text[i]);
 		}
-	//}
+	}
 }
 
 void printFmt(const char *format, ...) {

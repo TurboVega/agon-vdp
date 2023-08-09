@@ -75,6 +75,13 @@ class DiManager {
     // For the demo, the loop never ends.
     void IRAM_ATTR run();
 
+    // Store an incoming character for use later.
+    void store_character(uint8_t character);
+
+    // Store an incoming character string for use later.
+    // The string is null-terminated.
+    void store_string(const uint8_t* string);
+
     // Set the position of a top-level tile map.
     //void set_tile_map_position(DiTileMap* tile_map, int32_t x, int32_t y);
 
@@ -123,13 +130,6 @@ class DiManager {
 
     // Setup a pair of DMA descriptors.
     void init_dma_descriptor(volatile DiVideoBuffer* vbuf, uint32_t descr_index);
-
-  // Store an incoming character for use later.
-  void store_character(uint8_t character);
-
-  // Store an incoming character string for use later.
-  // The string is null-terminated.
-  void store_string(const uint8_t* string);
 
   // Process all stored characters.
   void process_stored_characters();
