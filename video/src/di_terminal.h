@@ -27,9 +27,6 @@
 #pragma once
 #include "di_tile_map.h"
 
-#define INCOMING_DATA_BUFFER_SIZE  2048
-#define INCOMING_COMMAND_SIZE      24
-
 class DiTerminal: public DiTileMap {
   public:
 
@@ -53,16 +50,6 @@ class DiTerminal: public DiTileMap {
   // Destroy a terminal, including its allocated data.
   virtual ~DiTerminal();
 
-  // Store an incoming character for use later.
-  void store_character(uint8_t character);
-
-  // Store an incoming character string for use later.
-  // The string is null-terminated.
-  void store_string(const uint8_t* string);
-
-  // Process all stored characters.
-  void process_stored_characters();
-
   // Set the current character position. The position given may be within the terminal
   // display, or may be outside of it. If it is within the display, then the next
   // character written by write_character(ch) will appear at the given position. If the
@@ -70,18 +57,6 @@ class DiTerminal: public DiTileMap {
   // terminal display to scroll far enough to bring the current character position into
   // view, and the current position will be updated accordingly.
   void set_position(int32_t column, int32_t row);
-
-  // Process an incoming character, which could be printable data or part of some
-  // VDU command. If the character is printable, it will be written to the terminal
-  // display. If the character is non-printable, or part of a VDU command, it will
-  // be treated accordingly. This function returns true if the character was fully
-  // processed, and false otherwise.
-  bool process_character(uint8_t character);
-
-  // Process an incoming string, which could be printable data and/or part of some
-  // VDU command(s). This function calls process_character(), for each character
-  // in the given string. The string is null-terminated.
-  void process_string(const uint8_t* string);
 
   // Write a character at the current character position. This may cause scrolling
   // BEFORE writing the character (not after), if the current character position is
@@ -117,35 +92,13 @@ class DiTerminal: public DiTileMap {
   void move_cursor_down();
   void move_cursor_up();
   void move_cursor_home();
-  bool move_cursor_tab(uint8_t character);
   void move_cursor_boln();
+  void move_cursor_tab(uint8_t column, uint8_t row);
   void do_backspace();
-  bool handle_udg_sys_cmd(uint8_t character);
-  bool handle_otf_cmd();
-  bool ignore_cmd(uint8_t character, uint8_t len);
-  bool define_graphics_viewport(uint8_t character);
-  bool define_text_viewport(uint8_t character);
-  void report(uint8_t character);
-  static uint8_t to_hex(uint8_t value);
-  uint8_t peek_into_buffer();
-  uint8_t read_from_buffer();
-  void skip_from_buffer();
-  void send_cursor_position();
-  void send_screen_char(int32_t x, int32_t y);
-  void send_screen_pixel(int32_t x, int32_t y);
-  void send_mode_information();
-  void send_general_poll(uint8_t b);
-  uint8_t get_param_8(uint32_t index);
-  int16_t get_param_16(uint32_t index);
+  void get_position(uint16_t& column, uint16_t& row);
 
   protected:
   int32_t   m_current_column;
   int32_t   m_current_row;
-  uint32_t  m_next_buffer_write;
-  uint32_t  m_next_buffer_read;
-  uint32_t  m_num_buffer_chars;
-  uint32_t  m_num_command_chars;
-  uint8_t   m_incoming_data[INCOMING_DATA_BUFFER_SIZE];
-  uint8_t   m_incoming_command[INCOMING_COMMAND_SIZE];
 };
 

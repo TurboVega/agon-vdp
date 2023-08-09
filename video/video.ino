@@ -121,22 +121,13 @@ ESP32Time	rtc(0);								// The RTC
 HardwareSerial DBGSerial(0);
 #endif 
 
-DiTerminal* di_terminal; // used for 800x600x64 mode
-
 // This function is called when vertical blanking starts.
 void IRAM_ATTR on_vertical_blank_start() {
 	do_keyboard();
-	di_terminal->process_stored_characters();
-	while (ESPSerial.available() > 0) {
-		di_terminal->process_character(ESPSerial.read());
-	}
 }
 
 // This function is called between painting sets of scan lines.
 void IRAM_ATTR on_lines_painted() {
-	while (ESPSerial.available() > 0) {
-		di_terminal->store_character(ESPSerial.read());
-	}
 }
 
 void setup() {
@@ -781,13 +772,13 @@ void set_mode(int mode) {
 }
 
 void print(char const * text) {
-	if (di_terminal) {
-		di_terminal->store_string((const uint8_t*) text);
-	} else {
+	//if (di_terminal) {
+	//	di_terminal->store_string((const uint8_t*) text);
+	//} else {
 		for(int i = 0; i < strlen(text); i++) {
 			vdu(text[i]);
 		}
-	}
+	//}
 }
 
 void printFmt(const char *format, ...) {

@@ -31,6 +31,9 @@
 
 typedef void (*DiVoidCallback)();
 
+#define INCOMING_DATA_BUFFER_SIZE  2048
+#define INCOMING_COMMAND_SIZE      24
+
 class DiManager {
     public:
     // Construct a drawing-instruction manager, which handles multiple drawing primitives.
@@ -84,7 +87,13 @@ class DiManager {
     volatile DiVideoScanLine *  m_back_porch;
     DiVoidCallback              m_on_vertical_blank_cb;
     DiVoidCallback              m_on_lines_painted_cb;
-
+    uint32_t                    m_next_buffer_write;
+    uint32_t                    m_next_buffer_read;
+    uint32_t                    m_num_buffer_chars;
+    uint32_t                    m_num_command_chars;
+    DiTerminal*                 m_terminal;
+    uint8_t                     m_incoming_data[INCOMING_DATA_BUFFER_SIZE];
+    uint8_t                     m_incoming_command[INCOMING_COMMAND_SIZE];
     DiPrimitive *               m_primitives[MAX_NUM_PRIMITIVES]; // Indexes of array are primitive IDs
     std::vector<DiPrimitive*>   m_groups[NUM_VERTICAL_GROUPS]; // Vertical scan groups (for optimizing paint calls)
 
@@ -114,4 +123,55 @@ class DiManager {
 
     // Setup a pair of DMA descriptors.
     void init_dma_descriptor(volatile DiVideoBuffer* vbuf, uint32_t descr_index);
+
+  // Store an incoming character for use later.
+  void store_character(uint8_t character);
+
+  // Store an incoming character string for use later.
+  // The string is null-terminated.
+  void store_string(const uint8_t* string);
+
+  // Process all stored characters.
+  void process_stored_characters();
+
+  // Process an incoming character, which could be printable data or part of some
+  // VDU command. If the character is printable, it will be written to the terminal
+  // display. If the character is non-printable, or part of a VDU command, it will
+  // be treated accordingly. This function returns true if the character was fully
+  // processed, and false otherwise.
+  bool process_character(uint8_t character);
+
+  // Process an incoming string, which could be printable data and/or part of some
+  // VDU command(s). This function calls process_character(), for each character
+  // in the given string. The string is null-terminated.
+  void process_string(const uint8_t* string);
+
+  uint8_t get_param_8(uint32_t index);
+  int16_t get_param_16(uint32_t index);
+  bool handle_udg_sys_cmd(uint8_t character);
+  bool handle_otf_cmd();
+  bool ignore_cmd(uint8_t character, uint8_t len);
+  bool define_graphics_viewport(uint8_t character);
+  bool define_text_viewport(uint8_t character);
+  bool move_cursor_tab(uint8_t character);
+  void clear_screen();
+  void move_cursor_left();
+  void move_cursor_right();
+  void move_cursor_down();
+  void move_cursor_up();
+  void move_cursor_home();
+  void move_cursor_boln();
+  void do_backspace();
+  uint8_t read_character(int16_t x, int16_t y);
+  void write_character(uint8_t character);
+  void report(uint8_t character);
+  static uint8_t to_hex(uint8_t value);
+  uint8_t peek_into_buffer();
+  uint8_t read_from_buffer();
+  void skip_from_buffer();
+  void send_cursor_position();
+  void send_screen_char(int16_t x, int16_t y);
+  void send_screen_pixel(int16_t x, int16_t y);
+  void send_mode_information();
+  void send_general_poll(uint8_t b);
 };
