@@ -314,15 +314,16 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
   }
 }*/
 
-DiPrimitive* DiManager::create_point(uint16_t id, uint16_t parent,
+DiPrimitive* DiManager::create_point(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t x, int32_t y, uint8_t color) {
     DiPrimitive* prim = new DiSetPixel(x, y, color);
     prim->set_id(id);
+    prim->set_flags(flags);
     add_primitive(prim, m_primitives[parent]);
     return prim;
 }
 
-DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent,
+DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color) {
     DiPrimitive* prim;
     if (x1 == x2) {
@@ -392,45 +393,50 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent,
     }
 
     prim->set_id(id);
+    prim->set_flags(flags);
     add_primitive(prim, m_primitives[parent]);
     return prim;
 }
 
-DiPrimitive* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent,
+DiPrimitive* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
     auto prim = new DiSolidRectangle();
     prim->init_params(x, y, width, height, color);
     prim->set_id(id);
+    prim->set_flags(flags);
     add_primitive(prim, m_primitives[parent]);
     return prim;
 }
 
-DiPrimitive* DiManager::create_triangle(uint16_t id, uint16_t parent,
+DiPrimitive* DiManager::create_triangle(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             int32_t x3, int32_t y3, uint8_t color) {
     auto prim = new DiGeneralLine();
     prim->init_params(x1, y1, x2, y2, x3, y3, color);
     prim->set_id(id);
+    prim->set_flags(flags);
     add_primitive(prim, m_primitives[parent]);
     return prim;
 }
 
-DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent,
+DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t screen_width, int32_t screen_height,
                             uint32_t bitmaps, uint32_t columns, uint32_t rows,
                             uint32_t width, uint32_t height, bool hscroll) {
     DiTileMap* tile_map =
       new DiTileMap(screen_width, screen_height, bitmaps, columns, rows, width, height, hscroll);
     tile_map->set_id(id);
+    tile_map->set_flags(flags);
     add_primitive(tile_map, m_primitives[parent]);
     return tile_map;
 }
 
-DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent,
+DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint8_t flags,
                             uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
                             uint8_t fg_color, uint8_t bg_color, const uint8_t* font) {
     DiTerminal* terminal = new DiTerminal(x, y, codes, columns, rows, fg_color, bg_color, font);
     terminal->set_id(id);
+    terminal->set_flags(flags);
     add_primitive(terminal, m_primitives[parent]);
     m_terminal = terminal;
     return terminal;
@@ -462,16 +468,22 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line_index = current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
-        memset((void*)paint_params.m_line32, 0, 800); // debugging
+
+        /*for (uint32_t i = 0; i < 800; i++) {
+          if (paint_params.m_line8[i] & 0xC0) {
+            memset((void*)paint_params.m_line32, 0xF0, 800); // debugging
+          }
+        }*/
+        //memset((void*)paint_params.m_line32, 0x00, 800); // debugging
         draw_primitives(&paint_params);
-        paint_params.m_line8[10] = 0x10;
+        //paint_params.m_line8[10] = 0x10;
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
-        memset((void*)paint_params.m_line32, 0, 800); // debugging
+        //memset((void*)paint_params.m_line32, 0, 800); // debugging
         draw_primitives(&paint_params);
-        paint_params.m_line8[20] = 0x02;
+        //paint_params.m_line8[20] = 0x02;
 
         ++current_line_index;
         if (++current_buffer_index >= NUM_ACTIVE_BUFFERS) {
@@ -497,16 +509,23 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line_index = current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
-        memset((void*)paint_params.m_line32, 0, 800); // debugging
+
+        /*for (uint32_t i = 0; i < 800; i++) {
+          if (paint_params.m_line8[i] & 0xC0) {
+            memset((void*)paint_params.m_line32, 0xF0, 800); // debugging
+          }
+        }*/
+        //memset((void*)paint_params.m_line32, 0x00, 800); // debugging
+
         draw_primitives(&paint_params);
-        paint_params.m_line8[30] = 0x33;
+        //paint_params.m_line8[30] = 0x33;
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
-        memset((void*)paint_params.m_line32, 0, 800); // debugging
+        //memset((void*)paint_params.m_line32, 0, 800); // debugging
         draw_primitives(&paint_params);
-        paint_params.m_line8[40] = 0x27;
+        //paint_params.m_line8[40] = 0x27;
       }
 
       end_of_frame = true;
@@ -991,6 +1010,7 @@ bool DiManager::handle_otf_cmd() {
           auto x2 = get_param_16(12);
           auto y2 = get_param_16(14);
           auto c = get_param_8(16);
+          create_line(id, pid, flags, x1, y1, x2, y2, c);
           m_num_command_chars = 0;
           return true;
         }

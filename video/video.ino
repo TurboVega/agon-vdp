@@ -162,12 +162,13 @@ void setup() {
   // Start in video mode 19 (800x600x64);
 	videoMode = 19;
 	DiManager manager;
-  di_manager = &manager;
-	manager.create_terminal(1, ROOT_PRIMITIVE_ID, 0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
+	di_manager = &manager;
+	manager.create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
+		0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
 	boot_screen();
-	//manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
-	//manager.set_on_lines_painted_cb(&on_lines_painted);
-	manager.create_point(10, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
+	manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
+	manager.set_on_lines_painted_cb(&on_lines_painted);
+	/*manager.create_point(10, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
 	manager.create_point(4, ROOT_PRIMITIVE_ID, 405, 305, 0x31);
 	manager.create_line(2, ROOT_PRIMITIVE_ID, 200, 20, 100, 120, 0x20); // diagonal left
 	manager.create_line(3, ROOT_PRIMITIVE_ID, 205, 20, 105, 120, 0x23); // diagonal left
@@ -176,7 +177,7 @@ void setup() {
 	manager.create_line(7, ROOT_PRIMITIVE_ID, 249, 550, 285, 550, 0x0C); // horizontal
 	manager.create_line(8, ROOT_PRIMITIVE_ID, 270, 520, 270, 570, 0x0D); // vertical
 	manager.create_line(9, ROOT_PRIMITIVE_ID, 25, 511, 699, 409, 0x1D); // general
-	manager.create_solid_rectangle(3, ROOT_PRIMITIVE_ID, 600, 400, 25, 37, 0x22);
+	manager.create_solid_rectangle(3, ROOT_PRIMITIVE_ID, 600, 400, 25, 37, 0x22);*/
 	manager.run();
 }
 

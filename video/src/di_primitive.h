@@ -100,6 +100,9 @@ class DiPrimitive {
   inline DiPrimitive* get_first_child() { return m_first_child; }
   inline DiPrimitive* get_next_sibling() { return m_next_sibling; }
 
+  // Sets some data members.
+  inline void set_flags(uint8_t flags) { m_flags = flags; }
+
   // Clear the pointers to children.
   void clear_child_ptrs();
 
