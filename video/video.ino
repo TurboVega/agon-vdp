@@ -170,7 +170,7 @@ void setup() {
 	manager.create_line(3, ROOT_PRIMITIVE_ID, 205, 20, 105, 120, 0x23); // diagonal left
 	manager.create_line(5, ROOT_PRIMITIVE_ID, 400, 20, 440, 60, 0x20); // diagonal left
 	manager.create_line(6, ROOT_PRIMITIVE_ID, 405, 20, 445, 60, 0x23); // diagonal left
-	//manager.create_solid_rectangle(3, ROOT_PRIMITIVE_ID, 600, 400, 25, 37, 0x22);
+	manager.create_solid_rectangle(3, ROOT_PRIMITIVE_ID, 600, 400, 25, 37, 0x22);
 	manager.run();
 }
 

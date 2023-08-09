@@ -49,27 +49,15 @@
 DiSolidRectangle_paint:
   entry     sp,16
   l32i      a4,a3,m_line_index // a4 <-- m_line_index
-  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
+  l32i      a5,a2,m_draw_y // a5 <-- m_draw_y
   blt       a4,a5,skip    // skip if scan line is above rectangle
-  l32i      a6,a2,m_y_extent // a6 <-- m_y_extent
+  l32i      a6,a2,m_draw_y_extent // a6 <-- m_draw_y_extent
   bge       a4,a6,skip    // skip if scan line is below rectangle
   l32i      a4,a3,m_line8 // a4 <-- m_line8
-  l32i      a5,a2,m_abs_x // a5 <-- m_abs_x
-  l32i      a7,a3,m_view_x_extent // a7 <-- m_view_x_extent
-  bge       a5,a7,skip    // skip if left_hand_x >= m_view_x_extent
-  bgez      a5,left_ok    // don't shorten line if left_hand_x >= 0
-  xor       a5,a5,a5      // a5 (left_hand_x) <-- 0
-left_ok:
-  l32i      a8,a2,m_x_extent // a8 <-- m_x_extent  
-  add       a8,a8,a6      // a8 (right_hand_x) <-- m_x_extent
-  beqz      a8,skip       // skip if right_hand_x == 0
-  bltz      a8,skip       // skip if right_hand_x < 0
-  blt       a8,a7,right_ok  // don't shorten line if right_hand_x < m_view_x_extent
-  mov       a8,a7         // a8 (right_hand_x) <-- m_view_x_extent
-right_ok:
+  l32i      a5,a2,m_draw_x // a5 <-- m_draw_x
+  l32i      a8,a2,m_draw_x_extent // a8 <-- m_draw_x_extent
+  bge       a5,a8,skip    // skip if left_hand_x >= m_draw_x_extent
   sub       a3,a8,a5      // a3 <-- final line width
-  beqz      a3,skip       // skip if nothing to draw
-  bltz      a3,skip       // skip if nothing to draw
   l32i      a2,a2,m_color // a2 <-- m_color (4 bytes of same color)
 
   movi      a6,3          // a6 <-- mask for checking byte alignment
