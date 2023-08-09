@@ -168,8 +168,9 @@ void setup() {
 	manager.create_point(4, ROOT_PRIMITIVE_ID, 405, 305, 0x31);
 	manager.create_line(2, ROOT_PRIMITIVE_ID, 200, 20, 100, 120, 0x20); // diagonal left
 	manager.create_line(3, ROOT_PRIMITIVE_ID, 205, 20, 105, 120, 0x23); // diagonal left
-	manager.create_line(5, ROOT_PRIMITIVE_ID, 400, 20, 440, 60, 0x20); // diagonal left
-	manager.create_line(6, ROOT_PRIMITIVE_ID, 405, 20, 445, 60, 0x23); // diagonal left
+	manager.create_line(5, ROOT_PRIMITIVE_ID, 400, 20, 440, 60, 0x20); // diagonal right
+	manager.create_line(6, ROOT_PRIMITIVE_ID, 405, 20, 445, 60, 0x23); // diagonal right
+	manager.create_line(7, ROOT_PRIMITIVE_ID, 249, 550, 285, 550, 0x0C); // horizontal
 	manager.create_solid_rectangle(3, ROOT_PRIMITIVE_ID, 600, 400, 25, 37, 0x22);
 	manager.run();
 }
