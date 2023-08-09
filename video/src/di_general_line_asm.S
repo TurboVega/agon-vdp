@@ -61,12 +61,14 @@
 DiGeneralLine_paint:
   entry     sp,16
   l32i      a4,a3,m_line_index // a4 <-- m_line_index
-  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
-  l32i      a6,a2,m_y_extent // a6 <-- m_y_extent
+  l32i      a5,a2,m_draw_y // a5 <-- m_draw_y
+  l32i      a6,a2,m_draw_y_extent // a6 <-- m_draw_y_extent
   l32i      a12,a2,(sizeof_DiPrimitive+0) // a12 <-- m_line_pieces.m_pieces
 
   blt       a4,a5,skip    // skip if scan line is above this line
   bge       a4,a6,skip    // skip if scan line is below this line
+
+  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y 
   sub       a4,a4,a5      // a4 <-- y offset from top of this line
   slli      a4,a4,3       // a4 <-- array offset to proper DiLinePiece
   add       a12,a12,a4    // a12 <-- pointer to proper DiLinePiece
@@ -75,16 +77,16 @@ DiGeneralLine_paint:
   l16ui     a5,a12,0      // a5 <-- x
   l16ui     a8,a12,4      // a8 <-- width
   add       a8,a8,a5      // a8 <-- x + width (current x extent)
-  l32i      a7,a3,m_view_x_extent // a7 <-- m_view_x_extent
-  bge       a5,a7,skip    // skip if left_hand_x >= m_view_x_extent
-  bgez      a5,left_ok    // don't shorten line if left_hand_x >= 0
-  xor       a5,a5,a5      // a5 (left_hand_x) <-- 0
+  l32i      a9,a2,m_draw_x // a9 <-- m_draw_x
+  l32i      a7,a2,m_draw_x_extent // a7 <-- m_draw_x_extent
+  bge       a5,a7,skip    // skip if left_hand_x >= m_draw_x_extent
+  bge       a5,a9,left_ok // don't shorten line if left_hand_x >= m_draw_x
+  mov       a5,a9         // a5 (left_hand_x) <-- m_draw_x
 left_ok:
-  add       a8,a8,a6      // a8 (right_hand_x) <-- x extent
-  beqz      a8,skip       // skip if right_hand_x == 0
-  bltz      a8,skip       // skip if right_hand_x < 0
-  blt       a8,a7,right_ok  // don't shorten line if right_hand_x < m_view_x_extent
-  mov       a8,a7         // a8 (right_hand_x) <-- m_view_x_extent
+  beq       a8,a9,skip    // skip if right_hand_x == m_draw_x
+  blt       a8,a9,skip    // skip if right_hand_x < m_draw_x
+  blt       a8,a7,right_ok  // don't shorten line if right_hand_x < m_draw_x_extent
+  mov       a8,a7         // a8 (right_hand_x) <-- m_draw_x_extent
 right_ok:
   sub       a3,a8,a5      // a3 <-- final line width
   beqz      a3,skip       // skip if nothing to draw

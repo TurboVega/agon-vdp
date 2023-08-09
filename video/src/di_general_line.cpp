@@ -48,7 +48,7 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
   m_rel_y = MIN(y1,y2);
   m_width = MAX(x1,x2) - m_rel_x + 1;
   m_height = MAX(y1,y2) - m_rel_y + 1;
-
+  color &= 0x3F; // remove any alpha bits
   m_color =
     (((uint32_t)color) << 24) |
     (((uint32_t)color) << 16) |
