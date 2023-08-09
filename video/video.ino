@@ -171,6 +171,7 @@ void setup() {
 	manager.create_line(5, ROOT_PRIMITIVE_ID, 400, 20, 440, 60, 0x20); // diagonal right
 	manager.create_line(6, ROOT_PRIMITIVE_ID, 405, 20, 445, 60, 0x23); // diagonal right
 	manager.create_line(7, ROOT_PRIMITIVE_ID, 249, 550, 285, 550, 0x0C); // horizontal
+	manager.create_line(8, ROOT_PRIMITIVE_ID, 270, 520, 270, 570, 0x0D); // horizontal
 	manager.create_solid_rectangle(3, ROOT_PRIMITIVE_ID, 600, 400, 25, 37, 0x22);
 	manager.run();
 }
