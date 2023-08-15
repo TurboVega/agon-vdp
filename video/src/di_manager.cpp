@@ -291,7 +291,9 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
 
 void DiManager::recompute_primitive(DiPrimitive* prim, int32_t old_min_group, int32_t old_max_group) {
   prim->compute_absolute_geometry();
-
+??     prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
+      parent->get_view_x_extent(), parent->get_view_y_extent());
+?? test whether PAINT?
   int32_t min_group2, max_group2;
   tile_map->get_vertical_group_range(min_group2, max_group2);
 
