@@ -92,6 +92,8 @@ class DiPrimitive {
   // Gets various data members.
   inline uint16_t get_id() { return m_id; }
   inline uint8_t get_flags() { return m_flags; }
+  inline int32_t get_width() { return m_width; }
+  inline int32_t get_height() { return m_height; }
   inline int32_t get_view_x() { return m_view_x; }
   inline int32_t get_view_y() { return m_view_y; }
   inline int32_t get_view_x_extent() { return m_view_x_extent; }
@@ -99,9 +101,12 @@ class DiPrimitive {
   inline DiPrimitive* get_parent() { return m_parent; }
   inline DiPrimitive* get_first_child() { return m_first_child; }
   inline DiPrimitive* get_next_sibling() { return m_next_sibling; }
+  inline uint8_t get_color() { return (uint8_t)m_color; }
+  inline uint32_t get_color32() { return m_color; }
 
   // Sets some data members.
   inline void set_flags(uint8_t flags) { m_flags = flags; }
+  inline void set_color32(uint32_t color) { m_color = color; }
 
   // Clear the pointers to children.
   void clear_child_ptrs();

@@ -156,10 +156,10 @@ void setup() {
 	PS2Controller.keyboard()->setTypematicRateAndDelay(kbRepeatRate, kbRepeatDelay);
 	init_audio();
 	copy_font();
-	set_mode(1);
+	//set_mode(1);
 	//boot_screen();
 
-  // Start in video mode 19 (800x600x64);
+	// Start in video mode 19 (800x600x64);
 	videoMode = 19;
 	DiManager manager;
 	di_manager = &manager;
@@ -168,16 +168,16 @@ void setup() {
 	boot_screen();
 	manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
 	manager.set_on_lines_painted_cb(&on_lines_painted);
-	/*manager.create_point(10, ROOT_PRIMITIVE_ID, 400, 300, 0x11);
-	manager.create_point(4, ROOT_PRIMITIVE_ID, 405, 305, 0x31);
-	manager.create_line(2, ROOT_PRIMITIVE_ID, 200, 20, 100, 120, 0x20); // diagonal left
-	manager.create_line(3, ROOT_PRIMITIVE_ID, 205, 20, 105, 120, 0x23); // diagonal left
-	manager.create_line(5, ROOT_PRIMITIVE_ID, 400, 20, 440, 60, 0x20); // diagonal right
-	manager.create_line(6, ROOT_PRIMITIVE_ID, 405, 20, 445, 60, 0x23); // diagonal right
-	manager.create_line(7, ROOT_PRIMITIVE_ID, 249, 550, 285, 550, 0x0C); // horizontal
-	manager.create_line(8, ROOT_PRIMITIVE_ID, 270, 520, 270, 570, 0x0D); // vertical
-	manager.create_line(9, ROOT_PRIMITIVE_ID, 25, 511, 699, 409, 0x1D); // general
-	manager.create_solid_rectangle(3, ROOT_PRIMITIVE_ID, 600, 400, 25, 37, 0x22);*/
+	/*manager.create_point(10, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x11);
+	manager.create_point(4, ROOT_PRIMITIVE_ID, 1, 405, 305, 0x31);
+	manager.create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
+	manager.create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left
+	manager.create_line(5, ROOT_PRIMITIVE_ID, 1, 400, 20, 440, 60, 0x20); // diagonal right
+	manager.create_line(6, ROOT_PRIMITIVE_ID, 1, 405, 20, 445, 60, 0x23); // diagonal right
+	manager.create_line(7, ROOT_PRIMITIVE_ID, 1, 249, 550, 285, 550, 0x0C); // horizontal
+	manager.create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 570, 0x0D); // vertical
+	manager.create_line(9, ROOT_PRIMITIVE_ID, 1, 25, 511, 699, 409, 0x1D); // general
+	manager.create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, 0x30);*/
 	manager.run();
 }
 

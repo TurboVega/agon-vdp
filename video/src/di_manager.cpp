@@ -61,6 +61,12 @@ extern bool logicalCoords;
 extern bool terminalMode;
 extern int videoMode;
 
+typedef enum {
+  WritingActiveLines,
+  ProcessingIncomingData,
+  NearNewFrameStart
+} LoopState;
+
 // Default callback functions
 void default_on_vertical_blank() {}
 void default_on_lines_painted() {}
@@ -453,7 +459,7 @@ void IRAM_ATTR DiManager::loop() {
 
   uint32_t current_line_index = 0;//NUM_ACTIVE_BUFFERS * NUM_LINES_PER_BUFFER;
   uint32_t current_buffer_index = 0;
-  bool end_of_frame = false;
+  LoopState loop_state = LoopState::NearNewFrameStart;
 
   while (true) {
     uint32_t descr_addr = (uint32_t) I2S1.out_link_dscr;
@@ -490,17 +496,25 @@ void IRAM_ATTR DiManager::loop() {
           current_buffer_index = 0;
         }
       }
-      end_of_frame = false;
+
+      loop_state = LoopState::WritingActiveLines;
 
       while (ESPSerial.available() > 0) {
         store_character(ESPSerial.read());
       }
 
       (*m_on_lines_painted_cb)();
-    } else if (!end_of_frame) {
-      // Handle modifying primitives before the next frame starts.
-      on_vertical_blank();
 
+    } else if (loop_state == LoopState::WritingActiveLines) {
+      process_stored_characters();
+      while (ESPSerial.available() > 0) {
+        process_character(ESPSerial.read());
+      }
+      (*m_on_vertical_blank_cb)();
+
+      loop_state = LoopState::ProcessingIncomingData;
+      
+    } else if (descr_index >= DMA_TOTAL_DESCR - DMA_ACT_LINES - 1) {
       // Prepare the start of the next frame.
       for (current_line_index = 0, current_buffer_index = 0;
             current_buffer_index < NUM_ACTIVE_BUFFERS;
@@ -528,9 +542,21 @@ void IRAM_ATTR DiManager::loop() {
         //paint_params.m_line8[40] = 0x27;
       }
 
-      end_of_frame = true;
+      loop_state = LoopState::NearNewFrameStart;
       current_line_index = 0;
       current_buffer_index = 0;
+
+    } else if (loop_state == LoopState::ProcessingIncomingData) {
+      // Keep handling incoming characters
+      if (ESPSerial.available() > 0) {
+        process_character(ESPSerial.read());
+      }
+
+    } else {
+      // Keep storing incoming characters
+      if (ESPSerial.available() > 0) {
+        store_character(ESPSerial.read());
+      }
     }
   }
 }
@@ -557,14 +583,6 @@ void DiManager::set_on_lines_painted_cb(DiVoidCallback callback_fcn) {
   } else {
     m_on_lines_painted_cb = default_on_lines_painted;
   }
-}
-
-void IRAM_ATTR DiManager::on_vertical_blank() {
-	process_stored_characters();
-	while (ESPSerial.available() > 0) {
-		process_character(ESPSerial.read());
-	}
-  (*m_on_vertical_blank_cb)();
 }
 
 void DiManager::init_dma_descriptor(volatile DiVideoScanLine* vline, uint32_t descr_index) {
@@ -932,13 +950,21 @@ VDU 23, 30, 13, id; pid; flags, w; h;: [12] Create primitive: Solid Bitmap
 VDU 23, 30, 14, id; pid; flags, w; h;: [12] Create primitive: Masked Bitmap
 VDU 23, 30, 15, id; pid; flags, w; h; c: [13] Create primitive: Transparent Bitmap
 VDU 23, 30, 16, id; pid; flags, x; y;: [12] Create primitive: Group
-VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice bitmap: absolute
-VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice bitmap: relative
-VDU 23, 30, 19, id; x; y; c: [10] Set bitmap pixel
-VDU 23, 30, 20, id; x; y; n; c0, c1, c2, ...: [11+n] Set bitmap pixels
-VDU 23, 30, 21, id; col; row; bi: [10] Set bitmap index for tile in tile map
-VDU 23, 30, 22, id; bi, x; y; c: [11] Set bitmap pixel in tile map
-VDU 23, 30, 23, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map
+VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice solid bitmap: absolute
+VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice masked bitmap: absolute
+VDU 23, 30, 19, id; x; y; s; h;: [13] Move & slice transparent bitmap: absolute
+VDU 23, 30, 20, id; x; y; s; h;: [13] Move & slice solid bitmap: relative
+VDU 23, 30, 21, id; x; y; s; h;: [13] Move & slice masked bitmap: relative
+VDU 23, 30, 22, id; x; y; s; h;: [13] Move & slice transparent bitmap: relative
+VDU 23, 30, 23, id; x; y; c: [10] Set solid bitmap pixel
+VDU 23, 30, 24, id; x; y; c: [10] Set masked bitmap pixel
+VDU 23, 30, 25, id; x; y; c: [10] Set transparent bitmap pixel
+VDU 23, 30, 26, id; x; y; n; c0, c1, c2, ...: [11+n] Set solid bitmap pixels
+VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...: [11+n] Set masked bitmap pixels
+VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...: [11+n] Set transparent bitmap pixels
+VDU 23, 30, 29, id; col; row; bi: [10] Set bitmap index for tile in tile map
+VDU 23, 30, 30, id; bi, x; y; c: [11] Set bitmap pixel in tile map
+VDU 23, 30, 31, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map
 */
 bool DiManager::handle_otf_cmd() {
   if (m_num_command_chars >= 5) {
@@ -949,6 +975,8 @@ bool DiManager::handle_otf_cmd() {
       case 0: {
         if (m_num_command_chars == 6) {
           auto id = get_param_16(3);
+          auto flags = get_param_8(5);
+          set_primitive_flags(id, flags);
           m_num_command_chars = 0;
           return true;
         }
@@ -960,6 +988,7 @@ bool DiManager::handle_otf_cmd() {
           auto id = get_param_16(3);
           auto x = get_param_16(5);
           auto y = get_param_16(7);
+          move_primitive_absolute(id, x, y);
           m_num_command_chars = 0;
           return true;
         }
@@ -971,6 +1000,7 @@ bool DiManager::handle_otf_cmd() {
           auto id = get_param_16(3);
           auto x = get_param_16(5);
           auto y = get_param_16(7);
+          move_primitive_relative(id, x, y);
           m_num_command_chars = 0;
           return true;
         }
@@ -980,6 +1010,7 @@ bool DiManager::handle_otf_cmd() {
       case 3: {
         if (m_num_command_chars == 5) {
           auto id = get_param_16(3);
+          delete_primitive(id);
           m_num_command_chars = 0;
           return true;
         }
@@ -994,6 +1025,7 @@ bool DiManager::handle_otf_cmd() {
           auto x = get_param_16(8);
           auto y = get_param_16(10);
           auto c = get_param_8(12);
+          create_point(id, pid, flags, x, y, c);
           m_num_command_chars = 0;
           return true;
         }
@@ -1029,6 +1061,7 @@ bool DiManager::handle_otf_cmd() {
           auto x3 = get_param_16(16);
           auto y3 = get_param_16(18);
           auto c = get_param_8(20);
+          create_triangle(id, pid, flags, x1, y1, x2, y2, x3, y3, c);
           m_num_command_chars = 0;
           return true;
         }
@@ -1047,6 +1080,7 @@ bool DiManager::handle_otf_cmd() {
           auto x3 = get_param_16(16);
           auto y3 = get_param_16(18);
           auto c = get_param_8(20);
+          create_solid_triangle(id, pid, flags, x1, y1, x2, y2, x3, y3, c);
           m_num_command_chars = 0;
           return true;
         }
@@ -1063,6 +1097,7 @@ bool DiManager::handle_otf_cmd() {
           auto w = get_param_16(12);
           auto h = get_param_16(14);
           auto c = get_param_8(16);
+          create_rectangle(id, pid, flags, x, y, w, h, c);
           m_num_command_chars = 0;
           return true;
         }
@@ -1079,6 +1114,7 @@ bool DiManager::handle_otf_cmd() {
           auto w = get_param_16(12);
           auto h = get_param_16(14);
           auto c = get_param_8(16);
+          create_solid_rectangle(id, pid, flags, x, y, w, h, c);
           m_num_command_chars = 0;
           return true;
         }
@@ -1095,6 +1131,7 @@ bool DiManager::handle_otf_cmd() {
           auto w = get_param_16(12);
           auto h = get_param_16(14);
           auto c = get_param_8(16);
+          create_ellipse(id, pid, flags, x, y, w, h, c);
           m_num_command_chars = 0;
           return true;
         }
@@ -1111,6 +1148,7 @@ bool DiManager::handle_otf_cmd() {
           auto w = get_param_16(12);
           auto h = get_param_16(14);
           auto c = get_param_8(16);
+          create_solid_ellipse(id, pid, flags, x, y, w, h, c);
           m_num_command_chars = 0;
           return true;
         }
@@ -1127,6 +1165,9 @@ bool DiManager::handle_otf_cmd() {
           auto bitmaps = get_param_8(12);
           auto w = get_param_16(13);
           auto h = get_param_16(15);
+          auto hscroll = ((flags & PRIM_FLAG_H_SCROLL) != 0);
+          create_tile_map(id, pid, flags, ACT_PIXELS, ACT_LINES, bitmaps,
+            cols, rows, w, h, hscroll);
           m_num_command_chars = 0;
           return true;
         }
@@ -1140,6 +1181,7 @@ bool DiManager::handle_otf_cmd() {
           auto flags = get_param_16(7);
           auto w = get_param_16(8);
           auto h = get_param_16(10);
+          create_solid_bitmap(id, pid, flags, w, h);
           m_num_command_chars = 0;
           return true;
         }
@@ -1153,6 +1195,7 @@ bool DiManager::handle_otf_cmd() {
           auto flags = get_param_16(7);
           auto w = get_param_16(8);
           auto h = get_param_16(10);
+          create_masked_bitmap(id, pid, flags, w, h);
           m_num_command_chars = 0;
           return true;
         }
@@ -1167,6 +1210,7 @@ bool DiManager::handle_otf_cmd() {
           auto w = get_param_16(8);
           auto h = get_param_16(10);
           auto c = get_param_8(12);
+          create_transparent_bitmap(id, pid, flags, w, h, c);
           m_num_command_chars = 0;
           return true;
         }
@@ -1180,12 +1224,13 @@ bool DiManager::handle_otf_cmd() {
           auto flags = get_param_16(7);
           auto x = get_param_16(8);
           auto y = get_param_16(10);
+          create_primitive_group(id, pid, flags, x, y);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice bitmap: absolute
+      // VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice solid bitmap: absolute
       case 17: {
         if (m_num_command_chars == 13) {
           auto id = get_param_16(3);
@@ -1193,12 +1238,13 @@ bool DiManager::handle_otf_cmd() {
           auto y = get_param_16(7);
           auto s = get_param_16(9);
           auto h = get_param_16(11);
+          slice_bitmap_absolute(id, x, y, s, h);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice bitmap: relative
+      // VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice masked bitmap: absolute
       case 18: {
         if (m_num_command_chars == 13) {
           auto id = get_param_16(3);
@@ -1206,78 +1252,212 @@ bool DiManager::handle_otf_cmd() {
           auto y = get_param_16(7);
           auto s = get_param_16(9);
           auto h = get_param_16(11);
+          slice_bitmap_absolute(id, x, y, s, h);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 19, id; x; y; c: [10] Set bitmap pixel
+      // VDU 23, 30, 19, id; x; y; s; h;: [13] Move & slice transparent bitmap: absolute
       case 19: {
+        if (m_num_command_chars == 13) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto s = get_param_16(9);
+          auto h = get_param_16(11);
+          slice_bitmap_absolute(id, x, y, s, h);
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 20, id; x; y; s; h;: [13] Move & slice solid bitmap: relative
+      case 20: {
+        if (m_num_command_chars == 13) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto s = get_param_16(9);
+          auto h = get_param_16(11);
+          slice_bitmap_relative(id, x, y, s, h);
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 21, id; x; y; s; h;: [13] Move & slice masked bitmap: relative
+      case 21: {
+        if (m_num_command_chars == 13) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto s = get_param_16(9);
+          auto h = get_param_16(11);
+          slice_bitmap_relative(id, x, y, s, h);
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 22, id; x; y; s; h;: [13] Move & slice transparent bitmap: relative
+      case 22: {
+        if (m_num_command_chars == 13) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto s = get_param_16(9);
+          auto h = get_param_16(11);
+          slice_bitmap_relative(id, x, y, s, h);
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 23, id; x; y; c: [10] Set solid bitmap pixel
+      case 23: {
         if (m_num_command_chars == 10) {
           auto id = get_param_16(3);
           auto x = get_param_16(5);
           auto y = get_param_16(7);
           auto c = get_param_8(9);
+          set_solid_bitmap_pixel(id, x, y, c, 0);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 20, id; x; y; n; c0, c1, c2, ...: [11+n] Set bitmap pixels
-      case 20: {
-        if ((m_num_command_chars >= 11) &&
-            (m_num_command_chars >= 11 + get_param_16(9))) {
+      // VDU 23, 30, 24, id; x; y; c: [10] Set masked bitmap pixel
+      case 24: {
+        if (m_num_command_chars == 10) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto c = get_param_8(9);
+          set_masked_bitmap_pixel(id, x, y, c, 0);
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 25, id; x; y; c: [10] Set transparent bitmap pixel
+      case 25: {
+        if (m_num_command_chars == 10) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto c = get_param_8(9);
+          set_transparent_bitmap_pixel(id, x, y, c, 0);
+          m_num_command_chars = 0;
+          return true;
+        }
+      } break;
+
+      // VDU 23, 30, 26, id; x; y; n; c0, c1, c2, ...: [11+n] Set solid bitmap pixels
+      case 26: {
+        if (m_num_command_chars >= 12) {
           auto id = get_param_16(3);
           auto x = get_param_16(5);
           auto y = get_param_16(7);
           auto n = get_param_16(9);
-          for (uint16_t i = 0; i < n; i++) {
-
+          auto c = get_param_8(10);
+          set_solid_bitmap_pixel(id, x, y, c, m_command_data_index);
+          if (++m_command_data_index >= n) {
+            m_num_command_chars = 0;
+          } else {
+            m_num_command_chars = 11;
           }
-          m_num_command_chars = 0;
           return true;
+        } else if (m_num_command_chars == 5) {
+          m_command_data_index = 0;
         }
       } break;
 
-      // VDU 23, 30, 21, id; col; row; bi: [10] Set bitmap index for tile in tile map
-      case 21: {
+      // VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...: [11+n] Set masked bitmap pixels
+      case 27: {
+        if (m_num_command_chars >= 12) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);
+          auto y = get_param_16(7);
+          auto n = get_param_16(9);
+          auto c = get_param_8(10);
+          set_masked_bitmap_pixel(id, x, y, c, m_command_data_index);
+          if (++m_command_data_index >= n) {
+            m_num_command_chars = 0;
+          } else {
+            m_num_command_chars = 11;
+          }
+          return true;
+        } else if (m_num_command_chars == 5) {
+          m_command_data_index = 0;
+        }
+      } break;
+
+      // VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...: [11+n] Set transparent bitmap pixels
+      case 28: {
+        if (m_num_command_chars >= 12) {
+          auto id = get_param_16(3);
+          auto x = get_param_16(5);s
+          auto y = get_param_16(7);
+          auto n = get_param_16(9);
+          auto c = get_param_8(10);
+          set_transparent_bitmap_pixel(id, x, y, c, m_command_data_index);
+          if (++m_command_data_index >= n) {
+            m_num_command_chars = 0;
+          } else {
+            m_num_command_chars = 11;
+          }
+          return true;
+        } else if (m_num_command_chars == 5) {
+          m_command_data_index = 0;
+        }
+      } break;
+
+      // VDU 23, 30, 29, id; col; row; bi: [10] Set bitmap index for tile in tile map
+      case 29: {
         if (m_num_command_chars == 10) {
           auto id = get_param_16(3);
           auto col = get_param_16(5);
           auto row = get_param_16(7);
           auto bi = get_param_8(9);
+          set_tile_bitmap_index(id, col, row, bi);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 22, id; bi, x; y; c: [11] Set bitmap pixel in tile map
-      case 22: {
+      // VDU 23, 30, 30, id; bi, x; y; c: [11] Set bitmap pixel in tile map
+      case 30: {
         if (m_num_command_chars == 11) {
           auto id = get_param_16(3);
           auto bi = get_param_8(5);
           auto x = get_param_16(6);
           auto y = get_param_16(8);
           auto c = get_param_8(10);
+          set_tile_bitmap_pixel(id, bi, x, y, c, 0);
           m_num_command_chars = 0;
           return true;
         }
       } break;
 
-      // VDU 23, 30, 23, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map
-      case 23: {
-        if ((m_num_command_chars >= 12) &&
-            (m_num_command_chars >= 12 + get_param_16(10))) {
+      // VDU 23, 30, 31, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map
+      case 31: {
+        if (m_num_command_chars >= 13) {
           auto id = get_param_16(3);
           auto bi = get_param_8(5);
           auto x = get_param_16(6);
           auto y = get_param_16(8);
           auto n = get_param_16(10);
-          for (uint16_t i = 0; i < n; i++) {
-
+          auto c = get_param_8(12);
+          set_tile_bitmap_pixel(id, bi, x, y, c, m_command_data_index);
+          if (++m_command_data_index >= n) {
+            m_num_command_chars = 0;
+          } else {
+            m_num_command_chars = 10;
           }
-          m_num_command_chars = 0;
           return true;
+        } else if (m_num_command_chars == 5) {
+          m_command_data_index = 0;
         }
       } break;
 
@@ -1431,4 +1611,95 @@ void DiManager::send_general_poll(uint8_t b) {
 	};
 	send_packet(PACKET_GP, sizeof packet, packet);
 	initialised = true;	
+}
+
+void DiManager::set_primitive_flags(uint16_t id, uint8_t flags) {
+
+}
+
+void DiManager::move_primitive_absolute(uint16_t id, int32_t x, int32_t y) {
+  
+}
+
+void DiManager::move_primitive_relative(uint16_t id, int32_t x, int32_t y) {
+  
+}
+
+void DiManager::delete_primitive(uint16_t id) {
+  
+}
+
+DiPrimitive* DiManager::create_rectangle(uint16_t id, uint16_t parent, uint8_t flags,
+                        int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
+  
+}
+
+DiPrimitive* DiManager::create_ellipse(uint16_t id, uint16_t parent, uint8_t flags,
+                        int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
+  
+}
+
+
+DiPrimitive* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+                        uint32_t width, uint32_t height) {
+  
+}
+
+DiPrimitive* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+                        uint32_t width, uint32_t height) {
+  
+}
+
+DiPrimitive* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+                        uint32_t width, uint32_t height, uint8_t color) {
+  
+}
+
+DiPrimitive* DiManager::create_primitive_group(uint16_t id, uint16_t parent, uint8_t flags,
+                        int32_t x, int32_t y) {
+  
+}
+
+void DiManager::slice_solid_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
+  
+}
+
+void DiManager::slice_masked_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
+  
+}
+
+void DiManager::slice_transparent_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
+  
+}
+
+void DiManager::slice_solid_bitmap_relative(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
+
+}
+
+void DiManager::slice_masked_bitmap_relative(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
+
+}
+
+void DiManager::slice_transparent_bitmap_relative(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
+  
+}
+
+void DiManager::set_solid_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
+  
+}
+
+void DiManager::set_masked_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
+  
+}
+
+void DiManager::set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
+  
+}
+
+void DiManager::set_tile_bitmap_index(uint16_t id, uint16_t col, uint16_t row, uint8_t bitmap) {
+  
+}
+
+void DiManager::set_tile_bitmap_pixel(uint16_t id, uint8_t bitmap, int32_t x, int32_t y, uint8_t color, int16_t nth) {
+  
 }
