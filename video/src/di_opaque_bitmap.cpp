@@ -83,14 +83,12 @@ void* DiOpaqueBitmap::operator new(size_t size, uint32_t width, uint32_t height,
 }
 
 void DiOpaqueBitmap::set_position(int32_t x, int32_t y) {
-  m_rel_x = x;
-  m_rel_y = y;
+  set_relative_position(x, y);
   m_visible_start = m_pixels;
 }
 
 void DiOpaqueBitmap::set_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height) {
-  m_rel_x = x;
-  m_rel_y = y;
+  set_relative_position(x, y);
   m_height = height;
   m_visible_start = m_pixels + start_line * m_words_per_line;
 }

@@ -101,8 +101,15 @@ void IRAM_ATTR DiPrimitive::set_relative_deltas(int32_t rel_dx, int32_t rel_dy, 
 
 void IRAM_ATTR DiPrimitive::compute_absolute_geometry(
   int32_t view_x, int32_t view_y, int32_t view_x_extent, int32_t view_y_extent) {
-  m_abs_x = m_parent->m_abs_x + m_rel_x;
-  m_abs_y = m_parent->m_abs_y + m_rel_y;
+  
+  if (m_flags & PRIM_FLAG_ABSOLUTE) {
+    m_abs_x = m_rel_x;
+    m_abs_y = m_rel_y;
+  } else {
+    m_abs_x = m_parent->m_abs_x + m_rel_x;
+    m_abs_y = m_parent->m_abs_y + m_rel_y;
+  }
+  
   m_x_extent = m_abs_x + m_width;
   m_y_extent = m_abs_y + m_height;
 

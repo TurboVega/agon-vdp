@@ -77,8 +77,8 @@ class DiPrimitive {
   // Detach a child primitive.
   void IRAM_ATTR detach_child(DiPrimitive* child);
 
-  // Set the X, Y position relative to the parent.
-  void IRAM_ATTR set_relative_position(int32_t rel_x, int32_t rel_y);
+  // Set the X, Y position relative to the parent (which may be the screen).
+  virtual void IRAM_ATTR set_relative_position(int32_t rel_x, int32_t rel_y);
 
   // Set the delta X, Y position, relative to the parent, and the move count.
   // These values are used to update the relative position automatically, frame-by-frame.
@@ -92,6 +92,10 @@ class DiPrimitive {
   // Gets various data members.
   inline uint16_t get_id() { return m_id; }
   inline uint8_t get_flags() { return m_flags; }
+  inline int32_t get_relative_x() { return m_rel_x; }
+  inline int32_t get_relative_y() { return m_rel_y; }
+  inline int32_t get_absolute_x() { return m_abs_x; }
+  inline int32_t get_absolute_y() { return m_abs_y; }
   inline int32_t get_width() { return m_width; }
   inline int32_t get_height() { return m_height; }
   inline int32_t get_view_x() { return m_view_x; }
@@ -156,6 +160,7 @@ class DiPrimitive {
 #define PRIM_FLAG_CLIP_KIDS   0x08  // whether to clip child primitives
 #define PRIM_FLAG_H_SCROLL    0x10  // whether to support horizontal scrolling
 #define PRIM_FLAG_V_SCROLL    0x20  // whether to support vertical scrolling
+#define PRIM_FLAG_ABSOLUTE    0x40  // whether to use absolute coordinates always
 #define PRIM_FLAGS_DEFAULT    0x0F  // flags set when a new base primitive is constructed
 
 #pragma pack(pop)

@@ -289,18 +289,13 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
   }
 }
 
-/*void DiManager::set_tile_map_position(DiTileMap* tile_map, int32_t x, int32_t y) {
-  tile_map->set_position(x, y);
-  return;
-  int32_t min_group1, max_group1;
-  tile_map->get_vertical_group_range(min_group1, max_group1);
-
-  tile_map->set_position(x, y);
+void DiManager::recompute_primitive(DiPrimitive* prim, int32_t old_min_group, int32_t old_max_group) {
+  prim->compute_absolute_geometry();
 
   int32_t min_group2, max_group2;
   tile_map->get_vertical_group_range(min_group2, max_group2);
 
-  for (int32_t g = min_group1; g <= max_group1; g++) {
+  for (int32_t g = old_min_group; g <= old_max_group; g++) {
     if (g < min_group2 || g > max_group2) {
       // Remove the primitive from this vertical scan group
       std::vector<DiPrimitive*> * vp = &m_groups[g];
@@ -312,25 +307,36 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
   }
 
   for (int32_t g = min_group2; g <= max_group2; g++) {
-    if (g < min_group1 || g > max_group1) {
+    if (g < old_min_group || g > old_max_group) {
       // Add the primitive to this vertical scan group
       std::vector<DiPrimitive*> * vp = &m_groups[g];
       vp->push_back(tile_map);
     }
   }
-}*/
+}
+
+DiPrimitive* DiManager::finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {
+    prim->set_id(id);
+    prim->set_flags(flags);
+    add_primitive(prim, parent_prim);
+    return prim;
+}
 
 DiPrimitive* DiManager::create_point(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t x, int32_t y, uint8_t color) {
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
     DiPrimitive* prim = new DiSetPixel(x, y, color);
-    prim->set_id(id);
-    prim->set_flags(flags);
-    add_primitive(prim, m_primitives[parent]);
-    return prim;
+
+    return finish_create(id, flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color) {
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
     DiPrimitive* prim;
     if (x1 == x2) {
         if (y1 == y2) {
@@ -398,52 +404,55 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint8_t flags,
         }
     }
 
-    prim->set_id(id);
-    prim->set_flags(flags);
-    add_primitive(prim, m_primitives[parent]);
-    return prim;
+    return finish_create(id, flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
     auto prim = new DiSolidRectangle();
     prim->init_params(x, y, width, height, color);
-    prim->set_id(id);
-    prim->set_flags(flags);
-    add_primitive(prim, m_primitives[parent]);
-    return prim;
+
+    return finish_create(id, flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_triangle(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             int32_t x3, int32_t y3, uint8_t color) {
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
     auto prim = new DiGeneralLine();
     prim->init_params(x1, y1, x2, y2, x3, y3, color);
-    prim->set_id(id);
-    prim->set_flags(flags);
-    add_primitive(prim, m_primitives[parent]);
-    return prim;
+
+    return finish_create(id, flags, prim, parent_prim);
 }
 
 DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t screen_width, int32_t screen_height,
                             uint32_t bitmaps, uint32_t columns, uint32_t rows,
                             uint32_t width, uint32_t height, bool hscroll) {
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
     DiTileMap* tile_map =
       new DiTileMap(screen_width, screen_height, bitmaps, columns, rows, width, height, hscroll);
-    tile_map->set_id(id);
-    tile_map->set_flags(flags);
-    add_primitive(tile_map, m_primitives[parent]);
+
+    finish_create(id, flags, prim, parent_prim);
     return tile_map;
 }
 
 DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint8_t flags,
                             uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
                             uint8_t fg_color, uint8_t bg_color, const uint8_t* font) {
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
     DiTerminal* terminal = new DiTerminal(x, y, codes, columns, rows, fg_color, bg_color, font);
-    terminal->set_id(id);
-    terminal->set_flags(flags);
-    add_primitive(terminal, m_primitives[parent]);
+
+    finish_create(id, flags, prim, parent_prim);
     m_terminal = terminal;
     return terminal;
 }
@@ -1614,92 +1623,223 @@ void DiManager::send_general_poll(uint8_t b) {
 }
 
 void DiManager::set_primitive_flags(uint16_t id, uint8_t flags) {
-
+?
 }
 
 void DiManager::move_primitive_absolute(uint16_t id, int32_t x, int32_t y) {
-  
+  DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
+  int32_t old_min_group, old_max_group;
+  prim->get_vertical_group_range(old_min_group, old_max_group);
+  prim->set_relative_position(x, y);
+  recompute_primitive(prim, old_min_group, old_max_group);
 }
 
 void DiManager::move_primitive_relative(uint16_t id, int32_t x, int32_t y) {
-  
+  DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
+  int32_t old_min_group, old_max_group;
+  prim->get_vertical_group_range(old_min_group, old_max_group);
+  auto x2 = prim->get_relative_x() + x;
+  auto y2 = prim->get_relative_y() + y;
+  prim->set_relative_position(x2, y2);
+  recompute_primitive(prim, old_min_group, old_max_group);  
 }
 
 void DiManager::delete_primitive(uint16_t id) {
-  
+  DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
+  delete_primitive(prim);  
 }
 
 DiPrimitive* DiManager::create_rectangle(uint16_t id, uint16_t parent, uint8_t flags,
                         int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
-  
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
+    auto prim = new DiRectangle();
+    prim->init_params(x, y, width, height, color);
+
+    return finish_create(id, flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_ellipse(uint16_t id, uint16_t parent, uint8_t flags,
                         int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
-  
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
+    auto prim = new DiEllipse();
+    prim->init_params(x, y, width, height, color);
+
+    return finish_create(id, flags, prim, parent_prim);
 }
 
+DiPrimitive* DiManager::create_solid_ellipse(uint16_t id, uint16_t parent, uint8_t flags,
+                        int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
+    auto prim = new DiSolidEllipse();
+    prim->init_params(x, y, width, height, color);
+
+    return finish_create(id, flags, prim, parent_prim);
+}
+
+ScrollMode get_scroll_mode_from_flags(uint8_t flags) {
+    if (flags & PRIM_FLAG_H_SCROLL) {
+      if (flags & PRIM_FLAG_V_SCROLL) {
+        return ScrollMode::BOTH;
+      } else {
+        return ScrollMode::HORIZONTAL;
+      }
+    } else if (flags & PRIM_FLAG_V_SCROLL) {
+      return ScrollMode::VERTICAL;
+    } else {
+      return ScrollMode::NONE;
+    }
+}
 
 DiPrimitive* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                         uint32_t width, uint32_t height) {
-  
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
+    auto scroll_mode = get_scroll_mode_from_flags(flags);
+    DiPrimitive* prim = new DiOpaqueBitmap(width, height, scroll_mode);
+
+    return finish_create(id, flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                         uint32_t width, uint32_t height) {
-  
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
+    auto scroll_mode = get_scroll_mode_from_flags(flags);
+    DiPrimitive* prim = new DiMaskedBitmap(width, height, scroll_mode);
+
+    return finish_create(id, flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                         uint32_t width, uint32_t height, uint8_t color) {
-  
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
+    auto scroll_mode = get_scroll_mode_from_flags(flags);
+    DiTransparentBitmap* prim = new DiTransparentBitmap(width, height, scroll_mode);
+    prim->set_transparent_color(color);
+
+    return finish_create(id, flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_primitive_group(uint16_t id, uint16_t parent, uint8_t flags,
                         int32_t x, int32_t y) {
-  
+    if (!validate_id(id)) return;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return;
+
+    DiPrimitive* prim = new DiPrimitive();
+    prim->set_relative_position(x, y);
+
+    return finish_create(id, flags, prim, parent_prim);
 }
 
 void DiManager::slice_solid_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  
+  DiOpaqueBitmap* prim; if (!(prim = (DiOpaqueBitmap*)get_safe_primitive(id))) return;
+  int32_t old_min_group, old_max_group;
+  prim->get_vertical_group_range(old_min_group, old_max_group);
+  prim->set_position(x, y, start_line, height);
+  recompute_primitive(prim, old_min_group, old_max_group);
 }
 
 void DiManager::slice_masked_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  
+  DiMaskedBitmap* prim; if (!(prim = (DiMaskedBitmap*)get_safe_primitive(id))) return;
+  int32_t old_min_group, old_max_group;
+  prim->get_vertical_group_range(old_min_group, old_max_group);
+  prim->set_position(x, y, start_line, height);
+  recompute_primitive(prim, old_min_group, old_max_group);
 }
 
 void DiManager::slice_transparent_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  
+  DiTransparentBitmap* prim; if (!(prim = (DiTransparentBitmap*)get_safe_primitive(id))) return;
+  int32_t old_min_group, old_max_group;
+  prim->get_vertical_group_range(old_min_group, old_max_group);
+  prim->set_position(x, y, start_line, height);
+  recompute_primitive(prim, old_min_group, old_max_group);
 }
 
 void DiManager::slice_solid_bitmap_relative(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-
+  DiOpaqueBitmap* prim; if (!(prim = (DiOpaqueBitmap*)get_safe_primitive(id))) return;
+  int32_t old_min_group, old_max_group;
+  prim->get_vertical_group_range(old_min_group, old_max_group);
+  auto x2 = prim->get_relative_x() + x;
+  auto y2 = prim->get_relative_y() + y;
+  prim->set_position(x, y, start_line, height);
+  recompute_primitive(prim, old_min_group, old_max_group);
 }
 
 void DiManager::slice_masked_bitmap_relative(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-
+  DiMaskedBitmap* prim; if (!(prim = (DiMaskedBitmap*)get_safe_primitive(id))) return;
+  int32_t old_min_group, old_max_group;
+  prim->get_vertical_group_range(old_min_group, old_max_group);
+  auto x2 = prim->get_relative_x() + x;
+  auto y2 = prim->get_relative_y() + y;
+  prim->set_position(x, y, start_line, height);
+  recompute_primitive(prim, old_min_group, old_max_group);
 }
 
 void DiManager::slice_transparent_bitmap_relative(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  
+  DiTransparentBitmap* prim; if (!(prim = (DiTransparentBitmap*)get_safe_primitive(id))) return;
+  int32_t old_min_group, old_max_group;
+  prim->get_vertical_group_range(old_min_group, old_max_group);
+  auto x2 = prim->get_relative_x() + x;
+  auto y2 = prim->get_relative_y() + y;
+  prim->set_position(x, y, start_line, height);
+  recompute_primitive(prim, old_min_group, old_max_group); 
 }
 
 void DiManager::set_solid_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
-  
+  DiOpaqueBitmap* prim; if (!(prim = (DiOpaqueBitmap*)get_safe_primitive(id))) return;
+  x += nth;
+  while (x >= prim->get_width()) {
+    x -= prim->get_width();
+    y++;
+  }
+  prim->set_opaque_pixel(x, y, color);
 }
 
 void DiManager::set_masked_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
-  
+  DiMaskedBitmap* prim; if (!(prim = (DiMaskedBitmap*)get_safe_primitive(id))) return;
+  x += nth;
+  while (x >= prim->get_width()) {
+    x -= prim->get_width();
+    y++;
+  }
+  prim->set_masked_pixel(x, y, color);
 }
 
 void DiManager::set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
-  
+  DiTransparentBitmap* prim; if (!(prim = (DiTransparentBitmap*)get_safe_primitive(id))) return;
+  x += nth;
+  while (x >= prim->get_width()) {
+    x -= prim->get_width();
+    y++;
+  }
+  prim->set_transparent_pixel(x, y, color);
 }
 
 void DiManager::set_tile_bitmap_index(uint16_t id, uint16_t col, uint16_t row, uint8_t bitmap) {
-  
+  DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
+  prim->set_tile(col, row, bitmap);
 }
 
 void DiManager::set_tile_bitmap_pixel(uint16_t id, uint8_t bitmap, int32_t x, int32_t y, uint8_t color, int16_t nth) {
-  
+  DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
+  x += nth;
+  while (x >= prim->get_width()) {
+    x -= prim->get_width();
+    y++;
+  }
+  if (prim->get_flags() & PRIM_FLAG_H_SCROLL) {
+    prim->set_pixel_hscroll(bitmap, x, y, color);
+  } else {
+    prim->set_pixel(bitmap, x, y, color);
+  }
 }

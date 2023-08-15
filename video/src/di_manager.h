@@ -136,8 +136,11 @@ class DiManager {
     // The string is null-terminated.
     void store_string(const uint8_t* string);
 
-    // Set the position of a top-level tile map.
-    //void set_tile_map_position(DiTileMap* tile_map, int32_t x, int32_t y);
+    // Validate a primitive ID.
+    inline bool validate_id(int16_t id) { return (id >= 0) && (id < MAX_NUM_PRIMITIVES); }
+  
+    // Get a safe primitive pointer.
+    inline DiPrimitive* get_safe_primitive(int16_t id) { return validate_id(id) ? m_primitives[id] : NULL; }
 
     protected:
     // Structures used to support DMA for video.
@@ -173,6 +176,9 @@ class DiManager {
 
     // Delete a primitive from the manager.
     void delete_primitive(DiPrimitive* prim);
+
+    // Finish creating a primitive.
+    DiPrimitive* finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim);
 
     // Draw all primitives that belong to the active scan line group.
     void IRAM_ATTR draw_primitives(DiPaintParams* params);

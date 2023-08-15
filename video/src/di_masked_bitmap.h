@@ -25,9 +25,9 @@
 // 
 
 #pragma once
-#include "di_primitive.h"
+#include "di_opaque_bitmap.h"
 
-class DiMaskedBitmap: public DiPrimitive {
+class DiMaskedBitmap: public DiBitmap {
   public:
   // Construct a dynamically-sized masked bitmap. The m_pixels array gets sized during 'new'.
   DiMaskedBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode);
@@ -35,12 +35,12 @@ class DiMaskedBitmap: public DiPrimitive {
   // Allocate a masked bitmap. This takes 4x as much memory as the bitmap itself.
   void* operator new(size_t size, uint32_t width, uint32_t height, ScrollMode scroll_mode);
 
-  // Set the position of the bitmap on the screen, and assume using pixels starting at line 0 in the bitmap.
-  void set_position(int32_t x, int32_t y);
+  // Set the position of the bitmap, and assume using pixels starting at line 0 in the bitmap.
+  virtual void IRAM_ATTR set_position(int32_t x, int32_t y);
 
-  // Set the position of the bitmap on the screen, and assume using pixels starting at the given line in the bitmap.
+  // Set the position of the bitmap, and assume using pixels starting at the given line in the bitmap.
   // This makes it possible to use a single (tall) bitmap to support animated sprites.
-  void set_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height);
+  virtual void IRAM_ATTR set_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height);
 
   // Set a single pixel within the allocated bitmap. If either of the upper 2 bits is nonzero,
   // then the lower 6 bits are the color of the pixel. If both of the upper 2 bits are zeros,

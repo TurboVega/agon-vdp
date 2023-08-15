@@ -25,9 +25,9 @@
 // 
 
 #pragma once
-#include "di_primitive.h"
+#include "di_opaque_bitmap.h"
 
-class DiTransparentBitmap: public DiPrimitive {
+class DiTransparentBitmap: public DiBitmap {
   public:
   // Construct a dynamically-sized transparent bitmap. The m_pixels array gets sized during 'new'.
   DiTransparentBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode);
@@ -35,12 +35,12 @@ class DiTransparentBitmap: public DiPrimitive {
   // Allocate a transparent bitmap. This takes 4x as much memory as the bitmap itself.
   void* operator new(size_t size, uint32_t width, uint32_t height, ScrollMode scroll_mode);
 
-  // Set the position of the bitmap on the screen, and assume using pixels starting at line 0 in the bitmap.
-  void set_position(int32_t x, int32_t y);
+  // Set the position of the bitmap, and assume using pixels starting at line 0 in the bitmap.
+  virtual void IRAM_ATTR set_position(int32_t x, int32_t y);
 
-  // Set the position of the bitmap on the screen, and assume using pixels starting at the given line in the bitmap.
+  // Set the position of the bitmap, and assume using pixels starting at the given line in the bitmap.
   // This makes it possible to use a single (tall) bitmap to support animated sprites.
-  void set_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height);
+  virtual void IRAM_ATTR set_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height);
 
   // Set a single pixel within the allocated bitmap. The upper 2 bits of the color
   // are the transparency level (00BBGGRR is 25% opaque, 01BBGGRR is 50% opaque,
