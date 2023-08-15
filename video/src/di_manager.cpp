@@ -1623,7 +1623,14 @@ void DiManager::send_general_poll(uint8_t b) {
 }
 
 void DiManager::set_primitive_flags(uint16_t id, uint8_t flags) {
-?
+  DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
+  int32_t old_min_group, old_max_group;
+  prim->get_vertical_group_range(old_min_group, old_max_group);
+  auto old_flags = prim->get_flags();
+  auto chg_flags = flags & PRIM_FLAGS_CHANGEABLE;
+  auto new_flags = (old_flags & ~PRIM_FLAGS_CHANGEABLE) | chg_flags;
+  prim->set_flags(new_flags);
+  recompute_primitive(prim, old_min_group, old_max_group);
 }
 
 void DiManager::move_primitive_absolute(uint16_t id, int32_t x, int32_t y) {

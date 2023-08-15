@@ -162,5 +162,6 @@ class DiPrimitive {
 #define PRIM_FLAG_V_SCROLL    0x20  // whether to support vertical scrolling
 #define PRIM_FLAG_ABSOLUTE    0x40  // whether to use absolute coordinates always
 #define PRIM_FLAGS_DEFAULT    0x0F  // flags set when a new base primitive is constructed
+#define PRIM_FLAGS_CHANGEABLE 0x0F  // flags that the app can change after primitive creation
 
 #pragma pack(pop)
