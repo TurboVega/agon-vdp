@@ -1394,14 +1394,14 @@ bool DiManager::handle_otf_cmd() {
           auto x = get_param_16(5);
           auto y = get_param_16(7);
           auto n = get_param_16(9);
-          auto c = get_param_8(10);
+          auto c = get_param_8(11);
           set_solid_bitmap_pixel(id, x, y, c, m_command_data_index);
           if (++m_command_data_index >= n) {
             m_num_command_chars = 0;
+            return true;
           } else {
             m_num_command_chars = 11;
           }
-          return true;
         } else if (m_num_command_chars == 5) {
           m_command_data_index = 0;
         }
@@ -1414,14 +1414,14 @@ bool DiManager::handle_otf_cmd() {
           auto x = get_param_16(5);
           auto y = get_param_16(7);
           auto n = get_param_16(9);
-          auto c = get_param_8(10);
+          auto c = get_param_8(11);
           set_masked_bitmap_pixel(id, x, y, c, m_command_data_index);
           if (++m_command_data_index >= n) {
             m_num_command_chars = 0;
+            return true;
           } else {
             m_num_command_chars = 11;
           }
-          return true;
         } else if (m_num_command_chars == 5) {
           m_command_data_index = 0;
         }
@@ -1434,14 +1434,14 @@ bool DiManager::handle_otf_cmd() {
           auto x = get_param_16(5);
           auto y = get_param_16(7);
           auto n = get_param_16(9);
-          auto c = get_param_8(10);
+          auto c = get_param_8(11);
           set_transparent_bitmap_pixel(id, x, y, c, m_command_data_index);
           if (++m_command_data_index >= n) {
             m_num_command_chars = 0;
+            return true;
           } else {
             m_num_command_chars = 11;
           }
-          return true;
         } else if (m_num_command_chars == 5) {
           m_command_data_index = 0;
         }
@@ -1486,10 +1486,10 @@ bool DiManager::handle_otf_cmd() {
           set_tile_bitmap_pixel(id, bi, x, y, c, m_command_data_index);
           if (++m_command_data_index >= n) {
             m_num_command_chars = 0;
+            return true;
           } else {
             m_num_command_chars = 10;
           }
-          return true;
         } else if (m_num_command_chars == 5) {
           m_command_data_index = 0;
         }
@@ -1832,32 +1832,35 @@ void DiManager::slice_transparent_bitmap_relative(uint16_t id, int32_t x, int32_
 
 void DiManager::set_solid_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
   DiOpaqueBitmap* prim; if (!(prim = (DiOpaqueBitmap*)get_safe_primitive(id))) return;
-  x += nth;
-  while (x >= prim->get_width()) {
-    x -= prim->get_width();
-    y++;
+  int32_t px = x + nth;
+  int32_t py = y;
+  while (px >= prim->get_width()) {
+    px -= prim->get_width();
+    py++;
   }
-  prim->set_opaque_pixel(x, y, color);
+  prim->set_opaque_pixel(px, py, color);
 }
 
 void DiManager::set_masked_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
   DiMaskedBitmap* prim; if (!(prim = (DiMaskedBitmap*)get_safe_primitive(id))) return;
-  x += nth;
-  while (x >= prim->get_width()) {
-    x -= prim->get_width();
-    y++;
+  int32_t px = x + nth;
+  int32_t py = y;
+  while (px >= prim->get_width()) {
+    px -= prim->get_width();
+    py++;
   }
-  prim->set_masked_pixel(x, y, color);
+  prim->set_masked_pixel(px, py, color);
 }
 
 void DiManager::set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
   DiTransparentBitmap* prim; if (!(prim = (DiTransparentBitmap*)get_safe_primitive(id))) return;
-  x += nth;
-  while (x >= prim->get_width()) {
-    x -= prim->get_width();
-    y++;
+  int32_t px = x + nth;
+  int32_t py = y;
+  while (px >= prim->get_width()) {
+    px -= prim->get_width();
+    py++;
   }
-  prim->set_transparent_pixel(x, y, color);
+  prim->set_transparent_pixel(px, py, color);
 }
 
 void DiManager::set_tile_bitmap_index(uint16_t id, uint16_t col, uint16_t row, uint8_t bitmap) {
