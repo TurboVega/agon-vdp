@@ -31,6 +31,16 @@ extern "C" {
 IRAM_ATTR void DiOpaqueBitmap_paint(void* this_ptr, const DiPaintParams *params);
 }
 
+DiBitmap::DiBitmap() {}
+
+DiBitmap::~DiBitmap() {}
+
+void IRAM_ATTR DiBitmap::set_position(int32_t x, int32_t y) {}
+
+void IRAM_ATTR DiBitmap::set_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height) {}
+
+//-----------------------------------------------------
+
 DiOpaqueBitmap::DiOpaqueBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
   m_width = width;
   m_height = height;

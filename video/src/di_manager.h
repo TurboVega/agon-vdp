@@ -64,6 +64,9 @@ class DiManager {
     DiPrimitive* create_triangle(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color);
 
+    DiPrimitive* create_solid_triangle(uint16_t id, uint16_t parent, uint8_t flags,
+                            int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color);
+
     DiTileMap* create_tile_map(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t screen_width, int32_t screen_height, uint32_t bitmaps,
                             uint32_t columns, uint32_t rows, uint32_t width, uint32_t height, bool hscroll);
@@ -177,6 +180,9 @@ class DiManager {
     // Delete a primitive from the manager.
     void delete_primitive(DiPrimitive* prim);
 
+    // Recompute the geometry and paint list membership for a primitive.
+    void recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
+                             int32_t old_min_group, int32_t old_max_group);
     // Finish creating a primitive.
     DiPrimitive* finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim);
 

@@ -28,6 +28,11 @@
 
 class DiBitmap: public DiPrimitive {
   public:
+  // Construct a bitmap with common virtual functions.
+  DiBitmap();
+
+  // Destruct a bitmap.
+  virtual ~DiBitmap();
 
   // Set the position of the bitmap, and assume using pixels starting at line 0 in the bitmap.
   virtual void IRAM_ATTR set_position(int32_t x, int32_t y);
@@ -37,7 +42,7 @@ class DiBitmap: public DiPrimitive {
   virtual void IRAM_ATTR set_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height);
 };
 
-class DiOpaqueBitmap: public DiPrimitive {
+class DiOpaqueBitmap: public DiBitmap {
   public:
   // Construct a dynamically-sized opaque bitmap. The m_pixels array gets sized during 'new'.
   DiOpaqueBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode);
