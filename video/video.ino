@@ -185,7 +185,14 @@ void setup() {
 	manager.create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, 0x30);*/
 
 	auto prim = manager.create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x01, 128, 90);
-	prim->set_opaque_pixel(20,20,0x3C);
+	int i = 0;
+	for (int y = 0; y < 90; y++) {
+		for (int x = 0; x < 128; x++) {
+      uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
+      i += 3;
+			prim->set_opaque_pixel(x, y, c);
+		}
+	}
 	//auto prim = DiOpaqueBitmap(128,90,ScrollMode::NONE);
 	//auto prim = DiOpaqueBitmap(10,10,ScrollMode::NONE);
 
