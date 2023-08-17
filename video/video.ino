@@ -130,7 +130,7 @@ HardwareSerial DBGSerial(0);
 
 // This function is called when vertical blanking starts.
 void IRAM_ATTR on_vertical_blank_start() {
-	do_keyboard();
+	//do_keyboard();
 }
 
 // This function is called between painting sets of scan lines.
@@ -193,6 +193,7 @@ void setup() {
 			prim->set_opaque_pixel(x, y, c);
 		}
 	}
+  //manager.move_primitive_relative(99, 35, 45);
 	//auto prim = DiOpaqueBitmap(128,90,ScrollMode::NONE);
 	//auto prim = DiOpaqueBitmap(10,10,ScrollMode::NONE);
 
