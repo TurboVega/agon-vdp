@@ -29,11 +29,11 @@
 
 class DiTransparentBitmap: public DiBitmap {
   public:
-  // Construct a dynamically-sized transparent bitmap. The m_pixels array gets sized during 'new'.
+  // Construct a transparent bitmap.
   DiTransparentBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode);
 
-  // Allocate a transparent bitmap. This takes 4x as much memory as the bitmap itself.
-  void* operator new(size_t size, uint32_t width, uint32_t height, ScrollMode scroll_mode);
+  // Destroy a transparent bitmap.
+  virtual ~DiTransparentBitmap();
 
   // Set the position of the bitmap, and assume using pixels starting at line 0 in the bitmap.
   virtual void IRAM_ATTR set_position(int32_t x, int32_t y);
@@ -69,5 +69,5 @@ class DiTransparentBitmap: public DiBitmap {
   uint32_t* m_visible_start;
   uint32_t m_scroll_mode;
   uint32_t m_transparent_color;
-  uint32_t m_pixels[1];
+  uint32_t* m_pixels;
 };

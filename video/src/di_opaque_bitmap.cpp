@@ -44,7 +44,6 @@ void IRAM_ATTR DiBitmap::set_position(int32_t x, int32_t y, uint32_t start_line,
 DiOpaqueBitmap::DiOpaqueBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
   m_width = width;
   m_height = height;
-  m_visible_start = m_pixels;
   m_scroll_mode = (uint32_t)scroll_mode;
 
   switch (scroll_mode) {
@@ -54,6 +53,7 @@ DiOpaqueBitmap::DiOpaqueBitmap(uint32_t width, uint32_t height, ScrollMode scrol
       m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
+      m_pixels = new uint32_t[m_words_per_position];
       memset(m_pixels, SYNCS_OFF, m_bytes_per_position);
       break;
 
@@ -63,35 +63,15 @@ DiOpaqueBitmap::DiOpaqueBitmap(uint32_t width, uint32_t height, ScrollMode scrol
       m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
+      m_pixels = new uint32_t[m_words_per_position * 4];
       memset(m_pixels, SYNCS_OFF, m_bytes_per_position * 4);
       break;
   }
+  m_visible_start = m_pixels;
 }
 
-void* DiOpaqueBitmap::operator new(size_t size, uint32_t width, uint32_t height, ScrollMode scroll_mode) {
-  size_t new_size;
-  uint32_t wpl;
-  uint32_t wpp;
-  uint32_t bpp;
-  switch (scroll_mode) {
-    case NONE:
-    case VERTICAL:
-      wpl = (width + sizeof(uint32_t) - 1) / sizeof(uint32_t);
-      wpp = wpl * height;
-      bpp = wpp * sizeof(uint32_t);
-      new_size = (size_t)(sizeof(DiOpaqueBitmap) - sizeof(uint32_t) + (bpp));
-      break;
-
-    case HORIZONTAL:
-    case BOTH:
-      wpl = (width + sizeof(uint32_t) - 1) / sizeof(uint32_t) + 2;
-      wpp = wpl * height;
-      bpp = wpp * sizeof(uint32_t);
-      new_size = (size_t)(sizeof(DiOpaqueBitmap) - sizeof(uint32_t) + (bpp * 4));
-      break;
-  }
-  void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_SPIRAM);
-  return p;
+DiOpaqueBitmap::~DiOpaqueBitmap() {
+  delete [] m_pixels;
 }
 
 void DiOpaqueBitmap::set_position(int32_t x, int32_t y) {

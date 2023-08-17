@@ -35,7 +35,6 @@ IRAM_ATTR void DiMaskedBitmap_paint(void* this_ptr, const DiPaintParams *params)
 DiMaskedBitmap::DiMaskedBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
   m_width = width;
   m_height = height;
-  m_visible_start = m_pixels;
   m_scroll_mode = (uint32_t)scroll_mode;
 
   switch (scroll_mode) {
@@ -45,6 +44,7 @@ DiMaskedBitmap::DiMaskedBitmap(uint32_t width, uint32_t height, ScrollMode scrol
       m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
+      m_pixels = new uint32_t[m_words_per_position];
       {
         uint32_t* p = m_pixels;
         for (uint32_t i = 0; i < m_words_per_position; i+=2) {
@@ -60,6 +60,7 @@ DiMaskedBitmap::DiMaskedBitmap(uint32_t width, uint32_t height, ScrollMode scrol
       m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
+      m_pixels = new uint32_t[m_words_per_position * 4];
       {
         uint32_t* p = m_pixels;
         uint32_t n = m_words_per_position * 4;
@@ -70,32 +71,11 @@ DiMaskedBitmap::DiMaskedBitmap(uint32_t width, uint32_t height, ScrollMode scrol
       }
       break;
   }
+  m_visible_start = m_pixels;
 }
 
-void* DiMaskedBitmap::operator new(size_t size, uint32_t width, uint32_t height, ScrollMode scroll_mode) {
-  size_t new_size;
-  uint32_t wpl;
-  uint32_t wpp;
-  uint32_t bpp;
-  switch (scroll_mode) {
-    case NONE:
-    case VERTICAL:
-      wpl = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t)) * 2;
-      wpp = wpl * height;
-      bpp = wpp * sizeof(uint32_t);
-      new_size = (size_t)(sizeof(DiMaskedBitmap) - sizeof(uint32_t) + (bpp));
-      break;
-
-    case HORIZONTAL:
-    case BOTH:
-      wpl = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t) + 2) * 2;
-      wpp = wpl * height;
-      bpp = wpp * sizeof(uint32_t);
-      new_size = (size_t)(sizeof(DiMaskedBitmap) - sizeof(uint32_t) + (bpp * 4));
-      break;
-  }
-  void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_SPIRAM);
-  return p;
+DiMaskedBitmap::~DiMaskedBitmap() {
+  delete [] m_pixels;
 }
 
 void DiMaskedBitmap::set_position(int32_t x, int32_t y) {

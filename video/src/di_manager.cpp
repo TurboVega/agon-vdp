@@ -1753,8 +1753,7 @@ DiOpaqueBitmap* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uin
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
     auto scroll_mode = get_scroll_mode_from_flags(flags);
-    DiOpaqueBitmap* prim = new (width, height, scroll_mode)
-      DiOpaqueBitmap(width, height, scroll_mode);
+    DiOpaqueBitmap* prim = new DiOpaqueBitmap(width, height, scroll_mode);
 
     finish_create(id, flags, prim, parent_prim);
     return prim;
@@ -1766,8 +1765,7 @@ DiMaskedBitmap* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, ui
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
     auto scroll_mode = get_scroll_mode_from_flags(flags);
-    DiMaskedBitmap* prim = new (width, height, scroll_mode)
-      DiMaskedBitmap(width, height, scroll_mode);
+    DiMaskedBitmap* prim = new DiMaskedBitmap(width, height, scroll_mode);
 
     finish_create(id, flags, prim, parent_prim);
     return prim;
@@ -1779,8 +1777,7 @@ DiTransparentBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t 
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
     auto scroll_mode = get_scroll_mode_from_flags(flags);
-    DiTransparentBitmap* prim = new (width, height, scroll_mode)
-       DiTransparentBitmap(width, height, scroll_mode);
+    DiTransparentBitmap* prim = new DiTransparentBitmap(width, height, scroll_mode);
     prim->set_transparent_color(color);
 
     finish_create(id, flags, prim, parent_prim);
