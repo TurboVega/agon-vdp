@@ -35,6 +35,8 @@ IRAM_ATTR void DiMaskedBitmap_paint(void* this_ptr, const DiPaintParams *params)
 DiMaskedBitmap::DiMaskedBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
   m_width = width;
   m_height = height;
+  m_visible_start = m_pixels;
+  m_scroll_mode = (uint32_t)scroll_mode;
 
   switch (scroll_mode) {
     case NONE:
@@ -114,11 +116,27 @@ void DiMaskedBitmap::set_masked_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void DiMaskedBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
-  for (uint32_t pos = 0; pos < 4; pos++) {
-    uint8_t* p = pixels(m_pixels + pos * m_words_per_position + y * m_words_per_line + ((pos+x) / 4) * 2);
-    int32_t index = FIX_INDEX((pos+x)&3);
-    p[index] = 0x00; // inverted mask
-    p[index + 4] = color;
+  uint8_t* p;
+  int32_t index;
+
+  switch ((ScrollMode)m_scroll_mode) {
+    case NONE:
+    case VERTICAL:
+      p = pixels(m_pixels + y * m_words_per_line + (x / 4) * 2);
+      index = FIX_INDEX(x&3);
+      p[index] = 0x00; // inverted mask
+      p[index + 4] = color;
+      break;
+
+    case HORIZONTAL:
+    case BOTH:
+      for (uint32_t pos = 0; pos < 4; pos++) {
+        p = pixels(m_pixels + pos * m_words_per_position + y * m_words_per_line + ((pos+x) / 4) * 2);
+        index = FIX_INDEX((pos+x)&3);
+        p[index] = 0x00; // inverted mask
+        p[index + 4] = color;
+      }
+      break;
   }
 }
 

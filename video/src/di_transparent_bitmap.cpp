@@ -35,8 +35,9 @@ IRAM_ATTR void DiTransparentBitmap_paint(void* this_ptr, const DiPaintParams *pa
 DiTransparentBitmap::DiTransparentBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
   m_width = width;
   m_height = height;
-
+  m_visible_start = m_pixels;
   m_scroll_mode = (uint32_t)scroll_mode;
+
   switch (scroll_mode) {
     case NONE:
     case VERTICAL:

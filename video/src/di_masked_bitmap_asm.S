@@ -43,7 +43,8 @@
 //     [a2 + sizeof_DiPrimitive + 8] m_words_per_position;
 //     [a2 + sizeof_DiPrimitive + 12] m_bytes_per_position;
 //     [a2 + sizeof_DiPrimitive + 16] m_visible_start
-//     [a2 + sizeof_DiPrimitive + 20] m_pixels
+//     [a2 + sizeof_DiPrimitive + 20] m_scroll_mode
+//     [a2 + sizeof_DiPrimitive + 24] m_pixels
 //
 // a3: const DiPaintParams *params
 //

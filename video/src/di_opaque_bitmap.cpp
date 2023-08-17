@@ -44,7 +44,9 @@ void IRAM_ATTR DiBitmap::set_position(int32_t x, int32_t y, uint32_t start_line,
 DiOpaqueBitmap::DiOpaqueBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
   m_width = width;
   m_height = height;
-  
+  m_visible_start = m_pixels;
+  m_scroll_mode = (uint32_t)scroll_mode;
+
   switch (scroll_mode) {
     case NONE:
     case VERTICAL:
@@ -108,8 +110,25 @@ void DiOpaqueBitmap::set_opaque_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void DiOpaqueBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
-  for (uint32_t pos = 0; pos < 4; pos++) {
-    pixels(m_pixels + pos * m_words_per_position + y * m_words_per_line)[FIX_INDEX(pos + x)] = color;
+  uint32_t* p;
+  int32_t index;
+
+  switch ((ScrollMode)m_scroll_mode) {
+    case NONE:
+    case VERTICAL:
+      p = m_pixels + y * m_words_per_line + (x / 4);
+      index = FIX_INDEX(x&3);
+      pixels(p)[index] = color;
+      break;
+
+    case HORIZONTAL:
+    case BOTH:
+      for (uint32_t pos = 0; pos < 4; pos++) {
+        p = m_pixels + pos * m_words_per_position + y * m_words_per_line + ((pos+x) / 4);
+        index = FIX_INDEX((pos+x)&3);
+        pixels(p)[index] = color;
+      }
+      break;
   }
 }
 

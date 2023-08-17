@@ -72,5 +72,6 @@ class DiOpaqueBitmap: public DiBitmap {
   uint32_t m_words_per_position;
   uint32_t m_bytes_per_position;
   uint32_t* m_visible_start;
+  uint32_t m_scroll_mode;
   uint32_t m_pixels[1];
 };

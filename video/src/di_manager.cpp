@@ -301,30 +301,41 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
     parent->get_view_x_extent(), parent->get_view_y_extent());
 
-  int32_t min_group2, max_group2;
-  prim->get_vertical_group_range(min_group2, max_group2);
+  if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
+    // Need to paint now; adjust which groups are used.
+    int32_t min_group2, max_group2;
+    prim->get_vertical_group_range(min_group2, max_group2);
 
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
-    for (int32_t g = old_min_group; g <= old_max_group; g++) {
-      if (g < min_group2 || g > max_group2) {
-        // Remove the primitive from this vertical scan group
-        std::vector<DiPrimitive*> * vp = &m_groups[g];
-        auto position2 = std::find(vp->begin(), vp->end(), prim);
-        if (position2 != vp->end()) {
-          vp->erase(position2);
+    if (old_flags & PRIM_FLAG_PAINT_THIS) {
+      for (int32_t g = old_min_group; g <= old_max_group; g++) {
+        if (g < min_group2 || g > max_group2) {
+          // Remove the primitive from this vertical scan group
+          std::vector<DiPrimitive*> * vp = &m_groups[g];
+          auto position2 = std::find(vp->begin(), vp->end(), prim);
+          if (position2 != vp->end()) {
+            vp->erase(position2);
+          }
         }
       }
     }
-  }
 
-  if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
     for (int32_t g = min_group2; g <= max_group2; g++) {
       if (g < old_min_group || g > old_max_group) {
         // Add the primitive to this vertical scan group
         std::vector<DiPrimitive*> * vp = &m_groups[g];
         vp->push_back(prim);
       }
-    }    
+    }
+  } else if (old_flags & PRIM_FLAG_PAINT_THIS) {
+    // No need to paint now; just remove it from old groups.
+    for (int32_t g = old_min_group; g <= old_max_group; g++) {
+      // Remove the primitive from this vertical scan group
+      std::vector<DiPrimitive*> * vp = &m_groups[g];
+      auto position2 = std::find(vp->begin(), vp->end(), prim);
+      if (position2 != vp->end()) {
+        vp->erase(position2);
+      }
+    }
   }
 }
 
@@ -674,9 +685,9 @@ void DiManager::process_stored_characters() {
       m_next_buffer_read = 0;
     }
     m_num_buffer_chars--;
-    if (!rc) {
-      break; // need to wait for more data
-    }
+    //if (!rc && !m_num_buffer_chars) {
+    //  break; // need to wait for more data
+    //}
   }
 }
 
@@ -812,12 +823,16 @@ uint8_t DiManager::peek_into_buffer() {
 }
 
 uint8_t DiManager::read_from_buffer() {
-  uint8_t character = m_incoming_data[m_next_buffer_read++];
-  if (m_next_buffer_read >= INCOMING_DATA_BUFFER_SIZE) {
-    m_next_buffer_read = 0;
+  if (m_num_buffer_chars) {
+    uint8_t character = m_incoming_data[m_next_buffer_read++];
+    if (m_next_buffer_read >= INCOMING_DATA_BUFFER_SIZE) {
+      m_next_buffer_read = 0;
+    }
+    m_num_buffer_chars--;
+    return character;
+  } else {
+    return 0;
   }
-  m_num_buffer_chars--;
-  return character;
 }
 
 void DiManager::skip_from_buffer() {
@@ -960,6 +975,10 @@ bool DiManager::handle_udg_sys_cmd(uint8_t character) {
         }
       } break;
 
+      default: {
+        m_num_command_chars = 0;
+        return true;
+      }
     }
   }
   return false;
@@ -1728,31 +1747,33 @@ ScrollMode get_scroll_mode_from_flags(uint8_t flags) {
     }
 }
 
-DiPrimitive* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+DiOpaqueBitmap* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                         uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
     auto scroll_mode = get_scroll_mode_from_flags(flags);
-    DiPrimitive* prim = new (width, height, scroll_mode)
+    DiOpaqueBitmap* prim = new (width, height, scroll_mode)
       DiOpaqueBitmap(width, height, scroll_mode);
 
-    return finish_create(id, flags, prim, parent_prim);
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
 }
 
-DiPrimitive* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+DiMaskedBitmap* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                         uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
     auto scroll_mode = get_scroll_mode_from_flags(flags);
-    DiPrimitive* prim = new (width, height, scroll_mode)
+    DiMaskedBitmap* prim = new (width, height, scroll_mode)
       DiMaskedBitmap(width, height, scroll_mode);
 
-    return finish_create(id, flags, prim, parent_prim);
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
 }
 
-DiPrimitive* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+DiTransparentBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                         uint32_t width, uint32_t height, uint8_t color) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
@@ -1762,7 +1783,8 @@ DiPrimitive* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, 
        DiTransparentBitmap(width, height, scroll_mode);
     prim->set_transparent_color(color);
 
-    return finish_create(id, flags, prim, parent_prim);
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
 }
 
 DiPrimitive* DiManager::create_primitive_group(uint16_t id, uint16_t parent, uint8_t flags,
