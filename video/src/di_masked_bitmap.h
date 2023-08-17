@@ -35,12 +35,12 @@ class DiMaskedBitmap: public DiBitmap {
   // Destroy a masked bitmap.
   virtual ~DiMaskedBitmap();
 
-  // Set the position of the bitmap, and assume using pixels starting at line 0 in the bitmap.
-  virtual void IRAM_ATTR set_position(int32_t x, int32_t y);
+  // Set the X, Y position relative to the parent (which may be the screen).
+  virtual void IRAM_ATTR set_relative_position(int32_t rel_x, int32_t rel_y);
 
   // Set the position of the bitmap, and assume using pixels starting at the given line in the bitmap.
   // This makes it possible to use a single (tall) bitmap to support animated sprites.
-  virtual void IRAM_ATTR set_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height);
+  virtual void IRAM_ATTR set_slice_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height);
 
   // Set a single pixel within the allocated bitmap. If either of the upper 2 bits is nonzero,
   // then the lower 6 bits are the color of the pixel. If both of the upper 2 bits are zeros,

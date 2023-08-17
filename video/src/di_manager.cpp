@@ -301,6 +301,14 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
     parent->get_view_x_extent(), parent->get_view_y_extent());
 
+  char t[100];
+  m_terminal->move_cursor_tab(30,12);
+  sprintf(t,"ax%i ay%i dx%i dy%i dxe%i dye%i vxe%i vye%i",
+    prim->get_absolute_x(), prim->get_absolute_y(), prim->get_draw_x(), prim->get_draw_y(),
+     prim->get_draw_x_extent(), prim->get_draw_y_extent(), prim->get_view_x_extent(), prim->get_view_y_extent());
+  process_string((const uint8_t*)t);
+  m_terminal->move_cursor_tab(31,0);
+
   if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
     // Need to paint now; adjust which groups are used.
     int32_t min_group2, max_group2;
@@ -1818,7 +1826,7 @@ void DiManager::slice_solid_bitmap_absolute(uint16_t id, int32_t x, int32_t y, i
   if (old_flags & PRIM_FLAG_PAINT_THIS) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
-  prim->set_position(x, y, start_line, height);
+  prim->set_slice_position(x, y, start_line, height);
   recompute_primitive(prim, old_flags, old_min_group, old_max_group);
 }
 
@@ -1829,7 +1837,7 @@ void DiManager::slice_masked_bitmap_absolute(uint16_t id, int32_t x, int32_t y, 
   if (old_flags & PRIM_FLAG_PAINT_THIS) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
-  prim->set_position(x, y, start_line, height);
+  prim->set_slice_position(x, y, start_line, height);
   recompute_primitive(prim, old_flags, old_min_group, old_max_group);
 }
 
@@ -1840,7 +1848,7 @@ void DiManager::slice_transparent_bitmap_absolute(uint16_t id, int32_t x, int32_
   if (old_flags & PRIM_FLAG_PAINT_THIS) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
-  prim->set_position(x, y, start_line, height);
+  prim->set_slice_position(x, y, start_line, height);
   recompute_primitive(prim, old_flags, old_min_group, old_max_group);
 }
 
@@ -1853,7 +1861,7 @@ void DiManager::slice_solid_bitmap_relative(uint16_t id, int32_t x, int32_t y, i
   }
   auto x2 = prim->get_relative_x() + x;
   auto y2 = prim->get_relative_y() + y;
-  prim->set_position(x, y, start_line, height);
+  prim->set_slice_position(x, y, start_line, height);
   recompute_primitive(prim, old_flags, old_min_group, old_max_group);
 }
 
@@ -1866,7 +1874,7 @@ void DiManager::slice_masked_bitmap_relative(uint16_t id, int32_t x, int32_t y, 
   }
   auto x2 = prim->get_relative_x() + x;
   auto y2 = prim->get_relative_y() + y;
-  prim->set_position(x, y, start_line, height);
+  prim->set_slice_position(x, y, start_line, height);
   recompute_primitive(prim, old_flags, old_min_group, old_max_group);
 }
 
@@ -1879,7 +1887,7 @@ void DiManager::slice_transparent_bitmap_relative(uint16_t id, int32_t x, int32_
   }
   auto x2 = prim->get_relative_x() + x;
   auto y2 = prim->get_relative_y() + y;
-  prim->set_position(x, y, start_line, height);
+  prim->set_slice_position(x, y, start_line, height);
   recompute_primitive(prim, old_flags, old_min_group, old_max_group); 
 }
 

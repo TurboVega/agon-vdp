@@ -157,11 +157,13 @@ DiOpaqueBitmap_paint:
   sub       a12,a4,a5     // a12 (y offset) <-- m_line_index - m_abs_y
   l32i      a4,a3,m_line8 // a4 <-- m_line8
   l32i      a5,a2,m_draw_x // a5 <-- m_draw_x
+  mov       a13,a5        // a13 <-- m_draw_x
   l32i      a8,a2,m_draw_x_extent // a8 <-- m_draw_x_extent
   bge       a5,a8,skip2   // skip if left_hand_x >= m_draw_x_extent
 
   l32i      a7,a2,(sizeof_DiPrimitive + 16) // a7 <-- m_visible_start
   l32i      a3,a2,m_abs_x // a3 <-- m_abs_x
+  sub       a13,a13,a3    // a13 <-- m_draw_x - m_abs_x
   bgez      a3,dont_move  // don't move start if left_hand_x >= 0
   bbsi      a3,0,move_start // go move start if left_hand_x is not a multiple of 4
   bbci      a3,1,dont_move // do not move start if left_hand_x is a multiple of 4

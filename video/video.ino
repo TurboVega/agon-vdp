@@ -193,7 +193,8 @@ void setup() {
 			prim->set_opaque_pixel(x, y, c);
 		}
 	}
-  //manager.move_primitive_relative(99, 35, 45);
+	//manager.move_primitive_relative(99, 35, 45);
+
 	//auto prim = DiOpaqueBitmap(128,90,ScrollMode::NONE);
 	//auto prim = DiOpaqueBitmap(10,10,ScrollMode::NONE);
 

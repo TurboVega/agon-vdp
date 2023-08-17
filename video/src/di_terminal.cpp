@@ -58,7 +58,7 @@ DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint32_t codes,
 DiTerminal::~DiTerminal() {
 }
 
-void DiTerminal::set_position(int32_t column, int32_t row) {
+void DiTerminal::set_character_position(int32_t column, int32_t row) {
   m_current_column = column;
   m_current_row = row;
 }
@@ -207,7 +207,7 @@ void DiTerminal::do_backspace() {
 }
 
 void DiTerminal::move_cursor_tab(uint8_t x, uint8_t y) {
-  set_position(x, y);
+  set_character_position(x, y);
 }
 
 void DiTerminal::get_position(uint16_t& column, uint16_t& row) {

@@ -56,7 +56,7 @@ class DiTerminal: public DiTileMap {
   // position is outside of the display, then writing the next character will cause the
   // terminal display to scroll far enough to bring the current character position into
   // view, and the current position will be updated accordingly.
-  void set_position(int32_t column, int32_t row);
+  void set_character_position(int32_t column, int32_t row);
 
   // Write a character at the current character position. This may cause scrolling
   // BEFORE writing the character (not after), if the current character position is

@@ -102,6 +102,10 @@ class DiPrimitive {
   inline int32_t get_view_y() { return m_view_y; }
   inline int32_t get_view_x_extent() { return m_view_x_extent; }
   inline int32_t get_view_y_extent() { return m_view_y_extent; }
+  inline int32_t get_draw_x() { return m_draw_x; }
+  inline int32_t get_draw_y() { return m_draw_y; }
+  inline int32_t get_draw_x_extent() { return m_draw_x_extent; }
+  inline int32_t get_draw_y_extent() { return m_draw_y_extent; }
   inline DiPrimitive* get_parent() { return m_parent; }
   inline DiPrimitive* get_first_child() { return m_first_child; }
   inline DiPrimitive* get_next_sibling() { return m_next_sibling; }

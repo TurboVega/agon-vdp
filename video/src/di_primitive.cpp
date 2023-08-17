@@ -142,8 +142,8 @@ void IRAM_ATTR DiPrimitive::compute_absolute_geometry(
 }
 
 void DiPrimitive::get_vertical_line_range(int32_t& min_y, int32_t& max_y) {
-  min_y = m_abs_y;
-  max_y = m_y_extent - 1;
+  min_y = m_draw_y;
+  max_y = m_draw_y_extent - 1;
 }
 
 void DiPrimitive::clear_child_ptrs() {

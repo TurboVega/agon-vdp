@@ -78,14 +78,13 @@ DiMaskedBitmap::~DiMaskedBitmap() {
   delete [] m_pixels;
 }
 
-void DiMaskedBitmap::set_position(int32_t x, int32_t y) {
-  set_relative_position(x, y);
+void DiMaskedBitmap::set_relative_position(int32_t x, int32_t y) {
+  DiBitmap::set_relative_position(x, y);
   m_visible_start = m_pixels;
 }
 
-void DiMaskedBitmap::set_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height) {
-  set_relative_position(x, y);
-  m_height = height;
+void DiMaskedBitmap::set_slice_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height) {
+  DiBitmap::set_slice_position(x, y, start_line, height);
   m_visible_start = m_pixels + start_line * m_words_per_line;
 }
 
