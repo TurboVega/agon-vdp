@@ -477,10 +477,11 @@ DiPrimitive* DiManager::create_solid_triangle(uint16_t id, uint16_t parent, uint
 DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t screen_width, int32_t screen_height,
                             uint32_t bitmaps, uint32_t columns, uint32_t rows,
-                            uint32_t width, uint32_t height, bool hscroll) {
+                            uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
+    auto hscroll = ((flags & PRIM_FLAG_H_SCROLL) != 0);
     DiTileMap* tile_map =
       new DiTileMap(screen_width, screen_height, bitmaps, columns, rows, width, height, hscroll);
 
@@ -1226,9 +1227,7 @@ bool DiManager::handle_otf_cmd() {
           auto bitmaps = get_param_8(12);
           auto w = get_param_16(13);
           auto h = get_param_16(15);
-          auto hscroll = ((flags & PRIM_FLAG_H_SCROLL) != 0);
-          create_tile_map(id, pid, flags, ACT_PIXELS, ACT_LINES, bitmaps,
-            cols, rows, w, h, hscroll);
+          create_tile_map(id, pid, flags, ACT_PIXELS, ACT_LINES, bitmaps, cols, rows, w, h);
           m_num_command_chars = 0;
           return true;
         }

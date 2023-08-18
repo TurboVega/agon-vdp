@@ -50,6 +50,9 @@ class DiTileMap: public DiPrimitive {
   // Destroy a tile map, including its allocated data.
   virtual ~DiTileMap();
 
+  // Set the X, Y position relative to the parent (which may be the screen).
+  virtual void IRAM_ATTR set_relative_position(int32_t rel_x, int32_t rel_y);
+
   // Save the pixel value of a particular pixel in a specific tile bitmap. A tile bitmap
   // may appear many times on the screen, based on the use of the bitmap index.
   // Use this function when the tile map should not support horizontal smooth scrolling.

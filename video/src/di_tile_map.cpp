@@ -42,8 +42,6 @@ IRAM_ATTR void DiTileMap_paint(void* this_ptr, const DiPaintParams *params);
 DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
                       uint32_t bitmaps, uint32_t columns, uint32_t rows,
                       uint32_t tile_width, uint32_t tile_height, bool hscroll) {
-  m_width = tile_width * columns;
-  m_height = tile_height * rows;
   m_bitmaps = bitmaps;
   m_rows = rows;
   m_columns = columns;
@@ -64,8 +62,19 @@ DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
   m_bytes_for_offsets = m_words_for_offsets * sizeof(uint32_t);
   m_tile_width = tile_width;
   m_tile_height = tile_height;
-  m_visible_columns = screen_width / tile_width;
-  m_visible_rows = screen_height / tile_height;
+
+  m_visible_columns = (screen_width + tile_width - 1) / tile_width;
+  if (m_visible_columns > columns) {
+    m_visible_columns = columns;
+  }
+
+  m_visible_rows = (screen_height + tile_height - 1) / tile_height;
+  if (m_visible_rows > rows) {
+    m_visible_rows = rows;
+  }
+
+  m_width = tile_width * columns;
+  m_height = tile_height * rows;
 
   size_t new_size = (size_t)(m_bytes_for_tiles);
   void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_INTERNAL);
@@ -102,6 +111,12 @@ DiTileMap::~DiTileMap() {
   if (m_offsets) {
     delete [] m_offsets;
   }
+}
+
+void IRAM_ATTR DiTileMap::set_relative_position(int32_t rel_x, int32_t rel_y) {
+  // Tile maps are offset in the reverse direction. Setting a position more to
+  // the right (in X) causes the tile map to scroll left, not right.
+  DiPrimitive::set_relative_position(-rel_x, rel_y);
 }
 
 void DiTileMap::set_pixel(int32_t bitmap, int32_t x, int32_t y, uint8_t color) { 

@@ -90,6 +90,7 @@ DiTileMap_paint:
   l32i      a5,a4,4     // a5 <-- m_offsets[index * 2 + 1], i.e., offset to bitmap line
   l32i      a4,a4,0     // a4 <-- m_offsets[index * 2], i.e.,  points to tile map row
   l32i      a6,a2,(sizeof_DiPrimitive+60) // a6 <-- m_visible_columns
+//  l32i      a7,a2,(sizeof_DiPrimitive+4) // a7 <-- m_columns
   movi      a11,1       // a11 <-- count for decrements
   l32i      a8,a3,m_line32 // a8 <-- m_line32
 
@@ -98,12 +99,13 @@ DiTileMap_paint:
   blt       a12,a14,within_tile // go if x is within tile width
 adjust_width:
   sub       a12,a12,a14       // a12 <-- x reduced by tile width
+  sub       a6,a6,a11         // a6 <-- reduce # of visible columns
   addi      a4,a4,4           // a4 <-- advance tile map pointer by 1 column
   bge       a12,a14,adjust_width // go if x is at or beyond tile width
 within_tile:
-  beqz      a12,no_extra_col  // go if not showing a partial tile column
-  addi      a6,a6,1           // a6 <-- display an extra tile column
-no_extra_col:
+//  beqz      a12,no_extra_col  // go if not showing a partial tile column
+//  addi      a6,a6,1           // a6 <-- display an extra tile column
+//no_extra_col:
 
   movi      a14,0             // a14 <-- assume offset based on position is zero
   l32i      a13,a2,(sizeof_DiPrimitive+72) // a13 <-- m_bytes_per_position

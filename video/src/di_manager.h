@@ -72,7 +72,7 @@ class DiManager {
 
     DiTileMap* create_tile_map(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t screen_width, int32_t screen_height, uint32_t bitmaps,
-                            uint32_t columns, uint32_t rows, uint32_t width, uint32_t height, bool hscroll);
+                            uint32_t columns, uint32_t rows, uint32_t width, uint32_t height);
 
     DiTerminal* create_terminal(uint16_t id, uint16_t parent, uint8_t flags,
                             uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
