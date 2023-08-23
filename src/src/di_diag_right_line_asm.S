@@ -1,7 +1,7 @@
-// di_diag_left_line_asm.S - Low-level assembler function for drawing diagonal lines to the left
+// di_diag_right_line_asm.S - Low-level assembler function for drawing diagonal lines to the right
 //
 // A diagonal line is 1 pixel thick, and connects the diagonal points of a square.
-// A 'left' line decreases in X as it increases in Y (going down).
+// A 'right' line increases in X as it increases in Y (going down).
 //
 // Copyright (c) 2023 Curtis Whitley
 // 
@@ -9,14 +9,14 @@
 // in a C source that calls it, using this declaration:
 //
 // extern "C" {
-// IRAM_ATTR void DiDiagonalLeftLine_paint(void* this_ptr, const DiPaintParams *params);
+// IRAM_ATTR void DiDiagonalRightLine_paint(void* this_ptr, const DiPaintParams *params);
 // }
 //
 // Upon entry to the function, registers are set as follows:
 //
 // a0: return address
 // a1: stack pointer
-// a2: DiDiagonalLeftLine* pointer (i.e., 'this')
+// a2: DiDiagonalRightLine* pointer (i.e., 'this')
 //     [a2] vtable pointer
 //     [a2+4] DiPrimitive base class data members
 //
@@ -41,13 +41,13 @@
 // SOFTWARE.
 // 
 
-  .include "src/di_primitive_const.INC"
+  #include "src/di_primitive_const.INC"
   .section .iram1.text
   .align
-  .global   DiDiagonalLeftLine_paint
-  .type     DiDiagonalLeftLine_paint,@function
+  .global   DiDiagonalRightLine_paint
+  .type     DiDiagonalRightLine_paint,@function
 
-DiDiagonalLeftLine_paint:
+DiDiagonalRightLine_paint:
   entry     sp,16
   l32i      a4,a3,m_line_index // a4 <-- m_line_index
   l32i      a5,a2,m_draw_y // a5 <-- m_draw_y
@@ -55,14 +55,10 @@ DiDiagonalLeftLine_paint:
   l32i      a6,a2,m_draw_y_extent // a6 <-- m_draw_y_extent
   bge       a4,a6,skip    // skip if scan line is below diagonal line
   l32i      a5,a2,m_abs_y // a5 <-- m_abs_y
-  sub       a7,a4,a5      // a7 <-- m_line_index - m_abs_y
+  sub       a7,a4,a5      // a7 <-- m_line_index - m_abs_y = X (or Y) offset
   l32i      a4,a3,m_line8 // a4 <-- m_line8
-  l32i      a6,a2,m_width // a6 <-- m_width
-  movi      a8,1          // a8 <-- value to subtract
-  sub       a6,a6,a8      // a6 <-- m_width - 1
-  sub       a6,a6,a7      // a6 <-- (m_width - 1) - (m_line_index - m_abs_y)) = X offset
   l32i      a5,a2,m_abs_x // a5 <-- m_abs_x
-  add       a5,a5,a6      // a5 <-- m_abs_x + X offset
+  add       a5,a5,a7      // a5 <-- m_abs_x + X offset
   l32i      a6,a2,m_draw_x // a6 <-- m_draw_x
   blt       a5,a6,skip    // skip if m_abs_x < m_draw_x
   l32i      a6,a2,m_draw_x_extent // a6 <-- m_draw_x_extent

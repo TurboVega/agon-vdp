@@ -1,6 +1,8 @@
-// di_solid_rectangle.S - Function definitions for drawing solid rectangles
+// di_general_line_asm.S - Low-level assembler function for drawing general lines
 //
-// A solid rectangle is filled with a single color.
+// A general line is 1 pixel thick, and connects any 2 points, except that
+// it should not be used for vertical, horizontal, or precisely diagonal
+// lines, because there are other optimized classes for those cases.
 //
 // Copyright (c) 2023 Curtis Whitley
 // 
@@ -8,16 +10,26 @@
 // in a C source that calls it, using this declaration:
 //
 // extern "C" {
-// IRAM_ATTR void DiSolidRectangle(void* this_ptr, const DiPaintParams *params);
+// IRAM_ATTR void DiGeneralLine_paint(void* this_ptr, const DiPaintParams *params);
 // }
 //
 // Upon entry to the function, registers are set as follows:
 //
 // a0: return address
 // a1: stack pointer
-// a2: DiSolidRectangle* pointer (i.e., 'this')
+// a2: DiGeneralLine* pointer (i.e., 'this')
 //     [a2] vtable pointer
-//     [a2+4] DiPrimitive base class data members
+//     [a2 + 4] DiPrimitive base class data members
+//     [a2 + sizeof_DiPrimitive + 0] m_line_pieces.m_pieces
+//               [0] m_abs_x
+//               [2] m_abs_y
+//               [4] m_width
+//               [6] m_flags
+//     [a2 + sizeof_DiPrimitive + 4] m_line_pieces.m_min_x
+//     [a2 + sizeof_DiPrimitive + 6] m_line_pieces.m_min_y
+//     [a2 + sizeof_DiPrimitive + 8] m_line_pieces.m_max_x
+//     [a2 + sizeof_DiPrimitive + 10] m_line_pieces.m_max_y
+//     [a2 + sizeof_DiPrimitive + 12] m_line_pieces.m_num_pieces
 //
 // a3: const DiPaintParams *params
 //
@@ -40,24 +52,45 @@
 // SOFTWARE.
 // 
 
-  .include "src/di_primitive_const.INC"
+  #include "src/di_primitive_const.INC"
   .section .iram1.text
   .align
-  .global   DiSolidRectangle_paint
-  .type     DiSolidRectangle_paint,@function
+  .global   DiGeneralLine_paint
+  .type     DiGeneralLine_paint,@function
 
-DiSolidRectangle_paint:
+DiGeneralLine_paint:
   entry     sp,16
   l32i      a4,a3,m_line_index // a4 <-- m_line_index
   l32i      a5,a2,m_draw_y // a5 <-- m_draw_y
-  blt       a4,a5,skip    // skip if scan line is above rectangle
   l32i      a6,a2,m_draw_y_extent // a6 <-- m_draw_y_extent
-  bge       a4,a6,skip    // skip if scan line is below rectangle
+  l32i      a12,a2,(sizeof_DiPrimitive+0) // a12 <-- m_line_pieces.m_pieces
+
+  blt       a4,a5,skip    // skip if scan line is above this line
+  bge       a4,a6,skip    // skip if scan line is below this line
+
+  l32i      a5,a2,m_abs_y // a5 <-- m_abs_y 
+  sub       a4,a4,a5      // a4 <-- y offset from top of this line
+  slli      a4,a4,3       // a4 <-- array offset to proper DiLinePiece
+  add       a12,a12,a4    // a12 <-- pointer to proper DiLinePiece
+
   l32i      a4,a3,m_line8 // a4 <-- m_line8
-  l32i      a5,a2,m_draw_x // a5 <-- m_draw_x
-  l32i      a8,a2,m_draw_x_extent // a8 <-- m_draw_x_extent
-  bge       a5,a8,skip    // skip if left_hand_x >= m_draw_x_extent
+  l16ui     a5,a12,0      // a5 <-- x
+  l16ui     a8,a12,4      // a8 <-- width
+  add       a8,a8,a5      // a8 <-- x + width (current x extent)
+  l32i      a9,a2,m_draw_x // a9 <-- m_draw_x
+  l32i      a7,a2,m_draw_x_extent // a7 <-- m_draw_x_extent
+  bge       a5,a7,skip    // skip if left_hand_x >= m_draw_x_extent
+  bge       a5,a9,left_ok // don't shorten line if left_hand_x >= m_draw_x
+  mov       a5,a9         // a5 (left_hand_x) <-- m_draw_x
+left_ok:
+  beq       a8,a9,skip    // skip if right_hand_x == m_draw_x
+  blt       a8,a9,skip    // skip if right_hand_x < m_draw_x
+  blt       a8,a7,right_ok  // don't shorten line if right_hand_x < m_draw_x_extent
+  mov       a8,a7         // a8 (right_hand_x) <-- m_draw_x_extent
+right_ok:
   sub       a3,a8,a5      // a3 <-- final line width
+  beqz      a3,skip       // skip if nothing to draw
+  bltz      a3,skip       // skip if nothing to draw
   l32i      a2,a2,m_color // a2 <-- m_color (4 bytes of same color)
 
   movi      a6,3          // a6 <-- mask for checking byte alignment

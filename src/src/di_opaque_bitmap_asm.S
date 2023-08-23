@@ -66,7 +66,7 @@
 // SOFTWARE.
 // 
 
-  .include "src/di_primitive_const.INC"
+  #include "src/di_primitive_const.INC"
   .section .iram1.text
   .global   DiOpaqueBitmap_paint
   .type     DiOpaqueBitmap_paint,@function

@@ -40,7 +40,7 @@
 // SOFTWARE.
 // 
 
-  .include "src/di_primitive_const.INC"
+  #include "src/di_primitive_const.INC"
   .section .iram1.text
   .align
   .global   DiVerticalLine_paint
