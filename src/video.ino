@@ -167,13 +167,16 @@ void otf(void * pvParameters) {
 	di_manager->create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 599, 0x0D); // vertical
 	di_manager->create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, 0x30);
 
+    double pi2 = PI/2.0;
+    double w = 200.0;
+	double h = 250.0; 
 	int32_t x1 = 0;
-	int32_t y1 = 100;
-	int32_t x2 = 6;
-	int32_t y2 = 5;
+	int32_t y1 = 300;
+	int32_t x2 = 0;
+	int32_t y2 = 300 - h;
 	for (int c = 1; c<=63; c++) {
-		int32_t x3 = (c+1)*6;
-		int32_t y3 = (c+1)*5;
+		int32_t x3 = (int32_t)(w * cos(PI*(c-32)/63.0));
+		int32_t y3 = 300 - (int32_t)(h * sin(PI*(c-32)/63.0));
 		di_manager->create_triangle(20+c, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x3, y3, c); // general
 		x2=x3;
 		y2=y3;
@@ -221,7 +224,7 @@ void setup() {
 	//boot_screen();
 	static uint8_t ucParameterToPass;
 	TaskHandle_t xHandle = NULL;
-	xTaskCreatePinnedToCore( otf, "OTF-MODE", 2000, &ucParameterToPass, configMAX_PRIORITIES-1, &xHandle, 1);
+	xTaskCreatePinnedToCore( otf, "OTF-MODE", 2000, &ucParameterToPass, 3, &xHandle, 1); // Core #1
 	//otf(nullptr);
 }
 
@@ -370,7 +373,7 @@ void init_audio_channel(int channel) {
         &channel,				// Parameters
         PLAY_SOUND_PRIORITY,	// Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
         NULL,
-    	ARDUINO_RUNNING_CORE
+    	0 // Core #0
 	);
 }
 

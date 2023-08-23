@@ -61,7 +61,7 @@
 #define PACKET_KEYSTATE			0x08	// Keyboard repeat rate and LED status
 
 #define AUDIO_CHANNELS			3		// Number of audio channels
-#define PLAY_SOUND_PRIORITY 	3		// Sound driver task priority with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest
+#define PLAY_SOUND_PRIORITY 	2		// Sound driver task priority with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest
 
 #define LOGICAL_SCRW            1280    // As per the BBC Micro standard
 #define LOGICAL_SCRH            1024
