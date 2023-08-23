@@ -49,7 +49,7 @@
 #define REVISION		4
 #define RC				1
 
-#define	DEBUG			0						// Serial Debug Mode: 1 = enable
+#define	DEBUG			1						// Serial Debug Mode: 1 = enable
 #define SERIALKB		0						// Serial Keyboard: 1 = enable (Experimental)
 
 fabgl::PS2Controller		PS2Controller;		// The keyboard class
@@ -117,6 +117,8 @@ audio_channel *	audio_channels[AUDIO_CHANNELS];	// Storage for the channel data
 
 ESP32Time	rtc(0);								// The RTC
 
+DiManager* di_manager;  // used for 800x600x64 mode
+
 #if DEBUG == 1 || SERIALKB == 1
 HardwareSerial DBGSerial(0);
 #endif 
@@ -126,7 +128,6 @@ HardwareSerial DBGSerial(0);
 #define _COMPILE_HEX_DATA_
 #include "00187SCx128X4.h"
 
-DiManager* di_manager;  // used for 800x600x64 mode
 DiTileMap* tile_map;
 int tmdir = -1;
 int tmx = 0;
@@ -141,12 +142,47 @@ void IRAM_ATTR on_vertical_blank_start() {
   } else if (tmx >= 0) {
     tmdir = -1;
   }
-  di_manager->move_primitive_absolute(98, tmx, 0);
+  //di_manager->move_primitive_absolute(98, tmx, 0);
 }
 
 // This function is called between painting sets of scan lines.
 void IRAM_ATTR on_lines_painted() {
 }
+
+void otf(void * pvParameters) {
+	videoMode = 19;
+	di_manager = new DiManager();
+	di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
+		0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
+	boot_screen();
+	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
+	di_manager->set_on_lines_painted_cb(&on_lines_painted);
+	di_manager->create_point(10, ROOT_PRIMITIVE_ID, 1, 250, 300, 0x11);
+	di_manager->create_point(4, ROOT_PRIMITIVE_ID, 1, 405, 305, 0x31);
+	di_manager->create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
+	di_manager->create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left
+	di_manager->create_line(5, ROOT_PRIMITIVE_ID, 1, 400, 20, 440, 60, 0x20); // diagonal right
+	di_manager->create_line(6, ROOT_PRIMITIVE_ID, 1, 405, 20, 445, 60, 0x23); // diagonal right
+	di_manager->create_line(7, ROOT_PRIMITIVE_ID, 1, 249, 550, 285, 550, 0x0C); // horizontal
+	di_manager->create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 570, 0x0D); // vertical
+	di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 25, 511, 699, 409, 0x1D); // general
+	di_manager->create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, 0x30);
+
+	auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
+	int i = 0;
+	for (int y = 0; y < 90; y++) {
+		for (int x = 0; x < 128; x++) {
+      uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
+      i += 3;
+			prim->set_opaque_pixel(x, y, c);
+		}
+	}
+	di_manager->move_primitive_relative(99, 400-64, 300-45);
+
+	di_manager->run();
+}
+
+
 
 void setup() {
 	disableCore0WDT(); delay(200);								// Disable the watchdog timers
@@ -170,72 +206,14 @@ void setup() {
 	PS2Controller.keyboard()->setLayout(&fabgl::UKLayout);
 	PS2Controller.keyboard()->setCodePage(fabgl::CodePages::get(1252));
 	PS2Controller.keyboard()->setTypematicRateAndDelay(kbRepeatRate, kbRepeatDelay);
-	//init_audio();
+	init_audio();
 	copy_font();
 	//set_mode(1);
 	//boot_screen();
-
-	// Start in video mode 19 (800x600x64);
-	videoMode = 19;
-	DiManager manager;
-	di_manager = &manager;
-
-	manager.set_on_vertical_blank_cb(&on_vertical_blank_start);
-	manager.set_on_lines_painted_cb(&on_lines_painted);
-
-  // Create a terminal to show characters from EZ80.
-  manager.create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
-		0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
-	boot_screen();
-
-
-  // Create sample lines and rectangle.
-  manager.create_point(10, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x11);
-	manager.create_point(4, ROOT_PRIMITIVE_ID, 1, 405, 305, 0x31);
-	manager.create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
-	manager.create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left
-	manager.create_line(5, ROOT_PRIMITIVE_ID, 1, 400, 20, 440, 60, 0x20); // diagonal right
-	manager.create_line(6, ROOT_PRIMITIVE_ID, 1, 405, 20, 445, 60, 0x23); // diagonal right
-	manager.create_line(7, ROOT_PRIMITIVE_ID, 1, 249, 550, 285, 550, 0x0C); // horizontal
-	manager.create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 570, 0x0D); // vertical
-	manager.create_line(9, ROOT_PRIMITIVE_ID, 1, 25, 511, 699, 409, 0x1D); // general
-	manager.create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, 0x30);
-
-  // Create a tile map of the logo.
-	/*tile_map = manager.create_tile_map(98, ROOT_PRIMITIVE_ID, 0x31, 800, 600, 1, 7, 7, 128, 90);
-	int i = 0;
-	for (int y = 0; y < 90; y++) {
-		for (int x = 0; x < 128; x++) {
-      uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
-      i += 3;
-			tile_map->set_pixel_hscroll(0, x, y, c);
-		}
-	}*/
-	//manager.move_primitive_absolute(98, -800, 0);
-
-  // Create a single logo in the middle of the screen.
-	auto logo = manager.create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
-	int j = 0;
-	for (int y = 0; y < 90; y++) {
-		for (int x = 0; x < 128; x++) {
-      uint8_t c = ((g_00187SCx128X4Data[j]>>6)<<4) | ((g_00187SCx128X4Data[j+1]>>6)<<2) | ((g_00187SCx128X4Data[j+2]>>6));
-      j += 3;
-			logo->set_opaque_pixel(x, y, c);
-		}
-	}
-
-  int32_t x1 = 400-64;
-  int32_t y1 = 300-45;
-  int32_t x2 = x1 + 128;
-  int32_t y2 = y1 + 90;
-	manager.move_primitive_relative(99, x1, y1);
-  manager.create_line(70, ROOT_PRIMITIVE_ID, 0x01, x1-1, y1-1, x2, y1-1, 0x0F);
-  manager.create_line(71, ROOT_PRIMITIVE_ID, 0x01, x1-1, y2, x2, y2, 0x0F);
-  manager.create_line(72, ROOT_PRIMITIVE_ID, 0x01, x1-1, y1, x1-1, y2-1, 0x0F);
-  manager.create_line(73, ROOT_PRIMITIVE_ID, 0x01, x2, y1, x2, y2-1, 0x0F);
-
-  // Run the manager to show the video mode.
-	manager.run();
+	static uint8_t ucParameterToPass;
+	TaskHandle_t xHandle = NULL;
+	xTaskCreatePinnedToCore( otf, "OTF-MODE", 2000, &ucParameterToPass, 10, &xHandle, 1);
+	//otf(nullptr);
 }
 
 // The main loop
