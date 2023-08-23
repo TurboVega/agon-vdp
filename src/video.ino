@@ -163,10 +163,21 @@ void otf(void * pvParameters) {
 	di_manager->create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left
 	di_manager->create_line(5, ROOT_PRIMITIVE_ID, 1, 400, 20, 440, 60, 0x20); // diagonal right
 	di_manager->create_line(6, ROOT_PRIMITIVE_ID, 1, 405, 20, 445, 60, 0x23); // diagonal right
-	di_manager->create_line(7, ROOT_PRIMITIVE_ID, 1, 249, 550, 285, 550, 0x0C); // horizontal
-	di_manager->create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 570, 0x0D); // vertical
-	di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 25, 511, 699, 409, 0x1D); // general
+	di_manager->create_line(7, ROOT_PRIMITIVE_ID, 1, 249, 599, 285, 599, 0x0C); // horizontal
+	di_manager->create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 599, 0x0D); // vertical
 	di_manager->create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, 0x30);
+
+	int32_t x1 = 0;
+	int32_t y1 = 100;
+	int32_t x2 = 6;
+	int32_t y2 = 5;
+	for (int c = 1; c<=63; c++) {
+		int32_t x3 = (c+1)*6;
+		int32_t y3 = (c+1)*5;
+		di_manager->create_triangle(20+c, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x3, y3, c); // general
+		x2=x3;
+		y2=y3;
+	}
 
 	auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
 	int i = 0;
@@ -181,8 +192,6 @@ void otf(void * pvParameters) {
 
 	di_manager->run();
 }
-
-
 
 void setup() {
 	disableCore0WDT(); delay(200);								// Disable the watchdog timers
@@ -212,13 +221,17 @@ void setup() {
 	//boot_screen();
 	static uint8_t ucParameterToPass;
 	TaskHandle_t xHandle = NULL;
-	xTaskCreatePinnedToCore( otf, "OTF-MODE", 2000, &ucParameterToPass, 10, &xHandle, 1);
+	xTaskCreatePinnedToCore( otf, "OTF-MODE", 2000, &ucParameterToPass, configMAX_PRIORITIES-1, &xHandle, 1);
 	//otf(nullptr);
 }
 
 // The main loop
 //
 void loop() {
+	if (di_manager) {
+		return; // let the manager do its job!
+	}
+
 	bool cursorVisible = false;
 	bool cursorState = false;
 
