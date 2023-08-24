@@ -508,12 +508,19 @@ void IRAM_ATTR DiManager::run() {
   clear();
 }
 
+#include "src/di_code.h"
+
 void IRAM_ATTR DiManager::loop() {
   DiPaintParams paint_params;
 
   uint32_t current_line_index = 0;//NUM_ACTIVE_BUFFERS * NUM_LINES_PER_BUFFER;
   uint32_t current_buffer_index = 0;
   LoopState loop_state = LoopState::NearNewFrameStart;
+
+	EspFunction f;
+	f.entry(sp, 16);
+  f.l32i(a4, a3, 0);
+	f.retw();
 
   while (true) {
     uint32_t descr_addr = (uint32_t) I2S1.out_link_dscr;
@@ -529,6 +536,7 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
         draw_primitives(&paint_params);
+      	f.call((void*)0, &paint_params);
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();

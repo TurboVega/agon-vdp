@@ -123,7 +123,6 @@ DiManager* di_manager;  // used for 800x600x64 mode
 HardwareSerial DBGSerial(0);
 #endif 
 
-#include "src/di_code.h"
 #include "src/di_opaque_bitmap.h"
 #define __root /**/
 #define _COMPILE_HEX_DATA_
@@ -139,11 +138,6 @@ void IRAM_ATTR on_lines_painted() {
 }
 
 void otf(void * pvParameters) {
-	EspFunction f;
-	f.entry(sp, 16);
-	f.retw();
-	f.call((void*)0, (void*)0);
-
 	videoMode = 19;
 	di_manager = new DiManager();
 	di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
