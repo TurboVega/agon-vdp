@@ -528,22 +528,12 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line_index = current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
-
-        /*for (uint32_t i = 0; i < 800; i++) {
-          if (paint_params.m_line8[i] & 0xC0) {
-            memset((void*)paint_params.m_line32, 0xF0, 800); // debugging
-          }
-        }*/
-        //memset((void*)paint_params.m_line32, 0x00, 800); // debugging
         draw_primitives(&paint_params);
-        //paint_params.m_line8[10] = 0x10;
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
-        //memset((void*)paint_params.m_line32, 0, 800); // debugging
         draw_primitives(&paint_params);
-        //paint_params.m_line8[20] = 0x02;
 
         ++current_line_index;
         if (++current_buffer_index >= NUM_ACTIVE_BUFFERS) {
@@ -577,23 +567,12 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line_index = current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
-
-        /*for (uint32_t i = 0; i < 800; i++) {
-          if (paint_params.m_line8[i] & 0xC0) {
-            memset((void*)paint_params.m_line32, 0xF0, 800); // debugging
-          }
-        }*/
-        //memset((void*)paint_params.m_line32, 0x00, 800); // debugging
-
         draw_primitives(&paint_params);
-        //paint_params.m_line8[30] = 0x33;
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
-        //memset((void*)paint_params.m_line32, 0, 800); // debugging
         draw_primitives(&paint_params);
-        //paint_params.m_line8[40] = 0x27;
       }
 
       loop_state = LoopState::NearNewFrameStart;
