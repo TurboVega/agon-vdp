@@ -24,7 +24,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <vector>
 
 typedef enum {
     a0 = 0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15,
@@ -32,28 +31,35 @@ typedef enum {
 } reg_t;
 
 typedef uint32_t instr_t;   // instruction
-typedef uint32_t off_t;     // unsigned offset
-typedef uint32_t s_off_t;   // signed offset
+typedef uint32_t u_off_t;     // unsigned offset
+typedef int32_t s_off_t;   // signed offset
+
+extern "C" {
+typedef void (*CallEspFcn)(void* p_this, void* p_params);
+};
 
 class EspFunction {
     public:
-    void entry(reg_t src, off_t offset) {
+    EspFunction();
+    ~EspFunction();
+
+    void entry(reg_t src, u_off_t offset) {
         add(instr_entry(src, offset));
     }
 
-    void l8ui(reg_t dst, reg_t src, off_t offset) {
+    void l8ui(reg_t dst, reg_t src, u_off_t offset) {
         add(instr_l8ui(dst, src, offset));
     }
 
-    void l16ui(reg_t dst, reg_t src, off_t offset) {
+    void l16ui(reg_t dst, reg_t src, u_off_t offset) {
         add(instr_l16ui(dst, src, offset));
     }
 
-    void l16si(reg_t dst, reg_t src, off_t offset) {
+    void l16si(reg_t dst, reg_t src, u_off_t offset) {
         add(instr_l16si(dst, src, offset));
     }
 
-    void l32i(reg_t dst, reg_t src, off_t offset) {
+    void l32i(reg_t dst, reg_t src, u_off_t offset) {
         add(instr_l32i(dst, src, offset));
     }
 
@@ -61,15 +67,15 @@ class EspFunction {
         add(instr_l32r(dst, offset));
     }
 
-    void s8i(reg_t dst, reg_t src, off_t offset) {
+    void s8i(reg_t dst, reg_t src, u_off_t offset) {
         add(instr_s8i(dst, src, offset));
     }
 
-    void s16i(reg_t dst, reg_t src, off_t offset) {
+    void s16i(reg_t dst, reg_t src, u_off_t offset) {
         add(instr_s16i(dst, src, offset));
     }
 
-    void s32i(reg_t dst, reg_t src, off_t offset) {
+    void s32i(reg_t dst, reg_t src, u_off_t offset) {
         add(instr_s32i(dst, src, offset));
     }
 
@@ -85,31 +91,37 @@ class EspFunction {
         add(instr_retw());
     }
 
-    inline void* address() { return &m_code[0]; }
+    inline void call(void* p_this, void* p_params) {
+        (*((CallEspFcn)m_code))(p_this, p_params);
+    }
 
     protected:
-    std::vector<uint8_t> m_code;
+    uint32_t    m_alloc_size;
+    uint32_t    m_code_size;
+    uint32_t*   m_code;
 
+    void allocate(uint32_t size);
+    void store(uint8_t instr_byte);
     void add(instr_t instruction);
     void add_n(instr_t instruction);
 
-    inline instr_t instr_entry(reg_t src, off_t offset) {
+    inline instr_t instr_entry(reg_t src, u_off_t offset) {
         return 0x000036 | ((offset >> 3) << 12) | (src << 8);
     }
 
-    inline instr_t instr_l8ui(reg_t dst, reg_t src, off_t offset) {
+    inline instr_t instr_l8ui(reg_t dst, reg_t src, u_off_t offset) {
         return 0x000002 | (offset << 16) | (dst << 4) | (src << 8);
     }
 
-    inline instr_t instr_l16ui(reg_t dst, reg_t src, off_t offset) {
+    inline instr_t instr_l16ui(reg_t dst, reg_t src, u_off_t offset) {
         return 0x001002 | ((offset >> 1) << 16) | (dst << 4) | (src << 8);
     }
 
-    inline instr_t instr_l16si(reg_t dst, reg_t src, off_t offset) {
+    inline instr_t instr_l16si(reg_t dst, reg_t src, u_off_t offset) {
         return 0x009002 | ((offset >> 1) << 16) | (dst << 4) | (src << 8);
     }
 
-    inline instr_t instr_l32i(reg_t dst, reg_t src, off_t offset) {
+    inline instr_t instr_l32i(reg_t dst, reg_t src, u_off_t offset) {
         return 0x002002 | ((offset >> 2) << 16) | (dst << 4) | (src << 8);
     }
 
@@ -117,15 +129,15 @@ class EspFunction {
         return 0x000001 | ((offset >> 2) << 16) | (dst << 4);
     }
 
-    inline instr_t instr_s8i(reg_t dst, reg_t src, off_t offset) {
+    inline instr_t instr_s8i(reg_t dst, reg_t src, u_off_t offset) {
         return 0x005002 | (offset << 16) | (dst << 4) | (src << 8);
     }
 
-    inline instr_t instr_s16i(reg_t dst, reg_t src, off_t offset) {
+    inline instr_t instr_s16i(reg_t dst, reg_t src, u_off_t offset) {
         return 0x005002 | ((offset >> 1) << 16) | (dst << 4) | (src << 8);
     }
 
-    inline instr_t instr_s32i(reg_t dst, reg_t src, off_t offset) {
+    inline instr_t instr_s32i(reg_t dst, reg_t src, u_off_t offset) {
         return 0x006002 | ((offset >> 2) << 16) | (dst << 4) | (src << 8);
     }
 

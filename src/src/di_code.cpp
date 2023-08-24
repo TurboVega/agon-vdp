@@ -21,15 +21,71 @@
 // SOFTWARE.
 // 
 
-#pragma once
+#include "di_code.h"
+#include "../agon.h"
+#include "freertos/FreeRTOS.h"
+#include <string.h>
+
+#define EXTRA_CODE_SIZE 8
+
+EspFunction::EspFunction() {
+    m_alloc_size = 0;
+    m_code_size = 0;
+    m_code = 0;
+}
+
+EspFunction::~EspFunction() {
+    if (m_code) {
+        heap_caps_free(m_code);
+    }
+}
+
+void EspFunction::store(uint8_t instr_byte) {
+    uint32_t i = m_code_size >> 2;
+    switch (m_code_size & 3) {
+        case 0:
+            m_code[i] = (uint32_t)instr_byte;
+            break;
+        case 1:
+            m_code[i] |= ((uint32_t)instr_byte) << 8;
+            break;
+        case 2:
+            m_code[i] |= ((uint32_t)instr_byte) << 16;
+            break;
+        case 3:
+            m_code[i] |= ((uint32_t)instr_byte) << 24;
+            break;
+    }
+    m_code_size++;
+}
+
+void EspFunction::allocate(uint32_t size) {
+    if (m_alloc_size) {
+        if (m_alloc_size - m_code_size < size) {
+            size_t new_size = (size_t)(m_alloc_size + size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
+            void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
+            memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);
+            heap_caps_free(m_code);
+            m_alloc_size = (uint32_t)new_size;
+            m_code = (uint32_t*)p;
+        }
+    } else {
+        size_t new_size = (size_t)(size + EXTRA_CODE_SIZE);
+        void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
+        m_alloc_size = (uint32_t)new_size;
+        m_code = (uint32_t*)p;
+    }
+}
 
 void EspFunction::add(instr_t instruction) {
-    m_code.push_back((uint8_t)(instruction & 0xFF));
-    m_code.push_back((uint8_t)((instruction >> 8) & 0xFF));
+    allocate(3);
+    store((uint8_t)(instruction & 0xFF));
+    store((uint8_t)((instruction >> 8) & 0xFF));
+    store((uint8_t)((instruction >> 16) & 0xFF));
 }
 
 void EspFunction::add_n(instr_t instruction) {
-    m_code.push_back((uint8_t)(instruction & 0xFF));
-    m_code.push_back((uint8_t)((instruction >> 8) & 0xFF));
-    m_code.push_back((uint8_t)((instruction >> 16) & 0xFF));
+    allocate(2);
+    store((uint8_t)(instruction & 0xFF));
+    store((uint8_t)((instruction >> 8) & 0xFF));
 }
