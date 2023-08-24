@@ -62,6 +62,7 @@
 
 #define AUDIO_CHANNELS			3		// Number of audio channels
 #define PLAY_SOUND_PRIORITY 	2		// Sound driver task priority with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest
+#define OTF_MANAGER_PRIORITY    (configMAX_PRIORITIES - 1) // Task priority for manager for OTF (800x600x64) mode
 
 #define LOGICAL_SCRW            1280    // As per the BBC Micro standard
 #define LOGICAL_SCRH            1024

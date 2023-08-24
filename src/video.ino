@@ -128,21 +128,9 @@ HardwareSerial DBGSerial(0);
 #define _COMPILE_HEX_DATA_
 #include "00187SCx128X4.h"
 
-DiTileMap* tile_map;
-int tmdir = -1;
-int tmx = 0;
-
 // This function is called when vertical blanking starts.
 void IRAM_ATTR on_vertical_blank_start() {
 	//do_keyboard();
-
-  tmx += tmdir;
-  if (tmx <= -800) {
-    tmdir = 1;
-  } else if (tmx >= 0) {
-    tmdir = -1;
-  }
-  //di_manager->move_primitive_absolute(98, tmx, 0);
 }
 
 // This function is called between painting sets of scan lines.
@@ -157,8 +145,7 @@ void otf(void * pvParameters) {
 	boot_screen();
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
 	di_manager->set_on_lines_painted_cb(&on_lines_painted);
-	di_manager->create_point(10, ROOT_PRIMITIVE_ID, 1, 250, 300, 0x11);
-	di_manager->create_point(4, ROOT_PRIMITIVE_ID, 1, 405, 305, 0x31);
+	di_manager->create_point(4, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x31);
 	di_manager->create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
 	di_manager->create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left
 	di_manager->create_line(5, ROOT_PRIMITIVE_ID, 1, 400, 20, 440, 60, 0x20); // diagonal right
@@ -166,20 +153,37 @@ void otf(void * pvParameters) {
 	di_manager->create_line(7, ROOT_PRIMITIVE_ID, 1, 249, 599, 285, 599, 0x0C); // horizontal
 	di_manager->create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 599, 0x0D); // vertical
 	di_manager->create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, 0x30);
+	di_manager->create_solid_rectangle(220, ROOT_PRIMITIVE_ID, 1, 600, 250, 100, 100, 16);
 
-    double pi2 = PI/2.0;
-    double w = 200.0;
-	double h = 250.0; 
-	int32_t x1 = 0;
-	int32_t y1 = 300;
-	int32_t x2 = 0;
-	int32_t y2 = 300 - h;
-	for (int c = 1; c<=63; c++) {
-		int32_t x3 = (int32_t)(w * cos(PI*(c-32)/63.0));
-		int32_t y3 = 300 - (int32_t)(h * sin(PI*(c-32)/63.0));
-		di_manager->create_triangle(20+c, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x3, y3, c); // general
-		x2=x3;
-		y2=y3;
+	//di_manager->create_primitive_group(221, ROOT_PRIMITIVE_ID, 0, 400, 300);
+
+    double twopi = PI*2.0;
+    double w1 = 80.0;
+    double w2 = 100.0;
+	double h1 = 130.0; 
+	double h2 = 150.0;
+
+	for (int c = 0; c<64; c++) {
+		double a1 = twopi * c / 64.0;
+		double a2 = twopi * (c + 1) / 64.0;
+
+		double cos1 = cos(a1);
+		double cos2 = cos(a2);
+		double sin1 = sin(a1);
+		double sin2 = sin(a2);
+
+		int32_t x1 = 400 + (int32_t)(w1 * cos1);
+		int32_t y1 = 300 + (int32_t)(h1 * sin1);
+		int32_t x2 = 400 + (int32_t)(w2 * cos1);
+		int32_t y2 = 300 + (int32_t)(h2 * sin1);
+
+		int32_t x3 = 400 + (int32_t)(w1 * cos2);
+		int32_t y3 = 300 + (int32_t)(h1 * sin2);
+		int32_t x4 = 400 + (int32_t)(w2 * cos2);
+		int32_t y4 = 300 + (int32_t)(h2 * sin2);
+
+		di_manager->create_triangle(20+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c);
+		di_manager->create_triangle(21+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c);
 	}
 
 	auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
@@ -191,7 +195,7 @@ void otf(void * pvParameters) {
 			prim->set_opaque_pixel(x, y, c);
 		}
 	}
-	di_manager->move_primitive_relative(99, 400-64, 300-45);
+	di_manager->move_primitive_relative(99, 650, 45);
 
 	di_manager->run();
 }
@@ -218,14 +222,14 @@ void setup() {
 	PS2Controller.keyboard()->setLayout(&fabgl::UKLayout);
 	PS2Controller.keyboard()->setCodePage(fabgl::CodePages::get(1252));
 	PS2Controller.keyboard()->setTypematicRateAndDelay(kbRepeatRate, kbRepeatDelay);
-	init_audio();
+	//init_audio();
 	copy_font();
 	//set_mode(1);
 	//boot_screen();
-	static uint8_t ucParameterToPass;
+
 	TaskHandle_t xHandle = NULL;
-	xTaskCreatePinnedToCore( otf, "OTF-MODE", 2000, &ucParameterToPass, 3, &xHandle, 1); // Core #1
-	//otf(nullptr);
+	xTaskCreatePinnedToCore(otf, "OTF-MODE", 2000, NULL,
+							OTF_MANAGER_PRIORITY, &xHandle, 1); // Core #1
 }
 
 // The main loop
