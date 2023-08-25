@@ -526,8 +526,8 @@ void IRAM_ATTR DiManager::loop() {
 	/* 00 */ f.entry(sp, 16);
   /* 03 */ f.j(12-3-4);
   /* 06 */ f.d16(0);
-  /* 08 */ f.d32(0x3F3F3F3F);
-  /* 12 */ f.l32r(a5, -((12+3)&0xFFFFFFFC));
+  /* 08 */ f.d32(0x22300C03);
+  /* 12 */ f.l32r(a5, 8-((12+3)&0xFFFFFFFC));
   /* 15 */ f.s8i(a5, a3, 10);
 	/* 18 */ f.retw();
 
@@ -551,6 +551,7 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
         draw_primitives(&paint_params);
+      	f.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
 
         ++current_line_index;
         if (++current_buffer_index >= NUM_ACTIVE_BUFFERS) {

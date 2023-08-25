@@ -43,73 +43,23 @@ class EspFunction {
     EspFunction();
     ~EspFunction();
 
-    void entry(reg_t src, u_off_t offset) {
-        add24(instr_entry(src, offset));
-    }
-
-    void l8ui(reg_t dst, reg_t src, u_off_t offset) {
-        add24(instr_l8ui(dst, src, offset));
-    }
-
-    void l16ui(reg_t dst, reg_t src, u_off_t offset) {
-        add24(instr_l16ui(dst, src, offset));
-    }
-
-    void l16si(reg_t dst, reg_t src, u_off_t offset) {
-        add24(instr_l16si(dst, src, offset));
-    }
-
-    void l32i(reg_t dst, reg_t src, u_off_t offset) {
-        add24(instr_l32i(dst, src, offset));
-    }
-
-    void l32r(reg_t dst, s_off_t offset) {
-        add24(instr_l32r(dst, offset));
-    }
-
-    void s8i(reg_t dst, reg_t src, u_off_t offset) {
-        add24(instr_s8i(dst, src, offset));
-    }
-
-    void s16i(reg_t dst, reg_t src, u_off_t offset) {
-        add24(instr_s16i(dst, src, offset));
-    }
-
-    void s32i(reg_t dst, reg_t src, u_off_t offset) {
-        add24(instr_s32i(dst, src, offset));
-    }
-
-    void movi(reg_t dst, uint32_t value) {
-        add24(instr_movi(dst, value));
-    }
-
-    void ret() {
-        add24(instr_ret());
-    }
-
-    void retw() {
-        add24(instr_retw());
-    }
-
-    void j(s_off_t offset) {
-        add24(instr_j(offset));
-    }
-
-    void d8(uint32_t value) {
-        add8(value);
-    }
-
-    void d16(uint32_t value) {
-        add16(value);
-    }
-
-    void d24(uint32_t value) {
-        add24(value);
-    }
-
-    void d32(uint32_t value) {
-        add32(value);
-    }
+    void d8(uint32_t value) { add8(value); }
+    void d16(uint32_t value) { add16(value); }
+    void d24(uint32_t value) { add24(value); }
+    void d32(uint32_t value) { add32(value); }
+    void entry(reg_t src, u_off_t offset) { add24(iso(0x000036, src, offset)); }
+    void j(s_off_t offset) { add24(io(0x000006, offset)); }
+    void l16si(reg_t dst, reg_t src, u_off_t offset) { add24(idso(0x009002, dst, src, offset)); }
+    void l16ui(reg_t dst, reg_t src, u_off_t offset) { add24(idso(0x001002, dst, src, offset)); }
+    void l32i(reg_t dst, reg_t src, u_off_t offset) { add24(idso(0x002002, dst, src, offset)); }
+    void l32r(reg_t dst, s_off_t offset) { add24(ido(0x000001, dst, offset)); }
+    void l8ui(reg_t dst, reg_t src, u_off_t offset) { add24(idso(0x000002, dst, src, offset)); }
+    void movi(reg_t dst, uint32_t value) { add24(iv(0x00A002, dst, value)); }
+    void ret() { add24(0x000080); }
+    void retw() { add24(0x000090); }
+    void s16i(reg_t dst, reg_t src, u_off_t offset) { add24(idso(0x005002, dst, src, offset)); }
+    void s32i(reg_t dst, reg_t src, u_off_t offset) { add24(idso(0x006002, dst, src, offset)); }
+    void s8i(reg_t dst, reg_t src, u_off_t offset) { add24(idso(0x004002, dst, src, offset)); }
 
     inline void call(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index) {
         (*((CallEspFcn)m_code))(p_this, p_scan_line, line_index);
@@ -127,56 +77,19 @@ class EspFunction {
     void add24(instr_t data);
     void add32(instr_t data);
 
-    inline instr_t instr_entry(reg_t src, u_off_t offset) {
-        return 0x000036 | ((offset >> 3) << 12) | (src << 8);
-    }
+    inline instr_t idso(uint32_t instr, reg_t dst, reg_t src, u_off_t offset) {
+        return instr | ((offset >> 1) << 16) | (dst << 4) | (src << 8); }
 
-    inline instr_t instr_l8ui(reg_t dst, reg_t src, u_off_t offset) {
-        return 0x000002 | (offset << 16) | (dst << 4) | (src << 8);
-    }
+    inline instr_t iso(uint32_t instr, reg_t src, u_off_t offset) {
+        return instr | ((offset >> 3) << 12) | (src << 8); }
 
-    inline instr_t instr_l16ui(reg_t dst, reg_t src, u_off_t offset) {
-        return 0x001002 | ((offset >> 1) << 16) | (dst << 4) | (src << 8);
-    }
+    inline instr_t ido(uint32_t instr, reg_t dst, u_off_t offset) {
+        return instr | ((offset >> 2) << 8) | (dst << 4); }
 
-    inline instr_t instr_l16si(reg_t dst, reg_t src, u_off_t offset) {
-        return 0x009002 | ((offset >> 1) << 16) | (dst << 4) | (src << 8);
-    }
+    inline instr_t io(uint32_t instr, u_off_t offset) {
+        return instr | (offset << 6); }
 
-    inline instr_t instr_l32i(reg_t dst, reg_t src, u_off_t offset) {
-        return 0x002002 | ((offset >> 2) << 16) | (dst << 4) | (src << 8);
-    }
-
-    inline instr_t instr_l32r(reg_t dst, s_off_t offset) {
-        return 0x000001 | ((offset >> 2) << 8) | (dst << 4);
-    }
-
-    inline instr_t instr_s8i(reg_t dst, reg_t src, u_off_t offset) {
-        return 0x005002 | (offset << 16) | (dst << 4) | (src << 8);
-    }
-
-    inline instr_t instr_s16i(reg_t dst, reg_t src, u_off_t offset) {
-        return 0x005002 | ((offset >> 1) << 16) | (dst << 4) | (src << 8);
-    }
-
-    inline instr_t instr_s32i(reg_t dst, reg_t src, u_off_t offset) {
-        return 0x006002 | ((offset >> 2) << 16) | (dst << 4) | (src << 8);
-    }
-
-    inline instr_t instr_movi(reg_t dst, uint32_t value) {
-        return 0x00A002 | ((value & 0xFF) << 16) | (dst << 4) | (value & 0xF00);
-    }
-
-    inline instr_t instr_ret() {
-        return 0x000080;
-    }
-
-    inline instr_t instr_retw() {
-        return 0x000090;
-    }
-
-    inline instr_t instr_j(s_off_t offset) {
-        return 0x000006 | (offset << 6);
-    }
+    inline instr_t iv(uint32_t instr, reg_t dst, uint32_t value) {
+        return instr | ((value & 0xFF) << 16) | (dst << 4) | (value & 0xF00); }
 
 };
