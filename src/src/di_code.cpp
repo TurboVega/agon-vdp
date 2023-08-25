@@ -103,3 +103,14 @@ void EspFunction::add32(instr_t data) {
     store((uint8_t)((data >> 24) & 0xFF));
 }
 
+instr_t isieo(uint32_t instr, reg_t src, int32_t imm, u_off_t offset) {
+    if (imm == -1) imm = 0;
+    else if (imm == 10) imm = 9;
+    else if (imm == 12) imm = 10;
+    else if (imm == 16) imm = 11;
+    else if (imm == 32) imm = 12;
+    else if (imm == 64) imm = 13;
+    else if (imm == 128) imm = 14;
+    else if (imm == 256) imm = 15;
+    return instr | (offset << 16) | (imm << 12) | (src << 8);
+}
