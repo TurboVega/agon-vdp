@@ -517,20 +517,6 @@ void IRAM_ATTR DiManager::loop() {
   uint32_t current_buffer_index = 0;
   LoopState loop_state = LoopState::NearNewFrameStart;
 
-  // a0 - return address
-  // a1 - stack pointer
-  // a2 - this pointer
-  // a3 - line pointer
-  // a4 - line index
-	EspFunction f;
-	/* 00 */ f.entry(sp, 16);
-  /* 03 */ f.j(12-3-4);
-  /* 06 */ f.d16(0);
-  /* 08 */ f.d32(0x22300C03);
-  /* 12 */ f.l32r(a5, 8-((12+3)&0xFFFFFFFC));
-  /* 15 */ f.s8i(a5, a3, 10);
-	/* 18 */ f.retw();
-
   while (true) {
     uint32_t descr_addr = (uint32_t) I2S1.out_link_dscr;
     uint32_t descr_index = (descr_addr - (uint32_t)m_dma_descriptor) / sizeof(lldesc_t);

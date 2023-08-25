@@ -42,5 +42,5 @@ void DiDiagonalRightLine::init_params(int32_t x, int32_t y, int32_t length, uint
 }
 
 void IRAM_ATTR DiDiagonalRightLine::paint(const DiPaintParams *params) {
-  DiDiagonalRightLine_paint((void*)this, params);
+  //DiDiagonalRightLine_paint((void*)this, params);
 }

@@ -28,9 +28,21 @@
 
 #define EXTRA_CODE_SIZE 8
 
+// Input registers:
+#define REG_RETURN_ADDR     a0
+#define REG_STACK_PTR       a1
+#define REG_THIS_PTR        a2
+#define REG_LINE_PTR        a3
+#define REG_LINE_INDEX      a4
+// Temporary registers:
+#define REG_DST_PIXEL_PTR   a5
+#define REG_SRC_PIXEL_PTR   a6
+#define REG_PIXEL_COLOR     a7
+
 EspFunction::EspFunction() {
     m_alloc_size = 0;
     m_code_size = 0;
+    m_code_index = 0;
     m_code = 0;
 }
 
@@ -40,9 +52,94 @@ EspFunction::~EspFunction() {
     }
 }
 
+/*
+    entry(sp, 16);
+    uint32_t at_jump = get_pc();
+    j(0);
+    align32();
+    uint32_t at_data = get_pc();
+    d32(color);
+    j_to_here(at_jump);
+    l32r_from(REG_PIXEL_COLOR, at_data);
+    s8i(REG_PIXEL_COLOR, a3, offset);
+    retw();
+*/
+
+uint32_t EspFunction::set_pixel_at_byte_offset(uint32_t offset, uint8_t color) {
+    movi(REG_DST_PIXEL_PTR, REG_LINE_PTR);
+    movi(REG_PIXEL_COLOR, color);
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
+    addi(REG_DST_PIXEL_PTR, 1);
+    return ++offset;
+}
+
+uint32_t EspFunction::set_pixel_pair_at_byte_offset(uint32_t offset, uint8_t color) {
+    
+}
+
+uint32_t EspFunction::set_pixel_pair_at_byte_offset(uint32_t offset, uint8_t color0, uint8_t color1) {
+    
+}
+
+uint32_t EspFunction::set_pixel_at_x_offset_0(uint32_t x, uint8_t color) {
+    
+}
+
+uint32_t EspFunction::set_pixel_at_x_offset_1(uint32_t x, uint8_t color) {
+    
+}
+
+uint32_t EspFunction::set_pixel_at_x_offset_2(uint32_t x, uint8_t color) {
+    
+}
+
+uint32_t EspFunction::set_pixel_at_x_offset_3(uint32_t x, uint8_t color) {
+    
+}
+
+uint32_t EspFunction::set_pixel_pair_at_x_offset_0(uint32_t x, uint8_t color) {
+    
+}
+
+uint32_t EspFunction::set_pixel_pair_at_x_offset_2(uint32_t x, uint8_t color) {
+    
+}
+
+uint32_t EspFunction::set_pixel_pair_at_x_offset_0(uint32_t x, uint8_t color0, uint8_t color1) {
+    
+}
+
+uint32_t EspFunction::set_pixel_pair_at_x_offset_2(uint32_t x, uint8_t color0, uint8_t color1) {
+    
+}
+
+uint32_t EspFunction::set_pixel_quad(uint32_t x) {
+
+}
+
+uint32_t EspFunction::set_pixel_quad(uint32_t x, uint8_t color) {
+    
+}
+
+uint32_t EspFunction::set_pixel_quads(uint32_t x, uint32_t count) {
+    
+}
+
+uint32_t EspFunction::set_pixel_quads(uint32_t x, uint8_t color, uint32_t count) {
+    
+}
+
+uint32_t EspFunction::draw_line(uint32_t x1, uint32_t x2, uint8_t color) {
+
+}
+
+void init_output_ptr(uint32_t x) {
+    f.movi(a5, )
+}
+
 void EspFunction::store(uint8_t instr_byte) {
-    uint32_t i = m_code_size >> 2;
-    switch (m_code_size & 3) {
+    uint32_t i = m_code_index >> 2;
+    switch (m_code_index & 3) {
         case 0:
             m_code[i] = (uint32_t)instr_byte;
             break;
@@ -56,12 +153,47 @@ void EspFunction::store(uint8_t instr_byte) {
             m_code[i] |= ((uint32_t)instr_byte) << 24;
             break;
     }
-    m_code_size++;
+
+    if (++m_code_index > m_code_size) {
+        m_code_size = m_code_index;
+    }
+}
+
+void EspFunction::align16() {
+    if (m_code_index & 1) {
+        add8(0);
+    }
+}
+
+void EspFunction::align32() {
+    while (m_code_index & 3) {
+        align16();
+    }
+}
+
+void EspFunction::j_to_here(uint32_t from) {
+    j(m_code_index - from - 4);
+}
+
+void EspFunction::l32r_from(uint32_t from) {
+    l32r(a5, 8-((12+3)&0xFFFFFFFC));
+}
+
+uint16_t EspFunction::dup8_to_16(uint8_t value) {
+    return (((uint16_t)value) << 8) | ((uint16_t)value);
+}
+
+uint32_t EspFunction::dup8_to_32(uint8_t value) {
+    return (dup8_to_16(value) << 16) | dup8_to_16(value);
+}
+
+uint32_t EspFunction::dup16_to_32(uint16_t value) {
+    return (((uint32_t)value) << 16) | ((uint32_t)value);
 }
 
 void EspFunction::allocate(uint32_t size) {
     if (m_alloc_size) {
-        if (m_alloc_size - m_code_size < size) {
+        if (m_alloc_size - m_code_index < size) {
             size_t new_size = (size_t)(m_alloc_size + size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
             void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
             memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);

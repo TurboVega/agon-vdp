@@ -42,5 +42,5 @@ void DiDiagonalLeftLine::init_params(int32_t x, int32_t y, int32_t length, uint8
 }
 
 void IRAM_ATTR DiDiagonalLeftLine::paint(const DiPaintParams *params) {
-  DiDiagonalLeftLine_paint((void*)this, params);
+  //DiDiagonalLeftLine_paint((void*)this, params);
 }

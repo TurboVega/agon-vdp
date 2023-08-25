@@ -143,8 +143,10 @@ void otf(void * pvParameters) {
 	di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
 		0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
 	boot_screen();
+	
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
 	di_manager->set_on_lines_painted_cb(&on_lines_painted);
+	
 	di_manager->create_point(4, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x31);
 	di_manager->create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
 	di_manager->create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left

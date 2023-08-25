@@ -43,6 +43,69 @@ class EspFunction {
     EspFunction();
     ~EspFunction();
 
+    // Pixel-level operations:
+
+    // Setup commonly used registers:
+    void set_reg_dst_pixel_ptr(uint32_t x);
+    void set_reg_color(uint8_t color);
+
+    // Using some already setup registers:
+    uint32_t set_pixel();
+    uint32_t set_pixel(uint8_t color);
+    uint32_t set_pixel_at_byte_offset_0(uint8_t color);
+    uint32_t set_pixel_at_byte_offset_1(uint8_t color);
+    uint32_t set_pixel_at_byte_offset_2(uint8_t color);
+    uint32_t set_pixel_at_byte_offset_3(uint8_t color);
+    uint32_t set_pixel_pair_at_byte_offset_0(uint8_t color);
+    uint32_t set_pixel_pair_at_byte_offset_2(uint8_t color);
+    uint32_t set_pixel_pair_at_byte_offset_0(uint8_t color0, uint8_t color1);
+    uint32_t set_pixel_pair_at_byte_offset_2(uint8_t color0, uint8_t color1);
+    uint32_t set_pixel_at_x_offset_0(uint8_t color);
+    uint32_t set_pixel_at_x_offset_1(uint8_t color);
+    uint32_t set_pixel_at_x_offset_2(uint8_t color);
+    uint32_t set_pixel_at_x_offset_3(uint8_t color);
+    uint32_t set_pixel_pair_at_x_offset_0(uint8_t color);
+    uint32_t set_pixel_pair_at_x_offset_2(uint8_t color);
+    uint32_t set_pixel_pair_at_x_offset_0(uint8_t color0, uint8_t color1);
+    uint32_t set_pixel_pair_at_x_offset_2(uint8_t color0, uint8_t color1);
+    uint32_t set_pixel_quad();
+    uint32_t set_pixel_quad(uint8_t color);
+    uint32_t set_pixel_quads(uint32_t count);
+    uint32_t set_pixel_quads(uint8_t color, uint32_t count);
+
+    uint32_t set_pixel_at_byte_offset(uint32_t offset, uint8_t color);
+    uint32_t set_pixel_pair_at_byte_offset(uint32_t offset, uint8_t color);
+    uint32_t set_pixel_pair_at_byte_offset(uint32_t offset, uint8_t color0, uint8_t color1);
+    uint32_t set_pixel_at_x_offset_0(uint32_t x, uint8_t color);
+    uint32_t set_pixel_at_x_offset_1(uint32_t x, uint8_t color);
+    uint32_t set_pixel_at_x_offset_2(uint32_t x, uint8_t color);
+    uint32_t set_pixel_at_x_offset_3(uint32_t x, uint8_t color);
+    uint32_t set_pixel_pair_at_x_offset_0(uint32_t x, uint8_t color);
+    uint32_t set_pixel_pair_at_x_offset_2(uint32_t x, uint8_t color);
+    uint32_t set_pixel_pair_at_x_offset_0(uint32_t x, uint8_t color0, uint8_t color1);
+    uint32_t set_pixel_pair_at_x_offset_2(uint32_t x, uint8_t color0, uint8_t color1);
+    uint32_t set_pixel_quad(uint32_t x);
+    uint32_t set_pixel_quad(uint32_t x, uint8_t color);
+    uint32_t set_pixel_quads(uint32_t x, uint32_t count);
+    uint32_t set_pixel_quads(uint32_t x, uint8_t color, uint32_t count);
+
+    uint32_t draw_line(uint32_t x1, uint32_t x2, uint8_t color);
+
+    // Utility operations:
+
+    inline uint32_t get_pc() { return m_code_index; }
+    inline void set_pc(uint32_t address) { m_code_index = address; }
+    void align16();
+    void align32();
+    void j_to_here(uint32_t from);
+    void l32r_from(uint32_t from);
+    uint16_t dup8_to_16(uint8_t value);
+    uint32_t dup8_to_32(uint8_t value);
+    uint32_t dup16_to_32(uint16_t value);
+    void init_output_ptr(uint32_t x);
+
+    // Assembler-level instructions:
+
     void bbc(reg_t src, reg_t dst, u_off_t offset) { add24(isdo(0x005007, src, dst, offset)); }
     void bbci(reg_t src, uint32_t imm, u_off_t offset) { add24(isio(0x006007, src, imm, offset)); }
     void bbs(reg_t src, reg_t dst, u_off_t offset) { add24(isdo(0x00D007, src, dst, offset)); }
@@ -74,6 +137,7 @@ class EspFunction {
     void l32i(reg_t dst, reg_t src, u_off_t offset) { add24(idso(0x002002, dst, src, offset)); }
     void l32r(reg_t dst, s_off_t offset) { add24(ido(0x000001, dst, offset)); }
     void l8ui(reg_t dst, reg_t src, u_off_t offset) { add24(idso(0x000002, dst, src, offset)); }
+    void loop(reg_t src, u_off_t offset) { add24(iso(0x004076, src, offset)); }
     void movi(reg_t dst, uint32_t value) { add24(iv(0x00A002, dst, value)); }
     void ret() { add24(0x000080); }
     void retw() { add24(0x000090); }
@@ -88,6 +152,7 @@ class EspFunction {
     protected:
     uint32_t    m_alloc_size;
     uint32_t    m_code_size;
+    uint32_t    m_code_index;
     uint32_t*   m_code;
 
     void allocate(uint32_t size);

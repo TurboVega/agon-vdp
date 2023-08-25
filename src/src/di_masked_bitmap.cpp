@@ -120,5 +120,5 @@ void DiMaskedBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void IRAM_ATTR DiMaskedBitmap::paint(const DiPaintParams *params) {
-  DiMaskedBitmap_paint((void*)this, params);
+  //DiMaskedBitmap_paint((void*)this, params);
 }

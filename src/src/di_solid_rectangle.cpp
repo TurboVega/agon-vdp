@@ -45,5 +45,5 @@ void DiSolidRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_
 }
 
 void IRAM_ATTR DiSolidRectangle::paint(const DiPaintParams *params) {
-  DiSolidRectangle_paint((void*)this, params);
+  //DiSolidRectangle_paint((void*)this, params);
 }

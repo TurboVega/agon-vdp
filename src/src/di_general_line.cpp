@@ -75,5 +75,5 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1,
 }
 
 void IRAM_ATTR DiGeneralLine::paint(const DiPaintParams *params) {
-  DiGeneralLine_paint((void*)this, params);
+  //DiGeneralLine_paint((void*)this, params);
 }

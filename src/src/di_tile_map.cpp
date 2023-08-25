@@ -141,5 +141,5 @@ uint8_t DiTileMap::get_tile(int32_t column, int32_t row) {
 }
 
 void IRAM_ATTR DiTileMap::paint(const DiPaintParams *params) {
-  DiTileMap_paint((void*)this, params);
+  //DiTileMap_paint((void*)this, params);
 }

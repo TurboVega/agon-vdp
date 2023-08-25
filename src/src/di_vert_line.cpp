@@ -41,5 +41,5 @@ void DiVerticalLine::init_params(int32_t x, int32_t y, uint32_t height, uint8_t 
 }
 
 void IRAM_ATTR DiVerticalLine::paint(const DiPaintParams *params) {
-  DiVerticalLine_paint((void*)this, params);
+  //DiVerticalLine_paint((void*)this, params);
 }

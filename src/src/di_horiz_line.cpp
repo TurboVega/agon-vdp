@@ -45,5 +45,5 @@ void DiHorizontalLine::init_params(int32_t x, int32_t y, uint32_t width, uint8_t
 }
 
 void IRAM_ATTR DiHorizontalLine::paint(const DiPaintParams *params) {
-  DiHorizontalLine_paint((void*)this, params);
+  //DiHorizontalLine_paint((void*)this, params);
 }

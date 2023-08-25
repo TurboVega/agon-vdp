@@ -38,5 +38,5 @@ DiSetPixel::DiSetPixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void IRAM_ATTR DiSetPixel::paint(const DiPaintParams *params) {
-  DiSetPixel_paint((void*)this, params);
+  //DiSetPixel_paint((void*)this, params);
 }
