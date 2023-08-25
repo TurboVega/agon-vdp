@@ -77,15 +77,29 @@ void EspFunction::allocate(uint32_t size) {
     }
 }
 
-void EspFunction::add(instr_t instruction) {
-    allocate(3);
-    store((uint8_t)(instruction & 0xFF));
-    store((uint8_t)((instruction >> 8) & 0xFF));
-    store((uint8_t)((instruction >> 16) & 0xFF));
+void EspFunction::add8(instr_t data) {
+    allocate(1);
+    store((uint8_t)(data & 0xFF));
 }
 
-void EspFunction::add_n(instr_t instruction) {
+void EspFunction::add16(instr_t data) {
     allocate(2);
-    store((uint8_t)(instruction & 0xFF));
-    store((uint8_t)((instruction >> 8) & 0xFF));
+    store((uint8_t)(data & 0xFF));
+    store((uint8_t)((data >> 8) & 0xFF));
 }
+
+void EspFunction::add24(instr_t data) {
+    allocate(3);
+    store((uint8_t)(data & 0xFF));
+    store((uint8_t)((data >> 8) & 0xFF));
+    store((uint8_t)((data >> 16) & 0xFF));
+}
+
+void EspFunction::add32(instr_t data) {
+    allocate(4);
+    store((uint8_t)(data & 0xFF));
+    store((uint8_t)((data >> 8) & 0xFF));
+    store((uint8_t)((data >> 16) & 0xFF));
+    store((uint8_t)((data >> 24) & 0xFF));
+}
+

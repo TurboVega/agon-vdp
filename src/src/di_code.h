@@ -35,7 +35,7 @@ typedef uint32_t u_off_t;     // unsigned offset
 typedef int32_t s_off_t;   // signed offset
 
 extern "C" {
-typedef void (*CallEspFcn)(void* p_this, void* p_params);
+typedef void (*CallEspFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index);
 };
 
 class EspFunction {
@@ -44,55 +44,75 @@ class EspFunction {
     ~EspFunction();
 
     void entry(reg_t src, u_off_t offset) {
-        add(instr_entry(src, offset));
+        add24(instr_entry(src, offset));
     }
 
     void l8ui(reg_t dst, reg_t src, u_off_t offset) {
-        add(instr_l8ui(dst, src, offset));
+        add24(instr_l8ui(dst, src, offset));
     }
 
     void l16ui(reg_t dst, reg_t src, u_off_t offset) {
-        add(instr_l16ui(dst, src, offset));
+        add24(instr_l16ui(dst, src, offset));
     }
 
     void l16si(reg_t dst, reg_t src, u_off_t offset) {
-        add(instr_l16si(dst, src, offset));
+        add24(instr_l16si(dst, src, offset));
     }
 
     void l32i(reg_t dst, reg_t src, u_off_t offset) {
-        add(instr_l32i(dst, src, offset));
+        add24(instr_l32i(dst, src, offset));
     }
 
     void l32r(reg_t dst, s_off_t offset) {
-        add(instr_l32r(dst, offset));
+        add24(instr_l32r(dst, offset));
     }
 
     void s8i(reg_t dst, reg_t src, u_off_t offset) {
-        add(instr_s8i(dst, src, offset));
+        add24(instr_s8i(dst, src, offset));
     }
 
     void s16i(reg_t dst, reg_t src, u_off_t offset) {
-        add(instr_s16i(dst, src, offset));
+        add24(instr_s16i(dst, src, offset));
     }
 
     void s32i(reg_t dst, reg_t src, u_off_t offset) {
-        add(instr_s32i(dst, src, offset));
+        add24(instr_s32i(dst, src, offset));
     }
 
     void movi(reg_t dst, uint32_t value) {
-        add(instr_movi(dst, value));
+        add24(instr_movi(dst, value));
     }
 
     void ret() {
-        add(instr_ret());
+        add24(instr_ret());
     }
 
     void retw() {
-        add(instr_retw());
+        add24(instr_retw());
     }
 
-    inline void call(void* p_this, void* p_params) {
-        (*((CallEspFcn)m_code))(p_this, p_params);
+    void j(s_off_t offset) {
+        add24(instr_j(offset));
+    }
+
+    void d8(uint32_t value) {
+        add8(value);
+    }
+
+    void d16(uint32_t value) {
+        add16(value);
+    }
+
+    void d24(uint32_t value) {
+        add24(value);
+    }
+
+    void d32(uint32_t value) {
+        add32(value);
+    }
+
+    inline void call(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index) {
+        (*((CallEspFcn)m_code))(p_this, p_scan_line, line_index);
     }
 
     protected:
@@ -102,8 +122,10 @@ class EspFunction {
 
     void allocate(uint32_t size);
     void store(uint8_t instr_byte);
-    void add(instr_t instruction);
-    void add_n(instr_t instruction);
+    void add8(instr_t data);
+    void add16(instr_t data);
+    void add24(instr_t data);
+    void add32(instr_t data);
 
     inline instr_t instr_entry(reg_t src, u_off_t offset) {
         return 0x000036 | ((offset >> 3) << 12) | (src << 8);
@@ -126,7 +148,7 @@ class EspFunction {
     }
 
     inline instr_t instr_l32r(reg_t dst, s_off_t offset) {
-        return 0x000001 | ((offset >> 2) << 16) | (dst << 4);
+        return 0x000001 | ((offset >> 2) << 8) | (dst << 4);
     }
 
     inline instr_t instr_s8i(reg_t dst, reg_t src, u_off_t offset) {
@@ -151,6 +173,10 @@ class EspFunction {
 
     inline instr_t instr_retw() {
         return 0x000090;
+    }
+
+    inline instr_t instr_j(s_off_t offset) {
+        return 0x000006 | (offset << 6);
     }
 
 };
