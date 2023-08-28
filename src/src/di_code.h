@@ -73,19 +73,10 @@ class EspFunction {
     void set_3_start_pixels_at_offset_1();
 
     // Ex: X=0, w=4: w=c1c0c3c2
-    void set_4_middle_pixels();
+    void set_4_middle_pixels(u_off_t word_offset);
 
-    // Ex: X=0, w=1: b[2]=c
-    void set_1_end_pixel_at_offset_0();
-
-    // Ex: X=0, w=2: h[2]=c1c0
-    void set_2_end_pixels_at_offset_0();
-
-    // Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
-    void set_2_end_pixels_at_offset_0();
-
-    // Ex: X1=27, x2=55, color=0x03
-    uint32_t draw_line(uint32_t x, uint32_t width, uint8_t color);
+    // Ex: X1=27, x2=55, color=0x03030303
+    uint32_t draw_line(uint32_t x, uint32_t width, uint32_t color);
 
     // Common operations in functions:
 
@@ -111,6 +102,7 @@ class EspFunction {
 
     // Assembler-level instructions:
 
+    void addi(reg_t dst, reg_t src, u_off_t offset) { add24(isdo(0x00C002, src, dst, offset)); }
     void bbc(reg_t src, reg_t dst, u_off_t offset) { add24(isdo(0x005007, src, dst, offset)); }
     void bbci(reg_t src, uint32_t imm, u_off_t offset) { add24(isio(0x006007, src, imm, offset)); }
     void bbs(reg_t src, reg_t dst, u_off_t offset) { add24(isdo(0x00D007, src, dst, offset)); }

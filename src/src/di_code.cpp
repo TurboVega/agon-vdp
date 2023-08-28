@@ -56,71 +56,59 @@ EspFunction::~EspFunction() {
 
 // Ex: X=0, w=1: b[2]=c
 void EspFunction::set_1_start_pixel_at_offset_0() {
-
+    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);
 }
 
 // Ex: X=1, w=1: b[3]=c
 void EspFunction::set_1_start_pixel_at_offset_1() {
-    
+    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 3);
 }
 
 // Ex: X=2, w=1: b[0]=c
 void EspFunction::set_1_start_pixel_at_offset_2() {
-    
+    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 0);
 }
 
 // Ex: X=3, w=1: b[1]=c
 void EspFunction::set_1_start_pixel_at_offset_3() {
-    
+    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 1);
 }
 
 // Ex: X=0, w=2: h[2]=c1c0
 void EspFunction::set_2_start_pixels_at_offset_0() {
-    
+    s16i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);
 }
 
 // Ex: X=1, w=2: b[3]=c0; b[0]=c1
 void EspFunction::set_2_start_pixels_at_offset_1() {
-    
+    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 3);
+    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);
 }
 
 // Ex: X=2, w=2: h[0]=c1c0
 void EspFunction::set_2_start_pixels_at_offset_2() {
-    
+    s16i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 0);    
 }
 
 // Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
 void EspFunction::set_3_start_pixels_at_offset_0() {
-    
+    s16i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);
+    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 1);
 }
 
 // Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
-void EspFunction::set_3_start_pixels_at_offset_0() {
-    
+void EspFunction::set_3_start_pixels_at_offset_1() {
+    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);    
+    s16i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 0);
 }
 
 // Ex: X=0, w=4: w=c1c0c3c2
-void EspFunction::set_4_middle_pixels() {
-    
+void EspFunction::set_4_middle_pixels(u_off_t word_offset) {
+    s32i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, word_offset);
 }
 
-// Ex: X=0, w=1: b[2]=c
-void EspFunction::set_1_end_pixel_at_offset_0() {
-    
-}
-
-// Ex: X=0, w=2: h[2]=c1c0
-void EspFunction::set_2_end_pixels_at_offset_0() {
-    
-}
-
-// Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
-void EspFunction::set_2_end_pixels_at_offset_0() {
-    
-}
-
-// Ex: X1=27, x2=55, color=0x03
-uint32_t EspFunction::draw_line(uint32_t x, uint32_t width, uint8_t color) {
+// Ex: X1=27, width=55, color=0x03030303
+uint32_t EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
     auto at_jump = enter_function();
     auto at_data = begin_data();
     auto at_x = write32(x);
@@ -137,90 +125,119 @@ uint32_t EspFunction::draw_line(uint32_t x, uint32_t width, uint8_t color) {
         auto rem_in_word = sizeof(uint32_t) - offset;
         if (offset == 3) {
             set_1_start_pixel_at_offset_3();
-            x++;
-            x--;
+            width--;
+            if (width) {
+                x++;
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 1);
+            }
         } else if (width == 1) {
             switch (offset) {
                 case 0: set_1_start_pixel_at_offset_0(); break;
                 case 1: set_1_start_pixel_at_offset_1(); break;
                 case 2: set_1_start_pixel_at_offset_2(); break;
             }
-            x++;
-            x--;
+            width--;
+            if (width) {
+                x++;
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 1);
+            }
         } else if (width == 2) {
             switch (offset) {
                 case 0: set_2_start_pixels_at_offset_0(); break;
                 case 1: set_2_start_pixels_at_offset_1(); break;
                 case 2: set_2_start_pixels_at_offset_2(); break;
             }
-            x += 2;
             width -= 2;
+            if (width) {
+                x += 2;
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 2);
+            }
         } else if (width == 3) {
             switch (offset) {
                 case 0: set_3_start_pixels_at_offset_0(); break;
                 case 1: set_3_start_pixels_at_offset_1(); break;
                 case 2: set_2_start_pixels_at_offset_2(); break;
             }
-            x += 2;
-            width -= 2;
+            width -= 3;
+            if (width) {
+                x += 3;
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 3);
+            }
         } else if (width >= 64) {
             // Need at least 16 full words
             auto times = width / 64;
-            auto at_loop = loop(REG_LOOP_INDEX, times);
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            addi(REG_DST_PIXEL_PTR, 64);
-            x += 64;
-            width -= 64;
+            movi(REG_LOOP_INDEX, times);
+            auto at_loop = get_pc();
+            loop(REG_LOOP_INDEX, 0);
+            set_4_middle_pixels(0);
+            set_4_middle_pixels(4);
+            set_4_middle_pixels(8);
+            set_4_middle_pixels(12);
+            set_4_middle_pixels(16);
+            set_4_middle_pixels(20);
+            set_4_middle_pixels(24);
+            set_4_middle_pixels(28);
+            set_4_middle_pixels(32);
+            set_4_middle_pixels(36);
+            set_4_middle_pixels(40);
+            set_4_middle_pixels(44);
+            set_4_middle_pixels(48);
+            set_4_middle_pixels(52);
+            set_4_middle_pixels(56);
+            set_4_middle_pixels(60);
+            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
+
+            uint32_t save_pc = get_pc();
+            set_pc(at_loop);
+            loop(REG_LOOP_INDEX, save_pc - at_loop);
+            set_pc(save_pc);
+
+            width -= times * 64;
+            if (width) {
+                x += times * 64;
+            }
         } else if (width >= 32) {
             // Need at least 8 full words
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            addi(REG_DST_PIXEL_PTR, 32);
-            x += 32;
+            set_4_middle_pixels(0);
+            set_4_middle_pixels(4);
+            set_4_middle_pixels(8);
+            set_4_middle_pixels(12);
+            set_4_middle_pixels(16);
+            set_4_middle_pixels(20);
+            set_4_middle_pixels(24);
+            set_4_middle_pixels(28);
             width -= 32;
+            if (width) {
+                x += 32;
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32);
+            }
         } else if (width >= 16) {
             // Need at least 4 full words
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            addi(REG_DST_PIXEL_PTR, 16);
-            x += 16;
-            width -= 16;
+            set_4_middle_pixels(0);
+            set_4_middle_pixels(4);
+            set_4_middle_pixels(8);
+            set_4_middle_pixels(12);
+            width -= 16; {
+                x += 16;
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16);
+            }
         } else if (width >= 8) {
             // Need at least 2 full words
-            set_4_middle_pixels();
-            set_4_middle_pixels();
-            addi(REG_DST_PIXEL_PTR, 8);
-            x += 8;
+            set_4_middle_pixels(0);
+            set_4_middle_pixels(4);
             width -= 8;
+            if (width) {
+                x += 8;
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8);
+            }
         } else {
             // Need 1 full word
-            set_4_middle_pixels();
-            addi(REG_DST_PIXEL_PTR, 4);
-            x += 4;
+            set_4_middle_pixels(0);
             width -= 4;
+            if (width) {
+                x += 4;
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+            }
         }
     }
     leave_function();
