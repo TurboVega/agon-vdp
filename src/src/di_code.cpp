@@ -116,10 +116,9 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
 
     begin_code(at_jump);
 
-    l32r(a5,at_color-((get_pc()+3)&0xfffffffc));
-    s32i(a5,a3,16);
-    //l32r(REG_PIXEL_COLOR, at_color);
-    //s8i(REG_LINE_PTR, REG_PIXEL_COLOR, 0);
+    //l32r(a5, at_color);
+    set_reg_color(at_color);
+    s32i(REG_PIXEL_COLOR,REG_LINE_PTR,16);
     //s32i(REG_PIXEL_COLOR, REG_LINE_PTR, 0);
     /*set_reg_dst_pixel_ptr(at_x);
     set_reg_color(at_color);
