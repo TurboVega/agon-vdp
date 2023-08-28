@@ -45,51 +45,57 @@ class EspFunction {
 
     // Pixel-level operations:
 
-    // Setup commonly used registers:
-    void set_reg_dst_pixel_ptr(uint32_t x);
-    void set_reg_color(uint8_t color);
+    // Ex: X=0, w=1: b[2]=c
+    void set_1_start_pixel_at_offset_0();
 
-    // Using some already setup registers:
-    uint32_t set_pixel();
-    uint32_t set_pixel(uint8_t color);
-    uint32_t set_pixel_at_byte_offset_0(uint8_t color);
-    uint32_t set_pixel_at_byte_offset_1(uint8_t color);
-    uint32_t set_pixel_at_byte_offset_2(uint8_t color);
-    uint32_t set_pixel_at_byte_offset_3(uint8_t color);
-    uint32_t set_pixel_pair_at_byte_offset_0(uint8_t color);
-    uint32_t set_pixel_pair_at_byte_offset_2(uint8_t color);
-    uint32_t set_pixel_pair_at_byte_offset_0(uint8_t color0, uint8_t color1);
-    uint32_t set_pixel_pair_at_byte_offset_2(uint8_t color0, uint8_t color1);
-    uint32_t set_pixel_at_x_offset_0(uint8_t color);
-    uint32_t set_pixel_at_x_offset_1(uint8_t color);
-    uint32_t set_pixel_at_x_offset_2(uint8_t color);
-    uint32_t set_pixel_at_x_offset_3(uint8_t color);
-    uint32_t set_pixel_pair_at_x_offset_0(uint8_t color);
-    uint32_t set_pixel_pair_at_x_offset_2(uint8_t color);
-    uint32_t set_pixel_pair_at_x_offset_0(uint8_t color0, uint8_t color1);
-    uint32_t set_pixel_pair_at_x_offset_2(uint8_t color0, uint8_t color1);
-    uint32_t set_pixel_quad();
-    uint32_t set_pixel_quad(uint8_t color);
-    uint32_t set_pixel_quads(uint32_t count);
-    uint32_t set_pixel_quads(uint8_t color, uint32_t count);
+    // Ex: X=1, w=1: b[3]=c
+    void set_1_start_pixel_at_offset_1();
 
-    uint32_t set_pixel_at_byte_offset(uint32_t offset, uint8_t color);
-    uint32_t set_pixel_pair_at_byte_offset(uint32_t offset, uint8_t color);
-    uint32_t set_pixel_pair_at_byte_offset(uint32_t offset, uint8_t color0, uint8_t color1);
-    uint32_t set_pixel_at_x_offset_0(uint32_t x, uint8_t color);
-    uint32_t set_pixel_at_x_offset_1(uint32_t x, uint8_t color);
-    uint32_t set_pixel_at_x_offset_2(uint32_t x, uint8_t color);
-    uint32_t set_pixel_at_x_offset_3(uint32_t x, uint8_t color);
-    uint32_t set_pixel_pair_at_x_offset_0(uint32_t x, uint8_t color);
-    uint32_t set_pixel_pair_at_x_offset_2(uint32_t x, uint8_t color);
-    uint32_t set_pixel_pair_at_x_offset_0(uint32_t x, uint8_t color0, uint8_t color1);
-    uint32_t set_pixel_pair_at_x_offset_2(uint32_t x, uint8_t color0, uint8_t color1);
-    uint32_t set_pixel_quad(uint32_t x);
-    uint32_t set_pixel_quad(uint32_t x, uint8_t color);
-    uint32_t set_pixel_quads(uint32_t x, uint32_t count);
-    uint32_t set_pixel_quads(uint32_t x, uint8_t color, uint32_t count);
+    // Ex: X=2, w=1: b[0]=c
+    void set_1_start_pixel_at_offset_2();
 
-    uint32_t draw_line(uint32_t x1, uint32_t x2, uint8_t color);
+    // Ex: X=3, w=1: b[1]=c
+    void set_1_start_pixel_at_offset_3();
+
+    // Ex: X=0, w=2: h[2]=c1c0
+    void set_2_start_pixels_at_offset_0();
+
+    // Ex: X=1, w=2: b[3]=c0; b[0]=c1
+    void set_2_start_pixels_at_offset_1();
+
+    // Ex: X=2, w=2: h[0]=c1c0
+    void set_2_start_pixels_at_offset_2();
+
+    // Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
+    void set_3_start_pixels_at_offset_0();
+
+    // Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
+    void set_3_start_pixels_at_offset_1();
+
+    // Ex: X=0, w=4: w=c1c0c3c2
+    void set_4_middle_pixels();
+
+    // Ex: X=0, w=1: b[2]=c
+    void set_1_end_pixel_at_offset_0();
+
+    // Ex: X=0, w=2: h[2]=c1c0
+    void set_2_end_pixels_at_offset_0();
+
+    // Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
+    void set_2_end_pixels_at_offset_0();
+
+    // Ex: X1=27, x2=55, color=0x03
+    uint32_t draw_line(uint32_t x, uint32_t width, uint8_t color);
+
+    // Common operations in functions:
+
+    uint32_t enter_function();
+    void leave_function();
+    uint32_t begin_data();
+    void begin_code(uint32_t at_jump);
+    void set_reg_draw_width(uint32_t at_width);
+    void set_reg_dst_pixel_ptr(uint32_t at_x);
+    void set_reg_color(uint32_t at_color);
 
     // Utility operations:
 
@@ -98,11 +104,10 @@ class EspFunction {
     void align16();
     void align32();
     void j_to_here(uint32_t from);
-    void l32r_from(uint32_t from);
+    void l32r_from(reg_t reg, uint32_t from);
     uint16_t dup8_to_16(uint8_t value);
     uint32_t dup8_to_32(uint8_t value);
     uint32_t dup16_to_32(uint16_t value);
-    void init_output_ptr(uint32_t x);
 
     // Assembler-level instructions:
 
@@ -157,10 +162,10 @@ class EspFunction {
 
     void allocate(uint32_t size);
     void store(uint8_t instr_byte);
-    void add8(instr_t data);
-    void add16(instr_t data);
-    void add24(instr_t data);
-    void add32(instr_t data);
+    uint32_t write8(instr_t data);
+    uint32_t write16(instr_t data);
+    uint32_t write24(instr_t data);
+    uint32_t write32(instr_t data);
 
     inline instr_t idso(uint32_t instr, reg_t dst, reg_t src, u_off_t offset) {
         return instr | ((offset >> 1) << 16) | (dst << 4) | (src << 8); }

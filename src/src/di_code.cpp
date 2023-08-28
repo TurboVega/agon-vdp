@@ -38,6 +38,8 @@
 #define REG_DST_PIXEL_PTR   a5
 #define REG_SRC_PIXEL_PTR   a6
 #define REG_PIXEL_COLOR     a7
+#define REG_DRAW_WIDTH      a8
+#define REG_LOOP_INDEX      a9
 
 EspFunction::EspFunction() {
     m_alloc_size = 0;
@@ -52,93 +54,212 @@ EspFunction::~EspFunction() {
     }
 }
 
-/*
+// Ex: X=0, w=1: b[2]=c
+void EspFunction::set_1_start_pixel_at_offset_0() {
+
+}
+
+// Ex: X=1, w=1: b[3]=c
+void EspFunction::set_1_start_pixel_at_offset_1() {
+    
+}
+
+// Ex: X=2, w=1: b[0]=c
+void EspFunction::set_1_start_pixel_at_offset_2() {
+    
+}
+
+// Ex: X=3, w=1: b[1]=c
+void EspFunction::set_1_start_pixel_at_offset_3() {
+    
+}
+
+// Ex: X=0, w=2: h[2]=c1c0
+void EspFunction::set_2_start_pixels_at_offset_0() {
+    
+}
+
+// Ex: X=1, w=2: b[3]=c0; b[0]=c1
+void EspFunction::set_2_start_pixels_at_offset_1() {
+    
+}
+
+// Ex: X=2, w=2: h[0]=c1c0
+void EspFunction::set_2_start_pixels_at_offset_2() {
+    
+}
+
+// Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
+void EspFunction::set_3_start_pixels_at_offset_0() {
+    
+}
+
+// Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
+void EspFunction::set_3_start_pixels_at_offset_0() {
+    
+}
+
+// Ex: X=0, w=4: w=c1c0c3c2
+void EspFunction::set_4_middle_pixels() {
+    
+}
+
+// Ex: X=0, w=1: b[2]=c
+void EspFunction::set_1_end_pixel_at_offset_0() {
+    
+}
+
+// Ex: X=0, w=2: h[2]=c1c0
+void EspFunction::set_2_end_pixels_at_offset_0() {
+    
+}
+
+// Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
+void EspFunction::set_2_end_pixels_at_offset_0() {
+    
+}
+
+// Ex: X1=27, x2=55, color=0x03
+uint32_t EspFunction::draw_line(uint32_t x, uint32_t width, uint8_t color) {
+    auto at_jump = enter_function();
+    auto at_data = begin_data();
+    auto at_x = write32(x);
+    auto at_width = write32(width);
+    auto at_color = write32(color);
+
+    begin_code(at_jump);
+    set_reg_dst_pixel_ptr(at_x);
+    set_reg_draw_width(at_width);
+    set_reg_color(at_color);
+
+    while (width) {
+        auto offset = x & 3;
+        auto rem_in_word = sizeof(uint32_t) - offset;
+        if (offset == 3) {
+            set_1_start_pixel_at_offset_3();
+            x++;
+            x--;
+        } else if (width == 1) {
+            switch (offset) {
+                case 0: set_1_start_pixel_at_offset_0(); break;
+                case 1: set_1_start_pixel_at_offset_1(); break;
+                case 2: set_1_start_pixel_at_offset_2(); break;
+            }
+            x++;
+            x--;
+        } else if (width == 2) {
+            switch (offset) {
+                case 0: set_2_start_pixels_at_offset_0(); break;
+                case 1: set_2_start_pixels_at_offset_1(); break;
+                case 2: set_2_start_pixels_at_offset_2(); break;
+            }
+            x += 2;
+            width -= 2;
+        } else if (width == 3) {
+            switch (offset) {
+                case 0: set_3_start_pixels_at_offset_0(); break;
+                case 1: set_3_start_pixels_at_offset_1(); break;
+                case 2: set_2_start_pixels_at_offset_2(); break;
+            }
+            x += 2;
+            width -= 2;
+        } else if (width >= 64) {
+            // Need at least 16 full words
+            auto times = width / 64;
+            auto at_loop = loop(REG_LOOP_INDEX, times);
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            addi(REG_DST_PIXEL_PTR, 64);
+            x += 64;
+            width -= 64;
+        } else if (width >= 32) {
+            // Need at least 8 full words
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            addi(REG_DST_PIXEL_PTR, 32);
+            x += 32;
+            width -= 32;
+        } else if (width >= 16) {
+            // Need at least 4 full words
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            addi(REG_DST_PIXEL_PTR, 16);
+            x += 16;
+            width -= 16;
+        } else if (width >= 8) {
+            // Need at least 2 full words
+            set_4_middle_pixels();
+            set_4_middle_pixels();
+            addi(REG_DST_PIXEL_PTR, 8);
+            x += 8;
+            width -= 8;
+        } else {
+            // Need 1 full word
+            set_4_middle_pixels();
+            addi(REG_DST_PIXEL_PTR, 4);
+            x += 4;
+            width -= 4;
+        }
+    }
+    leave_function();
+}
+
+uint32_t EspFunction::enter_function() {
     entry(sp, 16);
-    uint32_t at_jump = get_pc();
+    auto at_jump = get_pc();
     j(0);
-    align32();
-    uint32_t at_data = get_pc();
-    d32(color);
-    j_to_here(at_jump);
-    l32r_from(REG_PIXEL_COLOR, at_data);
-    s8i(REG_PIXEL_COLOR, a3, offset);
+    return at_jump;
+}
+
+void EspFunction::leave_function() {
     retw();
-*/
-
-uint32_t EspFunction::set_pixel_at_byte_offset(uint32_t offset, uint8_t color) {
-    movi(REG_DST_PIXEL_PTR, REG_LINE_PTR);
-    movi(REG_PIXEL_COLOR, color);
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
-    addi(REG_DST_PIXEL_PTR, 1);
-    return ++offset;
 }
 
-uint32_t EspFunction::set_pixel_pair_at_byte_offset(uint32_t offset, uint8_t color) {
-    
+uint32_t EspFunction::begin_data() {
+    align32();
+    return get_pc();
 }
 
-uint32_t EspFunction::set_pixel_pair_at_byte_offset(uint32_t offset, uint8_t color0, uint8_t color1) {
-    
+void EspFunction::begin_code(uint32_t at_jump) {
+    j_to_here(at_jump);
 }
 
-uint32_t EspFunction::set_pixel_at_x_offset_0(uint32_t x, uint8_t color) {
-    
+void EspFunction::set_reg_draw_width(uint32_t at_width) {
+    l32r_from(REG_DRAW_WIDTH, at_width);
 }
 
-uint32_t EspFunction::set_pixel_at_x_offset_1(uint32_t x, uint8_t color) {
-    
+void EspFunction::set_reg_dst_pixel_ptr(uint32_t at_x) {
+    l32r_from(REG_DST_PIXEL_PTR, at_x);
 }
 
-uint32_t EspFunction::set_pixel_at_x_offset_2(uint32_t x, uint8_t color) {
-    
-}
-
-uint32_t EspFunction::set_pixel_at_x_offset_3(uint32_t x, uint8_t color) {
-    
-}
-
-uint32_t EspFunction::set_pixel_pair_at_x_offset_0(uint32_t x, uint8_t color) {
-    
-}
-
-uint32_t EspFunction::set_pixel_pair_at_x_offset_2(uint32_t x, uint8_t color) {
-    
-}
-
-uint32_t EspFunction::set_pixel_pair_at_x_offset_0(uint32_t x, uint8_t color0, uint8_t color1) {
-    
-}
-
-uint32_t EspFunction::set_pixel_pair_at_x_offset_2(uint32_t x, uint8_t color0, uint8_t color1) {
-    
-}
-
-uint32_t EspFunction::set_pixel_quad(uint32_t x) {
-
-}
-
-uint32_t EspFunction::set_pixel_quad(uint32_t x, uint8_t color) {
-    
-}
-
-uint32_t EspFunction::set_pixel_quads(uint32_t x, uint32_t count) {
-    
-}
-
-uint32_t EspFunction::set_pixel_quads(uint32_t x, uint8_t color, uint32_t count) {
-    
-}
-
-uint32_t EspFunction::draw_line(uint32_t x1, uint32_t x2, uint8_t color) {
-
-}
-
-void init_output_ptr(uint32_t x) {
-    f.movi(a5, )
+void EspFunction::set_reg_color(uint32_t at_color) {
+    l32r_from(REG_PIXEL_COLOR, at_color);
 }
 
 void EspFunction::store(uint8_t instr_byte) {
-    uint32_t i = m_code_index >> 2;
+    auto i = m_code_index >> 2;
     switch (m_code_index & 3) {
         case 0:
             m_code[i] = (uint32_t)instr_byte;
@@ -161,7 +282,7 @@ void EspFunction::store(uint8_t instr_byte) {
 
 void EspFunction::align16() {
     if (m_code_index & 1) {
-        add8(0);
+        write8(0);
     }
 }
 
@@ -175,8 +296,8 @@ void EspFunction::j_to_here(uint32_t from) {
     j(m_code_index - from - 4);
 }
 
-void EspFunction::l32r_from(uint32_t from) {
-    l32r(a5, 8-((12+3)&0xFFFFFFFC));
+void EspFunction::l32r_from(reg_t reg, uint32_t from) {
+    l32r(reg, from - ((get_pc() + 3) & 0xFFFFFFFC));
 }
 
 uint16_t EspFunction::dup8_to_16(uint8_t value) {
@@ -209,30 +330,38 @@ void EspFunction::allocate(uint32_t size) {
     }
 }
 
-void EspFunction::add8(instr_t data) {
+uint32_t EspFunction::write8(instr_t data) {
     allocate(1);
+    auto at_data = get_pc();
     store((uint8_t)(data & 0xFF));
+    return at_data;
 }
 
-void EspFunction::add16(instr_t data) {
+uint32_t EspFunction::write16(instr_t data) {
     allocate(2);
+    auto at_data = get_pc();
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
+    return at_data;
 }
 
-void EspFunction::add24(instr_t data) {
+uint32_t EspFunction::write24(instr_t data) {
     allocate(3);
+    auto at_data = get_pc();
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
+    return at_data;
 }
 
-void EspFunction::add32(instr_t data) {
+uint32_t EspFunction::write32(instr_t data) {
     allocate(4);
+    auto at_data = get_pc();
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
     store((uint8_t)((data >> 24) & 0xFF));
+    return at_data;
 }
 
 instr_t isieo(uint32_t instr, reg_t src, int32_t imm, u_off_t offset) {
