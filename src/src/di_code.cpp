@@ -108,21 +108,24 @@ void EspFunction::set_4_middle_pixels(u_off_t word_offset) {
 }
 
 // Ex: X1=27, width=55, color=0x03030303
-uint32_t EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
+void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
     auto at_jump = enter_function();
     auto at_data = begin_data();
     auto at_x = write32(x);
-    auto at_width = write32(width);
     auto at_color = write32(color);
 
     begin_code(at_jump);
-    set_reg_dst_pixel_ptr(at_x);
-    set_reg_draw_width(at_width);
+
+    l32r(a5,at_color-((get_pc()+3)&0xfffffffc));
+    s32i(a5,a3,16);
+    //l32r(REG_PIXEL_COLOR, at_color);
+    //s8i(REG_LINE_PTR, REG_PIXEL_COLOR, 0);
+    //s32i(REG_PIXEL_COLOR, REG_LINE_PTR, 0);
+    /*set_reg_dst_pixel_ptr(at_x);
     set_reg_color(at_color);
 
     while (width) {
         auto offset = x & 3;
-        auto rem_in_word = sizeof(uint32_t) - offset;
         if (offset == 3) {
             set_1_start_pixel_at_offset_3();
             width--;
@@ -239,7 +242,7 @@ uint32_t EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
                 addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
             }
         }
-    }
+    }*/
     leave_function();
 }
 
@@ -260,6 +263,7 @@ uint32_t EspFunction::begin_data() {
 }
 
 void EspFunction::begin_code(uint32_t at_jump) {
+    align32();
     j_to_here(at_jump);
 }
 
@@ -269,6 +273,7 @@ void EspFunction::set_reg_draw_width(uint32_t at_width) {
 
 void EspFunction::set_reg_dst_pixel_ptr(uint32_t at_x) {
     l32r_from(REG_DST_PIXEL_PTR, at_x);
+    add(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, REG_LINE_PTR);
 }
 
 void EspFunction::set_reg_color(uint32_t at_color) {
@@ -279,16 +284,16 @@ void EspFunction::store(uint8_t instr_byte) {
     auto i = m_code_index >> 2;
     switch (m_code_index & 3) {
         case 0:
-            m_code[i] = (uint32_t)instr_byte;
+            m_code[i] = (m_code[i] & 0xFFFFFF00) | (uint32_t)instr_byte;
             break;
         case 1:
-            m_code[i] |= ((uint32_t)instr_byte) << 8;
+            m_code[i] = (m_code[i] & 0xFFFF00FF) |((uint32_t)instr_byte) << 8;
             break;
         case 2:
-            m_code[i] |= ((uint32_t)instr_byte) << 16;
+            m_code[i] = (m_code[i] & 0xFF00FFFF) |((uint32_t)instr_byte) << 16;
             break;
         case 3:
-            m_code[i] |= ((uint32_t)instr_byte) << 24;
+            m_code[i] = (m_code[i] & 0x00FFFFFF) |((uint32_t)instr_byte) << 24;
             break;
     }
 
@@ -304,13 +309,17 @@ void EspFunction::align16() {
 }
 
 void EspFunction::align32() {
-    while (m_code_index & 3) {
-        align16();
+    align16();
+    if (m_code_index & 2) {
+        write16(0);
     }
 }
 
 void EspFunction::j_to_here(uint32_t from) {
-    j(m_code_index - from - 4);
+    uint32_t save_pc = get_pc();
+    set_pc(from);
+    j(save_pc - from - 4);
+    set_pc(save_pc);
 }
 
 void EspFunction::l32r_from(reg_t reg, uint32_t from) {

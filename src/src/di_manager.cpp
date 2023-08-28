@@ -509,6 +509,7 @@ void IRAM_ATTR DiManager::run() {
 }
 
 #include "src/di_code.h"
+EspFunction f;
 
 void IRAM_ATTR DiManager::loop() {
   DiPaintParams paint_params;
@@ -531,13 +532,18 @@ void IRAM_ATTR DiManager::loop() {
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_0();
         paint_params.m_line32 = vbuf->get_buffer_ptr_0();
         draw_primitives(&paint_params);
+
+        paint_params.m_line32[12] = 0x12342618;
+        if (!f.get_pc()) {
+          f.draw_line(300, 1, 0x03040506);
+        }
       	f.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
         draw_primitives(&paint_params);
-      	f.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	//f.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
 
         ++current_line_index;
         if (++current_buffer_index >= NUM_ACTIVE_BUFFERS) {
