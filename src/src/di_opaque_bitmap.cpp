@@ -27,10 +27,6 @@
 #include "esp_heap_caps.h"
 #include <cstring>
 
-extern "C" {
-IRAM_ATTR void DiOpaqueBitmap_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiBitmap::DiBitmap() {}
 
 DiBitmap::~DiBitmap() {}
@@ -113,5 +109,4 @@ void DiOpaqueBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void IRAM_ATTR DiOpaqueBitmap::paint(const DiPaintParams *params) {
-  //DiOpaqueBitmap_paint((void*)this, params);
 }

@@ -28,10 +28,6 @@
 #include "esp_heap_caps.h"
 #include <cstring>
 
-extern "C" {
-IRAM_ATTR void DiMaskedBitmap_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiMaskedBitmap::DiMaskedBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
   m_width = width;
   m_height = height;
@@ -120,5 +116,4 @@ void DiMaskedBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void IRAM_ATTR DiMaskedBitmap::paint(const DiPaintParams *params) {
-  //DiMaskedBitmap_paint((void*)this, params);
 }

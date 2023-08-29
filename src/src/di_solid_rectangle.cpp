@@ -25,10 +25,6 @@
 
 #include "di_solid_rectangle.h"
 
-extern "C" {
-IRAM_ATTR void DiSolidRectangle_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiSolidRectangle::DiSolidRectangle() {
 }
 
@@ -45,5 +41,4 @@ void DiSolidRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_
 }
 
 void IRAM_ATTR DiSolidRectangle::paint(const DiPaintParams *params) {
-  //DiSolidRectangle_paint((void*)this, params);
 }

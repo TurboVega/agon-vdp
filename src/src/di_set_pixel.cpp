@@ -25,10 +25,6 @@
 
 #include "di_set_pixel.h"
 
-extern "C" {
-IRAM_ATTR void DiSetPixel_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiSetPixel::DiSetPixel(int32_t x, int32_t y, uint8_t color) {
   m_rel_x = x;
   m_rel_y = y;
@@ -38,5 +34,4 @@ DiSetPixel::DiSetPixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void IRAM_ATTR DiSetPixel::paint(const DiPaintParams *params) {
-  //DiSetPixel_paint((void*)this, params);
 }

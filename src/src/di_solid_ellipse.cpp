@@ -25,10 +25,6 @@
 
 #include "di_solid_ellipse.h"
 
-extern "C" {
-IRAM_ATTR void DiSolidEllipse_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiSolidEllipse::DiSolidEllipse() {
 }
 
@@ -45,5 +41,4 @@ void DiSolidEllipse::init_params(int32_t x, int32_t y, uint32_t width, uint32_t 
 }
 
 void IRAM_ATTR DiSolidEllipse::paint(const DiPaintParams *params) {
-  //DiSolidEllipse_paint((void*)this, params);
 }

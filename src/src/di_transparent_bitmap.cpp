@@ -28,10 +28,6 @@
 #include "esp_heap_caps.h"
 #include <cstring>
 
-extern "C" {
-IRAM_ATTR void DiTransparentBitmap_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiTransparentBitmap::DiTransparentBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
   m_width = width;
   m_height = height;
@@ -111,5 +107,4 @@ void DiTransparentBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void IRAM_ATTR DiTransparentBitmap::paint(const DiPaintParams *params) {
-  //DiTransparentBitmap_paint((void*)this, params);
 }

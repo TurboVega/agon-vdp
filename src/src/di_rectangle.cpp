@@ -25,10 +25,6 @@
 
 #include "di_rectangle.h"
 
-extern "C" {
-IRAM_ATTR void DiRectangle_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiRectangle::DiRectangle() {
 }
 
@@ -45,5 +41,4 @@ void DiRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_t hei
 }
 
 void IRAM_ATTR DiRectangle::paint(const DiPaintParams *params) {
-  //DiRectangle_paint((void*)this, params);
 }

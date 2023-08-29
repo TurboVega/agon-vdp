@@ -27,10 +27,6 @@
 #include "di_terminal.h"
 #include <cstring>
 
-extern "C" {
-IRAM_ATTR void DiTerminal_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint32_t codes,
                         uint32_t columns, uint32_t rows,
                         uint8_t fg_color, uint8_t bg_color, const uint8_t* font) :

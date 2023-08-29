@@ -25,10 +25,6 @@
 
 #include "di_ellipse.h"
 
-extern "C" {
-IRAM_ATTR void DiEllipse_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiEllipse::DiEllipse() {
 }
 
@@ -45,5 +41,4 @@ void DiEllipse::init_params(int32_t x, int32_t y, uint32_t width, uint32_t heigh
 }
 
 void IRAM_ATTR DiEllipse::paint(const DiPaintParams *params) {
-  //DiEllipse_paint((void*)this, params);
 }

@@ -25,10 +25,6 @@
 
 #include "di_horiz_line.h"
 
-extern "C" {
-IRAM_ATTR void DiHorizontalLine_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiHorizontalLine::DiHorizontalLine() {}
 
 void DiHorizontalLine::init_params(int32_t x, int32_t y, uint32_t width, uint8_t color) {
@@ -45,5 +41,4 @@ void DiHorizontalLine::init_params(int32_t x, int32_t y, uint32_t width, uint8_t
 }
 
 void IRAM_ATTR DiHorizontalLine::paint(const DiPaintParams *params) {
-  //DiHorizontalLine_paint((void*)this, params);
 }

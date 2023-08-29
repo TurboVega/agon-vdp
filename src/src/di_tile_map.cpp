@@ -35,10 +35,6 @@
 #include "esp_heap_caps.h"
 #include <cstring>
 
-extern "C" {
-IRAM_ATTR void DiTileMap_paint(void* this_ptr, const DiPaintParams *params);
-}
-
 DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
                       uint32_t bitmaps, uint32_t columns, uint32_t rows,
                       uint32_t tile_width, uint32_t tile_height, bool hscroll) {
@@ -141,5 +137,4 @@ uint8_t DiTileMap::get_tile(int32_t column, int32_t row) {
 }
 
 void IRAM_ATTR DiTileMap::paint(const DiPaintParams *params) {
-  //DiTileMap_paint((void*)this, params);
 }
