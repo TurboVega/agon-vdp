@@ -519,6 +519,26 @@ EspFunction f6;
 EspFunction f7;
 EspFunction f8;
 
+EspFunction g0;
+EspFunction g1;
+EspFunction g2;
+EspFunction g3;
+EspFunction g4;
+EspFunction g5;
+EspFunction g6;
+EspFunction g7;
+EspFunction g8;
+
+EspFunction h0;
+EspFunction h1;
+EspFunction h2;
+EspFunction h3;
+EspFunction h4;
+EspFunction h5;
+EspFunction h6;
+EspFunction h7;
+EspFunction h8;
+
 void IRAM_ATTR DiManager::loop() {
   DiPaintParams paint_params;
 
@@ -543,15 +563,39 @@ void IRAM_ATTR DiManager::loop() {
 
         paint_params.m_line32[12] = 0x12342618;
         uint32_t o = 0;
-        if (!f0.get_pc()) f0.draw_line(100+o, 1, 0x03030303);
-        if (!f1.get_pc()) f1.draw_line(120+o, 2, 0x03030303);
-        if (!f2.get_pc()) f2.draw_line(140+o, 3, 0x03030303);
-        if (!f3.get_pc()) f3.draw_line(160+o, 4, 0x03030303);
-        if (!f4.get_pc()) f4.draw_line(180+o, 5, 0x03030303);
-        if (!f5.get_pc()) f5.draw_line(200+o, 6, 0x03030303);
-        if (!f6.get_pc()) f6.draw_line(220+o, 7, 0x03030303);
-        if (!f7.get_pc()) f7.draw_line(240+o, 8, 0x03030303);
-        if (!f8.get_pc()) f8.draw_line(260+o, 531, 0x03030303);
+        if (!f0.get_pc()) {
+          f0.draw_line(100+o, 1, 0x03030303);
+          f1.draw_line(120+o, 2, 0x03030303);
+          f2.draw_line(140+o, 3, 0x03030303);
+          f3.draw_line(160+o, 4, 0x03030303);
+          f4.draw_line(180+o, 5, 0x03030303);
+          f5.draw_line(200+o, 6, 0x03030303);
+          f6.draw_line(220+o, 7, 0x03030303);
+          f7.draw_line(240+o, 8, 0x03030303);
+          f8.draw_line(260+o, 531, 0x03030303);
+
+          o = 17;
+          g0.draw_line(100+o, 1, 0x04040404);
+          g1.draw_line(120+o, 2, 0x04040404);
+          g2.draw_line(140+o, 3, 0x04040404);
+          g3.draw_line(160+o, 4, 0x04040404);
+          g4.draw_line(180+o, 5, 0x04040404);
+          g5.draw_line(200+o, 6, 0x04040404);
+          g6.draw_line(220+o, 7, 0x04040404);
+          g7.draw_line(240+o, 8, 0x04040404);
+          g8.draw_line(260+o, 431, 0x04040404);
+
+          o = 23;
+          h0.draw_line(100+o, 1, 0x20202020);
+          h1.draw_line(120+o, 2, 0x20202020);
+          h2.draw_line(140+o, 3, 0x20202020);
+          h3.draw_line(160+o, 4, 0x20202020);
+          h4.draw_line(180+o, 5, 0x20202020);
+          h5.draw_line(200+o, 6, 0x20202020);
+          h6.draw_line(220+o, 7, 0x20202020);
+          h7.draw_line(240+o, 8, 0x20202020);
+          h8.draw_line(260+o, 331, 0x20202020);
+        }
       	f0.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
       	f1.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
       	f2.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
@@ -561,6 +605,26 @@ void IRAM_ATTR DiManager::loop() {
       	f6.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
       	f7.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
       	f8.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+
+      	g0.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	g1.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	g2.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	g3.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	g4.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	g5.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	g6.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	g7.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	g8.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+
+      	h0.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	h1.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	h2.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	h3.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	h4.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	h5.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	h6.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	h7.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	h8.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
