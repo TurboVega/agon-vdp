@@ -266,6 +266,7 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
     }
 
     m_primitives[prim->get_id()] = prim;
+    prim->generate_instructions();
 }
 
 void DiManager::delete_primitive(DiPrimitive* prim) {
@@ -345,6 +346,8 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
       }
     }
   }
+
+  prim->generate_instructions();
 }
 
 DiPrimitive* DiManager::finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {

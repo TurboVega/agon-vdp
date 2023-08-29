@@ -40,5 +40,11 @@ void DiSolidRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_
       (uint32_t)color | SYNCS_OFF_X4;
 }
 
+void IRAM_ATTR DiSolidRectangle::generate_instructions() {
+  m_paint_fcn.clear();
+  m_paint_fcn.draw_line(m_draw_x, m_width, m_color);
+}
+
 void IRAM_ATTR DiSolidRectangle::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
+  m_paint_fcn.call(this, p_scan_line, line_index);
 }

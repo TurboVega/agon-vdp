@@ -35,11 +35,13 @@
 #define REG_LINE_PTR        a3
 #define REG_LINE_INDEX      a4
 // Temporary registers:
+#define REG_JUMP_ADDRESS    a5
 #define REG_DST_PIXEL_PTR   a5
 #define REG_SRC_PIXEL_PTR   a6
 #define REG_PIXEL_COLOR     a7
 #define REG_DRAW_WIDTH      a8
 #define REG_LOOP_INDEX      a9
+#define REG_SAVE_RETURN     a15
 
 #define FIX_OFFSET(off)    ((off)^2)
 
@@ -274,6 +276,18 @@ void EspFunction::leave_function() {
 uint32_t EspFunction::begin_data() {
     align32();
     return get_pc();
+}
+
+void EspFunction::begin_jump_table(uint32_t num_items) {
+    /*slli(REG_JUMP_ADDRESS, REG_LINE_INDEX, 1);
+    add(REG_JUMP_ADDRESS, REG_LINE_INDEX);
+    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+    call0();
+    add(REG_JUMP_ADDRESS, REG_RETURN_ADDR);
+    addi(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, 15);
+    callx0(REG_JUMP_ADDRESS);
+    mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
+    leave_function();*/
 }
 
 void EspFunction::begin_code(uint32_t at_jump) {

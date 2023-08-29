@@ -83,6 +83,7 @@ class EspFunction {
     uint32_t enter_function();
     void leave_function();
     uint32_t begin_data();
+    void begin_jump_table(uint32_t num_items);
     void begin_code(uint32_t at_jump);
     void set_reg_draw_width(uint32_t at_width);
     void set_reg_dst_pixel_ptr(uint32_t at_x);
@@ -90,6 +91,7 @@ class EspFunction {
 
     // Utility operations:
 
+    inline void clear() { m_code_index = 0; m_code_size = 0; }
     inline uint32_t get_pc() { return m_code_index; }
     inline void set_pc(uint32_t address) { m_code_index = address; }
     void align16();
@@ -142,6 +144,7 @@ class EspFunction {
     void s16i(reg_t dst, reg_t src, u_off_t offset) { write24(idso16(0x005002, dst, src, offset)); }
     void s32i(reg_t dst, reg_t src, u_off_t offset) { write24(idso32(0x006002, dst, src, offset)); }
     void s8i(reg_t dst, reg_t src, u_off_t offset) { write24(idso8(0x004002, dst, src, offset)); }
+    void slli(reg_t dst, reg_t src, uint8_t bits) { write24(idsb(0x010000, dst, src, bits)); }
 
     // a0 = return address
     // a1 = stack ptr
@@ -179,6 +182,9 @@ class EspFunction {
 
     inline instr_t isdo(uint32_t instr, reg_t src, reg_t dst, u_off_t offset) {
         return instr | (offset << 16) | (dst << 4) | (src << 8); }
+
+    inline instr_t idsb(uint32_t instr, reg_t dst, reg_t src, uint8_t bits) {
+        return instr | ((bits & 0x10) << 16) | (dst << 12) | (src << 8) | ((bits & 0xF) << 4); }
 
     inline instr_t isio(uint32_t instr, reg_t src, uint32_t imm, u_off_t offset) {
         return instr | (offset << 16) | ((imm & 0xF) << 4) | ((imm & 0x10) << 8) | (src << 8); }

@@ -150,3 +150,6 @@ void DiPrimitive::clear_child_ptrs() {
   m_first_child = NULL;
   m_last_child = NULL;
 }
+
+void IRAM_ATTR DiPrimitive::generate_instructions() {
+}

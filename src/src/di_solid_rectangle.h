@@ -25,14 +25,20 @@
 
 #pragma once
 #include "di_primitive.h"
+#include "di_code.h"
 
 class DiSolidRectangle: public DiPrimitive {
   public:
+  EspFunction m_paint_fcn;
+
   // Construct a solid rectangle. This requires calling init_params() afterward.
   DiSolidRectangle();
   
   // Draws a solid (filled) rectangle on the screen.
   void init_params(int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color);
 
+  // Reassemble the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR generate_instructions();
+   
   virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 };

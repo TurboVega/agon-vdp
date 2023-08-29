@@ -82,6 +82,9 @@ class DiPrimitive {
   // this primitive is based on the given viewport parameters and certain flags.
   void IRAM_ATTR compute_absolute_geometry(int32_t view_x, int32_t view_y, int32_t view_x_extent, int32_t view_y_extent);
 
+  // Reassemble the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR generate_instructions();
+   
   // Gets various data members.
   inline uint16_t get_id() { return m_id; }
   inline uint8_t get_flags() { return m_flags; }
