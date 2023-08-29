@@ -555,8 +555,8 @@ void IRAM_ATTR DiManager::loop() {
             current_buffer_index < NUM_ACTIVE_BUFFERS;
             current_line_index++, current_buffer_index++) {
         volatile DiVideoBuffer* vbuf = &m_video_buffer[current_buffer_index];
-        draw_primitives(vbuf->get_buffer_ptr_0(), current_buffer_index);
-        draw_primitives(vbuf->get_buffer_ptr_1(), ++current_buffer_index);
+        draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
+        draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
       }
 
       loop_state = LoopState::NearNewFrameStart;
