@@ -105,7 +105,7 @@ void EspFunction::set_3_pixels_at_offset_1() {
 }
 
 // Ex: X=0, w=4: w=c1c0c3c2
-void EspFunction::set_4_middle_pixels(u_off_t offset) {
+void EspFunction::set_4_pixels_at_offset(u_off_t offset) {
     s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, offset);
 }
 
@@ -124,124 +124,137 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
 
     while (width) {
         auto offset = x & 3;
-        if (offset == 3) {
-            set_1_pixel_at_offset_3();
-            width--;
-            if (width) {
-                x++;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
-            }
-        } else if (width == 1) {
-            switch (offset) {
-                case 0: set_1_pixel_at_offset_0(); break;
-                case 1: set_1_pixel_at_offset_1(); break;
-                case 2: set_1_pixel_at_offset_2(); break;
-            }
-            width--;
-        } else if (width == 2) {
-            switch (offset) {
-                case 0: set_2_pixels_at_offset_0(); break;
-                case 1: set_2_pixels_at_offset_1(); break;
-                case 2: set_2_pixels_at_offset_2(); break;
-            }
-            width -= 2;
-            if (width) {
-                x += 2;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
-            }
-        } else if (width == 3 || offset > 0) {
-            switch (offset) {
-                case 0: set_3_pixels_at_offset_0(); break;
-                case 1: set_3_pixels_at_offset_1(); break;
-                case 2:
-                    set_2_pixels_at_offset_2();
-                    width -= 2;
+        uint32_t sub = 1;
+        switch (offset) {
+            case 0:
+                if (width >= 4) {
+                    if (width >= 128) {
+                        // Need at least 32 full words
+                        auto times = width / 64;
+                        movi(REG_LOOP_INDEX, times);
+                        auto at_loop = get_pc();
+                        loop(REG_LOOP_INDEX, 0);
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
+                        set_4_pixels_at_offset(8);
+                        set_4_pixels_at_offset(12);
+                        set_4_pixels_at_offset(16);
+                        set_4_pixels_at_offset(20);
+                        set_4_pixels_at_offset(24);
+                        set_4_pixels_at_offset(28);
+                        set_4_pixels_at_offset(32);
+                        set_4_pixels_at_offset(36);
+                        set_4_pixels_at_offset(40);
+                        set_4_pixels_at_offset(44);
+                        set_4_pixels_at_offset(48);
+                        set_4_pixels_at_offset(52);
+                        set_4_pixels_at_offset(56);
+                        set_4_pixels_at_offset(60);
+                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
+
+                        uint32_t save_pc = get_pc();
+                        set_pc(at_loop);
+                        loop(REG_LOOP_INDEX, save_pc - (at_loop + 4));
+                        set_pc(save_pc);
+
+                        sub = times * 64;
+                        width -= sub;
+                        x += sub;
+                        continue;
+                    } else if (width >= 64) {
+                        // Need at least 16 full words
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
+                        set_4_pixels_at_offset(8);
+                        set_4_pixels_at_offset(12);
+                        set_4_pixels_at_offset(16);
+                        set_4_pixels_at_offset(20);
+                        set_4_pixels_at_offset(24);
+                        set_4_pixels_at_offset(28);
+                        set_4_pixels_at_offset(32);
+                        set_4_pixels_at_offset(36);
+                        set_4_pixels_at_offset(40);
+                        set_4_pixels_at_offset(44);
+                        set_4_pixels_at_offset(48);
+                        set_4_pixels_at_offset(52);
+                        set_4_pixels_at_offset(56);
+                        set_4_pixels_at_offset(60);
+                        sub = 64;
+                    } else if (width >= 32) {
+                        // Need at least 8 full words
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
+                        set_4_pixels_at_offset(8);
+                        set_4_pixels_at_offset(12);
+                        set_4_pixels_at_offset(16);
+                        set_4_pixels_at_offset(20);
+                        set_4_pixels_at_offset(24);
+                        set_4_pixels_at_offset(28);
+                        sub = 32;
+                    } else if (width >= 16) {
+                        // Need at least 4 full words
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
+                        set_4_pixels_at_offset(8);
+                        set_4_pixels_at_offset(12);
+                        sub = 16;
+                    } else if (width >= 8) {
+                        // Need at least 2 full words
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
+                        sub = 8;
+                    } else {
+                        // Need at least 1 full word
+                        set_4_pixels_at_offset(0);
+                        sub = 4;
+                    }
+
+                    width -= sub;
+                    x += sub;
                     if (width) {
-                        x += 2;
-                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, sub);
                     }
                     continue;
-            }
-            width -= 3;
-            if (width) {
-                x += 3;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
-            }
-        } else if (width >= 64) {
-            // Need at least 16 full words
-            auto times = width / 64;
-            movi(REG_LOOP_INDEX, times);
-            auto at_loop = get_pc();
-            loop(REG_LOOP_INDEX, 0);
-            set_4_middle_pixels(0);
-            set_4_middle_pixels(4);
-            set_4_middle_pixels(8);
-            set_4_middle_pixels(12);
-            set_4_middle_pixels(16);
-            set_4_middle_pixels(20);
-            set_4_middle_pixels(24);
-            set_4_middle_pixels(28);
-            set_4_middle_pixels(32);
-            set_4_middle_pixels(36);
-            set_4_middle_pixels(40);
-            set_4_middle_pixels(44);
-            set_4_middle_pixels(48);
-            set_4_middle_pixels(52);
-            set_4_middle_pixels(56);
-            set_4_middle_pixels(60);
-            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
+                } else if (width == 3) {
+                    set_3_pixels_at_offset_0();
+                    sub = 3;
+                } else if (width == 2) {
+                    set_2_pixels_at_offset_0();
+                    sub = 2;
+                } else /* width == 1 */ {
+                    set_1_pixel_at_offset_0();
+                }
+                break;
 
-            uint32_t save_pc = get_pc();
-            set_pc(at_loop);
-            loop(REG_LOOP_INDEX, save_pc - at_loop);
-            set_pc(save_pc);
+            case 1:
+                if (width >= 3) {
+                    set_3_pixels_at_offset_1();
+                    sub = 3;                
+                } else if (width == 2) {
+                    set_2_pixels_at_offset_1();
+                    sub = 2;
+                } else /* width == 1 */ {
+                    set_1_pixel_at_offset_1();
+                }
+                break;
 
-            width -= times * 64;
-            if (width) {
-                x += times * 64;
-            }
-        } else if (width >= 32) {
-            // Need at least 8 full words
-            set_4_middle_pixels(0);
-            set_4_middle_pixels(4);
-            set_4_middle_pixels(8);
-            set_4_middle_pixels(12);
-            set_4_middle_pixels(16);
-            set_4_middle_pixels(20);
-            set_4_middle_pixels(24);
-            set_4_middle_pixels(28);
-            width -= 32;
-            if (width) {
-                x += 32;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32);
-            }
-        } else if (width >= 16) {
-            // Need at least 4 full words
-            set_4_middle_pixels(0);
-            set_4_middle_pixels(4);
-            set_4_middle_pixels(8);
-            set_4_middle_pixels(12);
-            width -= 16; {
-                x += 16;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16);
-            }
-        } else if (width >= 8) {
-            // Need at least 2 full words
-            set_4_middle_pixels(0);
-            set_4_middle_pixels(4);
-            width -= 8;
-            if (width) {
-                x += 8;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8);
-            }
-        } else {
-            // Need at least 1 full word
-            set_4_middle_pixels(0);
-            width -= 4;
-            if (width) {
-                x += 4;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
-            }
+            case 2:
+                if (width >= 2) {
+                    set_2_pixels_at_offset_2();
+                    sub = 2;
+                } else /* width == 1 */ {
+                    set_1_pixel_at_offset_2();
+                }
+                break;
+            
+            case 3:
+                set_1_pixel_at_offset_3();
+                break;
+        }
+        width -= sub;
+        x += sub;
+        if (width) {
+            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
         }
     }
     leave_function();
