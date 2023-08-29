@@ -509,7 +509,15 @@ void IRAM_ATTR DiManager::run() {
 }
 
 #include "src/di_code.h"
-EspFunction f;
+EspFunction f0;
+EspFunction f1;
+EspFunction f2;
+EspFunction f3;
+EspFunction f4;
+EspFunction f5;
+EspFunction f6;
+EspFunction f7;
+EspFunction f8;
 
 void IRAM_ATTR DiManager::loop() {
   DiPaintParams paint_params;
@@ -534,16 +542,30 @@ void IRAM_ATTR DiManager::loop() {
         draw_primitives(&paint_params);
 
         paint_params.m_line32[12] = 0x12342618;
-        if (!f.get_pc()) {
-          f.draw_line(300, 1, 0x03040506);
-        }
-      	f.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+        uint32_t o = 1;
+        if (!f0.get_pc()) f0.draw_line(100+o, 1, 0x03030303);
+        if (!f1.get_pc()) f1.draw_line(120+o, 2, 0x03030303);
+        if (!f2.get_pc()) f2.draw_line(140+o, 3, 0x03030303);
+        if (!f3.get_pc()) f3.draw_line(160+o, 4, 0x03030303);
+        if (!f4.get_pc()) f4.draw_line(180+o, 5, 0x03030303);
+        if (!f5.get_pc()) f5.draw_line(200+o, 6, 0x03030303);
+        if (!f6.get_pc()) f6.draw_line(220+o, 7, 0x03030303);
+        if (!f7.get_pc()) f7.draw_line(240+o, 8, 0x03030303);
+        if (!f8.get_pc()) f8.draw_line(260+o, 9, 0x03030303);
+      	f0.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	f1.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	f2.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	f3.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	f4.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	f5.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	f6.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	f7.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
+      	f8.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
 
         paint_params.m_line_index = ++current_line_index;
         paint_params.m_line8 = (volatile uint8_t*) vbuf->get_buffer_ptr_1();
         paint_params.m_line32 = vbuf->get_buffer_ptr_1();
         draw_primitives(&paint_params);
-      	//f.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
 
         ++current_line_index;
         if (++current_buffer_index >= NUM_ACTIVE_BUFFERS) {

@@ -41,6 +41,8 @@
 #define REG_DRAW_WIDTH      a8
 #define REG_LOOP_INDEX      a9
 
+#define FIX_OFFSET(off)    ((off)^2)
+
 EspFunction::EspFunction() {
     m_alloc_size = 0;
     m_code_size = 0;
@@ -55,115 +57,108 @@ EspFunction::~EspFunction() {
 }
 
 // Ex: X=0, w=1: b[2]=c
-void EspFunction::set_1_start_pixel_at_offset_0() {
-    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);
+void EspFunction::set_1_pixel_at_offset_0() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
 }
 
 // Ex: X=1, w=1: b[3]=c
-void EspFunction::set_1_start_pixel_at_offset_1() {
-    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 3);
+void EspFunction::set_1_pixel_at_offset_1() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
 }
 
 // Ex: X=2, w=1: b[0]=c
-void EspFunction::set_1_start_pixel_at_offset_2() {
-    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 0);
+void EspFunction::set_1_pixel_at_offset_2() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
 // Ex: X=3, w=1: b[1]=c
-void EspFunction::set_1_start_pixel_at_offset_3() {
-    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 1);
+void EspFunction::set_1_pixel_at_offset_3() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
 }
 
 // Ex: X=0, w=2: h[2]=c1c0
-void EspFunction::set_2_start_pixels_at_offset_0() {
-    s16i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);
+void EspFunction::set_2_pixels_at_offset_0() {
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
 }
 
 // Ex: X=1, w=2: b[3]=c0; b[0]=c1
-void EspFunction::set_2_start_pixels_at_offset_1() {
-    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 3);
-    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);
+void EspFunction::set_2_pixels_at_offset_1() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
 // Ex: X=2, w=2: h[0]=c1c0
-void EspFunction::set_2_start_pixels_at_offset_2() {
-    s16i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 0);    
+void EspFunction::set_2_pixels_at_offset_2() {
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
 }
 
 // Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
-void EspFunction::set_3_start_pixels_at_offset_0() {
-    s16i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);
-    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 1);
+void EspFunction::set_3_pixels_at_offset_0() {
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
 // Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
-void EspFunction::set_3_start_pixels_at_offset_1() {
-    s8i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 2);    
-    s16i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, 0);
+void EspFunction::set_3_pixels_at_offset_1() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
 // Ex: X=0, w=4: w=c1c0c3c2
-void EspFunction::set_4_middle_pixels(u_off_t word_offset) {
-    s32i(REG_DST_PIXEL_PTR, REG_PIXEL_COLOR, word_offset);
+void EspFunction::set_4_middle_pixels(u_off_t offset) {
+    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, offset);
 }
 
 // Ex: X1=27, width=55, color=0x03030303
 void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
     auto at_jump = enter_function();
     auto at_data = begin_data();
-    auto at_x = write32(x);
+    auto aligned_x = x & 0xFFFFFFFC;
+    auto at_x = write32(aligned_x);
     auto at_color = write32(color);
 
     begin_code(at_jump);
 
-    //l32r(a5, at_color);
-    set_reg_color(at_color);
-    s32i(REG_PIXEL_COLOR,REG_LINE_PTR,16);
-    //s32i(REG_PIXEL_COLOR, REG_LINE_PTR, 0);
-    /*set_reg_dst_pixel_ptr(at_x);
+    set_reg_dst_pixel_ptr(at_x);
     set_reg_color(at_color);
 
     while (width) {
         auto offset = x & 3;
         if (offset == 3) {
-            set_1_start_pixel_at_offset_3();
+            set_1_pixel_at_offset_3();
             width--;
             if (width) {
                 x++;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 1);
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
             }
         } else if (width == 1) {
             switch (offset) {
-                case 0: set_1_start_pixel_at_offset_0(); break;
-                case 1: set_1_start_pixel_at_offset_1(); break;
-                case 2: set_1_start_pixel_at_offset_2(); break;
+                case 0: set_1_pixel_at_offset_0(); break;
+                case 1: set_1_pixel_at_offset_1(); break;
+                case 2: set_1_pixel_at_offset_2(); break;
             }
             width--;
-            if (width) {
-                x++;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 1);
-            }
         } else if (width == 2) {
             switch (offset) {
-                case 0: set_2_start_pixels_at_offset_0(); break;
-                case 1: set_2_start_pixels_at_offset_1(); break;
-                case 2: set_2_start_pixels_at_offset_2(); break;
+                case 0: set_2_pixels_at_offset_0(); break;
+                case 1: set_2_pixels_at_offset_1(); break;
+                case 2: set_2_pixels_at_offset_2(); break;
             }
             width -= 2;
             if (width) {
                 x += 2;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 2);
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
             }
         } else if (width == 3) {
             switch (offset) {
-                case 0: set_3_start_pixels_at_offset_0(); break;
-                case 1: set_3_start_pixels_at_offset_1(); break;
-                case 2: set_2_start_pixels_at_offset_2(); break;
+                case 0: set_3_pixels_at_offset_0(); break;
+                case 1: set_3_pixels_at_offset_1(); break;
+                case 2: set_2_pixels_at_offset_2(); break;
             }
             width -= 3;
             if (width) {
                 x += 3;
-                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 3);
+                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
             }
         } else if (width >= 64) {
             // Need at least 16 full words
@@ -241,7 +236,7 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
                 addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
             }
         }
-    }*/
+    }
     leave_function();
 }
 

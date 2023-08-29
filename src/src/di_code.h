@@ -46,31 +46,31 @@ class EspFunction {
     // Pixel-level operations:
 
     // Ex: X=0, w=1: b[2]=c
-    void set_1_start_pixel_at_offset_0();
+    void set_1_pixel_at_offset_0();
 
     // Ex: X=1, w=1: b[3]=c
-    void set_1_start_pixel_at_offset_1();
+    void set_1_pixel_at_offset_1();
 
     // Ex: X=2, w=1: b[0]=c
-    void set_1_start_pixel_at_offset_2();
+    void set_1_pixel_at_offset_2();
 
     // Ex: X=3, w=1: b[1]=c
-    void set_1_start_pixel_at_offset_3();
+    void set_1_pixel_at_offset_3();
 
     // Ex: X=0, w=2: h[2]=c1c0
-    void set_2_start_pixels_at_offset_0();
+    void set_2_pixels_at_offset_0();
 
     // Ex: X=1, w=2: b[3]=c0; b[0]=c1
-    void set_2_start_pixels_at_offset_1();
+    void set_2_pixels_at_offset_1();
 
     // Ex: X=2, w=2: h[0]=c1c0
-    void set_2_start_pixels_at_offset_2();
+    void set_2_pixels_at_offset_2();
 
     // Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
-    void set_3_start_pixels_at_offset_0();
+    void set_3_pixels_at_offset_0();
 
     // Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
-    void set_3_start_pixels_at_offset_1();
+    void set_3_pixels_at_offset_1();
 
     // Ex: X=0, w=4: w=c1c0c3c2
     void set_4_middle_pixels(u_off_t word_offset);
