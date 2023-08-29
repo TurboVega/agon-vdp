@@ -70,5 +70,11 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1,
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2, x3, y3);
 }
 
+void IRAM_ATTR DiGeneralLine::generate_instructions() {
+  m_paint_fcn.clear();
+  //m_paint_fcn.draw_line(m_draw_x, m_width, m_color);
+}
+
+
 void IRAM_ATTR DiGeneralLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
 }

@@ -29,8 +29,6 @@
 
 class DiSolidRectangle: public DiPrimitive {
   public:
-  EspFunction m_paint_fcn;
-
   // Construct a solid rectangle. This requires calling init_params() afterward.
   DiSolidRectangle();
   
@@ -41,4 +39,7 @@ class DiSolidRectangle: public DiPrimitive {
   virtual void IRAM_ATTR generate_instructions();
    
   virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
+
+  protected:
+  EspFunction m_paint_fcn;
 };
