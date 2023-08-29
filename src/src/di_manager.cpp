@@ -542,7 +542,7 @@ void IRAM_ATTR DiManager::loop() {
         draw_primitives(&paint_params);
 
         paint_params.m_line32[12] = 0x12342618;
-        uint32_t o = 1;
+        uint32_t o = 3;
         if (!f0.get_pc()) f0.draw_line(100+o, 1, 0x03030303);
         if (!f1.get_pc()) f1.draw_line(120+o, 2, 0x03030303);
         if (!f2.get_pc()) f2.draw_line(140+o, 3, 0x03030303);
@@ -551,7 +551,7 @@ void IRAM_ATTR DiManager::loop() {
         if (!f5.get_pc()) f5.draw_line(200+o, 6, 0x03030303);
         if (!f6.get_pc()) f6.draw_line(220+o, 7, 0x03030303);
         if (!f7.get_pc()) f7.draw_line(240+o, 8, 0x03030303);
-        if (!f8.get_pc()) f8.draw_line(260+o, 9, 0x03030303);
+        if (!f8.get_pc()) f8.draw_line(260+o, 70, 0x03030303);
       	f0.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
       	f1.call((void*)0, paint_params.m_line32, paint_params.m_line_index);
       	f2.call((void*)0, paint_params.m_line32, paint_params.m_line_index);

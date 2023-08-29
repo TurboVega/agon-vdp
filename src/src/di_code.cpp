@@ -149,11 +149,18 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
                 x += 2;
                 addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
             }
-        } else if (width == 3) {
+        } else if (width == 3 || offset > 0) {
             switch (offset) {
                 case 0: set_3_pixels_at_offset_0(); break;
                 case 1: set_3_pixels_at_offset_1(); break;
-                case 2: set_2_pixels_at_offset_2(); break;
+                case 2:
+                    set_2_pixels_at_offset_2();
+                    width -= 2;
+                    if (width) {
+                        x += 2;
+                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                    }
+                    continue;
             }
             width -= 3;
             if (width) {
@@ -228,7 +235,7 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
                 addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8);
             }
         } else {
-            // Need 1 full word
+            // Need at least 1 full word
             set_4_middle_pixels(0);
             width -= 4;
             if (width) {
