@@ -63,9 +63,3 @@ m_id = 112              // id of this primitive
 m_flags = 114           // flag bits to control painting, etc.
 m_future8 = 115         // for potential future use
 sizeof_DiPrimitive = 116 // total size of the base class structure
-
-// Offsets into DiPaintParams structure:
-
-m_line32 = 0            // address of the DMA visible data
-m_line8 = 4             // address of the DMA visible data
-m_line_index = 8        // scan line index on the screen (0=top, 599=bottom)

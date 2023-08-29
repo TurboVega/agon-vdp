@@ -190,7 +190,7 @@ class DiManager {
     DiPrimitive* finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim);
 
     // Draw all primitives that belong to the active scan line group.
-    void IRAM_ATTR draw_primitives(DiPaintParams* params);
+    void IRAM_ATTR draw_primitives(volatile uint32_t* p_scan_line, uint32_t line_index);
 
     // Setup a single DMA descriptor.
     void init_dma_descriptor(volatile DiVideoScanLine* vbuf, uint32_t descr_index);

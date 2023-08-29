@@ -106,5 +106,5 @@ void DiTransparentBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
   }
 }
 
-void IRAM_ATTR DiTransparentBitmap::paint(const DiPaintParams *params) {
+void IRAM_ATTR DiTransparentBitmap::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
 }

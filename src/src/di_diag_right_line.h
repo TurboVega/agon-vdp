@@ -36,5 +36,5 @@ class DiDiagonalRightLine: public DiPrimitive {
   // covering the given number of pixels. The upper 2 bits of the color must be zeros.
   void init_params(int32_t x, int32_t y, int32_t length, uint8_t color);
 
-  virtual void IRAM_ATTR paint(const DiPaintParams *params);
+  virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 };

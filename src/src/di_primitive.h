@@ -40,13 +40,6 @@ typedef enum {
 
 #pragma pack(push,1)
 
-// Used to paint the primitives that belong to vertical groups of scan lines.
-typedef struct {
-  volatile uint32_t* m_line32;  // address of the DMA visible data
-  volatile uint8_t*  m_line8;   // address of the DMA visible data
-  int32_t   m_line_index;       // scan line index on the screen (0=top, 599=bottom)
-} DiPaintParams;
-
 class DiPrimitive {
   public:
   // An object to be drawn on the screen.
@@ -66,7 +59,7 @@ class DiPrimitive {
   void IRAM_ATTR get_vertical_line_range(int32_t& min_y, int32_t& max_y);
 
   // Draws the primitive to the DMA scan line buffer.
-  virtual void IRAM_ATTR paint(const DiPaintParams *params);
+  virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 
   // Groups scan lines for optimizing paint calls.
   void IRAM_ATTR get_vertical_group_range(int32_t& min_group, int32_t& max_group);

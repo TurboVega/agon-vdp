@@ -40,5 +40,5 @@ void DiSolidRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_
       (uint32_t)color | SYNCS_OFF_X4;
 }
 
-void IRAM_ATTR DiSolidRectangle::paint(const DiPaintParams *params) {
+void IRAM_ATTR DiSolidRectangle::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
 }

@@ -108,5 +108,5 @@ void DiOpaqueBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
   }
 }
 
-void IRAM_ATTR DiOpaqueBitmap::paint(const DiPaintParams *params) {
+void IRAM_ATTR DiOpaqueBitmap::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
 }

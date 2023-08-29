@@ -58,7 +58,7 @@ class DiOpaqueBitmap: public DiBitmap {
   // are ignored. The lower 6 bits are the raw color.
   void set_opaque_pixel(int32_t x, int32_t y, uint8_t color);
 
-  virtual void IRAM_ATTR paint(const DiPaintParams *params);
+  virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 
   protected:
   // Set a single pixel with an adjusted color value.

@@ -60,7 +60,7 @@ void IRAM_ATTR DiPrimitive::get_vertical_group_range(int32_t& min_group, int32_t
   max_group = max_y >> VERTICAL_GROUP_INDEX_SHIFT;
 }
 
-void IRAM_ATTR DiPrimitive::paint(const DiPaintParams *params) {}
+void IRAM_ATTR DiPrimitive::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {}
 
 void IRAM_ATTR DiPrimitive::attach_child(DiPrimitive* child) {
   if (m_last_child) {

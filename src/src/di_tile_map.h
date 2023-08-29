@@ -69,7 +69,7 @@ class DiTileMap: public DiPrimitive {
   // Get the bitmap index presently at the given row and column.
   uint8_t get_tile(int32_t column, int32_t row);
 
-  virtual void IRAM_ATTR paint(const DiPaintParams *params);
+  virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 
   protected:
   uint32_t m_bitmaps;

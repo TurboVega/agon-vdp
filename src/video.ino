@@ -140,14 +140,16 @@ void IRAM_ATTR on_lines_painted() {
 void otf(void * pvParameters) {
 	videoMode = 19;
 	di_manager = new DiManager();
-	di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
-		0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
-	boot_screen();
+	di_manager->create_solid_rectangle(229, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 16);
+
+	//di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
+	//	0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
+	//boot_screen();
 	
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
 	di_manager->set_on_lines_painted_cb(&on_lines_painted);
 	
-	di_manager->create_point(4, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x31);
+	/*di_manager->create_point(4, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x31);
 	di_manager->create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
 	di_manager->create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left
 	di_manager->create_line(5, ROOT_PRIMITIVE_ID, 1, 400, 20, 440, 60, 0x20); // diagonal right
@@ -155,7 +157,7 @@ void otf(void * pvParameters) {
 	di_manager->create_line(7, ROOT_PRIMITIVE_ID, 1, 249, 599, 285, 599, 0x0C); // horizontal
 	di_manager->create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 599, 0x0D); // vertical
 	di_manager->create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, 0x30);
-	di_manager->create_solid_rectangle(220, ROOT_PRIMITIVE_ID, 1, 600, 250, 100, 100, 16);
+	di_manager->create_solid_rectangle(220, ROOT_PRIMITIVE_ID, 1, 600, 250, 100, 100, 16);*/
 
 	//di_manager->create_primitive_group(221, ROOT_PRIMITIVE_ID, 0, 400, 300);
 

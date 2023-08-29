@@ -33,5 +33,5 @@ DiSetPixel::DiSetPixel(int32_t x, int32_t y, uint8_t color) {
   m_color = (color & 0x3F) | SYNCS_OFF;
 }
 
-void IRAM_ATTR DiSetPixel::paint(const DiPaintParams *params) {
+void IRAM_ATTR DiSetPixel::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
 }

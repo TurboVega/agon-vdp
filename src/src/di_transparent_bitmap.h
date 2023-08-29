@@ -56,7 +56,7 @@ class DiTransparentBitmap: public DiBitmap {
   // 11BBGGRR is 100% opaque).
   void set_transparent_color(uint8_t color);
 
-  virtual void IRAM_ATTR paint(const DiPaintParams *params);
+  virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 
   protected:
   // Set a single pixel with an adjusted color value.
