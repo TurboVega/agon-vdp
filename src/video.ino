@@ -141,11 +141,13 @@ void otf(void * pvParameters) {
 	videoMode = 19;
 	di_manager = new DiManager();
 	di_manager->create_solid_rectangle(229, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x10);
-	di_manager->create_solid_rectangle(230, ROOT_PRIMITIVE_ID, 1, 50, 50, 700, 500, 0x04);
+	/*di_manager->create_solid_rectangle(230, ROOT_PRIMITIVE_ID, 1, 50, 50, 700, 500, 0x04);
 	di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 100, 100, 600, 400, 0x01);
 	di_manager->create_solid_rectangle(241, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 300, 0x33);
 	di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
-	di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);
+	di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);*/
+
+	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 270, 520, 281, 599, 0x0D); // general
 
 	//di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
 	//	0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);

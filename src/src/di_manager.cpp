@@ -254,25 +254,26 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
     while (parent != m_primitives[ROOT_PRIMITIVE_ID] && !(parent->get_flags() & PRIM_FLAG_CLIP_KIDS)) {
       parent = parent->get_parent();
     }
-    prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
-      parent->get_view_x_extent(), parent->get_view_y_extent());
+//    prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
+//      parent->get_view_x_extent(), parent->get_view_y_extent());
 
-    if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
+/*    if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
       int32_t min_group, max_group;
       if (prim->get_vertical_group_range(min_group, max_group)) {
         for (int32_t g = min_group; g <= max_group; g++) {
             m_groups[g].push_back(prim);
         }
       }
-    }
+    }*/
 
     m_primitives[prim->get_id()] = prim;
+    recompute_primitive(prim, 0, -1, -1);
     prim->generate_instructions();
 }
 
 void DiManager::delete_primitive(DiPrimitive* prim) {
   if (prim) {
-    if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
+    if (prim->get_flags() & PRIM_FLAGS_CAN_DRAW) {
       int32_t min_group, max_group;
       if (prim->get_vertical_group_range(min_group, max_group)) {
         for (int32_t g = min_group; g <= max_group; g++) {
@@ -1670,7 +1671,7 @@ void DiManager::set_primitive_flags(uint16_t id, uint8_t flags) {
   DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
+  if (old_flags & PRIM_FLAGS_CAN_DRAW) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
   auto chg_flags = flags & PRIM_FLAGS_CHANGEABLE;
@@ -1683,7 +1684,7 @@ void DiManager::move_primitive_absolute(uint16_t id, int32_t x, int32_t y) {
   DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
+  if (old_flags & PRIM_FLAGS_CAN_DRAW) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
   prim->set_relative_position(x, y);
@@ -1694,7 +1695,7 @@ void DiManager::move_primitive_relative(uint16_t id, int32_t x, int32_t y) {
   DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
+  if (old_flags & PRIM_FLAGS_CAN_DRAW) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
   auto x2 = prim->get_relative_x() + x;
@@ -1807,7 +1808,7 @@ void DiManager::slice_solid_bitmap_absolute(uint16_t id, int32_t x, int32_t y, i
   DiOpaqueBitmap* prim; if (!(prim = (DiOpaqueBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
+  if (old_flags & PRIM_FLAGS_CAN_DRAW) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
   prim->set_slice_position(x, y, start_line, height);
@@ -1818,7 +1819,7 @@ void DiManager::slice_masked_bitmap_absolute(uint16_t id, int32_t x, int32_t y, 
   DiMaskedBitmap* prim; if (!(prim = (DiMaskedBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
+  if (old_flags & PRIM_FLAGS_CAN_DRAW) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
   prim->set_slice_position(x, y, start_line, height);
@@ -1829,7 +1830,7 @@ void DiManager::slice_transparent_bitmap_absolute(uint16_t id, int32_t x, int32_
   DiTransparentBitmap* prim; if (!(prim = (DiTransparentBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
+  if (old_flags & PRIM_FLAGS_CAN_DRAW) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
   prim->set_slice_position(x, y, start_line, height);
@@ -1840,7 +1841,7 @@ void DiManager::slice_solid_bitmap_relative(uint16_t id, int32_t x, int32_t y, i
   DiOpaqueBitmap* prim; if (!(prim = (DiOpaqueBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
+  if (old_flags & PRIM_FLAGS_CAN_DRAW) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
   auto x2 = prim->get_relative_x() + x;
@@ -1853,7 +1854,7 @@ void DiManager::slice_masked_bitmap_relative(uint16_t id, int32_t x, int32_t y, 
   DiMaskedBitmap* prim; if (!(prim = (DiMaskedBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
+  if (old_flags & PRIM_FLAGS_CAN_DRAW) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
   auto x2 = prim->get_relative_x() + x;
@@ -1866,7 +1867,7 @@ void DiManager::slice_transparent_bitmap_relative(uint16_t id, int32_t x, int32_
   DiTransparentBitmap* prim; if (!(prim = (DiTransparentBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
-  if (old_flags & PRIM_FLAG_PAINT_THIS) {
+  if (old_flags & PRIM_FLAGS_CAN_DRAW) {
     prim->get_vertical_group_range(old_min_group, old_max_group);
   }
   auto x2 = prim->get_relative_x() + x;

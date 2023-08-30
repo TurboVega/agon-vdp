@@ -128,6 +128,8 @@ class EspFunction {
     void bltu(reg_t src, reg_t dst, u_off_t offset) { write24(isdo(0x003007, src, dst, offset)); }
     void bltui(reg_t src, uint32_t imm, u_off_t offset) { write24(isieo(0x0000B6, src, imm, offset)); }
     void bltz(reg_t src, u_off_t offset) { write24(iso(0x000096, src, offset)); }
+    void call0(u_off_t offset) { write24(isco(0x000005, offset)); }
+    void callx0(reg_t src) { write24(iscxo(0x0000C0, src)); }
     void d8(uint32_t value) { write8(value); }
     void d16(uint32_t value) { write16(value); }
     void d24(uint32_t value) { write24(value); }
@@ -199,6 +201,12 @@ class EspFunction {
 
     inline instr_t iso(uint32_t instr, reg_t src, u_off_t offset) {
         return instr | (offset << 12) | (src << 8); }
+
+    inline instr_t isco(uint32_t instr, u_off_t offset) {
+        return instr | ((offset >> 2) << 6); }
+
+    inline instr_t iscxo(uint32_t instr, reg_t src) {
+        return instr | (src << 8); }
 
     inline instr_t iso8(uint32_t instr, reg_t src, u_off_t offset) {
         return instr | (offset << 16) | (src << 8); }
