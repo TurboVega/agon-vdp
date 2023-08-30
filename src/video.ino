@@ -137,7 +137,10 @@ void IRAM_ATTR on_vertical_blank_start() {
 void IRAM_ATTR on_lines_painted() {
 }
 
+void debug_log(const char *format, ...);
+
 void otf(void * pvParameters) {
+	debug_log("OTF task running\r\n");
 	videoMode = 19;
 	di_manager = new DiManager();
 	di_manager->create_solid_rectangle(229, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x10);
@@ -147,7 +150,7 @@ void otf(void * pvParameters) {
 	di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
 	di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);*/
 
-	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 270, 520, 281, 599, 0x0D); // general
+	di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 270, 520, 281, 599, 0x0D); // general
 
 	//di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
 	//	0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
@@ -168,7 +171,7 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_primitive_group(221, ROOT_PRIMITIVE_ID, 0, 400, 300);
 
-    double twopi = PI*2.0;
+    /*double twopi = PI*2.0;
     double w1 = 80.0;
     double w2 = 100.0;
 	double h1 = 130.0; 
@@ -206,8 +209,9 @@ void otf(void * pvParameters) {
 			prim->set_opaque_pixel(x, y, c);
 		}
 	}
-	di_manager->move_primitive_relative(99, 650, 45);
+	di_manager->move_primitive_relative(99, 650, 45);*/
 
+	debug_log("Running OTF manager...\r\n");
 	di_manager->run();
 }
 

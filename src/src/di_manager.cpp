@@ -268,7 +268,9 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
 
     m_primitives[prim->get_id()] = prim;
     recompute_primitive(prim, 0, -1, -1);
+    debug_log("start generate_instructions\r\n");
     prim->generate_instructions();
+    debug_log("end generate_instructions\r\n");
 }
 
 void DiManager::delete_primitive(DiPrimitive* prim) {
@@ -301,6 +303,7 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
 
 void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
                                     int32_t old_min_group, int32_t old_max_group) {
+  debug_log("recompute_primitive id%u\r\n", prim->get_id());
   auto parent = prim->get_parent();
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
     parent->get_view_x_extent(), parent->get_view_y_extent());
@@ -349,6 +352,24 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
         }
       }
 
+      if (new_min_group < old_min_group) {
+        // Add primitive to new groups that are above old groups
+        int32_t end = MIN((new_max_group+1), old_min_group);
+        for (int32_t g = new_min_group; g < end; g++) {
+          std::vector<DiPrimitive*> * vp = &m_groups[g];
+          vp->push_back(prim);
+        }
+      }
+
+      if (new_max_group > old_max_group) {
+        // Add primitive to new groups that are below old groups
+        int32_t begin = MAX((old_max_group+1), new_min_group);
+        for (int32_t g = begin; g <= new_max_group; g++) {
+          std::vector<DiPrimitive*> * vp = &m_groups[g];
+          vp->push_back(prim);
+        }
+      }
+
       prim->add_flags(PRIM_FLAGS_CAN_DRAW);
       prim->generate_instructions();
     } else {
@@ -377,6 +398,14 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
       prim->delete_instructions();
     }
   }
+  debug_log("end recompute_primitive\r\n");
+  /*for (int i = 0; i < 600; i++) {
+    std::vector<DiPrimitive*> * vp = &m_groups[i];
+    for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
+      debug_log("%i %u\r\n", i, (*prim)->get_id());
+    }
+  }
+  debug_log("-----\r\n");*/
 }
 
 DiPrimitive* DiManager::finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {

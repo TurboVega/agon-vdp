@@ -96,6 +96,8 @@ class EspFunction {
     inline void clear() { m_code_index = 0; m_code_size = 0; }
     inline uint32_t get_pc() { return m_code_index; }
     inline void set_pc(uint32_t address) { m_code_index = address; }
+    inline uint32_t get_code_size() { return m_code_size; }
+    inline uint32_t get_code(uint32_t address) { return m_code[address >> 2]; }
     void align16();
     void align32();
     void j_to_here(uint32_t from);
