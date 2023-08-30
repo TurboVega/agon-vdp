@@ -70,11 +70,22 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1,
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2, x3, y3);
 }
 
+void IRAM_ATTR DiGeneralLine::delete_instructions() {
+  m_paint_fcn.clear();
+}
+  
 void IRAM_ATTR DiGeneralLine::generate_instructions() {
   m_paint_fcn.clear();
-  //m_paint_fcn.draw_line(m_draw_x, m_width, m_color);
+  if (m_flags & PRIM_FLAGS_CAN_DRAW) {
+    uint32_t at_jump_table = m_paint_fcn.init_jump_table(m_line_pieces.m_num_pieces);
+    for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
+      DiLinePiece* piece = &m_line_pieces.m_pieces[i];
+      m_paint_fcn.align32();
+      m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
+      m_paint_fcn.draw_line(piece->m_x, piece->m_width, m_color, false);
+    }
+  }
 }
-
 
 void IRAM_ATTR DiGeneralLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
 }

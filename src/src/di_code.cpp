@@ -112,8 +112,8 @@ void EspFunction::set_4_pixels_at_offset(u_off_t offset) {
 }
 
 // Ex: X1=27, width=55, color=0x03030303
-void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
-    auto at_jump = enter_function();
+void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color, bool outer_fcn) {
+    uint32_t at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
     auto at_x = write32(aligned_x);
@@ -259,18 +259,33 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color) {
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
         }
     }
-    leave_function();
+
+    if (outer_fcn) {
+        leave_outer_function();
+    } else {
+        leave_inner_function();
+    }
 }
 
-uint32_t EspFunction::enter_function() {
+uint32_t EspFunction::enter_outer_function() {
     entry(sp, 16);
     auto at_jump = get_pc();
     j(0);
     return at_jump;
 }
 
-void EspFunction::leave_function() {
+uint32_t EspFunction::enter_inner_function() {
+    auto at_jump = get_pc();
+    j(0);
+    return at_jump;
+}
+
+void EspFunction::leave_outer_function() {
     retw();
+}
+
+void EspFunction::leave_inner_function() {
+    ret();
 }
 
 uint32_t EspFunction::begin_data() {
@@ -278,16 +293,22 @@ uint32_t EspFunction::begin_data() {
     return get_pc();
 }
 
-void EspFunction::begin_jump_table(uint32_t num_items) {
-    /*slli(REG_JUMP_ADDRESS, REG_LINE_INDEX, 1);
-    add(REG_JUMP_ADDRESS, REG_LINE_INDEX);
-    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
-    call0();
-    add(REG_JUMP_ADDRESS, REG_RETURN_ADDR);
-    addi(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, 15);
-    callx0(REG_JUMP_ADDRESS);
-    mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
-    leave_function();*/
+uint32_t EspFunction::init_jump_table(uint32_t num_items) {
+    /* 00 */ entry(sp, 16);
+    /* 03 */ slli(REG_JUMP_ADDRESS, REG_LINE_INDEX, 2);
+    /* 06 */ mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+    /* 09 */ call0(0); // 8+4+0
+    /* 12 */ addi(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, 16);
+    /* 15 */ add(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, REG_RETURN_ADDR);
+    /* 18 */ callx0(REG_JUMP_ADDRESS);
+    /* 21 */ mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
+    /* 24 */ leave_outer_function();
+    /* 27 */ align32();
+    /* 28 */ uint32_t at_jump_table = get_pc();
+    for (uint32_t i = 0; i < num_items; i++) {
+        /* 28+i*4 */ write32(0);
+    }
+    return at_jump_table;
 }
 
 void EspFunction::begin_code(uint32_t at_jump) {

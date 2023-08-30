@@ -110,11 +110,6 @@
 #define DMA_TOTAL_LINES       (ACT_LINES+VFP_LINES+VS_LINES+VBP_LINES)
 #define DMA_TOTAL_DESCR       (ACT_BUFFERS_WRITTEN+VFP_LINES+VS_BUFFERS_WRITTEN+VBP_LINES)
 
-// Used to somewhat optimize which top-level primitives are called
-// to paint, relative to the current scan line.
-#define VERTICAL_GROUP_INDEX_SHIFT 4 // used to divide by a power of 2
-#define NUM_VERTICAL_GROUPS ((ACT_LINES >> VERTICAL_GROUP_INDEX_SHIFT) + 1)
-
 // This number determines how many primitives may exist simultaneously.
 // Some may exist without being drawn. Primitive #0 is the root primitive,
 // is created by default, and cannot be modified or deleted.

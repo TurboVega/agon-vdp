@@ -224,7 +224,7 @@ void DiManager::initialize() {
 }
 
 void DiManager::clear() {
-    for (int g = 0; g < NUM_VERTICAL_GROUPS; g++) {
+    for (int g = 0; g < ACT_LINES; g++) {
         std::vector<DiPrimitive*> * vp = &m_groups[g];
         vp->clear();
     }
@@ -259,9 +259,10 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
 
     if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
       int32_t min_group, max_group;
-      prim->get_vertical_group_range(min_group, max_group);
-      for (int32_t g = min_group; g <= max_group; g++) {
-          m_groups[g].push_back(prim);
+      if (prim->get_vertical_group_range(min_group, max_group)) {
+        for (int32_t g = min_group; g <= max_group; g++) {
+            m_groups[g].push_back(prim);
+        }
       }
     }
 
@@ -273,12 +274,13 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
   if (prim) {
     if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
       int32_t min_group, max_group;
-      prim->get_vertical_group_range(min_group, max_group);
-      for (int32_t g = min_group; g <= max_group; g++) {
-        std::vector<DiPrimitive*> * vp = &m_groups[g];
-        auto position2 = std::find(vp->begin(), vp->end(), prim);
-        if (position2 != vp->end()) {
-          vp->erase(position2);
+      if (prim->get_vertical_group_range(min_group, max_group)) {
+        for (int32_t g = min_group; g <= max_group; g++) {
+          std::vector<DiPrimitive*> * vp = &m_groups[g];
+          auto position2 = std::find(vp->begin(), vp->end(), prim);
+          if (position2 != vp->end()) {
+            vp->erase(position2);
+          }
         }
       }
     }
@@ -302,15 +304,30 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
     parent->get_view_x_extent(), parent->get_view_y_extent());
 
+  bool old_use_groups = (old_min_group >= 0);
+  bool new_use_groups = false;
+  int32_t new_min_group = -1;
+  int32_t new_max_group = -1;
   if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
-    // Need to paint now; adjust which groups are used.
-    int32_t min_group2, max_group2;
-    prim->get_vertical_group_range(min_group2, max_group2);
+    new_use_groups = prim->get_vertical_group_range(new_min_group, new_max_group);
+  }
+  
+  if (old_use_groups) {
+    if (new_use_groups) {
+      // Adjust which groups primitive is in
+      //
+      // There are several (vertical) cases:
+      // 1. New groups fully above old groups.
+      // 2. New groups cross first old group, but not last old group.
+      // 3. New groups fully within old groups.
+      // 4. New groups cross last old group, but not first old group.
+      // 5. New groups fully below old groups.
+      // 6. Old groups fully within new groups.
 
-    if (old_flags & PRIM_FLAG_PAINT_THIS) {
-      for (int32_t g = old_min_group; g <= old_max_group; g++) {
-        if (g < min_group2 || g > max_group2) {
-          // Remove the primitive from this vertical scan group
+      if (old_min_group < new_min_group) {
+        // Remove primitive from old groups that are above new groups
+        int32_t end = MIN((old_max_group+1), new_min_group);
+        for (int32_t g = old_min_group; g < end; g++) {
           std::vector<DiPrimitive*> * vp = &m_groups[g];
           auto position2 = std::find(vp->begin(), vp->end(), prim);
           if (position2 != vp->end()) {
@@ -319,35 +336,46 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
         }
       }
 
-      // Add this primitive to groups it's not already in
-      for (int32_t g = min_group2; g <= max_group2; g++) {
-        if (g < old_min_group || g > old_max_group) {
-          // Add the primitive to this vertical scan group
+      if (old_max_group > new_max_group) {
+        // Remove primitive from old groups that are below new groups
+        int32_t begin = MAX((new_max_group+1), old_min_group);
+        for (int32_t g = begin; g <= old_max_group; g++) {
           std::vector<DiPrimitive*> * vp = &m_groups[g];
-          vp->push_back(prim);
+          auto position2 = std::find(vp->begin(), vp->end(), prim);
+          if (position2 != vp->end()) {
+            vp->erase(position2);
+          }
         }
       }
+
+      prim->add_flags(PRIM_FLAGS_CAN_DRAW);
+      prim->generate_instructions();
     } else {
-      // Only use the new groups
-      for (int32_t g = min_group2; g <= max_group2; g++) {
-        // Add the primitive to this vertical scan group
+      // Just remove primitive from old groups
+      for (int32_t g = old_min_group; g <= old_max_group; g++) {
+        std::vector<DiPrimitive*> * vp = &m_groups[g];
+        auto position2 = std::find(vp->begin(), vp->end(), prim);
+        if (position2 != vp->end()) {
+          vp->erase(position2);
+        }
+      }
+      prim->remove_flags(PRIM_FLAGS_CAN_DRAW);
+      prim->delete_instructions();
+    }
+  } else {
+    if (new_use_groups) {
+      // Just place primitive into new groups
+      for (int32_t g = new_min_group; g <= new_max_group; g++) {
         std::vector<DiPrimitive*> * vp = &m_groups[g];
         vp->push_back(prim);
       }
-    }
-  } else if (old_flags & PRIM_FLAG_PAINT_THIS) {
-    // No need to paint now; just remove it from old groups.
-    for (int32_t g = old_min_group; g <= old_max_group; g++) {
-      // Remove the primitive from this vertical scan group
-      std::vector<DiPrimitive*> * vp = &m_groups[g];
-      auto position2 = std::find(vp->begin(), vp->end(), prim);
-      if (position2 != vp->end()) {
-        vp->erase(position2);
-      }
+      prim->add_flags(PRIM_FLAGS_CAN_DRAW);
+      prim->generate_instructions();
+    } else {
+      prim->remove_flags(PRIM_FLAGS_CAN_DRAW);
+      prim->delete_instructions();
     }
   }
-
-  prim->generate_instructions();
 }
 
 DiPrimitive* DiManager::finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {
@@ -582,8 +610,7 @@ void IRAM_ATTR DiManager::loop() {
 }
 
 void IRAM_ATTR DiManager::draw_primitives(volatile uint32_t* p_scan_line, uint32_t line_index) {
-  int32_t g = line_index >> VERTICAL_GROUP_INDEX_SHIFT;
-  std::vector<DiPrimitive*> * vp = &m_groups[g];
+  std::vector<DiPrimitive*> * vp = &m_groups[line_index];
   for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
       (*prim)->paint(p_scan_line, line_index);
   }
@@ -1049,7 +1076,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 13) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto x = get_param_16(8);
           auto y = get_param_16(10);
           auto c = get_param_8(12);
@@ -1064,7 +1091,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 17) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto x1 = get_param_16(8);
           auto y1 = get_param_16(10);
           auto x2 = get_param_16(12);
@@ -1081,7 +1108,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 21) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto x1 = get_param_16(8);
           auto y1 = get_param_16(10);
           auto x2 = get_param_16(12);
@@ -1100,7 +1127,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 21) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto x1 = get_param_16(8);
           auto y1 = get_param_16(10);
           auto x2 = get_param_16(12);
@@ -1119,7 +1146,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 17) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto x = get_param_16(8);
           auto y = get_param_16(10);
           auto w = get_param_16(12);
@@ -1136,7 +1163,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 17) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto x = get_param_16(8);
           auto y = get_param_16(10);
           auto w = get_param_16(12);
@@ -1153,7 +1180,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 17) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto x = get_param_16(8);
           auto y = get_param_16(10);
           auto w = get_param_16(12);
@@ -1170,7 +1197,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 17) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto x = get_param_16(8);
           auto y = get_param_16(10);
           auto w = get_param_16(12);
@@ -1187,7 +1214,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 17) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto cols = get_param_16(8);
           auto rows = get_param_16(10);
           auto bitmaps = get_param_8(12);
@@ -1204,7 +1231,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 12) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto w = get_param_16(8);
           auto h = get_param_16(10);
           create_solid_bitmap(id, pid, flags, w, h);
@@ -1218,7 +1245,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 12) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto w = get_param_16(8);
           auto h = get_param_16(10);
           create_masked_bitmap(id, pid, flags, w, h);
@@ -1232,7 +1259,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 13) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto w = get_param_16(8);
           auto h = get_param_16(10);
           auto c = get_param_8(12);
@@ -1247,7 +1274,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_num_command_chars == 12) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
+          auto flags = get_param_8(7);
           auto x = get_param_16(8);
           auto y = get_param_16(10);
           create_primitive_group(id, pid, flags, x, y);
@@ -1624,7 +1651,7 @@ void DiManager::send_mode_information() {
 		(ACT_PIXELS / 8),					  // Width in characters (byte)
 		(ACT_LINES / 8),					  // Height in characters (byte)
 		64,						              // Colour depth
-		videoMode & 0xFF            // The video mode number
+		(uint8_t)videoMode          // The video mode number
 	};
 	send_packet(PACKET_MODE, sizeof packet, packet);
 }

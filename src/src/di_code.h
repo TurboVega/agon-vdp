@@ -76,14 +76,16 @@ class EspFunction {
     void set_4_pixels_at_offset(u_off_t word_offset);
 
     // Ex: X1=27, x2=55, color=0x03030303
-    void draw_line(uint32_t x, uint32_t width, uint32_t color);
+    void draw_line(uint32_t x, uint32_t width, uint32_t color, bool outer_fcn);
 
     // Common operations in functions:
 
-    uint32_t enter_function();
-    void leave_function();
+    uint32_t enter_outer_function();
+    uint32_t enter_inner_function();
+    void leave_outer_function();
+    void leave_inner_function();
     uint32_t begin_data();
-    void begin_jump_table(uint32_t num_items);
+    uint32_t init_jump_table(uint32_t num_items);
     void begin_code(uint32_t at_jump);
     void set_reg_draw_width(uint32_t at_width);
     void set_reg_dst_pixel_ptr(uint32_t at_x);
@@ -138,6 +140,7 @@ class EspFunction {
     void l32r(reg_t dst, s_off_t offset) { write24(ido(0x000001, dst, offset)); }
     void l8ui(reg_t dst, reg_t src, u_off_t offset) { write24(idso8(0x000002, dst, src, offset)); }
     void loop(reg_t src, u_off_t offset) { write24(iso8(0x008076, src, offset)); }
+    void mov(reg_t dst, reg_t src) { write24(ids(0x200000, dst, src)); }
     void movi(reg_t dst, uint32_t value) { write24(iv(0x00A002, dst, value)); }
     void ret() { write24(0x000080); }
     void retw() { write24(0x000090); }
@@ -170,6 +173,9 @@ class EspFunction {
 
     inline instr_t issd(uint32_t instr, reg_t src1, reg_t src2, reg_t dst) {
         return instr | (dst << 12) | (src1 << 8) | (src2 << 4); }
+
+    inline instr_t ids(uint32_t instr, reg_t dst, reg_t src) {
+        return instr | (dst << 12) | (src << 8) | (src << 4); }
 
     inline instr_t idso16(uint32_t instr, reg_t dst, reg_t src, u_off_t offset) {
         return instr | ((offset >> 1) << 16) | (dst << 4) | (src << 8); }

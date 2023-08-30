@@ -55,14 +55,11 @@ class DiPrimitive {
   // ID is actually the index of the primitive in a table of pointers.
   void set_id(uint16_t id);
 
-  // Gets the range of Y scan lines used by the primitive.
-  void IRAM_ATTR get_vertical_line_range(int32_t& min_y, int32_t& max_y);
-
   // Draws the primitive to the DMA scan line buffer.
   virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 
   // Groups scan lines for optimizing paint calls.
-  void IRAM_ATTR get_vertical_group_range(int32_t& min_group, int32_t& max_group);
+  bool IRAM_ATTR get_vertical_group_range(int32_t& min_group, int32_t& max_group);
 
   // Attach a child primitive.
   void IRAM_ATTR attach_child(DiPrimitive* child);
@@ -82,12 +79,15 @@ class DiPrimitive {
   // this primitive is based on the given viewport parameters and certain flags.
   void IRAM_ATTR compute_absolute_geometry(int32_t view_x, int32_t view_y, int32_t view_x_extent, int32_t view_y_extent);
 
+  // Clear the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR delete_instructions();
+   
   // Reassemble the custom instructions needed to draw the primitive.
   virtual void IRAM_ATTR generate_instructions();
    
   // Gets various data members.
   inline uint16_t get_id() { return m_id; }
-  inline uint8_t get_flags() { return m_flags; }
+  inline uint16_t get_flags() { return m_flags; }
   inline int32_t get_relative_x() { return m_rel_x; }
   inline int32_t get_relative_y() { return m_rel_y; }
   inline int32_t get_absolute_x() { return m_abs_x; }
@@ -109,7 +109,9 @@ class DiPrimitive {
   inline uint32_t get_color32() { return m_color; }
 
   // Sets some data members.
-  inline void set_flags(uint8_t flags) { m_flags = flags; }
+  inline void set_flags(uint16_t flags) { m_flags = flags; }
+  inline void add_flags(uint16_t flags) { m_flags |= flags; }
+  inline void remove_flags(uint16_t flags) { m_flags &= ~flags; }
   inline void set_color32(uint32_t color) { m_color = color; }
 
   // Clear the pointers to children.
@@ -154,8 +156,7 @@ class DiPrimitive {
   int16_t   m_first_group;  // lowest index of drawing group in which it is a member
   int16_t   m_last_group;   // highest index of drawing group in which it is a member
   int16_t   m_id;           // id of this primitive
-  uint8_t   m_flags;        // flag bits to control painting, etc.
-  uint8_t   m_future8;      // for potential future use
+  uint16_t  m_flags;        // flag bits to control painting, etc.
 };
 
 #define PRIM_FLAG_PAINT_THIS  0x01  // whether to paint this primitive
@@ -165,6 +166,7 @@ class DiPrimitive {
 #define PRIM_FLAG_H_SCROLL    0x10  // whether to support horizontal scrolling
 #define PRIM_FLAG_V_SCROLL    0x20  // whether to support vertical scrolling
 #define PRIM_FLAG_ABSOLUTE    0x40  // whether to use absolute coordinates always
+#define PRIM_FLAGS_CAN_DRAW   0x1000 // whether this primitive can be drawn at all
 #define PRIM_FLAGS_DEFAULT    0x0F  // flags set when a new base primitive is constructed
 #define PRIM_FLAGS_CHANGEABLE 0x0F  // flags that the app can change after primitive creation
 

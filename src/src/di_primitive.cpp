@@ -51,13 +51,16 @@ void DiPrimitive::set_id(uint16_t id) {
   m_id = id;
 }
 
-void IRAM_ATTR DiPrimitive::get_vertical_group_range(int32_t& min_group, int32_t& max_group) {
-  int32_t min_y, max_y;
-  get_vertical_line_range(min_y, max_y);
-  min_y = MAX(min_y, 0);
-  max_y = MIN(max_y, (ACT_LINES-1));
-  min_group = min_y >> VERTICAL_GROUP_INDEX_SHIFT;
-  max_group = max_y >> VERTICAL_GROUP_INDEX_SHIFT;
+bool IRAM_ATTR DiPrimitive::get_vertical_group_range(int32_t& min_group, int32_t& max_group) {
+  if (m_draw_x_extent <= m_draw_x || m_draw_y_extent <= m_draw_y) {
+    // The primitive should not be drawn
+    return false;
+  } else {
+    // The primitive should be drawn
+    min_group = m_draw_y;
+    max_group = m_draw_y_extent - 1;
+    return true;
+  }
 }
 
 void IRAM_ATTR DiPrimitive::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {}
@@ -141,14 +144,12 @@ void IRAM_ATTR DiPrimitive::compute_absolute_geometry(
   }
 }
 
-void DiPrimitive::get_vertical_line_range(int32_t& min_y, int32_t& max_y) {
-  min_y = m_draw_y;
-  max_y = m_draw_y_extent - 1;
-}
-
 void DiPrimitive::clear_child_ptrs() {
   m_first_child = NULL;
   m_last_child = NULL;
+}
+
+void IRAM_ATTR DiPrimitive::delete_instructions() {
 }
 
 void IRAM_ATTR DiPrimitive::generate_instructions() {

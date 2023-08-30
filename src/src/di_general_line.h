@@ -45,6 +45,9 @@ class DiGeneralLine: public DiPrimitive {
   // upper 2 bits of the color must be zeros.
   void init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color);
 
+  // Clear the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR delete_instructions();
+   
   // Reassemble the custom instructions needed to draw the primitive.
   virtual void IRAM_ATTR generate_instructions();
    

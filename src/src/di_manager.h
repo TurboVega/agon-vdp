@@ -166,7 +166,7 @@ class DiManager {
     uint8_t                     m_incoming_data[INCOMING_DATA_BUFFER_SIZE];
     uint8_t                     m_incoming_command[INCOMING_COMMAND_SIZE];
     DiPrimitive *               m_primitives[MAX_NUM_PRIMITIVES]; // Indexes of array are primitive IDs
-    std::vector<DiPrimitive*>   m_groups[NUM_VERTICAL_GROUPS]; // Vertical scan groups (for optimizing paint calls)
+    std::vector<DiPrimitive*>   m_groups[ACT_LINES]; // Vertical scan groups (for optimizing paint calls)
 
     // Setup the DMA stuff.
     void initialize();

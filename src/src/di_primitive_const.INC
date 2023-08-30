@@ -61,5 +61,4 @@ m_last_group = 110      // highest index of drawing group in which it is a membe
 m_id = 112              // id of this primitive
 
 m_flags = 114           // flag bits to control painting, etc.
-m_future8 = 115         // for potential future use
 sizeof_DiPrimitive = 116 // total size of the base class structure
