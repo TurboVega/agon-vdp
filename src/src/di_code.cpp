@@ -22,6 +22,7 @@
 // 
 
 #include "di_code.h"
+#include "di_primitive_const.h"
 #include "../agon.h"
 #include "freertos/FreeRTOS.h"
 #include <string.h>
@@ -35,6 +36,7 @@
 #define REG_LINE_PTR        a3
 #define REG_LINE_INDEX      a4
 // Temporary registers:
+#define REG_ABS_Y           a6
 #define REG_JUMP_ADDRESS    a5
 #define REG_DST_PIXEL_PTR   a5
 #define REG_SRC_PIXEL_PTR   a6
@@ -116,8 +118,8 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color, bool out
     uint32_t at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
-    auto at_x = write32(aligned_x);
-    auto at_color = write32(color);
+    auto at_x = d32(aligned_x);
+    auto at_color = d32(color);
 
     begin_code(at_jump);
 
@@ -295,18 +297,21 @@ uint32_t EspFunction::begin_data() {
 
 uint32_t EspFunction::init_jump_table(uint32_t num_items) {
     /* 00 */ entry(sp, 16);
-    /* 03 */ slli(REG_JUMP_ADDRESS, REG_LINE_INDEX, 2);
-    /* 06 */ mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
-    /* 09 */ call0(0); // 8+4+0
-    /* 12 */ addi(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, 16);
-    /* 15 */ add(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, REG_RETURN_ADDR);
-    /* 18 */ callx0(REG_JUMP_ADDRESS);
-    /* 21 */ mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
-    /* 24 */ leave_outer_function();
-    /* 27 */ align32();
-    /* 28 */ uint32_t at_jump_table = get_pc();
+    /* 03 */ l32i(REG_ABS_Y, REG_THIS_PTR, FLD_abs_y);
+    /* 06 */ sub(REG_LINE_INDEX, REG_LINE_INDEX, REG_ABS_Y);
+    /* 09 */ call0(0); // 8 + 0*4 + 4
+    /* 12 */ slli(REG_JUMP_ADDRESS, REG_LINE_INDEX, 2);
+    /* 15 */ addi(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, 24);
+    /* 18 */ mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+    /* 21 */ add(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, REG_RETURN_ADDR);
+    /* 24 */ callx0(REG_JUMP_ADDRESS);
+    /* 27 */ mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
+    /* 30 */ leave_outer_function();
+    /* 33 */ align32();
+    /* 36 */ uint32_t at_jump_table = get_pc();
     for (uint32_t i = 0; i < num_items; i++) {
-        /* 28+i*4 */ write32(0);
+        /* 36+i*4 */ j(0);
+        /* 39+i*4 */ align32();
     }
     return at_jump_table;
 }
@@ -353,14 +358,14 @@ void EspFunction::store(uint8_t instr_byte) {
 
 void EspFunction::align16() {
     if (m_code_index & 1) {
-        write8(0);
+        d8(0);
     }
 }
 
 void EspFunction::align32() {
     align16();
     if (m_code_index & 2) {
-        write16(0);
+        d16(0);
     }
 }
 
@@ -405,33 +410,37 @@ void EspFunction::allocate(uint32_t size) {
     }
 }
 
-uint32_t EspFunction::write8(instr_t data) {
+uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
     allocate(1);
     auto at_data = get_pc();
+    debug_log("%04hX: %02hX       %s\n", at_data, data & 0xFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     return at_data;
 }
 
-uint32_t EspFunction::write16(instr_t data) {
+uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
     allocate(2);
     auto at_data = get_pc();
+    debug_log("%04hX: %04hX     %s\n", at_data, data & 0xFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     return at_data;
 }
 
-uint32_t EspFunction::write24(instr_t data) {
+uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
     allocate(3);
     auto at_data = get_pc();
+    debug_log("%04hX: %06X   %s\n", at_data, data & 0xFFFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
     return at_data;
 }
 
-uint32_t EspFunction::write32(instr_t data) {
+uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
     allocate(4);
     auto at_data = get_pc();
+    debug_log("%04hX: %08X %s\n", at_data, data & 0xFFFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));

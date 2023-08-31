@@ -108,50 +108,51 @@ class EspFunction {
 
     // Assembler-level instructions:
 
-    void add(reg_t dst, reg_t src1, reg_t src2) { write24(issd(0x800000, src1, src2, dst)); }
-    void addi(reg_t dst, reg_t src, u_off_t offset) { write24(isdo(0x00C002, src, dst, offset)); }
-    void bbc(reg_t src, reg_t dst, u_off_t offset) { write24(isdo(0x005007, src, dst, offset)); }
-    void bbci(reg_t src, uint32_t imm, u_off_t offset) { write24(isio(0x006007, src, imm, offset)); }
-    void bbs(reg_t src, reg_t dst, u_off_t offset) { write24(isdo(0x00D007, src, dst, offset)); }
-    void bbsi(reg_t src, uint32_t imm, u_off_t offset) { write24(isio(0x007007, src, imm, offset)); }
-    void beq(reg_t src, reg_t dst, u_off_t offset) { write24(isdo(0x001007, src, dst, offset)); }
-    void beqi(reg_t src, uint32_t imm, u_off_t offset) { write24(isieo(0x000026, src, imm, offset)); }
-    void beqz(reg_t src, u_off_t offset) { write24(iso(0x000016, src, offset)); }
-    void bne(reg_t src, reg_t dst, u_off_t offset) { write24(isdo(0x009007, src, dst, offset)); }
-    void bnei(reg_t src, uint32_t imm, u_off_t offset) { write24(isieo(0x000066, src, imm, offset)); }
-    void bnez(reg_t src, u_off_t offset) { write24(iso(0x000056, src, offset)); }
-    void bge(reg_t src, reg_t dst, u_off_t offset) { write24(isdo(0x00A007, src, dst, offset)); }
-    void bgei(reg_t src, uint32_t imm, u_off_t offset) { write24(isieo(0x0000E6, src, imm, offset)); }
-    void bgeu(reg_t src, reg_t dst, u_off_t offset) { write24(isdo(0x00B007, src, dst, offset)); }
-    void bgeui(reg_t src, uint32_t imm, u_off_t offset) { write24(isieo(0x0000F6, src, imm, offset)); }
-    void bgez(reg_t src, u_off_t offset) { write24(iso(0x0000D6, src, offset)); }
-    void blt(reg_t src, reg_t dst, u_off_t offset) { write24(isdo(0x002007, src, dst, offset)); }
-    void blti(reg_t src, uint32_t imm, u_off_t offset) { write24(isieo(0x0000A6, src, imm, offset)); }
-    void bltu(reg_t src, reg_t dst, u_off_t offset) { write24(isdo(0x003007, src, dst, offset)); }
-    void bltui(reg_t src, uint32_t imm, u_off_t offset) { write24(isieo(0x0000B6, src, imm, offset)); }
-    void bltz(reg_t src, u_off_t offset) { write24(iso(0x000096, src, offset)); }
-    void call0(u_off_t offset) { write24(isco(0x000005, offset)); }
-    void callx0(reg_t src) { write24(iscxo(0x0000C0, src)); }
-    void d8(uint32_t value) { write8(value); }
-    void d16(uint32_t value) { write16(value); }
-    void d24(uint32_t value) { write24(value); }
-    void d32(uint32_t value) { write32(value); }
-    void entry(reg_t src, u_off_t offset) { write24(iso(0x000036, src, (offset >> 3))); }
-    void j(s_off_t offset) { write24(io(0x000006, offset)); }
-    void l16si(reg_t dst, reg_t src, u_off_t offset) { write24(idso16(0x009002, dst, src, offset)); }
-    void l16ui(reg_t dst, reg_t src, u_off_t offset) { write24(idso16(0x001002, dst, src, offset)); }
-    void l32i(reg_t dst, reg_t src, u_off_t offset) { write24(idso32(0x002002, dst, src, offset)); }
-    void l32r(reg_t dst, s_off_t offset) { write24(ido(0x000001, dst, offset)); }
-    void l8ui(reg_t dst, reg_t src, u_off_t offset) { write24(idso8(0x000002, dst, src, offset)); }
-    void loop(reg_t src, u_off_t offset) { write24(iso8(0x008076, src, offset)); }
-    void mov(reg_t dst, reg_t src) { write24(ids(0x200000, dst, src)); }
-    void movi(reg_t dst, uint32_t value) { write24(iv(0x00A002, dst, value)); }
-    void ret() { write24(0x000080); }
-    void retw() { write24(0x000090); }
-    void s16i(reg_t dst, reg_t src, u_off_t offset) { write24(idso16(0x005002, dst, src, offset)); }
-    void s32i(reg_t dst, reg_t src, u_off_t offset) { write24(idso32(0x006002, dst, src, offset)); }
-    void s8i(reg_t dst, reg_t src, u_off_t offset) { write24(idso8(0x004002, dst, src, offset)); }
-    void slli(reg_t dst, reg_t src, uint8_t bits) { write24(idsb(0x010000, dst, src, bits)); }
+    void add(reg_t dst, reg_t src1, reg_t src2) { write24("add", issd(0x800000, src1, src2, dst)); }
+    void addi(reg_t dst, reg_t src, u_off_t offset) { write24("addi", idsi(0x00C002, dst, src, offset)); }
+    void bbc(reg_t src, reg_t dst, u_off_t offset) { write24("bbc", isdo(0x005007, src, dst, offset)); }
+    void bbci(reg_t src, uint32_t imm, u_off_t offset) { write24("bbci", isio(0x006007, src, imm, offset)); }
+    void bbs(reg_t src, reg_t dst, u_off_t offset) { write24("bbs", isdo(0x00D007, src, dst, offset)); }
+    void bbsi(reg_t src, uint32_t imm, u_off_t offset) { write24("bbsi", isio(0x007007, src, imm, offset)); }
+    void beq(reg_t src, reg_t dst, u_off_t offset) { write24("beq", isdo(0x001007, src, dst, offset)); }
+    void beqi(reg_t src, uint32_t imm, u_off_t offset) { write24("beqi", isieo(0x000026, src, imm, offset)); }
+    void beqz(reg_t src, u_off_t offset) { write24("beqz", iso(0x000016, src, offset)); }
+    void bne(reg_t src, reg_t dst, u_off_t offset) { write24("bne", isdo(0x009007, src, dst, offset)); }
+    void bnei(reg_t src, uint32_t imm, u_off_t offset) { write24("bnei", isieo(0x000066, src, imm, offset)); }
+    void bnez(reg_t src, u_off_t offset) { write24("bnez", iso(0x000056, src, offset)); }
+    void bge(reg_t src, reg_t dst, u_off_t offset) { write24("bge", isdo(0x00A007, src, dst, offset)); }
+    void bgei(reg_t src, uint32_t imm, u_off_t offset) { write24("bgei", isieo(0x0000E6, src, imm, offset)); }
+    void bgeu(reg_t src, reg_t dst, u_off_t offset) { write24("bgeu", isdo(0x00B007, src, dst, offset)); }
+    void bgeui(reg_t src, uint32_t imm, u_off_t offset) { write24("bgeui", isieo(0x0000F6, src, imm, offset)); }
+    void bgez(reg_t src, u_off_t offset) { write24("bgez", iso(0x0000D6, src, offset)); }
+    void blt(reg_t src, reg_t dst, u_off_t offset) { write24("blt", isdo(0x002007, src, dst, offset)); }
+    void blti(reg_t src, uint32_t imm, u_off_t offset) { write24("blti", isieo(0x0000A6, src, imm, offset)); }
+    void bltu(reg_t src, reg_t dst, u_off_t offset) { write24("bltu", isdo(0x003007, src, dst, offset)); }
+    void bltui(reg_t src, uint32_t imm, u_off_t offset) { write24("bltui", isieo(0x0000B6, src, imm, offset)); }
+    void bltz(reg_t src, u_off_t offset) { write24("bltz", iso(0x000096, src, offset)); }
+    void call0(u_off_t offset) { write24("call0", isco(0x000005, offset)); }
+    void callx0(reg_t src) { write24("callx0", iscxo(0x0000C0, src)); }
+    uint32_t d8(uint32_t value) { return write8("d8", value); }
+    uint32_t d16(uint32_t value) { return write16("d16", value); }
+    uint32_t d24(uint32_t value) { return write24("d24", value); }
+    uint32_t d32(uint32_t value) { return write32("d32", value); }
+    void entry(reg_t src, u_off_t offset) { write24("entry", iso(0x000036, src, (offset >> 3))); }
+    void j(s_off_t offset) { write24("j", io(0x000006, offset)); }
+    void l16si(reg_t dst, reg_t src, u_off_t offset) { write24("l16si", idso16(0x009002, dst, src, offset)); }
+    void l16ui(reg_t dst, reg_t src, u_off_t offset) { write24("l16ui", idso16(0x001002, dst, src, offset)); }
+    void l32i(reg_t dst, reg_t src, u_off_t offset) { write24("l32i", idso32(0x002002, dst, src, offset)); }
+    void l32r(reg_t dst, s_off_t offset) { write24("l32r", ido(0x000001, dst, offset)); }
+    void l8ui(reg_t dst, reg_t src, u_off_t offset) { write24("l8ui", idso8(0x000002, dst, src, offset)); }
+    void loop(reg_t src, u_off_t offset) { write24("loop", iso8(0x008076, src, offset)); }
+    void mov(reg_t dst, reg_t src) { write24("mov", ids(0x200000, dst, src)); }
+    void movi(reg_t dst, uint32_t value) { write24("movi", iv(0x00A002, dst, value)); }
+    void ret() { write24("ret", 0x000080); }
+    void retw() { write24("retw", 0x000090); }
+    void s16i(reg_t dst, reg_t src, u_off_t offset) { write24("s16i", idso16(0x005002, dst, src, offset)); }
+    void s32i(reg_t dst, reg_t src, u_off_t offset) { write24("s32i", idso32(0x006002, dst, src, offset)); }
+    void s8i(reg_t dst, reg_t src, u_off_t offset) { write24("s8i", idso8(0x004002, dst, src, offset)); }
+    void slli(reg_t dst, reg_t src, uint8_t bits) { write24("slli", idsb(0x010000, dst, src, bits)); }
+    void sub(reg_t dst, reg_t src1, reg_t src2) { write24("sub", issd(0xC00000, src1, src2, dst)); }
 
     // a0 = return address
     // a1 = stack ptr
@@ -170,10 +171,10 @@ class EspFunction {
 
     void allocate(uint32_t size);
     void store(uint8_t instr_byte);
-    uint32_t write8(instr_t data);
-    uint32_t write16(instr_t data);
-    uint32_t write24(instr_t data);
-    uint32_t write32(instr_t data);
+    uint32_t write8(const char* mnemonic, instr_t data);
+    uint32_t write16(const char* mnemonic, instr_t data);
+    uint32_t write24(const char* mnemonic, instr_t data);
+    uint32_t write32(const char* mnemonic, instr_t data);
 
     inline instr_t issd(uint32_t instr, reg_t src1, reg_t src2, reg_t dst) {
         return instr | (dst << 12) | (src1 << 8) | (src2 << 4); }
@@ -192,6 +193,9 @@ class EspFunction {
 
     inline instr_t isdo(uint32_t instr, reg_t src, reg_t dst, u_off_t offset) {
         return instr | (offset << 16) | (dst << 4) | (src << 8); }
+
+    inline instr_t idsi(uint32_t instr, reg_t dst, reg_t src, uint8_t imm) {
+        return instr | (((uint32_t)imm) << 16) | (dst << 4) | (src << 8); }
 
     inline instr_t idsb(uint32_t instr, reg_t dst, reg_t src, uint8_t bits) {
         return instr | ((bits & 0x10) << 16) | (dst << 12) | (src << 8) | ((bits & 0xF) << 4); }

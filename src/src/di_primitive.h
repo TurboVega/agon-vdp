@@ -1,5 +1,5 @@
 // di_primitive.h - Function declarations for base drawing primitives
-// NOTE: This file must track exactly with constants in di_primitive_const.INC.
+// NOTE: This file must track exactly with constants in di_primitive_const.h.
 //
 // A drawing primitive tells how to draw a particular type of simple graphic object.
 //
