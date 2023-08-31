@@ -298,12 +298,13 @@ uint32_t EspFunction::begin_data() {
 uint32_t EspFunction::init_jump_table(uint32_t num_items) {
     /* 00 */ entry(sp, 16);
     /* 03 */ l32i(REG_ABS_Y, REG_THIS_PTR, FLD_abs_y);
-    /* 06 */ sub(REG_LINE_INDEX, REG_LINE_INDEX, REG_ABS_Y);
+    /* 06 */ mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
     /* 09 */ call0(0); // 8 + 0*4 + 4
-    /* 12 */ slli(REG_JUMP_ADDRESS, REG_LINE_INDEX, 2);
-    /* 15 */ addi(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, 24);
-    /* 18 */ mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+    /* 12 */ sub(REG_LINE_INDEX, REG_LINE_INDEX, REG_ABS_Y);
+    /* 15 */ slli(REG_JUMP_ADDRESS, REG_LINE_INDEX, 2);
+    /* 18 */ addi(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, 24);
     /* 21 */ add(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, REG_RETURN_ADDR);
+    //s32i(REG_JUMP_ADDRESS, REG_THIS_PTR, FLD_future32);
     /* 24 */ callx0(REG_JUMP_ADDRESS);
     /* 27 */ mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
     /* 30 */ leave_outer_function();

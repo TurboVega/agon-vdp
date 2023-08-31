@@ -98,6 +98,7 @@ class EspFunction {
     inline void set_pc(uint32_t address) { m_code_index = address; }
     inline uint32_t get_code_size() { return m_code_size; }
     inline uint32_t get_code(uint32_t address) { return m_code[address >> 2]; }
+    inline uint32_t get_code_start() { return (uint32_t)(void*) m_code; }
     void align16();
     void align32();
     void j_to_here(uint32_t from);
@@ -198,7 +199,8 @@ class EspFunction {
         return instr | (((uint32_t)imm) << 16) | (dst << 4) | (src << 8); }
 
     inline instr_t idsb(uint32_t instr, reg_t dst, reg_t src, uint8_t bits) {
-        return instr | ((bits & 0x10) << 16) | (dst << 12) | (src << 8) | ((bits & 0xF) << 4); }
+        bits = 32 - bits;
+        return instr | ((bits >> 4) << 20) | (dst << 12) | (src << 8) | ((bits & 0xF) << 4); }
 
     inline instr_t isio(uint32_t instr, reg_t src, uint32_t imm, u_off_t offset) {
         return instr | (offset << 16) | ((imm & 0xF) << 4) | ((imm & 0x10) << 8) | (src << 8); }
