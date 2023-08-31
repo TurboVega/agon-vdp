@@ -150,7 +150,7 @@ void otf(void * pvParameters) {
 	di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
 	di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);*/
 
-	di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 270, 520, 281, 521, 0x0D); // general
+	di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
 
 	//di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
 	//	0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
@@ -198,9 +198,9 @@ void otf(void * pvParameters) {
 
 		di_manager->create_triangle(20+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c);
 		di_manager->create_triangle(21+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c);
-	}
+	}*/
 
-	auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
+	/*auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
 	int i = 0;
 	for (int y = 0; y < 90; y++) {
 		for (int x = 0; x < 128; x++) {
@@ -243,7 +243,7 @@ void setup() {
 	//boot_screen();
 
 	TaskHandle_t xHandle = NULL;
-	xTaskCreatePinnedToCore(otf, "OTF-MODE", 2000, NULL,
+	xTaskCreatePinnedToCore(otf, "OTF-MODE", 2500, NULL,
 							OTF_MANAGER_PRIORITY, &xHandle, 1); // Core #1
 }
 
