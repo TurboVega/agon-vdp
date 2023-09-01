@@ -26,7 +26,7 @@
 // 
 
 #include "di_general_line.h"
-//extern void debug_log(const char *format, ...);
+extern void debug_log(const char *format, ...);
 
 static int32_t min3(int32_t a, int32_t b, int32_t c) {
   int32_t m = MIN(a, b);
