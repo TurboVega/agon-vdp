@@ -43,7 +43,7 @@ DiLinePieces::~DiLinePieces() {
   }
 }
 
-//void debug_log(const char *format, ...);
+void debug_log(const char *format, ...);
 void DiLinePieces::generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
   m_min_x = MIN(x1, x2);
   m_max_x = MAX(x1, x2);
@@ -54,10 +54,17 @@ void DiLinePieces::generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int1
   int16_t dy = m_max_y - m_min_y;
   int16_t delta = MAX(dx, dy);
 
-  ?? delta == 0 ??
+  if (!delta) {
+    m_pieces = new DiLinePiece[1];
+    m_pieces->m_x = x1;
+    m_pieces->m_y = y1;
+    m_pieces->m_width = 1;
+    m_num_pieces = 1;
+    return;
+  }
   
-  //debug_log("glp x1 %i y1 %i, x2 %i y2 %i, mnx %i mny %i, mxx %i, mxy %i, dx %i, dy %i, delta %i\n",
-  //x1, y1, x2, y2, m_min_x, m_min_y, m_max_x, m_max_y, dx, dy, delta);
+  debug_log("glp x1 %i y1 %i, x2 %i y2 %i, mnx %i mny %i, mxx %i, mxy %i, dx %i, dy %i, delta %i\n",
+  x1, y1, x2, y2, m_min_x, m_min_y, m_max_x, m_max_y, dx, dy, delta);
   Overlay x;
   x.value32.low = 0;
   x.value32.high = m_min_x;
@@ -127,26 +134,50 @@ void DiLinePieces::generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int1
   m_num_pieces = i;
   
 //  for (uint16_t j = 0; j < i; j++) {
-//      debug_log("@127 %i %i %i\n", j, m_pieces[j].m_x, m_pieces[j].m_width);
+//      debug_log("@137 [%i] %i %i %i\n", j, m_pieces[j].m_x, m_pieces[j].m_y, m_pieces[j].m_width);
 //  }
 
   if (x1<x2 && y1>y2) {
+    debug_log("1 Flip the line vertically\n");
     // Flip the line vertically
-    for (uint16_t j = 0; j < i; j++) {
-        DiLinePiece t = m_pieces[j];
-        m_pieces[j] = m_pieces[m_num_pieces - 1 - j];
-        m_pieces[m_num_pieces - 1 - j] = t;
+    uint16_t mid = i/2;
+    for (uint16_t j = 0; j < mid; j++) {
+      DiLinePiece* pj = &m_pieces[j];
+      DiLinePiece* pt = &m_pieces[i - 1 - j];
+      //uint16_t x = pj->m_x;
+      //pj->m_x = pt->m_x;
+      //pt->m_x = x;
+      //uint16_t w = pj->m_width;
+      //pj->m_width = pt->m_width;
+      //pt->m_width = w;
+      uint16_t y = pj->m_y;
+      pj->m_y = pt->m_y;
+      pt->m_y = y;
     }
   } else if (x1>x2 && y1<y2) {
+    debug_log("2 Flip the line horizontally\n");
     // Flip the line horizontally
-    for (uint16_t j = 0; j < i; j++) {
+    uint16_t mid = i/2;
+    /*for (uint16_t j = 0; j < mid; j++) {
         m_pieces[j].m_x = m_max_x - m_pieces[j].m_x + m_min_x;
+    }*/
+    for (uint16_t j = 0; j < mid; j++) {
+      DiLinePiece* pj = &m_pieces[j];
+      DiLinePiece* pt = &m_pieces[i - 1 - j];
+      uint16_t x = pj->m_x;
+      pj->m_x = pt->m_x;
+      pt->m_x = x;
+      uint16_t w = pj->m_width;
+      pj->m_width = pt->m_width;
+      pt->m_width = w;
     }
+  } else {
+    debug_log("Don't flip the line\n");
   }
 
-//  for (uint16_t j = 0; j < i; j++) {
-//      debug_log("@138 %i %i %i\n", j, m_pieces[j].m_x, m_pieces[j].m_width);
-//  }
+  for (uint16_t j = 0; j < i; j++) {
+      debug_log("@179 [%i] %i %i %i\n", j, m_pieces[j].m_x, m_pieces[j].m_y, m_pieces[j].m_width);
+  }
 
 }
 
@@ -165,8 +196,8 @@ void DiLinePieces::generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int1
   m_min_y = MIN(min_y, y3);
   m_max_y = MAX(max_y, y3);
 
-  //debug_log("tri: x1 %i y1 %i, x2 %i y2 %i, x3 %i y3 %i\n", x1, y1, x2, y2, x3, y3);
-  //debug_log("tri: mnx %i mny %i, mxx %i, mxy %i", m_min_x, m_min_y, m_max_x, m_max_y);
+  debug_log("tri: x1 %i y1 %i, x2 %i y2 %i, x3 %i y3 %i\n", x1, y1, x2, y2, x3, y3);
+  debug_log("tri: mnx %i mny %i, mxx %i, mxy %i", m_min_x, m_min_y, m_max_x, m_max_y);
 
   m_num_pieces = m_max_y - m_min_y + 1;
   m_pieces = new DiLinePiece[m_num_pieces];
@@ -188,14 +219,14 @@ void DiLinePieces::generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int1
         uint16_t right1 = line_piece->m_x + line_piece->m_width - 1;
         uint16_t right2 = merge_piece->m_x + merge_piece->m_width - 1;
         uint16_t right = MAX(right1, right2);
+        debug_log("merge line %i, piece %i, at %i, left %i, right %i\n", line, i, merge_index, left, right);
         merge_piece->m_x = left;
         merge_piece->m_width = right - left + 1;
-        //if (merge_piece->m_x == 224) debug_log("1 line %i i %i w %i\n", line, i, merge_piece->m_width);
       } else {
+        debug_log("init  line %i, piece %i, at %i, left %i, right %i\n", line, i, merge_index, line_piece->m_x, line_piece->m_x+line_piece->m_width-1);
         merge_piece->m_x = line_piece->m_x;
         merge_piece->m_width = line_piece->m_width;
         merge_piece->m_flags = 1;
-        //if (merge_piece->m_x == 224) debug_log("2 line %i i %i w %i\n", line, i, merge_piece->m_width);
       }
     }
   }
