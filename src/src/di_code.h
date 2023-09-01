@@ -89,7 +89,6 @@ class EspFunction {
     void begin_code(uint32_t at_jump);
     void set_reg_draw_width(uint32_t at_width);
     void set_reg_dst_pixel_ptr(uint32_t at_x);
-    void set_reg_color(uint32_t at_color);
 
     // Utility operations:
 
