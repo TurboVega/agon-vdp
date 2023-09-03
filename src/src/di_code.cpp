@@ -113,8 +113,96 @@ void EspFunction::set_4_pixels_at_offset(u_off_t offset) {
     s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, offset);
 }
 
-// Ex: X1=27, width=55, color=0x03030303
-void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t width, uint32_t color, bool outer_fcn) {
+// Ex: X=0, w=1: db[2]=sb[2]
+void EspFunction::copy_1_pixel_at_offset_0() {
+    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+}
+
+// Ex: X=1, w=1: db[3]=s[3]
+void EspFunction::copy_1_pixel_at_offset_1() {
+    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+}
+
+// Ex: X=2, w=1: db[0]=s[0]
+void EspFunction::copy_1_pixel_at_offset_2() {
+    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+}
+
+// Ex: X=3, w=1: db[1]=s[1]
+void EspFunction::copy_1_pixel_at_offset_3() {
+    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(3));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
+}
+
+// Ex: X=0, w=2: dh[2]=sh[2]
+void EspFunction::copy_2_pixels_at_offset_0() {
+    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+}
+
+// Ex: X=1, w=2: db[3]=sb[3]; db[0]=sb[0]
+void EspFunction::copy_2_pixels_at_offset_1() {
+    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+}
+
+// Ex: X=2, w=2: dh[0]=sh[0]
+void EspFunction::copy_2_pixels_at_offset_2() {
+    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));    
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
+}
+
+// Ex: X=0, w=3: dh[2]=sh[2]; db[0]=sb[0]
+void EspFunction::copy_3_pixels_at_offset_0() {
+    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+}
+
+// Ex: X=1, w=3: db[3]=sb[3]; dh[0]=sh[0]
+void EspFunction::copy_3_pixels_at_offset_1() {
+    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));    
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1)); 
+    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+}
+
+// Ex: X=0, w=4: dw=sw
+void EspFunction::copy_4_pixels_at_offset(u_off_t word_offset) {
+    l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, word_offset);
+    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset);
+}
+
+// Ex: X1=27, x2=55, color=0x03
+void EspFunction::draw_pixel(uint32_t x) {
+    uint32_t at_jump = enter_outer_function();
+    auto at_data = begin_data();
+    auto aligned_x = x & 0xFFFFFFFC;
+    auto at_x = d32(aligned_x);
+
+    begin_code(at_jump);
+    set_reg_dst_pixel_ptr(at_x);
+    l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
+
+    auto offset = x & 3;
+    switch (offset) {
+        case 0: set_1_pixel_at_offset_0(); break;
+        case 1: set_1_pixel_at_offset_1(); break;
+        case 2: set_1_pixel_at_offset_2(); break;
+        default: set_1_pixel_at_offset_3(); break;
+    }
+
+    leave_outer_function();
+}
+
+// Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
+void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t width, bool outer_fcn) {
     uint32_t at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
@@ -304,6 +392,11 @@ void EspFunction::set_reg_draw_width(uint32_t at_width) {
 void EspFunction::set_reg_dst_pixel_ptr(uint32_t at_x) {
     l32r_from(REG_DST_PIXEL_PTR, at_x);
     add(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, REG_LINE_PTR);
+}
+
+void EspFunction::set_reg_src_pixel_ptr(uint32_t at_x) {
+    l32r_from(REG_SRC_PIXEL_PTR, at_x);
+    add(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, ??);
 }
 
 void EspFunction::call_inner_fcn(uint32_t real_address) {

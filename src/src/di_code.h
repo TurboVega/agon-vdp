@@ -77,8 +77,41 @@ class EspFunction {
     // Ex: X=0, w=4: w=c1c0c3c2
     void set_4_pixels_at_offset(u_off_t word_offset);
 
+    // Ex: X=0, w=1: db[2]=sb[2]
+    void copy_1_pixel_at_offset_0();
+
+    // Ex: X=1, w=1: db[3]=s[3]
+    void copy_1_pixel_at_offset_1();
+
+    // Ex: X=2, w=1: db[0]=s[0]
+    void copy_1_pixel_at_offset_2();
+
+    // Ex: X=3, w=1: db[1]=s[1]
+    void copy_1_pixel_at_offset_3();
+
+    // Ex: X=0, w=2: dh[2]=sh[2]
+    void copy_2_pixels_at_offset_0();
+
+    // Ex: X=1, w=2: db[3]=sb[3]; db[0]=sb[0]
+    void copy_2_pixels_at_offset_1();
+
+    // Ex: X=2, w=2: dh[0]=sh[0]
+    void copy_2_pixels_at_offset_2();
+
+    // Ex: X=0, w=3: dh[2]=sh[2]; db[0]=sb[0]
+    void copy_3_pixels_at_offset_0();
+
+    // Ex: X=1, w=3: db[3]=sb[3]; dh[0]=sh[0]
+    void copy_3_pixels_at_offset_1();
+
+    // Ex: X=0, w=4: dw=sw
+    void copy_4_pixels_at_offset(u_off_t word_offset);
+
+    // Ex: X1=27, x2=55, color=0x03
+    void draw_pixel(uint32_t x);
+
     // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
-    void draw_line(EspCommonCode& common_code, uint32_t x, uint32_t width, uint32_t color, bool outer_fcn);
+    void draw_line(EspCommonCode& common_code, uint32_t x, uint32_t width, bool outer_fcn);
 
     // Common operations in functions:
 
