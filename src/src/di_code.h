@@ -38,6 +38,8 @@ extern "C" {
 typedef void (*CallEspFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index);
 };
 
+class EspCommonCode;
+
 class EspFunction {
     public:
     EspFunction();
@@ -75,8 +77,8 @@ class EspFunction {
     // Ex: X=0, w=4: w=c1c0c3c2
     void set_4_pixels_at_offset(u_off_t word_offset);
 
-    // Ex: X1=27, x2=55, color=0x03030303
-    void draw_line(uint32_t x, uint32_t width, uint32_t color, bool outer_fcn);
+    // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
+    void draw_line(EspCommonCode& common_code, uint32_t x, uint32_t width, uint32_t color, bool outer_fcn);
 
     // Common operations in functions:
 
@@ -89,15 +91,17 @@ class EspFunction {
     void begin_code(uint32_t at_jump);
     void set_reg_draw_width(uint32_t at_width);
     void set_reg_dst_pixel_ptr(uint32_t at_x);
+    void call_inner_fcn(uint32_t real_address);
 
     // Utility operations:
 
     inline void clear() { m_code_index = 0; m_code_size = 0; }
-    inline uint32_t get_pc() { return m_code_index; }
-    inline void set_pc(uint32_t address) { m_code_index = address; }
+    inline uint32_t get_code_index() { return m_code_index; }
+    inline void set_code_index(uint32_t code_index) { m_code_index = code_index; }
     inline uint32_t get_code_size() { return m_code_size; }
     inline uint32_t get_code(uint32_t address) { return m_code[address >> 2]; }
     inline uint32_t get_code_start() { return (uint32_t)(void*) m_code; }
+    inline uint32_t get_real_address(uint32_t code_index) { return (uint32_t)(&m_code[code_index]); }
     void align16();
     void align32();
     void j_to_here(uint32_t from);
@@ -227,4 +231,33 @@ class EspFunction {
     inline instr_t iv(uint32_t instr, reg_t dst, uint32_t value) {
         return instr | ((value & 0xFF) << 16) | (dst << 4) | (value & 0xF00); }
 
+};
+
+class EspCommonCode: public EspFunction {
+    public:
+    EspCommonCode();
+    inline uint32_t get_fcn_draw_128_pixels_in_loop() { return get_real_address(m_fcn_draw_128_pixels_in_loop); }
+    inline uint32_t get_fcn_draw_128_pixels() { return get_real_address(m_fcn_draw_128_pixels); }
+    inline uint32_t get_fcn_draw_128_pixels_last() { return get_real_address(m_fcn_draw_128_pixels_last); }
+    inline uint32_t get_fcn_draw_64_pixels() { return get_real_address(m_fcn_draw_64_pixels); }
+    inline uint32_t get_fcn_draw_64_pixels_last() { return get_real_address(m_fcn_draw_64_pixels_last); }
+    inline uint32_t get_fcn_draw_32_pixels() { return get_real_address(m_fcn_draw_32_pixels); }
+    inline uint32_t get_fcn_draw_32_pixels_last() { return get_real_address(m_fcn_draw_32_pixels_last); }
+    inline uint32_t get_fcn_draw_16_pixels() { return get_real_address(m_fcn_draw_16_pixels); }
+    inline uint32_t get_fcn_draw_16_pixels_last() { return get_real_address(m_fcn_draw_16_pixels_last); }
+    inline uint32_t get_fcn_draw_8_pixels() { return get_real_address(m_fcn_draw_8_pixels); }
+    inline uint32_t get_fcn_draw_8_pixels_last() { return get_real_address(m_fcn_draw_8_pixels_last); }
+
+    protected:
+    uint32_t    m_fcn_draw_128_pixels_in_loop;
+    uint32_t    m_fcn_draw_128_pixels;
+    uint32_t    m_fcn_draw_128_pixels_last;
+    uint32_t    m_fcn_draw_64_pixels;
+    uint32_t    m_fcn_draw_64_pixels_last;
+    uint32_t    m_fcn_draw_32_pixels;
+    uint32_t    m_fcn_draw_32_pixels_last;
+    uint32_t    m_fcn_draw_16_pixels;
+    uint32_t    m_fcn_draw_16_pixels_last;
+    uint32_t    m_fcn_draw_8_pixels;
+    uint32_t    m_fcn_draw_8_pixels_last;
 };

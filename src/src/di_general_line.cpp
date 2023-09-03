@@ -26,7 +26,6 @@
 // 
 
 #include "di_general_line.h"
-extern void debug_log(const char *format, ...);
 
 static int32_t min3(int32_t a, int32_t b, int32_t c) {
   int32_t m = MIN(a, b);
@@ -75,45 +74,23 @@ void IRAM_ATTR DiGeneralLine::delete_instructions() {
   m_paint_fcn.clear();
 }
   
-void IRAM_ATTR DiGeneralLine::generate_instructions() {
-  //debug_log("start DiGeneralLine::generate_instructions\r\n");
+void IRAM_ATTR DiGeneralLine::generate_instructions(EspCommonCode& common_code) {
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     uint32_t at_jump_table = m_paint_fcn.init_jump_table(m_line_pieces.m_num_pieces);
-    //debug_log("m_line_pieces.m_num_pieces %u\r\n", m_line_pieces.m_num_pieces);
     for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
       DiLinePiece* piece = &m_line_pieces.m_pieces[i];
-      //debug_log("%u x%i y%i w%i\r\n", i, piece->m_x, piece->m_y, piece->m_width);
       m_paint_fcn.align32();
       m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
-      m_paint_fcn.draw_line(piece->m_x, piece->m_width, m_color, false);
+      m_paint_fcn.draw_line(common_code, piece->m_x, piece->m_width, m_color, false);
     }
   }
   m_paint_fcn.align32();
-  //debug_log("end DiGeneralLine::generate_instructions\r\n");
 
   uint8_t cnt = 0;
   uint32_t size = m_paint_fcn.get_code_size();
-  /*debug_log("code size %u", size);
-  for (uint32_t i = 0; i < size; i += 4) {
-    if (!cnt) {
-      debug_log("\r\n%04X: ", i);
-    }
-    uint32_t c = m_paint_fcn.get_code(i);
-    uint32_t c0 = c & 0xFF;
-    uint32_t c1 = (c >> 8) & 0xFF;
-    uint32_t c2 = (c >> 16) & 0xFF;
-    uint32_t c3 = (c >> 24) & 0xFF;
-    debug_log(" %02hX %02hX %02hX %02hX", c0, c1, c2, c3);
-    cnt += 4;
-    if (cnt >= 32) {
-      cnt = 0;
-    }
-  }
-  debug_log("\r\nleave DiGeneralLine::generate_instructions\r\n");*/
 }
 
 void IRAM_ATTR DiGeneralLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
   m_paint_fcn.call(this, p_scan_line, line_index);
-  //debug_log("this=0x%X, code=0x%X, calc=0x%X\r\n", this, m_paint_fcn.get_code_start(), m_future32);
 }

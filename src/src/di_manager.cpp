@@ -300,7 +300,6 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
 
 void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
                                     int32_t old_min_group, int32_t old_max_group) {
-  //debug_log("recompute_primitive id%u\r\n", prim->get_id());
   auto parent = prim->get_parent();
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
     parent->get_view_x_extent(), parent->get_view_y_extent());
@@ -395,14 +394,6 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
       prim->delete_instructions();
     }
   }
-  //debug_log("end recompute_primitive\r\n");
-  /*for (int i = 0; i < 600; i++) {
-    std::vector<DiPrimitive*> * vp = &m_groups[i];
-    for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
-      debug_log("%i %u\r\n", i, (*prim)->get_id());
-    }
-  }
-  debug_log("-----\r\n");*/
 }
 
 DiPrimitive* DiManager::finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {
