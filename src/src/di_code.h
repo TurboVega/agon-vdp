@@ -47,65 +47,63 @@ class EspFunction {
 
     // Pixel-level operations:
 
-    // Ex: X=0, w=1: b[2]=c
     void set_1_pixel_at_offset_0();
-
-    // Ex: X=1, w=1: b[3]=c
     void set_1_pixel_at_offset_1();
-
-    // Ex: X=2, w=1: b[0]=c
     void set_1_pixel_at_offset_2();
-
-    // Ex: X=3, w=1: b[1]=c
     void set_1_pixel_at_offset_3();
-
-    // Ex: X=0, w=2: h[2]=c1c0
     void set_2_pixels_at_offset_0();
-
-    // Ex: X=1, w=2: b[3]=c0; b[0]=c1
     void set_2_pixels_at_offset_1();
-
-    // Ex: X=2, w=2: h[0]=c1c0
     void set_2_pixels_at_offset_2();
-
-    // Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
     void set_3_pixels_at_offset_0();
-
-    // Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
     void set_3_pixels_at_offset_1();
-
-    // Ex: X=0, w=4: w=c1c0c3c2
     void set_4_pixels_at_offset(u_off_t word_offset);
 
-    // Ex: X=0, w=1: db[2]=sb[2]
     void copy_1_pixel_at_offset_0();
-
-    // Ex: X=1, w=1: db[3]=s[3]
     void copy_1_pixel_at_offset_1();
-
-    // Ex: X=2, w=1: db[0]=s[0]
     void copy_1_pixel_at_offset_2();
-
-    // Ex: X=3, w=1: db[1]=s[1]
     void copy_1_pixel_at_offset_3();
-
-    // Ex: X=0, w=2: dh[2]=sh[2]
     void copy_2_pixels_at_offset_0();
-
-    // Ex: X=1, w=2: db[3]=sb[3]; db[0]=sb[0]
     void copy_2_pixels_at_offset_1();
-
-    // Ex: X=2, w=2: dh[0]=sh[0]
     void copy_2_pixels_at_offset_2();
-
-    // Ex: X=0, w=3: dh[2]=sh[2]; db[0]=sb[0]
     void copy_3_pixels_at_offset_0();
-
-    // Ex: X=1, w=3: db[3]=sb[3]; dh[0]=sh[0]
     void copy_3_pixels_at_offset_1();
-
-    // Ex: X=0, w=4: dw=sw
     void copy_4_pixels_at_offset(u_off_t word_offset);
+
+    void blend_25_for_1_pixel_at_offset_0();
+    void blend_25_for_1_pixel_at_offset_1();
+    void blend_25_for_1_pixel_at_offset_2();
+    void blend_25_for_1_pixel_at_offset_3();
+    void blend_25_for_2_pixels_at_offset_0();
+    void blend_25_for_2_pixels_at_offset_1();
+    void blend_25_for_2_pixels_at_offset_2();
+    void blend_25_for_3_pixels_at_offset_0();
+    void blend_25_for_3_pixels_at_offset_1();
+    void blend_25_for_4_pixels_at_offset(u_off_t word_offset);
+    void get_blend_25_for_4_pixels_at_offset(u_off_t word_offset);
+
+    void blend_50_for_1_pixel_at_offset_0();
+    void blend_50_for_1_pixel_at_offset_1();
+    void blend_50_for_1_pixel_at_offset_2();
+    void blend_50_for_1_pixel_at_offset_3();
+    void blend_50_for_2_pixels_at_offset_0();
+    void blend_50_for_2_pixels_at_offset_1();
+    void blend_50_for_2_pixels_at_offset_2();
+    void blend_50_for_3_pixels_at_offset_0();
+    void blend_50_for_3_pixels_at_offset_1();
+    void blend_50_for_4_pixels_at_offset(u_off_t word_offset);
+    void get_blend_50_for_4_pixels_at_offset(u_off_t word_offset);
+
+    void blend_75_for_1_pixel_at_offset_0();
+    void blend_75_for_1_pixel_at_offset_1();
+    void blend_75_for_1_pixel_at_offset_2();
+    void blend_75_for_1_pixel_at_offset_3();
+    void blend_75_for_2_pixels_at_offset_0();
+    void blend_75_for_2_pixels_at_offset_1();
+    void blend_75_for_2_pixels_at_offset_2();
+    void blend_75_for_3_pixels_at_offset_0();
+    void blend_75_for_3_pixels_at_offset_1();
+    void blend_75_for_4_pixels_at_offset(u_off_t word_offset);
+    void get_blend_75_for_4_pixels_at_offset(u_off_t word_offset);
 
     // Ex: X1=27, x2=55, color=0x03
     void draw_pixel(uint32_t x);
@@ -122,8 +120,8 @@ class EspFunction {
     uint32_t begin_data();
     uint32_t init_jump_table(uint32_t num_items);
     void begin_code(uint32_t at_jump);
-    void set_reg_draw_width(uint32_t at_width);
     void set_reg_dst_pixel_ptr(uint32_t at_x);
+    void set_reg_src_pixel_ptr(uint32_t at_src_pixels);
     void call_inner_fcn(uint32_t real_address);
 
     // Utility operations:

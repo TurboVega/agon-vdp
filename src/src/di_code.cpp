@@ -41,8 +41,15 @@
 #define REG_DST_PIXEL_PTR   a5
 #define REG_SRC_PIXEL_PTR   a6
 #define REG_PIXEL_COLOR     a7
-#define REG_DRAW_WIDTH      a8
-#define REG_LOOP_INDEX      a9
+#define REG_LOOP_INDEX      a4
+#define REG_SRC_PIXELS      a8
+#define REG_SRC_BR_PIXELS   a9
+#define REG_DST_BR_PIXELS   a10
+#define REG_SRC_G_PIXELS    a8
+#define REG_DST_G_PIXELS    a11
+#define REG_DOUBLE_COLOR    a12
+#define REG_ISOLATE_BR      a13     // 0x33333333: mask to isolate blue & red, removing green
+#define REG_ISOLATE_G       a14     // 0x0C0C0C0C: mask to isolate green, removing red & blue
 #define REG_SAVE_RETURN     a15
 
 #define FIX_OFFSET(off)    ((off)^2)
@@ -60,90 +67,74 @@ EspFunction::~EspFunction() {
     }
 }
 
-// Ex: X=0, w=1: b[2]=c
 void EspFunction::set_1_pixel_at_offset_0() {
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
 }
 
-// Ex: X=1, w=1: b[3]=c
 void EspFunction::set_1_pixel_at_offset_1() {
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
 }
 
-// Ex: X=2, w=1: b[0]=c
 void EspFunction::set_1_pixel_at_offset_2() {
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
-// Ex: X=3, w=1: b[1]=c
 void EspFunction::set_1_pixel_at_offset_3() {
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
 }
 
-// Ex: X=0, w=2: h[2]=c1c0
 void EspFunction::set_2_pixels_at_offset_0() {
     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
 }
 
-// Ex: X=1, w=2: b[3]=c0; b[0]=c1
 void EspFunction::set_2_pixels_at_offset_1() {
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
-// Ex: X=2, w=2: h[0]=c1c0
 void EspFunction::set_2_pixels_at_offset_2() {
     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
 }
 
-// Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
 void EspFunction::set_3_pixels_at_offset_0() {
     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
-// Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
 void EspFunction::set_3_pixels_at_offset_1() {
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
-// Ex: X=0, w=4: w=c1c0c3c2
 void EspFunction::set_4_pixels_at_offset(u_off_t offset) {
     s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, offset);
 }
 
-// Ex: X=0, w=1: db[2]=sb[2]
 void EspFunction::copy_1_pixel_at_offset_0() {
     l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
 }
 
-// Ex: X=1, w=1: db[3]=s[3]
 void EspFunction::copy_1_pixel_at_offset_1() {
     l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
 }
 
-// Ex: X=2, w=1: db[0]=s[0]
 void EspFunction::copy_1_pixel_at_offset_2() {
     l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
-// Ex: X=3, w=1: db[1]=s[1]
 void EspFunction::copy_1_pixel_at_offset_3() {
     l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(3));
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
 }
 
-// Ex: X=0, w=2: dh[2]=sh[2]
 void EspFunction::copy_2_pixels_at_offset_0() {
     l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
 }
 
-// Ex: X=1, w=2: db[3]=sb[3]; db[0]=sb[0]
 void EspFunction::copy_2_pixels_at_offset_1() {
     l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
@@ -151,13 +142,11 @@ void EspFunction::copy_2_pixels_at_offset_1() {
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
-// Ex: X=2, w=2: dh[0]=sh[0]
 void EspFunction::copy_2_pixels_at_offset_2() {
     l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));    
     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
 }
 
-// Ex: X=0, w=3: dh[2]=sh[2]; db[0]=sb[0]
 void EspFunction::copy_3_pixels_at_offset_0() {
     l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
@@ -165,7 +154,6 @@ void EspFunction::copy_3_pixels_at_offset_0() {
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
-// Ex: X=1, w=3: db[3]=sb[3]; dh[0]=sh[0]
 void EspFunction::copy_3_pixels_at_offset_1() {
     l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));    
     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1)); 
@@ -173,10 +161,170 @@ void EspFunction::copy_3_pixels_at_offset_1() {
     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
 }
 
-// Ex: X=0, w=4: dw=sw
 void EspFunction::copy_4_pixels_at_offset(u_off_t word_offset) {
     l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, word_offset);
     s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset);
+}
+
+void EspFunction::blend_25_for_1_pixel_at_offset_0() {
+}
+
+void EspFunction::blend_25_for_1_pixel_at_offset_1() {
+}
+
+void EspFunction::blend_25_for_1_pixel_at_offset_2() {
+}
+
+void EspFunction::blend_25_for_1_pixel_at_offset_3() {
+}
+
+void EspFunction::blend_25_for_2_pixels_at_offset_0() {
+}
+
+void EspFunction::blend_25_for_2_pixels_at_offset_1() {
+}
+
+void EspFunction::blend_25_for_2_pixels_at_offset_2() {
+}
+
+void EspFunction::blend_25_for_3_pixels_at_offset_0() {
+}
+
+void EspFunction::blend_25_for_3_pixels_at_offset_1() {
+}
+
+void EspFunction::blend_25_for_4_pixels_at_offset(u_off_t word_offset) {
+    get_blend_25_for_4_pixels_at_offset(offset);
+    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // write resulting dst pixels
+}
+
+uint32_t EspFunction::get_blend_25_for_4_pixels_at_offset(u_off_t word_offset) {
+    l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, word_offset); // read 4 src pixels
+    l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // read 4 dst pixels
+
+    and(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
+    and(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
+    slli(REG_DOUBLE_COLOR, REG_DST_BR_PIXELS, 1); // double the dst color values
+    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_DOUBLE_COLOR);  // add dst color values again (total of 3X)
+    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
+    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2); // averages of mixed blue & mixed red, in 4 bits each
+    and(REG_DST_BR_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
+
+    and(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
+    and(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
+    slli(REG_DOUBLE_COLOR, REG_DST_G_PIXELS, 1); // double the dst color values
+    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_DOUBLE_COLOR);  // add dst color values again (total of 3X)
+    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
+    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 4 bits each
+    and(REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
+
+    or(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
+}
+
+void EspFunction::blend_50_for_1_pixel_at_offset_0() {
+}
+
+void EspFunction::blend_50_for_1_pixel_at_offset_1() {
+}
+
+void EspFunction::blend_50_for_1_pixel_at_offset_2() {
+}
+
+void EspFunction::blend_50_for_1_pixel_at_offset_3() {
+}
+
+void EspFunction::blend_50_for_2_pixels_at_offset_0() {
+}
+
+void EspFunction::blend_50_for_2_pixels_at_offset_1() {
+}
+
+void EspFunction::blend_50_for_2_pixels_at_offset_2() {
+}
+
+void EspFunction::blend_50_for_3_pixels_at_offset_0() {
+}
+
+void EspFunction::blend_50_for_3_pixels_at_offset_1() {
+}
+
+void EspFunction::blend_50_for_4_pixels_at_offset(u_off_t word_offset) {
+    get_blend_50_for_4_pixels_at_offset(offset);
+    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // write resulting dst pixels
+}
+
+void EspFunction::get_blend_50_for_4_pixels_at_offset(u_off_t word_offset) {
+    l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, word_offset); // read 4 src pixels
+    l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // read 4 dst pixels
+
+    and(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
+    and(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
+    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
+    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 1); // averages of mixed blue & mixed red, in 3 bits each
+    and(REG_DST_BR_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
+
+    and(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
+    and(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
+    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
+    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 3 bits each
+    and(REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
+
+    or(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
+}
+
+void EspFunction::blend_75_for_1_pixel_at_offset_0() {
+}
+
+void EspFunction::blend_75_for_1_pixel_at_offset_1() {
+}
+
+void EspFunction::blend_75_for_1_pixel_at_offset_2() {
+}
+
+void EspFunction::blend_75_for_1_pixel_at_offset_3() {
+}
+
+void EspFunction::blend_75_for_2_pixels_at_offset_0() {
+}
+
+void EspFunction::blend_75_for_2_pixels_at_offset_1() {
+}
+
+void EspFunction::blend_75_for_2_pixels_at_offset_2() {
+}
+
+void EspFunction::blend_75_for_3_pixels_at_offset_0() {
+}
+
+void EspFunction::blend_75_for_3_pixels_at_offset_1() {
+}
+
+void EspFunction::blend_75_for_4_pixels_at_offset(u_off_t word_offset) {
+    get_blend_75_for_4_pixels_at_offset(offset);
+    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // write resulting dst pixels
+}
+
+void EspFunction::get_blend_75_for_4_pixels_at_offset(u_off_t word_offset) {
+    l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, word_offset); // read 4 src pixels
+    l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // read 4 dst pixels
+
+    and(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
+    and(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
+    slli(REG_DOUBLE_COLOR, REG_SRC_BR_PIXELS, 1); // double the src color values
+    add(REG_SRC_BR_PIXELS, REG_SRC_BR_PIXELS, REG_DOUBLE_COLOR);  // add src color values again (total of 3X)
+    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
+    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2); // averages of mixed blue & mixed red, in 4 bits each
+    and(REG_DST_BR_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
+
+    and(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
+    and(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
+    slli(REG_DOUBLE_COLOR, REG_SRC_G_PIXELS, 1); // double the src color values
+    add(REG_SRC_G_PIXELS, REG_SRC_G_PIXELS, REG_DOUBLE_COLOR);  // add src color values again (total of 3X)
+    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
+    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 4 bits each
+    and(REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
+
+    or(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
 }
 
 // Ex: X1=27, x2=55, color=0x03
@@ -385,22 +533,18 @@ void EspFunction::begin_code(uint32_t at_jump) {
     j_to_here(at_jump);
 }
 
-void EspFunction::set_reg_draw_width(uint32_t at_width) {
-    l32r_from(REG_DRAW_WIDTH, at_width);
-}
-
 void EspFunction::set_reg_dst_pixel_ptr(uint32_t at_x) {
     l32r_from(REG_DST_PIXEL_PTR, at_x);
     add(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, REG_LINE_PTR);
 }
 
-void EspFunction::set_reg_src_pixel_ptr(uint32_t at_x) {
-    l32r_from(REG_SRC_PIXEL_PTR, at_x);
-    add(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, ??);
+void EspFunction::set_reg_src_pixel_ptr(uint32_t at_src_pixels) {
+    l32r_from(REG_SRC_PIXEL_PTR, at_src_pixels);
 }
 
 void EspFunction::call_inner_fcn(uint32_t real_address) {
-
+    uint32_t offset = (get_real_address(get_code_index()) & 0xFFFFFFFC) + 4 - real_address;
+    call0(offset);
 }
 
 void EspFunction::store(uint8_t instr_byte) {
