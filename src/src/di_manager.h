@@ -31,6 +31,7 @@
 #include "di_opaque_bitmap.h"
 #include "di_masked_bitmap.h"
 #include "di_transparent_bitmap.h"
+#include "di_code.h"
 
 typedef void (*DiVoidCallback)();
 
@@ -167,6 +168,7 @@ class DiManager {
     uint8_t                     m_incoming_command[INCOMING_COMMAND_SIZE];
     DiPrimitive *               m_primitives[MAX_NUM_PRIMITIVES]; // Indexes of array are primitive IDs
     std::vector<DiPrimitive*>   m_groups[ACT_LINES]; // Vertical scan groups (for optimizing paint calls)
+    EspCommonCode               m_common_code;
 
     // Setup the DMA stuff.
     void initialize();

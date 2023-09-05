@@ -251,9 +251,10 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
     }
 
     parent->attach_child(prim);
-    while (parent != m_primitives[ROOT_PRIMITIVE_ID] && !(parent->get_flags() & PRIM_FLAG_CLIP_KIDS)) {
-      parent = parent->get_parent();
-    }
+
+//    while (parent != m_primitives[ROOT_PRIMITIVE_ID] && !(parent->get_flags() & PRIM_FLAG_CLIP_KIDS)) {
+//      parent = parent->get_parent();
+//    }
 //    prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
 //      parent->get_view_x_extent(), parent->get_view_y_extent());
 
@@ -301,6 +302,10 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
 void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
                                     int32_t old_min_group, int32_t old_max_group) {
   auto parent = prim->get_parent();
+  while (parent != m_primitives[ROOT_PRIMITIVE_ID] && !(parent->get_flags() & PRIM_FLAG_CLIP_KIDS)) {
+    parent = parent->get_parent();
+  }
+
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
     parent->get_view_x_extent(), parent->get_view_y_extent());
 
@@ -367,7 +372,9 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
       }
 
       prim->add_flags(PRIM_FLAGS_CAN_DRAW);
-      prim->generate_instructions();
+      debug_log("@1a"); delay(100);
+      prim->generate_instructions(m_common_code);
+      debug_log("@1b"); delay(100);
     } else {
       // Just remove primitive from old groups
       for (int32_t g = old_min_group; g <= old_max_group; g++) {
@@ -388,7 +395,9 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
         vp->push_back(prim);
       }
       prim->add_flags(PRIM_FLAGS_CAN_DRAW);
-      prim->generate_instructions();
+      debug_log("@2a"); delay(100);
+      prim->generate_instructions(m_common_code);
+      debug_log("@2b"); delay(100);
     } else {
       prim->remove_flags(PRIM_FLAGS_CAN_DRAW);
       prim->delete_instructions();

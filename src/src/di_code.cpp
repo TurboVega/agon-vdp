@@ -27,6 +27,11 @@
 #include "freertos/FreeRTOS.h"
 #include <string.h>
 
+extern "C" {
+    void delay(uint32_t);
+}
+void debug_log(const char *format, ...);
+
 #define EXTRA_CODE_SIZE 8
 
 EspFunction::EspFunction() {
@@ -66,6 +71,7 @@ void EspFunction::draw_pixel(uint32_t x) {
 
 // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
 void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t width, bool outer_fcn) {
+    debug_log("enter draw_line\n"); delay(100);
     uint32_t at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
@@ -194,10 +200,12 @@ void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t wid
     } else {
         leave_inner_function();
     }
+    debug_log("leave draw_line\n");
 }
 
 uint32_t EspFunction::enter_outer_function() {
     entry(sp, 16);
+    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
     auto at_jump = get_code_index();
     j(0);
     return at_jump;
@@ -210,6 +218,7 @@ uint32_t EspFunction::enter_inner_function() {
 }
 
 void EspFunction::leave_outer_function() {
+    mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
     retw();
 }
 
@@ -234,7 +243,7 @@ uint32_t EspFunction::init_jump_table(uint32_t num_items) {
     /* 24 */ l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
     /* 27 */ callx0(REG_JUMP_ADDRESS);
     /* 30 */ mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
-    /* 33 */ leave_outer_function();
+    /* 33 */ retw();
     /* 36 */ uint32_t at_jump_table = get_code_index();
     for (uint32_t i = 0; i < num_items; i++) {
         /* 36+i*4 */ j(0);
@@ -259,6 +268,7 @@ void EspFunction::set_reg_src_pixel_ptr(uint32_t at_src_pixels) {
 
 void EspFunction::call_inner_fcn(uint32_t real_address) {
     uint32_t offset = (get_real_address(get_code_index()) & 0xFFFFFFFC) + 4 - real_address;
+    debug_log("(here=%X, call address=%X, offset=%X)\n", get_real_address(get_code_index()), real_address, offset);
     call0(offset);
 }
 
@@ -325,14 +335,16 @@ void EspFunction::allocate(uint32_t size) {
         if (m_alloc_size - m_code_index < size) {
             size_t new_size = (size_t)(m_alloc_size + size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
             void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
+            debug_log("alloc %X\n", p); delay(100); while (!p);
             memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);
             heap_caps_free(m_code);
             m_alloc_size = (uint32_t)new_size;
             m_code = (uint32_t*)p;
         }
     } else {
-        size_t new_size = (size_t)(size + EXTRA_CODE_SIZE);
+        size_t new_size = (size_t)(size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
         void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
+        debug_log("alloc %X\n", p); delay(100); while (!p);
         m_alloc_size = (uint32_t)new_size;
         m_code = (uint32_t*)p;
     }
@@ -341,7 +353,7 @@ void EspFunction::allocate(uint32_t size) {
 uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
     allocate(1);
     auto at_data = get_code_index();
-    //debug_log("%04hX: %02hX       %s\n", at_data, data & 0xFF, mnemonic);
+    debug_log("%04hX: %02hX       %s\n", at_data, data & 0xFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     return at_data;
 }
@@ -349,7 +361,7 @@ uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
     allocate(2);
     auto at_data = get_code_index();
-    //debug_log("%04hX: %04hX     %s\n", at_data, data & 0xFFFF, mnemonic);
+    debug_log("%04hX: %04hX     %s\n", at_data, data & 0xFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     return at_data;
@@ -358,7 +370,7 @@ uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
     allocate(3);
     auto at_data = get_code_index();
-    //debug_log("%04hX: %06X   %s\n", at_data, data & 0xFFFFFF, mnemonic);
+    debug_log("%04hX: %06X   %s\n", at_data, data & 0xFFFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
@@ -368,7 +380,7 @@ uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
     allocate(4);
     auto at_data = get_code_index();
-    //debug_log("%04hX: %08X %s\n", at_data, data & 0xFFFFFF, mnemonic);
+    debug_log("%04hX: %08X %s\n", at_data, data & 0xFFFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
@@ -391,6 +403,8 @@ instr_t isieo(uint32_t instr, reg_t src, int32_t imm, u_off_t offset) {
 //------------------------------------
 
 EspCommonCode::EspCommonCode() {
+    memset(&m_fcn_draw_128_pixels_in_loop, 0, 14*4);
+    return;
     align32();
     m_fcn_draw_128_pixels_in_loop = get_code_index();
     auto at_loop = get_code_index();
@@ -434,6 +448,8 @@ EspCommonCode::EspCommonCode() {
     loop(REG_LOOP_INDEX, save_pc - (at_loop + 4));
     set_code_index(save_pc);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_128_pixels_in_loop, %u bytes ",
+                m_fcn_draw_128_pixels_in_loop, get_code_index() -  m_fcn_draw_128_pixels_in_loop);
 
     align32();
     m_fcn_draw_128_pixels = get_code_index();
@@ -472,6 +488,8 @@ EspCommonCode::EspCommonCode() {
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_128_pixels, %u bytes ",
+                m_fcn_draw_128_pixels, get_code_index() -  m_fcn_draw_128_pixels);
 
     align32();
     m_fcn_draw_128_pixels_last = get_code_index();
@@ -508,6 +526,8 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(120);
     set_4_pixels_at_offset(124);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_128_pixels_last, %u bytes ",
+                m_fcn_draw_128_pixels_last, get_code_index() -  m_fcn_draw_128_pixels_last);
 
     align32();
     m_fcn_draw_64_pixels = get_code_index();
@@ -529,6 +549,8 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(60);
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_64_pixels, %u bytes ",
+                m_fcn_draw_64_pixels, get_code_index() -  m_fcn_draw_64_pixels);
 
     align32();
     m_fcn_draw_64_pixels_last = get_code_index();
@@ -549,6 +571,8 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(56);
     set_4_pixels_at_offset(60);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_64_pixels_last, %u bytes ",
+                m_fcn_draw_64_pixels_last, get_code_index() -  m_fcn_draw_64_pixels_last);
 
     align32();
     m_fcn_draw_32_pixels = get_code_index();
@@ -562,6 +586,8 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(28);
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_32_pixels, %u bytes ",
+                m_fcn_draw_32_pixels, get_code_index() -  m_fcn_draw_32_pixels);
 
     align32();
     m_fcn_draw_32_pixels_last = get_code_index();
@@ -574,6 +600,8 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(24);
     set_4_pixels_at_offset(28);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_32_pixels_last, %u bytes ",
+                m_fcn_draw_32_pixels_last, get_code_index() -  m_fcn_draw_32_pixels_last);
 
     align32();
     m_fcn_draw_16_pixels = get_code_index();
@@ -583,6 +611,8 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(12);
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_16_pixels, %u bytes ",
+                m_fcn_draw_16_pixels, get_code_index() -  m_fcn_draw_16_pixels);
 
     align32();
     m_fcn_draw_16_pixels_last = get_code_index();
@@ -591,6 +621,8 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(8);
     set_4_pixels_at_offset(12);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_16_pixels_last, %u bytes ",
+                m_fcn_draw_16_pixels_last, get_code_index() -  m_fcn_draw_16_pixels_last);
 
     align32();
     m_fcn_draw_8_pixels = get_code_index();
@@ -598,12 +630,16 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(4);
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_8_pixels, %u bytes ",
+                m_fcn_draw_8_pixels, get_code_index() -  m_fcn_draw_8_pixels);
 
     align32();
     m_fcn_draw_8_pixels_last = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
     leave_inner_function();
+    debug_log("[%08X] m_fcn_draw_8_pixels_last, %u bytes ",
+                m_fcn_draw_8_pixels_last, get_code_index() -  m_fcn_draw_8_pixels_last);
 
     align32();
     m_get_blend_25_for_4_pixels = get_code_index();
@@ -623,6 +659,8 @@ EspCommonCode::EspCommonCode() {
     and_bw(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
     or_bw(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
     leave_inner_function();
+    debug_log("[%08X] m_get_blend_25_for_4_pixels, %u bytes ",
+                m_get_blend_25_for_4_pixels, get_code_index() -  m_get_blend_25_for_4_pixels);
 
     align32();
     m_get_blend_50_for_4_pixels = get_code_index();
@@ -638,6 +676,8 @@ EspCommonCode::EspCommonCode() {
     and_bw(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
     or_bw(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
     leave_inner_function();
+    debug_log("[%08X] m_get_blend_50_for_4_pixels, %u bytes ",
+                m_get_blend_50_for_4_pixels, get_code_index() -  m_get_blend_50_for_4_pixels);
 
     align32();
     m_get_blend_75_for_4_pixels = get_code_index();
@@ -657,4 +697,6 @@ EspCommonCode::EspCommonCode() {
     and_bw(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
     or_bw(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
     leave_inner_function();
+    debug_log("[%08X] m_get_blend_75_for_4_pixels, %u bytes ",
+                m_get_blend_75_for_4_pixels, get_code_index() -  m_get_blend_75_for_4_pixels);
 }

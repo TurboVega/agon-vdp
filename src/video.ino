@@ -144,16 +144,18 @@ void otf(void * pvParameters) {
 	videoMode = 19;
 	di_manager = new DiManager();
 
-	di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00);
+	//di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00);
 
 	di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x20);
-	di_manager->create_solid_rectangle(241, ROOT_PRIMITIVE_ID, 1, 50, 50, 700, 500, 0x04);
-	di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 100, 100, 600, 400, 0x01);
-	di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 300, 0x33);
-	di_manager->create_solid_rectangle(244, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
-	di_manager->create_solid_rectangle(245, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);
+	//di_manager->create_solid_rectangle(241, ROOT_PRIMITIVE_ID, 1, 50, 50, 700, 500, 0x04);
+	//di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 100, 100, 600, 400, 0x01);
+	//di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 300, 0x33);
+	//di_manager->create_solid_rectangle(244, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
+	//di_manager->create_solid_rectangle(245, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
+
+	di_manager->create_point(246, ROOT_PRIMITIVE_ID, 0x01, 45, 72, 0x2C);
 
 	//di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
 	//	0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
@@ -174,7 +176,7 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_primitive_group(221, ROOT_PRIMITIVE_ID, 0, 400, 300);
 
-    double twopi = PI*2.0;
+    /*double twopi = PI*2.0;
 
 	for (int c = 0; c<32; c++) {
 		double a1 = twopi * c / 64.0;
@@ -230,7 +232,7 @@ void otf(void * pvParameters) {
 
 		di_manager->create_triangle(20+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c);
 		di_manager->create_triangle(21+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c);
-	}
+	}*/
 
 	/*auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
 	int i = 0;
@@ -275,7 +277,7 @@ void setup() {
 	//boot_screen();
 
 	TaskHandle_t xHandle = NULL;
-	xTaskCreatePinnedToCore(otf, "OTF-MODE", 3000, NULL,
+	xTaskCreatePinnedToCore(otf, "OTF-MODE", 4000, NULL,
 							OTF_MANAGER_PRIORITY, &xHandle, 1); // Core #1
 }
 
