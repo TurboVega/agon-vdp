@@ -71,7 +71,7 @@ void EspFunction::draw_pixel(uint32_t x) {
 
 // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
 void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t width, bool outer_fcn) {
-    debug_log("enter draw_line\n"); delay(100);
+    debug_log("enter draw_line\n");
     uint32_t at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
@@ -158,7 +158,7 @@ void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t wid
                 } else if (width == 2) {
                     set_2_pixels_at_offset_0();
                     sub = 2;
-                } else /* width == 1 */ {
+                } else { // width == 1
                     set_1_pixel_at_offset_0();
                 }
                 break;
@@ -170,7 +170,7 @@ void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t wid
                 } else if (width == 2) {
                     set_2_pixels_at_offset_1();
                     sub = 2;
-                } else /* width == 1 */ {
+                } else { // width == 1
                     set_1_pixel_at_offset_1();
                 }
                 break;
@@ -179,7 +179,7 @@ void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t wid
                 if (width >= 2) {
                     set_2_pixels_at_offset_2();
                     sub = 2;
-                } else /* width == 1 */ {
+                } else { // width == 1
                     set_1_pixel_at_offset_2();
                 }
                 break;
@@ -269,6 +269,7 @@ void EspFunction::set_reg_src_pixel_ptr(uint32_t at_src_pixels) {
 void EspFunction::call_inner_fcn(uint32_t real_address) {
     uint32_t offset = (get_real_address(get_code_index()) & 0xFFFFFFFC) + 4 - real_address;
     debug_log("(here=%X, call address=%X, offset=%X)\n", get_real_address(get_code_index()), real_address, offset);
+    return;
     call0(offset);
 }
 
@@ -276,16 +277,24 @@ void EspFunction::store(uint8_t instr_byte) {
     auto i = m_code_index >> 2;
     switch (m_code_index & 3) {
         case 0:
+debug_log("store @%i\n", __LINE__);
             m_code[i] = (m_code[i] & 0xFFFFFF00) | (uint32_t)instr_byte;
+debug_log("store @%i\n", __LINE__);
             break;
         case 1:
+debug_log("store @%i\n", __LINE__);
             m_code[i] = (m_code[i] & 0xFFFF00FF) |((uint32_t)instr_byte) << 8;
+debug_log("store @%i\n", __LINE__);
             break;
         case 2:
+debug_log("store @%i\n", __LINE__);
             m_code[i] = (m_code[i] & 0xFF00FFFF) |((uint32_t)instr_byte) << 16;
+debug_log("store @%i\n", __LINE__);
             break;
         case 3:
+debug_log("store @%i\n", __LINE__);
             m_code[i] = (m_code[i] & 0x00FFFFFF) |((uint32_t)instr_byte) << 24;
+debug_log("store @%i\n", __LINE__);
             break;
     }
 
@@ -335,7 +344,7 @@ void EspFunction::allocate(uint32_t size) {
         if (m_alloc_size - m_code_index < size) {
             size_t new_size = (size_t)(m_alloc_size + size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
             void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-            debug_log("alloc %X\n", p); delay(100); while (!p);
+            debug_log("2. alloc %X, size %u\n", p, new_size);
             memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);
             heap_caps_free(m_code);
             m_alloc_size = (uint32_t)new_size;
@@ -344,7 +353,7 @@ void EspFunction::allocate(uint32_t size) {
     } else {
         size_t new_size = (size_t)(size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
         void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-        debug_log("alloc %X\n", p); delay(100); while (!p);
+        debug_log("1. alloc %X, size %u\n", p, new_size);
         m_alloc_size = (uint32_t)new_size;
         m_code = (uint32_t*)p;
     }
@@ -368,12 +377,19 @@ uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
 }
 
 uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
+debug_log("@%i\n", __LINE__);
     allocate(3);
+debug_log("@%i\n", __LINE__);
     auto at_data = get_code_index();
+debug_log("@%i\n", __LINE__);
     debug_log("%04hX: %06X   %s\n", at_data, data & 0xFFFFFF, mnemonic);
+debug_log("@%i\n", __LINE__);
     store((uint8_t)(data & 0xFF));
+debug_log("@%i\n", __LINE__);
     store((uint8_t)((data >> 8) & 0xFF));
+debug_log("@%i\n", __LINE__);
     store((uint8_t)((data >> 16) & 0xFF));
+debug_log("@%i\n", __LINE__);
     return at_data;
 }
 
@@ -402,14 +418,22 @@ instr_t isieo(uint32_t instr, reg_t src, int32_t imm, u_off_t offset) {
 
 //------------------------------------
 
-EspCommonCode::EspCommonCode() {
-    memset(&m_fcn_draw_128_pixels_in_loop, 0, 14*4);
-    return;
+EspCommonCode::EspCommonCode() {}
+
+void EspCommonCode::initialize() {
+    debug_log("enter EspCommonCode::initialize 2\n");
+    debug_log("-- here --\n");
+debug_log("@%i\n", __LINE__);
     align32();
+debug_log("@%i\n", __LINE__);
     m_fcn_draw_128_pixels_in_loop = get_code_index();
+debug_log("@%i\n", __LINE__);
     auto at_loop = get_code_index();
+debug_log("@%i\n", __LINE__);
     loop(REG_LOOP_INDEX, 0);
+debug_log("@%i\n", __LINE__);
     set_4_pixels_at_offset(0);
+debug_log("@%i\n", __LINE__);
     set_4_pixels_at_offset(4);
     set_4_pixels_at_offset(8);
     set_4_pixels_at_offset(12);
@@ -441,15 +465,23 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(116);
     set_4_pixels_at_offset(120);
     set_4_pixels_at_offset(124);
+debug_log("@%i\n", __LINE__);
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
+debug_log("@%i\n", __LINE__);
     uint32_t save_pc = get_code_index();
+debug_log("@%i\n", __LINE__);
     set_code_index(at_loop);
+debug_log("@%i\n", __LINE__);
     loop(REG_LOOP_INDEX, save_pc - (at_loop + 4));
+debug_log("@%i\n", __LINE__);
     set_code_index(save_pc);
+debug_log("@%i\n", __LINE__);
     leave_inner_function();
+debug_log("@%i\n", __LINE__);
     debug_log("[%08X] m_fcn_draw_128_pixels_in_loop, %u bytes ",
                 m_fcn_draw_128_pixels_in_loop, get_code_index() -  m_fcn_draw_128_pixels_in_loop);
+debug_log("@%i\n", __LINE__);
 
     align32();
     m_fcn_draw_128_pixels = get_code_index();
@@ -699,4 +731,5 @@ EspCommonCode::EspCommonCode() {
     leave_inner_function();
     debug_log("[%08X] m_get_blend_75_for_4_pixels, %u bytes ",
                 m_get_blend_75_for_4_pixels, get_code_index() -  m_get_blend_75_for_4_pixels);
+    debug_log("enter EspCommonCode::initialize\n");
 }

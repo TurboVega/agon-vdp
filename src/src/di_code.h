@@ -558,6 +558,8 @@ class EspFunction {
 class EspCommonCode: public EspFunction {
     public:
     EspCommonCode();
+    void initialize();
+
     inline uint32_t get_fcn_draw_128_pixels_in_loop() { return get_real_address(m_fcn_draw_128_pixels_in_loop); }
     inline uint32_t get_fcn_draw_128_pixels() { return get_real_address(m_fcn_draw_128_pixels); }
     inline uint32_t get_fcn_draw_128_pixels_last() { return get_real_address(m_fcn_draw_128_pixels_last); }

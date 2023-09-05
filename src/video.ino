@@ -146,7 +146,7 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00);
 
-	di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x20);
+	//di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x20);
 	//di_manager->create_solid_rectangle(241, ROOT_PRIMITIVE_ID, 1, 50, 50, 700, 500, 0x04);
 	//di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 100, 100, 600, 400, 0x01);
 	//di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 300, 0x33);
