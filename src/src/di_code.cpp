@@ -29,31 +29,6 @@
 
 #define EXTRA_CODE_SIZE 8
 
-// Input registers:
-#define REG_RETURN_ADDR     a0
-#define REG_STACK_PTR       a1
-#define REG_THIS_PTR        a2
-#define REG_LINE_PTR        a3
-#define REG_LINE_INDEX      a4
-// Temporary registers:
-#define REG_ABS_Y           a6
-#define REG_JUMP_ADDRESS    a5
-#define REG_DST_PIXEL_PTR   a5
-#define REG_SRC_PIXEL_PTR   a6
-#define REG_PIXEL_COLOR     a7
-#define REG_LOOP_INDEX      a4
-#define REG_SRC_PIXELS      a8
-#define REG_SRC_BR_PIXELS   a9
-#define REG_DST_BR_PIXELS   a10
-#define REG_SRC_G_PIXELS    a8
-#define REG_DST_G_PIXELS    a11
-#define REG_DOUBLE_COLOR    a12
-#define REG_ISOLATE_BR      a13     // 0x33333333: mask to isolate blue & red, removing green
-#define REG_ISOLATE_G       a14     // 0x0C0C0C0C: mask to isolate green, removing red & blue
-#define REG_SAVE_RETURN     a15
-
-#define FIX_OFFSET(off)    ((off)^2)
-
 EspFunction::EspFunction() {
     m_alloc_size = 0;
     m_code_size = 0;
@@ -65,266 +40,6 @@ EspFunction::~EspFunction() {
     if (m_code) {
         heap_caps_free(m_code);
     }
-}
-
-void EspFunction::set_1_pixel_at_offset_0() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-}
-
-void EspFunction::set_1_pixel_at_offset_1() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-}
-
-void EspFunction::set_1_pixel_at_offset_2() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-}
-
-void EspFunction::set_1_pixel_at_offset_3() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
-}
-
-void EspFunction::set_2_pixels_at_offset_0() {
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-}
-
-void EspFunction::set_2_pixels_at_offset_1() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-}
-
-void EspFunction::set_2_pixels_at_offset_2() {
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
-}
-
-void EspFunction::set_3_pixels_at_offset_0() {
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-}
-
-void EspFunction::set_3_pixels_at_offset_1() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-}
-
-void EspFunction::set_4_pixels_at_offset(u_off_t offset) {
-    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, offset);
-}
-
-void EspFunction::copy_1_pixel_at_offset_0() {
-    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-}
-
-void EspFunction::copy_1_pixel_at_offset_1() {
-    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-}
-
-void EspFunction::copy_1_pixel_at_offset_2() {
-    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-}
-
-void EspFunction::copy_1_pixel_at_offset_3() {
-    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(3));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
-}
-
-void EspFunction::copy_2_pixels_at_offset_0() {
-    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-}
-
-void EspFunction::copy_2_pixels_at_offset_1() {
-    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-}
-
-void EspFunction::copy_2_pixels_at_offset_2() {
-    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));    
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
-}
-
-void EspFunction::copy_3_pixels_at_offset_0() {
-    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-}
-
-void EspFunction::copy_3_pixels_at_offset_1() {
-    l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));    
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1)); 
-    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-}
-
-void EspFunction::copy_4_pixels_at_offset(u_off_t word_offset) {
-    l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, word_offset);
-    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset);
-}
-
-void EspFunction::blend_25_for_1_pixel_at_offset_0() {
-}
-
-void EspFunction::blend_25_for_1_pixel_at_offset_1() {
-}
-
-void EspFunction::blend_25_for_1_pixel_at_offset_2() {
-}
-
-void EspFunction::blend_25_for_1_pixel_at_offset_3() {
-}
-
-void EspFunction::blend_25_for_2_pixels_at_offset_0() {
-}
-
-void EspFunction::blend_25_for_2_pixels_at_offset_1() {
-}
-
-void EspFunction::blend_25_for_2_pixels_at_offset_2() {
-}
-
-void EspFunction::blend_25_for_3_pixels_at_offset_0() {
-}
-
-void EspFunction::blend_25_for_3_pixels_at_offset_1() {
-}
-
-void EspFunction::blend_25_for_4_pixels_at_offset(u_off_t word_offset) {
-    get_blend_25_for_4_pixels_at_offset(offset);
-    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // write resulting dst pixels
-}
-
-uint32_t EspFunction::get_blend_25_for_4_pixels_at_offset(u_off_t word_offset) {
-    l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, word_offset); // read 4 src pixels
-    l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // read 4 dst pixels
-
-    and(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
-    and(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
-    slli(REG_DOUBLE_COLOR, REG_DST_BR_PIXELS, 1); // double the dst color values
-    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_DOUBLE_COLOR);  // add dst color values again (total of 3X)
-    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
-    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2); // averages of mixed blue & mixed red, in 4 bits each
-    and(REG_DST_BR_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
-
-    and(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
-    and(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
-    slli(REG_DOUBLE_COLOR, REG_DST_G_PIXELS, 1); // double the dst color values
-    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_DOUBLE_COLOR);  // add dst color values again (total of 3X)
-    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
-    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 4 bits each
-    and(REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
-
-    or(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
-}
-
-void EspFunction::blend_50_for_1_pixel_at_offset_0() {
-}
-
-void EspFunction::blend_50_for_1_pixel_at_offset_1() {
-}
-
-void EspFunction::blend_50_for_1_pixel_at_offset_2() {
-}
-
-void EspFunction::blend_50_for_1_pixel_at_offset_3() {
-}
-
-void EspFunction::blend_50_for_2_pixels_at_offset_0() {
-}
-
-void EspFunction::blend_50_for_2_pixels_at_offset_1() {
-}
-
-void EspFunction::blend_50_for_2_pixels_at_offset_2() {
-}
-
-void EspFunction::blend_50_for_3_pixels_at_offset_0() {
-}
-
-void EspFunction::blend_50_for_3_pixels_at_offset_1() {
-}
-
-void EspFunction::blend_50_for_4_pixels_at_offset(u_off_t word_offset) {
-    get_blend_50_for_4_pixels_at_offset(offset);
-    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // write resulting dst pixels
-}
-
-void EspFunction::get_blend_50_for_4_pixels_at_offset(u_off_t word_offset) {
-    l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, word_offset); // read 4 src pixels
-    l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // read 4 dst pixels
-
-    and(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
-    and(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
-    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
-    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 1); // averages of mixed blue & mixed red, in 3 bits each
-    and(REG_DST_BR_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
-
-    and(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
-    and(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
-    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
-    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 3 bits each
-    and(REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
-
-    or(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
-}
-
-void EspFunction::blend_75_for_1_pixel_at_offset_0() {
-}
-
-void EspFunction::blend_75_for_1_pixel_at_offset_1() {
-}
-
-void EspFunction::blend_75_for_1_pixel_at_offset_2() {
-}
-
-void EspFunction::blend_75_for_1_pixel_at_offset_3() {
-}
-
-void EspFunction::blend_75_for_2_pixels_at_offset_0() {
-}
-
-void EspFunction::blend_75_for_2_pixels_at_offset_1() {
-}
-
-void EspFunction::blend_75_for_2_pixels_at_offset_2() {
-}
-
-void EspFunction::blend_75_for_3_pixels_at_offset_0() {
-}
-
-void EspFunction::blend_75_for_3_pixels_at_offset_1() {
-}
-
-void EspFunction::blend_75_for_4_pixels_at_offset(u_off_t word_offset) {
-    get_blend_75_for_4_pixels_at_offset(offset);
-    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // write resulting dst pixels
-}
-
-void EspFunction::get_blend_75_for_4_pixels_at_offset(u_off_t word_offset) {
-    l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, word_offset); // read 4 src pixels
-    l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset); // read 4 dst pixels
-
-    and(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
-    and(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
-    slli(REG_DOUBLE_COLOR, REG_SRC_BR_PIXELS, 1); // double the src color values
-    add(REG_SRC_BR_PIXELS, REG_SRC_BR_PIXELS, REG_DOUBLE_COLOR);  // add src color values again (total of 3X)
-    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
-    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2); // averages of mixed blue & mixed red, in 4 bits each
-    and(REG_DST_BR_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
-
-    and(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
-    and(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
-    slli(REG_DOUBLE_COLOR, REG_SRC_G_PIXELS, 1); // double the src color values
-    add(REG_SRC_G_PIXELS, REG_SRC_G_PIXELS, REG_DOUBLE_COLOR);  // add src color values again (total of 3X)
-    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
-    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 4 bits each
-    and(REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
-
-    or(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
 }
 
 // Ex: X1=27, x2=55, color=0x03
@@ -676,6 +391,7 @@ instr_t isieo(uint32_t instr, reg_t src, int32_t imm, u_off_t offset) {
 //------------------------------------
 
 EspCommonCode::EspCommonCode() {
+    align32();
     m_fcn_draw_128_pixels_in_loop = get_code_index();
     auto at_loop = get_code_index();
     loop(REG_LOOP_INDEX, 0);
@@ -719,6 +435,7 @@ EspCommonCode::EspCommonCode() {
     set_code_index(save_pc);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_128_pixels = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
@@ -756,6 +473,7 @@ EspCommonCode::EspCommonCode() {
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_128_pixels_last = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
@@ -791,6 +509,7 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(124);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_64_pixels = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
@@ -811,6 +530,7 @@ EspCommonCode::EspCommonCode() {
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_64_pixels_last = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
@@ -830,6 +550,7 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(60);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_32_pixels = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
@@ -842,6 +563,7 @@ EspCommonCode::EspCommonCode() {
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_32_pixels_last = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
@@ -853,6 +575,7 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(28);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_16_pixels = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
@@ -861,6 +584,7 @@ EspCommonCode::EspCommonCode() {
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_16_pixels_last = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
@@ -868,14 +592,69 @@ EspCommonCode::EspCommonCode() {
     set_4_pixels_at_offset(12);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_8_pixels = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8);
     leave_inner_function();
 
+    align32();
     m_fcn_draw_8_pixels_last = get_code_index();
     set_4_pixels_at_offset(0);
     set_4_pixels_at_offset(4);
+    leave_inner_function();
+
+    align32();
+    m_get_blend_25_for_4_pixels = get_code_index();
+    and_bw(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
+    and_bw(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
+    slli(REG_DOUBLE_COLOR, REG_DST_BR_PIXELS, 1); // double the dst color values
+    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_DOUBLE_COLOR);  // add dst color values again (total of 3X)
+    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
+    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2); // averages of mixed blue & mixed red, in 4 bits each
+    and_bw(REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
+    and_bw(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
+    and_bw(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
+    slli(REG_DOUBLE_COLOR, REG_DST_G_PIXELS, 1); // double the dst color values
+    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_DOUBLE_COLOR);  // add dst color values again (total of 3X)
+    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
+    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 4 bits each
+    and_bw(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
+    or_bw(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
+    leave_inner_function();
+
+    align32();
+    m_get_blend_50_for_4_pixels = get_code_index();
+    and_bw(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
+    and_bw(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
+    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
+    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 1); // averages of mixed blue & mixed red, in 3 bits each
+    and_bw(REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
+    and_bw(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
+    and_bw(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
+    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
+    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 3 bits each
+    and_bw(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
+    or_bw(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
+    leave_inner_function();
+
+    align32();
+    m_get_blend_75_for_4_pixels = get_code_index();
+    and_bw(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
+    and_bw(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
+    slli(REG_DOUBLE_COLOR, REG_SRC_BR_PIXELS, 1); // double the src color values
+    add(REG_SRC_BR_PIXELS, REG_SRC_BR_PIXELS, REG_DOUBLE_COLOR);  // add src color values again (total of 3X)
+    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
+    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2); // averages of mixed blue & mixed red, in 4 bits each
+    and_bw(REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
+    and_bw(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
+    and_bw(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
+    slli(REG_DOUBLE_COLOR, REG_SRC_G_PIXELS, 1); // double the src color values
+    add(REG_SRC_G_PIXELS, REG_SRC_G_PIXELS, REG_DOUBLE_COLOR);  // add src color values again (total of 3X)
+    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
+    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 4 bits each
+    and_bw(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
+    or_bw(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
     leave_inner_function();
 }
