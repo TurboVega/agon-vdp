@@ -25,31 +25,6 @@
 
 #include <stdint.h>
 
-// Input registers:
-#define REG_RETURN_ADDR     a0
-#define REG_STACK_PTR       a1
-#define REG_THIS_PTR        a2
-#define REG_LINE_PTR        a3
-#define REG_LINE_INDEX      a4
-// Temporary registers:
-#define REG_ABS_Y           a6
-#define REG_JUMP_ADDRESS    a5
-#define REG_DST_PIXEL_PTR   a5
-#define REG_SRC_PIXEL_PTR   a6
-#define REG_PIXEL_COLOR     a7
-#define REG_LOOP_INDEX      a4
-#define REG_SRC_PIXELS      a8
-#define REG_SRC_BR_PIXELS   a9
-#define REG_DST_BR_PIXELS   a10
-#define REG_SRC_G_PIXELS    a8
-#define REG_DST_G_PIXELS    a11
-#define REG_DOUBLE_COLOR    a12
-#define REG_ISOLATE_BR      a13     // 0x33333333: mask to isolate blue & red, removing green
-#define REG_ISOLATE_G       a14     // 0x0C0C0C0C: mask to isolate green, removing red & blue
-#define REG_SAVE_RETURN     a15
-
-#define FIX_OFFSET(off)    ((off)^2)
-
 typedef enum {
     a0 = 0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15,
     ra = 0, sp = 1
@@ -63,8 +38,6 @@ extern "C" {
 typedef void (*CallEspFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index);
 };
 
-class EspCommonCode;
-
 class EspFunction {
     public:
     EspFunction();
@@ -72,332 +45,38 @@ class EspFunction {
 
     // Pixel-level operations:
 
-    inline void set_1_pixel_at_offset_0() {
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-    }
+    // Ex: X=0, w=1: b[2]=c
+    void set_1_pixel_at_offset_0();
 
-    inline void set_1_pixel_at_offset_1() {
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-    }
+    // Ex: X=1, w=1: b[3]=c
+    void set_1_pixel_at_offset_1();
 
-    inline void set_1_pixel_at_offset_2() {
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-    }
+    // Ex: X=2, w=1: b[0]=c
+    void set_1_pixel_at_offset_2();
 
-    inline void set_1_pixel_at_offset_3() {
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
-    }
+    // Ex: X=3, w=1: b[1]=c
+    void set_1_pixel_at_offset_3();
 
-    inline void set_2_pixels_at_offset_0() {
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-    }
+    // Ex: X=0, w=2: h[2]=c1c0
+    void set_2_pixels_at_offset_0();
 
-    inline void set_2_pixels_at_offset_1() {
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-    }
+    // Ex: X=1, w=2: b[3]=c0; b[0]=c1
+    void set_2_pixels_at_offset_1();
 
-    inline void set_2_pixels_at_offset_2() {
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
-    }
+    // Ex: X=2, w=2: h[0]=c1c0
+    void set_2_pixels_at_offset_2();
 
-    inline void set_3_pixels_at_offset_0() {
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-    }
+    // Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
+    void set_3_pixels_at_offset_0();
 
-    inline void set_3_pixels_at_offset_1() {
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-    }
+    // Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
+    void set_3_pixels_at_offset_1();
 
-    inline void set_4_pixels_at_offset(u_off_t offset) {
-        s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, offset);
-    }
+    // Ex: X=0, w=4: w=c1c0c3c2
+    void set_4_pixels_at_offset(u_off_t word_offset);
 
-    inline void copy_1_pixel_at_offset_0() {
-        l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-    }
-
-    inline void copy_1_pixel_at_offset_1() {
-        l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-    }
-
-    inline void copy_1_pixel_at_offset_2() {
-        l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-    }
-
-    inline void copy_1_pixel_at_offset_3() {
-        l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(3));
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
-    }
-
-    inline void copy_2_pixels_at_offset_0() {
-        l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-    }
-
-    inline void copy_2_pixels_at_offset_1() {
-        l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-        l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-    }
-
-    inline void copy_2_pixels_at_offset_2() {
-        l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));    
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
-    }
-
-    inline void copy_3_pixels_at_offset_0() {
-        l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-        l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-    }
-
-    inline void copy_3_pixels_at_offset_1() {
-        l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));    
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1)); 
-        l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-    }
-
-    inline void copy_4_pixels_at_offset(u_off_t word_offset) {
-        l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, word_offset);
-        s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, word_offset);
-    }
-
-    // In REG_PIXEL_COLOR
-    // 31..24 23..16 15..08 07..00
-    // pixel1 pixel0 pixel3 pixel2
-
-    #define blend_25_for_1_pixel_at_offset_0(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 16); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+0));
-
-    #define blend_25_for_1_pixel_at_offset_1(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 24); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+1));
-
-    #define blend_25_for_1_pixel_at_offset_2(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels()); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2));
-
-    #define blend_25_for_1_pixel_at_offset_3(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 8); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+3));
-
-    #define blend_25_for_2_pixels_at_offset_0(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 16); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+0));
-
-    #define blend_25_for_2_pixels_at_offset_1(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels()); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2)); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 24); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+1));
-
-    #define blend_25_for_2_pixels_at_offset_2(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels(); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2));
-
-    #define blend_25_for_3_pixels_at_offset_0(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels()); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2)); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 16); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+0));
-
-    #define blend_25_for_3_pixels_at_offset_1(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels()); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2)); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 24); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+1));
-
-    #define blend_25_for_4_pixels_at_offset(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_25_for_4_pixels()); \
-        s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)));
-
-    // In REG_PIXEL_COLOR
-    // 31..24 23..16 15..08 07..00
-    // pixel1 pixel0 pixel3 pixel2
-
-    #define blend_50_for_1_pixel_at_offset_0(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 16); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+0));
-
-    #define blend_50_for_1_pixel_at_offset_1(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 24); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+1));
-
-    #define blend_50_for_1_pixel_at_offset_2(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels()); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2));
-
-    #define blend_50_for_1_pixel_at_offset_3(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 8); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+3));
-
-    #define blend_50_for_2_pixels_at_offset_0(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 16); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+0));
-
-    #define blend_50_for_2_pixels_at_offset_1(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels()); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2)); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 24); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+1));
-
-    #define blend_50_for_2_pixels_at_offset_2(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels(); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2));
-
-    #define blend_50_for_3_pixels_at_offset_0(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels()); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2)); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 16); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+0));
-
-    #define blend_50_for_3_pixels_at_offset_1(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels()); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2)); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 24); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+1));
-
-    #define blend_50_for_4_pixels_at_offset(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_50_for_4_pixels()); \
-        s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)));
-
-    // In REG_PIXEL_COLOR
-    // 31..24 23..16 15..08 07..00
-    // pixel1 pixel0 pixel3 pixel2
-
-    #define blend_75_for_1_pixel_at_offset_0(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 16); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+0));
-
-    #define blend_75_for_1_pixel_at_offset_1(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 24); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+1));
-
-    #define blend_75_for_1_pixel_at_offset_2(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels()); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2));
-
-    #define blend_75_for_1_pixel_at_offset_3(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 8); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+3));
-
-    #define blend_75_for_2_pixels_at_offset_0(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels()); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 16); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+0));
-
-    #define blend_75_for_2_pixels_at_offset_1(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels()); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2)); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 24); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+1));
-
-    #define blend_75_for_2_pixels_at_offset_2(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels(); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2));
-
-    #define blend_75_for_3_pixels_at_offset_0(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels()); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2)); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 16); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+0));
-
-    #define blend_75_for_3_pixels_at_offset_1(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels()); \
-        s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+2)); \
-        srli(REG_PIXEL_COLOR, REG_PIXEL_COLOR, 24); \
-        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET((wo)+1));
-
-    #define blend_75_for_4_pixels_at_offset(wo) \
-        l32i(REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, (wo)); \
-        l32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo)); \
-        call_inner_fcn(common_code.get_blend_75_for_4_pixels()); \
-        s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, (wo));
-
-    // Ex: X1=27, x2=55, color=0x03
-    void draw_pixel(uint32_t x);
-
-    // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
-    void draw_line(EspCommonCode& common_code, uint32_t x, uint32_t width, bool outer_fcn);
+    // Ex: X1=27, x2=55, color=0x03030303
+    void draw_line(uint32_t x, uint32_t width, uint32_t color, bool outer_fcn);
 
     // Common operations in functions:
 
@@ -408,19 +87,17 @@ class EspFunction {
     uint32_t begin_data();
     uint32_t init_jump_table(uint32_t num_items);
     void begin_code(uint32_t at_jump);
+    void set_reg_draw_width(uint32_t at_width);
     void set_reg_dst_pixel_ptr(uint32_t at_x);
-    void set_reg_src_pixel_ptr(uint32_t at_src_pixels);
-    void call_inner_fcn(uint32_t real_address);
 
     // Utility operations:
 
     inline void clear() { m_code_index = 0; m_code_size = 0; }
-    inline uint32_t get_code_index() { return m_code_index; }
-    inline void set_code_index(uint32_t code_index) { m_code_index = code_index; }
+    inline uint32_t get_pc() { return m_code_index; }
+    inline void set_pc(uint32_t address) { m_code_index = address; }
     inline uint32_t get_code_size() { return m_code_size; }
     inline uint32_t get_code(uint32_t address) { return m_code[address >> 2]; }
     inline uint32_t get_code_start() { return (uint32_t)(void*) m_code; }
-    inline uint32_t get_real_address(uint32_t code_index) { return (uint32_t)(&m_code[code_index]); }
     void align16();
     void align32();
     void j_to_here(uint32_t from);
@@ -433,7 +110,6 @@ class EspFunction {
 
     void add(reg_t dst, reg_t src1, reg_t src2) { write24("add", issd(0x800000, src1, src2, dst)); }
     void addi(reg_t dst, reg_t src, u_off_t offset) { write24("addi", idsi(0x00C002, dst, src, offset)); }
-    void and_bw(reg_t dst, reg_t src1, reg_t src2) { write24("and", issd(0x400000, src1, src2, dst)); }
     void bbc(reg_t src, reg_t dst, u_off_t offset) { write24("bbc", isdo(0x005007, src, dst, offset)); }
     void bbci(reg_t src, uint32_t imm, u_off_t offset) { write24("bbci", isio(0x006007, src, imm, offset)); }
     void bbs(reg_t src, reg_t dst, u_off_t offset) { write24("bbs", isdo(0x00D007, src, dst, offset)); }
@@ -470,14 +146,12 @@ class EspFunction {
     void loop(reg_t src, u_off_t offset) { write24("loop", iso8(0x008076, src, offset)); }
     void mov(reg_t dst, reg_t src) { write24("mov", ids(0x200000, dst, src)); }
     void movi(reg_t dst, uint32_t value) { write24("movi", iv(0x00A002, dst, value)); }
-    void or_bw(reg_t dst, reg_t src1, reg_t src2) { write24("or", issd(0x200000, src1, src2, dst)); }
     void ret() { write24("ret", 0x000080); }
     void retw() { write24("retw", 0x000090); }
     void s16i(reg_t dst, reg_t src, u_off_t offset) { write24("s16i", idso16(0x005002, dst, src, offset)); }
     void s32i(reg_t dst, reg_t src, u_off_t offset) { write24("s32i", idso32(0x006002, dst, src, offset)); }
     void s8i(reg_t dst, reg_t src, u_off_t offset) { write24("s8i", idso8(0x004002, dst, src, offset)); }
     void slli(reg_t dst, reg_t src, uint8_t bits) { write24("slli", idsb(0x010000, dst, src, bits)); }
-    void srli(reg_t dst, reg_t src, uint8_t bits) { write24("srli", idsb(0x410000, dst, src, bits)); }
     void sub(reg_t dst, reg_t src1, reg_t src2) { write24("sub", issd(0xC00000, src1, src2, dst)); }
 
     // a0 = return address
@@ -553,41 +227,4 @@ class EspFunction {
     inline instr_t iv(uint32_t instr, reg_t dst, uint32_t value) {
         return instr | ((value & 0xFF) << 16) | (dst << 4) | (value & 0xF00); }
 
-};
-
-class EspCommonCode: public EspFunction {
-    public:
-    EspCommonCode();
-    void initialize();
-
-    inline uint32_t get_fcn_draw_128_pixels_in_loop() { return get_real_address(m_fcn_draw_128_pixels_in_loop); }
-    inline uint32_t get_fcn_draw_128_pixels() { return get_real_address(m_fcn_draw_128_pixels); }
-    inline uint32_t get_fcn_draw_128_pixels_last() { return get_real_address(m_fcn_draw_128_pixels_last); }
-    inline uint32_t get_fcn_draw_64_pixels() { return get_real_address(m_fcn_draw_64_pixels); }
-    inline uint32_t get_fcn_draw_64_pixels_last() { return get_real_address(m_fcn_draw_64_pixels_last); }
-    inline uint32_t get_fcn_draw_32_pixels() { return get_real_address(m_fcn_draw_32_pixels); }
-    inline uint32_t get_fcn_draw_32_pixels_last() { return get_real_address(m_fcn_draw_32_pixels_last); }
-    inline uint32_t get_fcn_draw_16_pixels() { return get_real_address(m_fcn_draw_16_pixels); }
-    inline uint32_t get_fcn_draw_16_pixels_last() { return get_real_address(m_fcn_draw_16_pixels_last); }
-    inline uint32_t get_fcn_draw_8_pixels() { return get_real_address(m_fcn_draw_8_pixels); }
-    inline uint32_t get_fcn_draw_8_pixels_last() { return get_real_address(m_fcn_draw_8_pixels_last); }
-    inline uint32_t get_blend_25_for_4_pixels() { return get_real_address(m_get_blend_25_for_4_pixels); }
-    inline uint32_t get_blend_50_for_4_pixels() { return get_real_address(m_get_blend_50_for_4_pixels); }
-    inline uint32_t get_blend_75_for_4_pixels() { return get_real_address(m_get_blend_75_for_4_pixels); }
-
-    protected:
-    uint32_t    m_fcn_draw_128_pixels_in_loop;
-    uint32_t    m_fcn_draw_128_pixels;
-    uint32_t    m_fcn_draw_128_pixels_last;
-    uint32_t    m_fcn_draw_64_pixels;
-    uint32_t    m_fcn_draw_64_pixels_last;
-    uint32_t    m_fcn_draw_32_pixels;
-    uint32_t    m_fcn_draw_32_pixels_last;
-    uint32_t    m_fcn_draw_16_pixels;
-    uint32_t    m_fcn_draw_16_pixels_last;
-    uint32_t    m_fcn_draw_8_pixels;
-    uint32_t    m_fcn_draw_8_pixels_last;
-    uint32_t    m_get_blend_25_for_4_pixels;
-    uint32_t    m_get_blend_50_for_4_pixels;
-    uint32_t    m_get_blend_75_for_4_pixels;
 };

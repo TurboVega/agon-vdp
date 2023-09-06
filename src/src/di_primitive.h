@@ -38,8 +38,6 @@ typedef enum {
   BOTH        // both horizontal and vertical
 } ScrollMode;
 
-class EspCommonCode;
-
 #pragma pack(push,1)
 
 class DiPrimitive {
@@ -85,7 +83,7 @@ class DiPrimitive {
   virtual void IRAM_ATTR delete_instructions();
    
   // Reassemble the custom instructions needed to draw the primitive.
-  virtual void IRAM_ATTR generate_instructions(EspCommonCode& common_code);
+  virtual void IRAM_ATTR generate_instructions();
    
   // Gets various data members.
   inline uint16_t get_id() { return m_id; }

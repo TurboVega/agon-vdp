@@ -25,21 +25,11 @@
 
 #pragma once
 #include "di_primitive.h"
-#include "di_code.h"
 
 class DiSetPixel: public DiPrimitive {
   public:
   // Draws a single pixel on the screen.
   DiSetPixel(int32_t x, int32_t y, uint8_t color);
 
-  // Clear the custom instructions needed to draw the primitive.
-  virtual void IRAM_ATTR delete_instructions();
-   
-  // Reassemble the custom instructions needed to draw the primitive.
-  virtual void IRAM_ATTR generate_instructions(EspCommonCode& common_code);
-   
   virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
-
-  protected:
-  EspFunction m_paint_fcn;
 };

@@ -158,5 +158,5 @@ void DiPrimitive::clear_child_ptrs() {
 void IRAM_ATTR DiPrimitive::delete_instructions() {
 }
 
-void IRAM_ATTR DiPrimitive::generate_instructions(EspCommonCode& common_code) {
+void IRAM_ATTR DiPrimitive::generate_instructions() {
 }

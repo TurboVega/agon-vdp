@@ -27,12 +27,25 @@
 #include "freertos/FreeRTOS.h"
 #include <string.h>
 
-extern "C" {
-    void delay(uint32_t);
-}
-void debug_log(const char *format, ...);
-
 #define EXTRA_CODE_SIZE 8
+
+// Input registers:
+#define REG_RETURN_ADDR     a0
+#define REG_STACK_PTR       a1
+#define REG_THIS_PTR        a2
+#define REG_LINE_PTR        a3
+#define REG_LINE_INDEX      a4
+// Temporary registers:
+#define REG_ABS_Y           a6
+#define REG_JUMP_ADDRESS    a5
+#define REG_DST_PIXEL_PTR   a5
+#define REG_SRC_PIXEL_PTR   a6
+#define REG_PIXEL_COLOR     a7
+#define REG_DRAW_WIDTH      a8
+#define REG_LOOP_INDEX      a9
+#define REG_SAVE_RETURN     a15
+
+#define FIX_OFFSET(off)    ((off)^2)
 
 EspFunction::EspFunction() {
     m_alloc_size = 0;
@@ -47,31 +60,61 @@ EspFunction::~EspFunction() {
     }
 }
 
-// Ex: X1=27, x2=55, color=0x03
-void EspFunction::draw_pixel(uint32_t x) {
-    uint32_t at_jump = enter_outer_function();
-    auto at_data = begin_data();
-    auto aligned_x = x & 0xFFFFFFFC;
-    auto at_x = d32(aligned_x);
-
-    begin_code(at_jump);
-    set_reg_dst_pixel_ptr(at_x);
-    l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
-
-    auto offset = x & 3;
-    switch (offset) {
-        case 0: set_1_pixel_at_offset_0(); break;
-        case 1: set_1_pixel_at_offset_1(); break;
-        case 2: set_1_pixel_at_offset_2(); break;
-        default: set_1_pixel_at_offset_3(); break;
-    }
-
-    leave_outer_function();
+// Ex: X=0, w=1: b[2]=c
+void EspFunction::set_1_pixel_at_offset_0() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
 }
 
-// Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
-void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t width, bool outer_fcn) {
-    debug_log("enter draw_line\n");
+// Ex: X=1, w=1: b[3]=c
+void EspFunction::set_1_pixel_at_offset_1() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+}
+
+// Ex: X=2, w=1: b[0]=c
+void EspFunction::set_1_pixel_at_offset_2() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+}
+
+// Ex: X=3, w=1: b[1]=c
+void EspFunction::set_1_pixel_at_offset_3() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
+}
+
+// Ex: X=0, w=2: h[2]=c1c0
+void EspFunction::set_2_pixels_at_offset_0() {
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+}
+
+// Ex: X=1, w=2: b[3]=c0; b[0]=c1
+void EspFunction::set_2_pixels_at_offset_1() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+}
+
+// Ex: X=2, w=2: h[0]=c1c0
+void EspFunction::set_2_pixels_at_offset_2() {
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
+}
+
+// Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
+void EspFunction::set_3_pixels_at_offset_0() {
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+}
+
+// Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
+void EspFunction::set_3_pixels_at_offset_1() {
+    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
+    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+}
+
+// Ex: X=0, w=4: w=c1c0c3c2
+void EspFunction::set_4_pixels_at_offset(u_off_t offset) {
+    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, offset);
+}
+
+// Ex: X1=27, width=55, color=0x03030303
+void EspFunction::draw_line(uint32_t x, uint32_t width, uint32_t color, bool outer_fcn) {
     uint32_t at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
@@ -90,67 +133,92 @@ void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t wid
         switch (offset) {
             case 0:
                 if (width >= 4) {
-                    if (width >= 256) {
-                        // Need at least 64 full words
-                        auto times = width / 128;
-                        movi(REG_LOOP_INDEX, times);
-                        call_inner_fcn(common_code.get_fcn_draw_128_pixels_in_loop());
-                        sub = times * 128;
-                    } else if (width >= 128) {
+                    if (width >= 128) {
                         // Need at least 32 full words
-                        if (width > 128) {
-                            call_inner_fcn(common_code.get_fcn_draw_128_pixels());
-                        }
-                        else {
-                            call_inner_fcn(common_code.get_fcn_draw_128_pixels_last());
-                        }
-                        sub = 128;
+                        auto times = width / 64;
+                        movi(REG_LOOP_INDEX, times);
+                        auto at_loop = get_pc();
+                        loop(REG_LOOP_INDEX, 0);
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
+                        set_4_pixels_at_offset(8);
+                        set_4_pixels_at_offset(12);
+                        set_4_pixels_at_offset(16);
+                        set_4_pixels_at_offset(20);
+                        set_4_pixels_at_offset(24);
+                        set_4_pixels_at_offset(28);
+                        set_4_pixels_at_offset(32);
+                        set_4_pixels_at_offset(36);
+                        set_4_pixels_at_offset(40);
+                        set_4_pixels_at_offset(44);
+                        set_4_pixels_at_offset(48);
+                        set_4_pixels_at_offset(52);
+                        set_4_pixels_at_offset(56);
+                        set_4_pixels_at_offset(60);
+                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
+
+                        uint32_t save_pc = get_pc();
+                        set_pc(at_loop);
+                        loop(REG_LOOP_INDEX, save_pc - (at_loop + 4));
+                        set_pc(save_pc);
+
+                        sub = times * 64;
+                        width -= sub;
+                        x += sub;
+                        continue;
                     } else if (width >= 64) {
                         // Need at least 16 full words
-                        if (width > 64) {
-                            call_inner_fcn(common_code.get_fcn_draw_64_pixels());
-                        }
-                        else {
-                            call_inner_fcn(common_code.get_fcn_draw_64_pixels_last());
-                        }
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
+                        set_4_pixels_at_offset(8);
+                        set_4_pixels_at_offset(12);
+                        set_4_pixels_at_offset(16);
+                        set_4_pixels_at_offset(20);
+                        set_4_pixels_at_offset(24);
+                        set_4_pixels_at_offset(28);
+                        set_4_pixels_at_offset(32);
+                        set_4_pixels_at_offset(36);
+                        set_4_pixels_at_offset(40);
+                        set_4_pixels_at_offset(44);
+                        set_4_pixels_at_offset(48);
+                        set_4_pixels_at_offset(52);
+                        set_4_pixels_at_offset(56);
+                        set_4_pixels_at_offset(60);
                         sub = 64;
                     } else if (width >= 32) {
                         // Need at least 8 full words
-                        if (width > 32) {
-                            call_inner_fcn(common_code.get_fcn_draw_32_pixels());
-                        }
-                        else {
-                            call_inner_fcn(common_code.get_fcn_draw_32_pixels_last());
-                        }
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
+                        set_4_pixels_at_offset(8);
+                        set_4_pixels_at_offset(12);
+                        set_4_pixels_at_offset(16);
+                        set_4_pixels_at_offset(20);
+                        set_4_pixels_at_offset(24);
+                        set_4_pixels_at_offset(28);
                         sub = 32;
                     } else if (width >= 16) {
                         // Need at least 4 full words
-                        if (width > 16) {
-                            call_inner_fcn(common_code.get_fcn_draw_16_pixels());
-                        }
-                        else {
-                            call_inner_fcn(common_code.get_fcn_draw_16_pixels_last());
-                        }
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
+                        set_4_pixels_at_offset(8);
+                        set_4_pixels_at_offset(12);
                         sub = 16;
                     } else if (width >= 8) {
                         // Need at least 2 full words
-                        if (width > 8) {
-                            call_inner_fcn(common_code.get_fcn_draw_8_pixels());
-                        }
-                        else {
-                            call_inner_fcn(common_code.get_fcn_draw_8_pixels_last());
-                        }
+                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(4);
                         sub = 8;
                     } else {
                         // Need at least 1 full word
                         set_4_pixels_at_offset(0);
-                        if (width > 4) {
-                            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, sub);
-                        }
                         sub = 4;
                     }
+
                     width -= sub;
                     x += sub;
+                    if (width) {
+                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, sub);
+                    }
                     continue;
                 } else if (width == 3) {
                     set_3_pixels_at_offset_0();
@@ -158,7 +226,7 @@ void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t wid
                 } else if (width == 2) {
                     set_2_pixels_at_offset_0();
                     sub = 2;
-                } else { // width == 1
+                } else /* width == 1 */ {
                     set_1_pixel_at_offset_0();
                 }
                 break;
@@ -170,7 +238,7 @@ void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t wid
                 } else if (width == 2) {
                     set_2_pixels_at_offset_1();
                     sub = 2;
-                } else { // width == 1
+                } else /* width == 1 */ {
                     set_1_pixel_at_offset_1();
                 }
                 break;
@@ -179,7 +247,7 @@ void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t wid
                 if (width >= 2) {
                     set_2_pixels_at_offset_2();
                     sub = 2;
-                } else { // width == 1
+                } else /* width == 1 */ {
                     set_1_pixel_at_offset_2();
                 }
                 break;
@@ -200,25 +268,22 @@ void EspFunction::draw_line(EspCommonCode& common_code, uint32_t x, uint32_t wid
     } else {
         leave_inner_function();
     }
-    debug_log("leave draw_line\n");
 }
 
 uint32_t EspFunction::enter_outer_function() {
     entry(sp, 16);
-    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
-    auto at_jump = get_code_index();
+    auto at_jump = get_pc();
     j(0);
     return at_jump;
 }
 
 uint32_t EspFunction::enter_inner_function() {
-    auto at_jump = get_code_index();
+    auto at_jump = get_pc();
     j(0);
     return at_jump;
 }
 
 void EspFunction::leave_outer_function() {
-    mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
     retw();
 }
 
@@ -228,7 +293,7 @@ void EspFunction::leave_inner_function() {
 
 uint32_t EspFunction::begin_data() {
     align32();
-    return get_code_index();
+    return get_pc();
 }
 
 uint32_t EspFunction::init_jump_table(uint32_t num_items) {
@@ -243,8 +308,8 @@ uint32_t EspFunction::init_jump_table(uint32_t num_items) {
     /* 24 */ l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
     /* 27 */ callx0(REG_JUMP_ADDRESS);
     /* 30 */ mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
-    /* 33 */ retw();
-    /* 36 */ uint32_t at_jump_table = get_code_index();
+    /* 33 */ leave_outer_function();
+    /* 36 */ uint32_t at_jump_table = get_pc();
     for (uint32_t i = 0; i < num_items; i++) {
         /* 36+i*4 */ j(0);
         /* 39+i*4 */ align32();
@@ -257,44 +322,29 @@ void EspFunction::begin_code(uint32_t at_jump) {
     j_to_here(at_jump);
 }
 
+void EspFunction::set_reg_draw_width(uint32_t at_width) {
+    l32r_from(REG_DRAW_WIDTH, at_width);
+}
+
 void EspFunction::set_reg_dst_pixel_ptr(uint32_t at_x) {
     l32r_from(REG_DST_PIXEL_PTR, at_x);
     add(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, REG_LINE_PTR);
-}
-
-void EspFunction::set_reg_src_pixel_ptr(uint32_t at_src_pixels) {
-    l32r_from(REG_SRC_PIXEL_PTR, at_src_pixels);
-}
-
-void EspFunction::call_inner_fcn(uint32_t real_address) {
-    uint32_t offset = (get_real_address(get_code_index()) & 0xFFFFFFFC) + 4 - real_address;
-    debug_log("(here=%X, call address=%X, offset=%X)\n", get_real_address(get_code_index()), real_address, offset);
-    return;
-    call0(offset);
 }
 
 void EspFunction::store(uint8_t instr_byte) {
     auto i = m_code_index >> 2;
     switch (m_code_index & 3) {
         case 0:
-debug_log("store @%i\n", __LINE__);
             m_code[i] = (m_code[i] & 0xFFFFFF00) | (uint32_t)instr_byte;
-debug_log("store @%i\n", __LINE__);
             break;
         case 1:
-debug_log("store @%i\n", __LINE__);
             m_code[i] = (m_code[i] & 0xFFFF00FF) |((uint32_t)instr_byte) << 8;
-debug_log("store @%i\n", __LINE__);
             break;
         case 2:
-debug_log("store @%i\n", __LINE__);
             m_code[i] = (m_code[i] & 0xFF00FFFF) |((uint32_t)instr_byte) << 16;
-debug_log("store @%i\n", __LINE__);
             break;
         case 3:
-debug_log("store @%i\n", __LINE__);
             m_code[i] = (m_code[i] & 0x00FFFFFF) |((uint32_t)instr_byte) << 24;
-debug_log("store @%i\n", __LINE__);
             break;
     }
 
@@ -317,14 +367,14 @@ void EspFunction::align32() {
 }
 
 void EspFunction::j_to_here(uint32_t from) {
-    uint32_t save_pc = get_code_index();
-    set_code_index(from);
+    uint32_t save_pc = get_pc();
+    set_pc(from);
     j(save_pc - from - 4);
-    set_code_index(save_pc);
+    set_pc(save_pc);
 }
 
 void EspFunction::l32r_from(reg_t reg, uint32_t from) {
-    l32r(reg, from - ((get_code_index() + 3) & 0xFFFFFFFC));
+    l32r(reg, from - ((get_pc() + 3) & 0xFFFFFFFC));
 }
 
 uint16_t EspFunction::dup8_to_16(uint8_t value) {
@@ -344,16 +394,14 @@ void EspFunction::allocate(uint32_t size) {
         if (m_alloc_size - m_code_index < size) {
             size_t new_size = (size_t)(m_alloc_size + size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
             void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-            debug_log("2. alloc %X, size %u\n", p, new_size);
             memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);
             heap_caps_free(m_code);
             m_alloc_size = (uint32_t)new_size;
             m_code = (uint32_t*)p;
         }
     } else {
-        size_t new_size = (size_t)(size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
+        size_t new_size = (size_t)(size + EXTRA_CODE_SIZE);
         void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-        debug_log("1. alloc %X, size %u\n", p, new_size);
         m_alloc_size = (uint32_t)new_size;
         m_code = (uint32_t*)p;
     }
@@ -361,42 +409,35 @@ void EspFunction::allocate(uint32_t size) {
 
 uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
     allocate(1);
-    auto at_data = get_code_index();
-    debug_log("%04hX: %02hX       %s\n", at_data, data & 0xFF, mnemonic);
+    auto at_data = get_pc();
+    //debug_log("%04hX: %02hX       %s\n", at_data, data & 0xFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     return at_data;
 }
 
 uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
     allocate(2);
-    auto at_data = get_code_index();
-    debug_log("%04hX: %04hX     %s\n", at_data, data & 0xFFFF, mnemonic);
+    auto at_data = get_pc();
+    //debug_log("%04hX: %04hX     %s\n", at_data, data & 0xFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     return at_data;
 }
 
 uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
-debug_log("@%i\n", __LINE__);
     allocate(3);
-debug_log("@%i\n", __LINE__);
-    auto at_data = get_code_index();
-debug_log("@%i\n", __LINE__);
-    debug_log("%04hX: %06X   %s\n", at_data, data & 0xFFFFFF, mnemonic);
-debug_log("@%i\n", __LINE__);
+    auto at_data = get_pc();
+    //debug_log("%04hX: %06X   %s\n", at_data, data & 0xFFFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
-debug_log("@%i\n", __LINE__);
     store((uint8_t)((data >> 8) & 0xFF));
-debug_log("@%i\n", __LINE__);
     store((uint8_t)((data >> 16) & 0xFF));
-debug_log("@%i\n", __LINE__);
     return at_data;
 }
 
 uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
     allocate(4);
-    auto at_data = get_code_index();
-    debug_log("%04hX: %08X %s\n", at_data, data & 0xFFFFFF, mnemonic);
+    auto at_data = get_pc();
+    //debug_log("%04hX: %08X %s\n", at_data, data & 0xFFFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
@@ -414,322 +455,4 @@ instr_t isieo(uint32_t instr, reg_t src, int32_t imm, u_off_t offset) {
     else if (imm == 128) imm = 14;
     else if (imm == 256) imm = 15;
     return instr | (offset << 16) | (imm << 12) | (src << 8);
-}
-
-//------------------------------------
-
-EspCommonCode::EspCommonCode() {}
-
-void EspCommonCode::initialize() {
-    debug_log("enter EspCommonCode::initialize 2\n");
-    debug_log("-- here --\n");
-debug_log("@%i\n", __LINE__);
-    align32();
-debug_log("@%i\n", __LINE__);
-    m_fcn_draw_128_pixels_in_loop = get_code_index();
-debug_log("@%i\n", __LINE__);
-    auto at_loop = get_code_index();
-debug_log("@%i\n", __LINE__);
-    loop(REG_LOOP_INDEX, 0);
-debug_log("@%i\n", __LINE__);
-    set_4_pixels_at_offset(0);
-debug_log("@%i\n", __LINE__);
-    set_4_pixels_at_offset(4);
-    set_4_pixels_at_offset(8);
-    set_4_pixels_at_offset(12);
-    set_4_pixels_at_offset(16);
-    set_4_pixels_at_offset(20);
-    set_4_pixels_at_offset(24);
-    set_4_pixels_at_offset(28);
-    set_4_pixels_at_offset(32);
-    set_4_pixels_at_offset(36);
-    set_4_pixels_at_offset(40);
-    set_4_pixels_at_offset(44);
-    set_4_pixels_at_offset(48);
-    set_4_pixels_at_offset(52);
-    set_4_pixels_at_offset(56);
-    set_4_pixels_at_offset(60);
-    set_4_pixels_at_offset(64);
-    set_4_pixels_at_offset(68);
-    set_4_pixels_at_offset(72);
-    set_4_pixels_at_offset(76);
-    set_4_pixels_at_offset(80);
-    set_4_pixels_at_offset(84);
-    set_4_pixels_at_offset(88);
-    set_4_pixels_at_offset(92);
-    set_4_pixels_at_offset(96);
-    set_4_pixels_at_offset(100);
-    set_4_pixels_at_offset(104);
-    set_4_pixels_at_offset(108);
-    set_4_pixels_at_offset(112);
-    set_4_pixels_at_offset(116);
-    set_4_pixels_at_offset(120);
-    set_4_pixels_at_offset(124);
-debug_log("@%i\n", __LINE__);
-    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
-    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
-debug_log("@%i\n", __LINE__);
-    uint32_t save_pc = get_code_index();
-debug_log("@%i\n", __LINE__);
-    set_code_index(at_loop);
-debug_log("@%i\n", __LINE__);
-    loop(REG_LOOP_INDEX, save_pc - (at_loop + 4));
-debug_log("@%i\n", __LINE__);
-    set_code_index(save_pc);
-debug_log("@%i\n", __LINE__);
-    leave_inner_function();
-debug_log("@%i\n", __LINE__);
-    debug_log("[%08X] m_fcn_draw_128_pixels_in_loop, %u bytes ",
-                m_fcn_draw_128_pixels_in_loop, get_code_index() -  m_fcn_draw_128_pixels_in_loop);
-debug_log("@%i\n", __LINE__);
-
-    align32();
-    m_fcn_draw_128_pixels = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    set_4_pixels_at_offset(8);
-    set_4_pixels_at_offset(12);
-    set_4_pixels_at_offset(16);
-    set_4_pixels_at_offset(20);
-    set_4_pixels_at_offset(24);
-    set_4_pixels_at_offset(28);
-    set_4_pixels_at_offset(32);
-    set_4_pixels_at_offset(36);
-    set_4_pixels_at_offset(40);
-    set_4_pixels_at_offset(44);
-    set_4_pixels_at_offset(48);
-    set_4_pixels_at_offset(52);
-    set_4_pixels_at_offset(56);
-    set_4_pixels_at_offset(60);
-    set_4_pixels_at_offset(64);
-    set_4_pixels_at_offset(68);
-    set_4_pixels_at_offset(72);
-    set_4_pixels_at_offset(76);
-    set_4_pixels_at_offset(80);
-    set_4_pixels_at_offset(84);
-    set_4_pixels_at_offset(88);
-    set_4_pixels_at_offset(92);
-    set_4_pixels_at_offset(96);
-    set_4_pixels_at_offset(100);
-    set_4_pixels_at_offset(104);
-    set_4_pixels_at_offset(108);
-    set_4_pixels_at_offset(112);
-    set_4_pixels_at_offset(116);
-    set_4_pixels_at_offset(120);
-    set_4_pixels_at_offset(124);
-    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
-    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_128_pixels, %u bytes ",
-                m_fcn_draw_128_pixels, get_code_index() -  m_fcn_draw_128_pixels);
-
-    align32();
-    m_fcn_draw_128_pixels_last = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    set_4_pixels_at_offset(8);
-    set_4_pixels_at_offset(12);
-    set_4_pixels_at_offset(16);
-    set_4_pixels_at_offset(20);
-    set_4_pixels_at_offset(24);
-    set_4_pixels_at_offset(28);
-    set_4_pixels_at_offset(32);
-    set_4_pixels_at_offset(36);
-    set_4_pixels_at_offset(40);
-    set_4_pixels_at_offset(44);
-    set_4_pixels_at_offset(48);
-    set_4_pixels_at_offset(52);
-    set_4_pixels_at_offset(56);
-    set_4_pixels_at_offset(60);
-    set_4_pixels_at_offset(64);
-    set_4_pixels_at_offset(68);
-    set_4_pixels_at_offset(72);
-    set_4_pixels_at_offset(76);
-    set_4_pixels_at_offset(80);
-    set_4_pixels_at_offset(84);
-    set_4_pixels_at_offset(88);
-    set_4_pixels_at_offset(92);
-    set_4_pixels_at_offset(96);
-    set_4_pixels_at_offset(100);
-    set_4_pixels_at_offset(104);
-    set_4_pixels_at_offset(108);
-    set_4_pixels_at_offset(112);
-    set_4_pixels_at_offset(116);
-    set_4_pixels_at_offset(120);
-    set_4_pixels_at_offset(124);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_128_pixels_last, %u bytes ",
-                m_fcn_draw_128_pixels_last, get_code_index() -  m_fcn_draw_128_pixels_last);
-
-    align32();
-    m_fcn_draw_64_pixels = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    set_4_pixels_at_offset(8);
-    set_4_pixels_at_offset(12);
-    set_4_pixels_at_offset(16);
-    set_4_pixels_at_offset(20);
-    set_4_pixels_at_offset(24);
-    set_4_pixels_at_offset(28);
-    set_4_pixels_at_offset(32);
-    set_4_pixels_at_offset(36);
-    set_4_pixels_at_offset(40);
-    set_4_pixels_at_offset(44);
-    set_4_pixels_at_offset(48);
-    set_4_pixels_at_offset(52);
-    set_4_pixels_at_offset(56);
-    set_4_pixels_at_offset(60);
-    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_64_pixels, %u bytes ",
-                m_fcn_draw_64_pixels, get_code_index() -  m_fcn_draw_64_pixels);
-
-    align32();
-    m_fcn_draw_64_pixels_last = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    set_4_pixels_at_offset(8);
-    set_4_pixels_at_offset(12);
-    set_4_pixels_at_offset(16);
-    set_4_pixels_at_offset(20);
-    set_4_pixels_at_offset(24);
-    set_4_pixels_at_offset(28);
-    set_4_pixels_at_offset(32);
-    set_4_pixels_at_offset(36);
-    set_4_pixels_at_offset(40);
-    set_4_pixels_at_offset(44);
-    set_4_pixels_at_offset(48);
-    set_4_pixels_at_offset(52);
-    set_4_pixels_at_offset(56);
-    set_4_pixels_at_offset(60);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_64_pixels_last, %u bytes ",
-                m_fcn_draw_64_pixels_last, get_code_index() -  m_fcn_draw_64_pixels_last);
-
-    align32();
-    m_fcn_draw_32_pixels = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    set_4_pixels_at_offset(8);
-    set_4_pixels_at_offset(12);
-    set_4_pixels_at_offset(16);
-    set_4_pixels_at_offset(20);
-    set_4_pixels_at_offset(24);
-    set_4_pixels_at_offset(28);
-    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_32_pixels, %u bytes ",
-                m_fcn_draw_32_pixels, get_code_index() -  m_fcn_draw_32_pixels);
-
-    align32();
-    m_fcn_draw_32_pixels_last = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    set_4_pixels_at_offset(8);
-    set_4_pixels_at_offset(12);
-    set_4_pixels_at_offset(16);
-    set_4_pixels_at_offset(20);
-    set_4_pixels_at_offset(24);
-    set_4_pixels_at_offset(28);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_32_pixels_last, %u bytes ",
-                m_fcn_draw_32_pixels_last, get_code_index() -  m_fcn_draw_32_pixels_last);
-
-    align32();
-    m_fcn_draw_16_pixels = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    set_4_pixels_at_offset(8);
-    set_4_pixels_at_offset(12);
-    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_16_pixels, %u bytes ",
-                m_fcn_draw_16_pixels, get_code_index() -  m_fcn_draw_16_pixels);
-
-    align32();
-    m_fcn_draw_16_pixels_last = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    set_4_pixels_at_offset(8);
-    set_4_pixels_at_offset(12);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_16_pixels_last, %u bytes ",
-                m_fcn_draw_16_pixels_last, get_code_index() -  m_fcn_draw_16_pixels_last);
-
-    align32();
-    m_fcn_draw_8_pixels = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_8_pixels, %u bytes ",
-                m_fcn_draw_8_pixels, get_code_index() -  m_fcn_draw_8_pixels);
-
-    align32();
-    m_fcn_draw_8_pixels_last = get_code_index();
-    set_4_pixels_at_offset(0);
-    set_4_pixels_at_offset(4);
-    leave_inner_function();
-    debug_log("[%08X] m_fcn_draw_8_pixels_last, %u bytes ",
-                m_fcn_draw_8_pixels_last, get_code_index() -  m_fcn_draw_8_pixels_last);
-
-    align32();
-    m_get_blend_25_for_4_pixels = get_code_index();
-    and_bw(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
-    and_bw(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
-    slli(REG_DOUBLE_COLOR, REG_DST_BR_PIXELS, 1); // double the dst color values
-    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_DOUBLE_COLOR);  // add dst color values again (total of 3X)
-    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
-    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2); // averages of mixed blue & mixed red, in 4 bits each
-    and_bw(REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
-    and_bw(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
-    and_bw(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
-    slli(REG_DOUBLE_COLOR, REG_DST_G_PIXELS, 1); // double the dst color values
-    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_DOUBLE_COLOR);  // add dst color values again (total of 3X)
-    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
-    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 4 bits each
-    and_bw(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
-    or_bw(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
-    leave_inner_function();
-    debug_log("[%08X] m_get_blend_25_for_4_pixels, %u bytes ",
-                m_get_blend_25_for_4_pixels, get_code_index() -  m_get_blend_25_for_4_pixels);
-
-    align32();
-    m_get_blend_50_for_4_pixels = get_code_index();
-    and_bw(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
-    and_bw(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
-    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
-    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 1); // averages of mixed blue & mixed red, in 3 bits each
-    and_bw(REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
-    and_bw(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
-    and_bw(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
-    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
-    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 3 bits each
-    and_bw(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
-    or_bw(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
-    leave_inner_function();
-    debug_log("[%08X] m_get_blend_50_for_4_pixels, %u bytes ",
-                m_get_blend_50_for_4_pixels, get_code_index() -  m_get_blend_50_for_4_pixels);
-
-    align32();
-    m_get_blend_75_for_4_pixels = get_code_index();
-    and_bw(REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR); // src blue & red (no green)
-    and_bw(REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR); // dst blue & red (no green)
-    slli(REG_DOUBLE_COLOR, REG_SRC_BR_PIXELS, 1); // double the src color values
-    add(REG_SRC_BR_PIXELS, REG_SRC_BR_PIXELS, REG_DOUBLE_COLOR);  // add src color values again (total of 3X)
-    add(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS); // sum of blue & sum of red
-    srli(REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2); // averages of mixed blue & mixed red, in 4 bits each
-    and_bw(REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR); // averages in 2 bits each
-    and_bw(REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G); // src green (no red or blue)
-    and_bw(REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G); // dst green (no red or blue)
-    slli(REG_DOUBLE_COLOR, REG_SRC_G_PIXELS, 1); // double the src color values
-    add(REG_SRC_G_PIXELS, REG_SRC_G_PIXELS, REG_DOUBLE_COLOR);  // add src color values again (total of 3X)
-    add(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS); // sum of green
-    srli(REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1); // averages of mixed green, in 4 bits each
-    and_bw(REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G); // averages in 2 bits each
-    or_bw(REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS); // 4 mixed pixels
-    leave_inner_function();
-    debug_log("[%08X] m_get_blend_75_for_4_pixels, %u bytes ",
-                m_get_blend_75_for_4_pixels, get_code_index() -  m_get_blend_75_for_4_pixels);
-    debug_log("enter EspCommonCode::initialize\n");
 }

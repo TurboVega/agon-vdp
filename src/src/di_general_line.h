@@ -49,7 +49,7 @@ class DiGeneralLine: public DiPrimitive {
   virtual void IRAM_ATTR delete_instructions();
    
   // Reassemble the custom instructions needed to draw the primitive.
-  virtual void IRAM_ATTR generate_instructions(EspCommonCode& common_code);
+  virtual void IRAM_ATTR generate_instructions();
    
   virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 

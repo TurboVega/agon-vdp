@@ -144,18 +144,16 @@ void otf(void * pvParameters) {
 	videoMode = 19;
 	di_manager = new DiManager();
 
-	//di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00);
+	di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00);
 
-	//di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x20);
-	//di_manager->create_solid_rectangle(241, ROOT_PRIMITIVE_ID, 1, 50, 50, 700, 500, 0x04);
-	//di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 100, 100, 600, 400, 0x01);
-	//di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 300, 0x33);
-	//di_manager->create_solid_rectangle(244, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
-	//di_manager->create_solid_rectangle(245, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);
+	/*di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x20);
+	di_manager->create_solid_rectangle(241, ROOT_PRIMITIVE_ID, 1, 50, 50, 700, 500, 0x04);
+	di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 100, 100, 600, 400, 0x01);
+	di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 300, 0x33);
+	di_manager->create_solid_rectangle(244, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
+	di_manager->create_solid_rectangle(245, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);*/
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
-
-	di_manager->create_point(246, ROOT_PRIMITIVE_ID, 0x01, 45, 72, 0x2C);
 
 	//di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
 	//	0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
@@ -176,37 +174,8 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_primitive_group(221, ROOT_PRIMITIVE_ID, 0, 400, 300);
 
-    /*double twopi = PI*2.0;
-
-	for (int c = 0; c<32; c++) {
-		double a1 = twopi * c / 64.0;
-		double a2 = twopi * (c + 1) / 64.0;
-
-		double cos1 = cos(a1);
-		double cos2 = cos(a2);
-		double sin1 = sin(a1);
-		double sin2 = sin(a2);
-
-		double w1 = 200.0;
-		double w2 = 240.0;
-		double h1 = 160.0; 
-		double h2 = 200.0;
-
-		int32_t x1 = 400 + (int32_t)(w1 * cos1);
-		int32_t y1 = 300 + (int32_t)(h1 * sin1);
-		int32_t x2 = 400 + (int32_t)(w2 * cos1);
-		int32_t y2 = 300 + (int32_t)(h2 * sin1);
-
-		int32_t x3 = 400 + (int32_t)(w1 * cos2);
-		int32_t y3 = 300 + (int32_t)(h1 * sin2);
-		int32_t x4 = 400 + (int32_t)(w2 * cos2);
-		int32_t y4 = 300 + (int32_t)(h2 * sin2);
-
-		di_manager->create_triangle(150+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, 63-c);
-		di_manager->create_triangle(151+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, 63-c);
-	}
-
-	for (int c = 0; c<32; c++) {
+    double twopi = PI*2.0;
+	for (int c = 0; c<20; c++) {
 		double a1 = twopi * c / 64.0;
 		double a2 = twopi * (c + 1) / 64.0;
 
@@ -221,18 +190,36 @@ void otf(void * pvParameters) {
 		double h2 = 150.0;
 
 		int32_t x1 = 400 + (int32_t)(w1 * cos1);
-		int32_t y1 = 320 + (int32_t)(h1 * sin1);
+		int32_t y1 = 300 + (int32_t)(h1 * sin1);
 		int32_t x2 = 400 + (int32_t)(w2 * cos1);
-		int32_t y2 = 320 + (int32_t)(h2 * sin1);
+		int32_t y2 = 300 + (int32_t)(h2 * sin1);
 
 		int32_t x3 = 400 + (int32_t)(w1 * cos2);
-		int32_t y3 = 320 + (int32_t)(h1 * sin2);
+		int32_t y3 = 300 + (int32_t)(h1 * sin2);
 		int32_t x4 = 400 + (int32_t)(w2 * cos2);
-		int32_t y4 = 320 + (int32_t)(h2 * sin2);
+		int32_t y4 = 300 + (int32_t)(h2 * sin2);
 
-		di_manager->create_triangle(20+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c);
-		di_manager->create_triangle(21+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c);
-	}*/
+		//di_manager->create_triangle(20+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c);
+		//di_manager->create_triangle(21+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c);
+
+		w1 = 200.0;
+		w2 = 240.0;
+		h1 = 160.0; 
+		h2 = 200.0;
+
+		x1 = 400 + (int32_t)(w1 * cos1);
+		y1 = 300 + (int32_t)(h1 * sin1);
+		x2 = 400 + (int32_t)(w2 * cos1);
+		y2 = 300 + (int32_t)(h2 * sin1);
+
+		x3 = 400 + (int32_t)(w1 * cos2);
+		y3 = 300 + (int32_t)(h1 * sin2);
+		x4 = 400 + (int32_t)(w2 * cos2);
+		y4 = 300 + (int32_t)(h2 * sin2);
+
+		di_manager->create_triangle(150+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, 63-c);
+		//di_manager->create_triangle(151+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, 63-c);
+	}
 
 	/*auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
 	int i = 0;
@@ -277,7 +264,7 @@ void setup() {
 	//boot_screen();
 
 	TaskHandle_t xHandle = NULL;
-	xTaskCreatePinnedToCore(otf, "OTF-MODE", 4000, NULL,
+	xTaskCreatePinnedToCore(otf, "OTF-MODE", 2500, NULL,
 							OTF_MANAGER_PRIORITY, &xHandle, 1); // Core #1
 }
 

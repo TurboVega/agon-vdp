@@ -90,8 +90,6 @@ DiManager::DiManager() {
   logicalCoords = false; // this mode always uses regular coordinates
   terminalMode = false; // this mode is not (yet) terminal mode
 
-  m_common_code.initialize();
-
   // The root primitive covers the entire screen, and is not drawn.
   // The application should define what the base layer of the screen
   // is (e.g., solid rectangle, terminal, tile map, etc.).
@@ -253,10 +251,9 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
     }
 
     parent->attach_child(prim);
-
-//    while (parent != m_primitives[ROOT_PRIMITIVE_ID] && !(parent->get_flags() & PRIM_FLAG_CLIP_KIDS)) {
-//      parent = parent->get_parent();
-//    }
+    while (parent != m_primitives[ROOT_PRIMITIVE_ID] && !(parent->get_flags() & PRIM_FLAG_CLIP_KIDS)) {
+      parent = parent->get_parent();
+    }
 //    prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
 //      parent->get_view_x_extent(), parent->get_view_y_extent());
 
@@ -303,11 +300,8 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
 
 void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
                                     int32_t old_min_group, int32_t old_max_group) {
+  //debug_log("recompute_primitive id%u\r\n", prim->get_id());
   auto parent = prim->get_parent();
-  while (parent != m_primitives[ROOT_PRIMITIVE_ID] && !(parent->get_flags() & PRIM_FLAG_CLIP_KIDS)) {
-    parent = parent->get_parent();
-  }
-
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
     parent->get_view_x_extent(), parent->get_view_y_extent());
 
@@ -374,9 +368,7 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
       }
 
       prim->add_flags(PRIM_FLAGS_CAN_DRAW);
-      debug_log("@1a");
-      prim->generate_instructions(m_common_code);
-      debug_log("@1b");
+      prim->generate_instructions();
     } else {
       // Just remove primitive from old groups
       for (int32_t g = old_min_group; g <= old_max_group; g++) {
@@ -397,14 +389,20 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
         vp->push_back(prim);
       }
       prim->add_flags(PRIM_FLAGS_CAN_DRAW);
-      debug_log("@2a");
-      prim->generate_instructions(m_common_code);
-      debug_log("@2b");
+      prim->generate_instructions();
     } else {
       prim->remove_flags(PRIM_FLAGS_CAN_DRAW);
       prim->delete_instructions();
     }
   }
+  //debug_log("end recompute_primitive\r\n");
+  /*for (int i = 0; i < 600; i++) {
+    std::vector<DiPrimitive*> * vp = &m_groups[i];
+    for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
+      debug_log("%i %u\r\n", i, (*prim)->get_id());
+    }
+  }
+  debug_log("-----\r\n");*/
 }
 
 DiPrimitive* DiManager::finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {
@@ -572,23 +570,19 @@ void IRAM_ATTR DiManager::loop() {
   uint32_t current_line_index = 0;//NUM_ACTIVE_BUFFERS * NUM_LINES_PER_BUFFER;
   uint32_t current_buffer_index = 0;
   LoopState loop_state = LoopState::NearNewFrameStart;
-//{debug_log("@%i\n", __LINE__);}
+
   while (true) {
-//{debug_log("@%i\n", __LINE__);}
     uint32_t descr_addr = (uint32_t) I2S1.out_link_dscr;
     uint32_t descr_index = (descr_addr - (uint32_t)m_dma_descriptor) / sizeof(lldesc_t);
     if (descr_index <= ACT_BUFFERS_WRITTEN) {
       //uint32_t dma_line_index = descr_index * NUM_LINES_PER_BUFFER;
-//{debug_log("@%i\n", __LINE__);}
       uint32_t dma_buffer_index = descr_index & (NUM_ACTIVE_BUFFERS-1);
 
       // Draw enough lines to stay ahead of DMA.
       while (current_line_index < ACT_LINES && current_buffer_index != dma_buffer_index) {
         volatile DiVideoBuffer* vbuf = &m_video_buffer[current_buffer_index];
-//{debug_log("@%i\n", __LINE__);}
         draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
         draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
-//{debug_log("@%i\n", __LINE__);}
 
         ++current_line_index;
         if (++current_buffer_index >= NUM_ACTIVE_BUFFERS) {
@@ -598,38 +592,29 @@ void IRAM_ATTR DiManager::loop() {
 
       loop_state = LoopState::WritingActiveLines;
 
-//{debug_log("@%i\n", __LINE__);}
       while (ESPSerial.available() > 0) {
         store_character(ESPSerial.read());
       }
 
-//{debug_log("@%i\n", __LINE__);}
       (*m_on_lines_painted_cb)();
-//{debug_log("@%i\n", __LINE__);}
 
     } else if (loop_state == LoopState::WritingActiveLines) {
-//{debug_log("@%i\n", __LINE__);}
       process_stored_characters();
       while (ESPSerial.available() > 0) {
         process_character(ESPSerial.read());
       }
-//{debug_log("@%i\n", __LINE__);}
       (*m_on_vertical_blank_cb)();
-//{debug_log("@%i\n", __LINE__);}
 
       loop_state = LoopState::ProcessingIncomingData;
       
     } else if (descr_index >= DMA_TOTAL_DESCR - DMA_ACT_LINES - 1) {
       // Prepare the start of the next frame.
-//{debug_log("@%i\n", __LINE__);}
       for (current_line_index = 0, current_buffer_index = 0;
             current_buffer_index < NUM_ACTIVE_BUFFERS;
             current_line_index++, current_buffer_index++) {
         volatile DiVideoBuffer* vbuf = &m_video_buffer[current_buffer_index];
-//{debug_log("@%i\n", __LINE__);}
         draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
         draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
-//{debug_log("@%i\n", __LINE__);}
       }
 
       loop_state = LoopState::NearNewFrameStart;
@@ -637,7 +622,6 @@ void IRAM_ATTR DiManager::loop() {
       current_buffer_index = 0;
 
     } else if (loop_state == LoopState::ProcessingIncomingData) {
-//{debug_log("@%i\n", __LINE__);}
       // Keep handling incoming characters
       if (ESPSerial.available() > 0) {
         process_character(ESPSerial.read());
@@ -645,7 +629,6 @@ void IRAM_ATTR DiManager::loop() {
 
     } else {
       // Keep storing incoming characters
-//{debug_log("@%i\n", __LINE__);}
       if (ESPSerial.available() > 0) {
         store_character(ESPSerial.read());
       }
@@ -654,13 +637,10 @@ void IRAM_ATTR DiManager::loop() {
 }
 
 void IRAM_ATTR DiManager::draw_primitives(volatile uint32_t* p_scan_line, uint32_t line_index) {
-//{debug_log("@%i\n", __LINE__);}
   std::vector<DiPrimitive*> * vp = &m_groups[line_index];
   for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
-//{debug_log("@%i %u\n", __LINE__, (*prim)->get_id());}
       (*prim)->paint(p_scan_line, line_index);
   }
-//{debug_log("@%i\n", __LINE__);}
 }
 
 void DiManager::set_on_vertical_blank_cb(DiVoidCallback callback_fcn) {

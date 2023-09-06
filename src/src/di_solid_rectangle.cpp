@@ -44,13 +44,13 @@ void IRAM_ATTR DiSolidRectangle::delete_instructions() {
   m_paint_fcn.clear();
 }
   
-void IRAM_ATTR DiSolidRectangle::generate_instructions(EspCommonCode& common_code) {
+void IRAM_ATTR DiSolidRectangle::generate_instructions() {
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
-    m_paint_fcn.draw_line(common_code, m_draw_x, m_width, true);
+    m_paint_fcn.draw_line(m_draw_x, m_width, m_color, true);
   }
 }
 
 void IRAM_ATTR DiSolidRectangle::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
-  //m_paint_fcn.call(this, p_scan_line, line_index);
+  m_paint_fcn.call(this, p_scan_line, line_index);
 }
