@@ -144,14 +144,14 @@ void otf(void * pvParameters) {
 	videoMode = 19;
 	di_manager = new DiManager();
 
-	di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00);
+	//di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00);
 
-	/*di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x20);
+	di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x20);
 	di_manager->create_solid_rectangle(241, ROOT_PRIMITIVE_ID, 1, 50, 50, 700, 500, 0x04);
 	di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 100, 100, 600, 400, 0x01);
 	di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 300, 0x33);
 	di_manager->create_solid_rectangle(244, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
-	di_manager->create_solid_rectangle(245, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);*/
+	di_manager->create_solid_rectangle(245, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
 
@@ -175,7 +175,7 @@ void otf(void * pvParameters) {
 	//di_manager->create_primitive_group(221, ROOT_PRIMITIVE_ID, 0, 400, 300);
 
     double twopi = PI*2.0;
-	for (int c = 0; c<20; c++) {
+	for (int c = 0; c<32; c++) {
 		double a1 = twopi * c / 64.0;
 		double a2 = twopi * (c + 1) / 64.0;
 
@@ -199,8 +199,8 @@ void otf(void * pvParameters) {
 		int32_t x4 = 400 + (int32_t)(w2 * cos2);
 		int32_t y4 = 300 + (int32_t)(h2 * sin2);
 
-		//di_manager->create_triangle(20+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c);
-		//di_manager->create_triangle(21+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c);
+		di_manager->create_triangle(20+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c);
+		di_manager->create_triangle(21+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c);
 
 		w1 = 200.0;
 		w2 = 240.0;
@@ -218,7 +218,7 @@ void otf(void * pvParameters) {
 		y4 = 300 + (int32_t)(h2 * sin2);
 
 		di_manager->create_triangle(150+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, 63-c);
-		//di_manager->create_triangle(151+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, 63-c);
+		di_manager->create_triangle(151+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, 63-c);
 	}
 
 	/*auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
