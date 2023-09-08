@@ -26,7 +26,7 @@
 // 
 
   .section .iram1.text
-  .align
+  .align 4
 
   .global   fcn_draw_128_pixels_in_loop
   .global   fcn_draw_128_pixels
@@ -42,6 +42,7 @@
   .global   fcn_get_blend_25_for_4_pixels
   .global   fcn_get_blend_50_for_4_pixels
   .global   fcn_get_blend_75_for_4_pixels
+  .global   fcn_dummy
 
 // Input registers:
 #define REG_RETURN_ADDR     a0
@@ -420,7 +421,7 @@
   .endm
 
 
-  .align
+  .align 4
 fcn_draw_128_pixels_in_loop:
   loop   REG_LOOP_INDEX, end_loop
   set_4_pixels_at_offset 0
@@ -460,9 +461,8 @@ fcn_draw_128_pixels_in_loop:
 end_loop:
   ret
 
-  .align
+  .align 4
 fcn_draw_128_pixels:
-  m_fcn_draw_128_pixels = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   set_4_pixels_at_offset 8
@@ -499,9 +499,8 @@ fcn_draw_128_pixels:
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64
   ret
 
-  .align
+  .align 4
 fcn_draw_128_pixels_last:
-  m_fcn_draw_128_pixels_last = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   set_4_pixels_at_offset 8
@@ -536,7 +535,7 @@ fcn_draw_128_pixels_last:
   set_4_pixels_at_offset 124
   ret
 
-  .align
+  .align 4
 fcn_draw_64_pixels:
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
@@ -557,7 +556,7 @@ fcn_draw_64_pixels:
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64
   ret
 
-  .align
+  .align 4
 fcn_draw_64_pixels_last:
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
@@ -577,9 +576,8 @@ fcn_draw_64_pixels_last:
   set_4_pixels_at_offset 60
   ret
 
-  .align
+  .align 4
 fcn_draw_32_pixels:
-  m_fcn_draw_32_pixels = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   set_4_pixels_at_offset 8
@@ -591,9 +589,8 @@ fcn_draw_32_pixels:
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32
   ret
 
-  .align
+  .align 4
 fcn_draw_32_pixels_last:
-  m_fcn_draw_32_pixels_last = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   set_4_pixels_at_offset 8
@@ -604,9 +601,8 @@ fcn_draw_32_pixels_last:
   set_4_pixels_at_offset 28
   ret
 
-  .align
+  .align 4
 fcn_draw_16_pixels:
-  m_fcn_draw_16_pixels = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   set_4_pixels_at_offset 8
@@ -614,33 +610,29 @@ fcn_draw_16_pixels:
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16
   ret
 
-  .align
+  .align 4
 fcn_draw_16_pixels_last:
-  m_fcn_draw_16_pixels_last = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   set_4_pixels_at_offset 8
   set_4_pixels_at_offset 12
   ret
 
-  .align
+  .align 4
 fcn_draw_8_pixels:
-  m_fcn_draw_8_pixels = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8
   ret
 
-  .align
+  .align 4
 fcn_draw_8_pixels_last:
-  m_fcn_draw_8_pixels_last = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   ret
 
-  .align
+  .align 4
 fcn_get_blend_25_for_4_pixels:
-  m_get_blend_25_for_4_pixels = get_code_index
   and   REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR // src blue & red (no green)
   and   REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR // dst blue & red (no green)
   slli  REG_DOUBLE_COLOR, REG_DST_BR_PIXELS, 1 // double the dst color values
@@ -658,9 +650,8 @@ fcn_get_blend_25_for_4_pixels:
   or    REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
   ret
 
-  .align
+  .align 4
 fcn_get_blend_50_for_4_pixels:
-  m_get_blend_50_for_4_pixels = get_code_index
   and   REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR // src blue & red (no green)
   and   REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR // dst blue & red (no green)
   add   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS // sum of blue & sum of red
@@ -674,9 +665,8 @@ fcn_get_blend_50_for_4_pixels:
   or    REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
   ret
 
-  .align
+  .align 4
 fcn_get_blend_75_for_4_pixels:
-  m_get_blend_75_for_4_pixels = get_code_index
   and   REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR // src blue & red (no green)
   and   REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR // dst blue & red (no green)
   slli  REG_DOUBLE_COLOR, REG_SRC_BR_PIXELS, 1 // double the src color values
@@ -692,4 +682,8 @@ fcn_get_blend_75_for_4_pixels:
   srli  REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1 // averages of mixed green, in 4 bits each
   and   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G // averages in 2 bits each
   or    REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
+  ret
+
+  .align 4
+fcn_dummy:
   ret

@@ -97,11 +97,11 @@ class EspFunction {
 
     inline void clear() { m_code_index = 0; m_code_size = 0; }
     inline uint32_t get_code_index() { return m_code_index; }
-    inline void set_pc(uint32_t address) { m_code_index = address; }
+    inline void set_code_index(uint32_t code_index) { m_code_index = code_index; }
     inline uint32_t get_code_size() { return m_code_size; }
     inline uint32_t get_code(uint32_t address) { return m_code[address >> 2]; }
     inline uint32_t get_code_start() { return (uint32_t)(void*) m_code; }
-    inline uint32_t get_real_address(uint32_t code_index) { return (uint32_t)(&m_code[code_index]); }
+    inline uint32_t get_real_address(uint32_t code_index) { return ((uint32_t)&m_code) + code_index; }
     void align16();
     void align32();
     void j_to_here(uint32_t from);
