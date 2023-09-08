@@ -154,6 +154,19 @@ void EspFunction::draw_pixel(uint32_t x) {
 
 // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
 void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
+    {
+    uint32_t at_jump = enter_outer_function();
+    begin_code(at_jump);
+    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+    call_inner_fcn((uint32_t) &fcn_dummy);
+    //call0(0);
+    mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
+    leave_outer_function();
+    return;
+    }
+
     debug_log("enter draw_line %i %i %i\n", x, width, outer_fcn);
     uint32_t at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
@@ -185,19 +198,19 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         movi(REG_LOOP_INDEX, times);
                         call_spots.push_back(get_code_index());
                         call_dests.push_back((uint32_t) &fcn_draw_128_pixels_in_loop);
-                        //write24("call0", 0); // room for call0
+                        write24("call0", 0); // room for call0
                         sub = times * 128;
                     } else if (width >= 128) {
                         // Need at least 32 full words
                         if (width > 128) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_128_pixels);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         else {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_128_pixels_last);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         sub = 128;
                     } else if (width >= 64) {
@@ -205,12 +218,12 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         if (width > 64) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_64_pixels);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         else {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_64_pixels_last);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         sub = 64;
                     } else if (width >= 32) {
@@ -218,12 +231,12 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         if (width > 32) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_32_pixels);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         else {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_32_pixels_last);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         sub = 32;
                     } else if (width >= 16) {
@@ -231,12 +244,12 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         if (width > 16) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_16_pixels);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         else {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_16_pixels_last);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         sub = 16;
                     } else if (width >= 8) {
@@ -244,12 +257,12 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         if (width > 8) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_8_pixels);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         else {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_8_pixels_last);
-                            //write24("call0", 0); // room for call0
+                            write24("call0", 0); // room for call0
                         }
                         sub = 8;
                     } else {
@@ -387,10 +400,9 @@ void EspFunction::set_reg_dst_pixel_ptr(uint32_t at_x) {
 }
 
 void EspFunction::call_inner_fcn(uint32_t real_address) {
-    real_address = (uint32_t) &fcn_dummy;
-    uint32_t offset = (real_address - (get_real_address(get_code_index() & 0xFFFFFFFC)) - 4) & 0xFFFFF;
+    uint32_t offset = (real_address - 4 - (get_real_address(get_code_index() & 0xFFFFFFFC))) & 0xFFFFF;
     debug_log("(here=%X, call address=%X, offset=%X)\n", get_real_address(get_code_index()), real_address, offset);
-    //call0(offset);
+    call0(offset);
 }
 
 void EspFunction::store(uint8_t instr_byte) {
