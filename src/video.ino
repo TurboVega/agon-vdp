@@ -144,14 +144,14 @@ void otf(void * pvParameters) {
 	videoMode = 19;
 	di_manager = new DiManager();
 
-	//di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00);
+	di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x04);
 
-	di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x20);
+	/*di_manager->create_solid_rectangle(240, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x20);
 	di_manager->create_solid_rectangle(241, ROOT_PRIMITIVE_ID, 1, 50, 50, 700, 500, 0x04);
 	di_manager->create_solid_rectangle(242, ROOT_PRIMITIVE_ID, 1, 100, 100, 600, 400, 0x01);
 	di_manager->create_solid_rectangle(243, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 300, 0x33);
 	di_manager->create_solid_rectangle(244, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
-	di_manager->create_solid_rectangle(245, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);
+	di_manager->create_solid_rectangle(245, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);*/
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
 
@@ -162,8 +162,9 @@ void otf(void * pvParameters) {
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
 	di_manager->set_on_lines_painted_cb(&on_lines_painted);
 	
-	/*di_manager->create_point(4, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x31);
-	di_manager->create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
+	di_manager->create_point(4, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x13);
+
+	/*di_manager->create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
 	di_manager->create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left
 	di_manager->create_line(5, ROOT_PRIMITIVE_ID, 1, 400, 20, 440, 60, 0x20); // diagonal right
 	di_manager->create_line(6, ROOT_PRIMITIVE_ID, 1, 405, 20, 445, 60, 0x23); // diagonal right
@@ -174,6 +175,7 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_primitive_group(221, ROOT_PRIMITIVE_ID, 0, 400, 300);
 
+#if DO_ELLIPSES
     double twopi = PI*2.0;
 	for (int c = 0; c<32; c++) {
 		double a1 = twopi * c / 64.0;
@@ -220,6 +222,7 @@ void otf(void * pvParameters) {
 		di_manager->create_triangle(150+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, 63-c);
 		di_manager->create_triangle(151+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, 63-c);
 	}
+#endif
 
 	/*auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
 	int i = 0;

@@ -75,8 +75,11 @@ class EspFunction {
     // Ex: X=0, w=4: w=c1c0c3c2
     void set_4_pixels_at_offset(u_off_t word_offset);
 
+    // Ex: X1=27, x2=55, color=0x03
+    void draw_pixel(uint32_t x);
+
     // Ex: X1=27, x2=55, color=0x03030303
-    void draw_line(uint32_t x, uint32_t width, uint32_t color, bool outer_fcn);
+    void draw_line(uint32_t x, uint32_t width, bool outer_fcn);
 
     // Common operations in functions:
 
@@ -93,11 +96,12 @@ class EspFunction {
     // Utility operations:
 
     inline void clear() { m_code_index = 0; m_code_size = 0; }
-    inline uint32_t get_pc() { return m_code_index; }
+    inline uint32_t get_code_index() { return m_code_index; }
     inline void set_pc(uint32_t address) { m_code_index = address; }
     inline uint32_t get_code_size() { return m_code_size; }
     inline uint32_t get_code(uint32_t address) { return m_code[address >> 2]; }
     inline uint32_t get_code_start() { return (uint32_t)(void*) m_code; }
+    inline uint32_t get_real_address(uint32_t code_index) { return (uint32_t)(&m_code[code_index]); }
     void align16();
     void align32();
     void j_to_here(uint32_t from);
@@ -175,6 +179,7 @@ class EspFunction {
     uint32_t write16(const char* mnemonic, instr_t data);
     uint32_t write24(const char* mnemonic, instr_t data);
     uint32_t write32(const char* mnemonic, instr_t data);
+    void call_inner_fcn(uint32_t real_address);
 
     inline instr_t issd(uint32_t instr, reg_t src1, reg_t src2, reg_t dst) {
         return instr | (dst << 12) | (src1 << 8) | (src2 << 4); }

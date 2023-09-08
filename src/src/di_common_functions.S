@@ -538,7 +538,6 @@ fcn_draw_128_pixels_last:
 
   .align
 fcn_draw_64_pixels:
-  m_fcn_draw_64_pixels = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   set_4_pixels_at_offset 8
@@ -560,7 +559,6 @@ fcn_draw_64_pixels:
 
   .align
 fcn_draw_64_pixels_last:
-  m_fcn_draw_64_pixels_last = get_code_index
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   set_4_pixels_at_offset 8

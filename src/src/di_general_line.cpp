@@ -86,15 +86,15 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
       //debug_log("%u x%i y%i w%i\r\n", i, piece->m_x, piece->m_y, piece->m_width);
       m_paint_fcn.align32();
       m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
-      m_paint_fcn.draw_line(piece->m_x, piece->m_width, m_color, false);
+      m_paint_fcn.draw_line(piece->m_x, piece->m_width, false);
     }
   }
   m_paint_fcn.align32();
   //debug_log("end DiGeneralLine::generate_instructions\r\n");
 
-  uint8_t cnt = 0;
+  /*uint8_t cnt = 0;
   uint32_t size = m_paint_fcn.get_code_size();
-  /*debug_log("code size %u", size);
+  debug_log("code size %u", size);
   for (uint32_t i = 0; i < size; i += 4) {
     if (!cnt) {
       debug_log("\r\n%04X: ", i);
@@ -114,6 +114,6 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
 }
 
 void IRAM_ATTR DiGeneralLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
-  m_paint_fcn.call(this, p_scan_line, line_index);
+  //m_paint_fcn.call(this, p_scan_line, line_index);
   //debug_log("this=0x%X, code=0x%X, calc=0x%X\r\n", this, m_paint_fcn.get_code_start(), m_future32);
 }
