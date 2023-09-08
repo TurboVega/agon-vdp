@@ -39,9 +39,9 @@
   .global   fcn_draw_16_pixels_last
   .global   fcn_draw_8_pixels
   .global   fcn_draw_8_pixels_last
-  .global   get_blend_25_for_4_pixels
-  .global   get_blend_50_for_4_pixels
-  .global   get_blend_75_for_4_pixels
+  .global   fcn_get_blend_25_for_4_pixels
+  .global   fcn_get_blend_50_for_4_pixels
+  .global   fcn_get_blend_75_for_4_pixels
 
 // Input registers:
 #define REG_RETURN_ADDR     a0
