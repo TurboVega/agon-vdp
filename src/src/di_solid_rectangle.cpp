@@ -52,5 +52,5 @@ void IRAM_ATTR DiSolidRectangle::generate_instructions() {
 }
 
 void IRAM_ATTR DiSolidRectangle::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
-  m_paint_fcn.call(this, p_scan_line, line_index);
+  //m_paint_fcn.call(this, p_scan_line, line_index);
 }

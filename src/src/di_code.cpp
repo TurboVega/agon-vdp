@@ -38,12 +38,12 @@
 #define REG_LINE_INDEX      a4
 // Temporary registers:
 #define REG_ABS_Y           a6
-#define REG_JUMP_ADDRESS    a5
 #define REG_DST_PIXEL_PTR   a5
 #define REG_SRC_PIXEL_PTR   a6
 #define REG_PIXEL_COLOR     a7
 #define REG_DRAW_WIDTH      a8
 #define REG_LOOP_INDEX      a9
+#define REG_JUMP_ADDRESS    a14
 #define REG_SAVE_RETURN     a15
 
 #define FIX_OFFSET(off)    ((off)^2)
@@ -64,17 +64,146 @@ extern uint32_t fcn_get_blend_50_for_4_pixels;
 extern uint32_t fcn_get_blend_75_for_4_pixels;
 extern uint32_t fcn_dummy;
 
+uint32_t p_call_fcn_draw_128_pixels_in_loop;
+uint32_t p_call_fcn_draw_128_pixels;
+uint32_t p_call_fcn_draw_128_pixels_last;
+uint32_t p_call_fcn_draw_64_pixels;
+uint32_t p_call_fcn_draw_64_pixels_last;
+uint32_t p_call_fcn_draw_32_pixels;
+uint32_t p_call_fcn_draw_32_pixels_last;
+uint32_t p_call_fcn_draw_16_pixels;
+uint32_t p_call_fcn_draw_16_pixels_last;
+uint32_t p_call_fcn_draw_8_pixels;
+uint32_t p_call_fcn_draw_8_pixels_last;
+uint32_t p_call_fcn_get_blend_25_for_4_pixels;
+uint32_t p_call_fcn_get_blend_50_for_4_pixels;
+uint32_t p_call_fcn_get_blend_75_for_4_pixels;
+uint32_t p_call_fcn_dummy;
+
+EspFunction::EspFunction(bool init) {
+    init_members();
+    uint32_t at_fcn_draw_128_pixels_in_loop = write32("dw", (uint32_t) &fcn_draw_128_pixels_in_loop);
+    uint32_t at_fcn_draw_128_pixels = write32("dw", (uint32_t) &fcn_draw_128_pixels);
+    uint32_t at_fcn_draw_128_pixels_last = write32("dw", (uint32_t) &fcn_draw_128_pixels_last);
+    uint32_t at_fcn_draw_64_pixels = write32("dw", (uint32_t) &fcn_draw_64_pixels);
+    uint32_t at_fcn_draw_64_pixels_last = write32("dw", (uint32_t) &fcn_draw_64_pixels_last);
+    uint32_t at_fcn_draw_32_pixels = write32("dw", (uint32_t) &fcn_draw_32_pixels);
+    uint32_t at_fcn_draw_32_pixels_last = write32("dw", (uint32_t) &fcn_draw_32_pixels_last);
+    uint32_t at_fcn_draw_16_pixels = write32("dw", (uint32_t) &fcn_draw_16_pixels);
+    uint32_t at_fcn_draw_16_pixels_last = write32("dw", (uint32_t) &fcn_draw_16_pixels_last);
+    uint32_t at_fcn_draw_8_pixels = write32("dw", (uint32_t) &fcn_draw_8_pixels);
+    uint32_t at_fcn_draw_8_pixels_last = write32("dw", (uint32_t) &fcn_draw_8_pixels_last);
+    uint32_t at_fcn_get_blend_25_for_4_pixels = write32("dw", (uint32_t) &fcn_get_blend_25_for_4_pixels);
+    uint32_t at_fcn_get_blend_50_for_4_pixels = write32("dw", (uint32_t) &fcn_get_blend_50_for_4_pixels);
+    uint32_t at_fcn_get_blend_75_for_4_pixels = write32("dw", (uint32_t) &fcn_get_blend_75_for_4_pixels);
+    uint32_t at_fcn_dummy = write32("dw", (uint32_t) &fcn_dummy);
+ 
+    align32();
+    p_call_fcn_draw_128_pixels_in_loop = get_real_address();
+    debug_log("p_call_fcn_draw_128_pixels_in_loop = %08X\n", p_call_fcn_draw_128_pixels_in_loop);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_128_pixels_in_loop);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_128_pixels = get_real_address();
+    debug_log("p_call_fcn_draw_128_pixels = %08X\n", p_call_fcn_draw_128_pixels);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_128_pixels);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_128_pixels_last = get_real_address();
+    debug_log("p_call_fcn_draw_128_pixels_last = %08X\n", p_call_fcn_draw_128_pixels_last);
+    l32r(REG_JUMP_ADDRESS, p_call_fcn_draw_128_pixels_last);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_64_pixels = get_real_address();
+    debug_log("p_call_fcn_draw_64_pixels = %08X\n", p_call_fcn_draw_64_pixels);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_64_pixels);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_64_pixels_last = get_real_address();
+    debug_log("p_call_fcn_draw_64_pixels_last = %08X\n", p_call_fcn_draw_64_pixels_last);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_64_pixels_last);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_32_pixels = get_real_address();
+    debug_log("p_call_fcn_draw_32_pixels = %08X\n", p_call_fcn_draw_32_pixels);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_32_pixels);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_32_pixels_last = get_real_address();
+    debug_log("p_call_fcn_draw_32_pixels_last = %08X\n", p_call_fcn_draw_32_pixels_last);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_32_pixels_last);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_16_pixels = get_real_address();
+    debug_log("p_call_fcn_draw_16_pixels = %08X\n", p_call_fcn_draw_16_pixels);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_16_pixels);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_16_pixels_last = get_real_address();
+    debug_log("p_call_fcn_draw_16_pixels_last = %08X\n", p_call_fcn_draw_16_pixels_last);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_16_pixels_last);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_8_pixels = get_real_address();
+    debug_log("p_call_fcn_draw_8_pixels = %08X\n", p_call_fcn_draw_8_pixels);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_8_pixels);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_draw_8_pixels_last = get_real_address();
+    debug_log("p_call_fcn_draw_8_pixels_last = %08X\n", p_call_fcn_draw_8_pixels_last);
+    l32r(REG_JUMP_ADDRESS, at_fcn_draw_8_pixels_last);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_get_blend_25_for_4_pixels = get_real_address();
+    debug_log("p_call_fcn_get_blend_25_for_4_pixels = %08X\n", p_call_fcn_get_blend_25_for_4_pixels);
+    l32r(REG_JUMP_ADDRESS, at_fcn_get_blend_25_for_4_pixels);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_get_blend_50_for_4_pixels = get_real_address();
+    debug_log("p_call_fcn_get_blend_50_for_4_pixels = %08X\n", p_call_fcn_get_blend_50_for_4_pixels);
+    l32r(REG_JUMP_ADDRESS, at_fcn_get_blend_50_for_4_pixels);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_get_blend_75_for_4_pixels = get_real_address();
+    debug_log("p_call_fcn_get_blend_75_for_4_pixels = %08X\n", p_call_fcn_get_blend_75_for_4_pixels);
+    l32r(REG_JUMP_ADDRESS, at_fcn_get_blend_75_for_4_pixels);
+    jx(REG_JUMP_ADDRESS);
+
+    align32();
+    p_call_fcn_dummy = get_real_address();
+    debug_log("p_call_fcn_dummy = %08X\n", p_call_fcn_dummy);
+    l32r(REG_JUMP_ADDRESS, at_fcn_dummy);
+    jx(REG_JUMP_ADDRESS);
+}
+
 EspFunction::EspFunction() {
-    m_alloc_size = 0;
-    m_code_size = 0;
-    m_code_index = 0;
-    m_code = 0;
+    init_members();
 }
 
 EspFunction::~EspFunction() {
     if (m_code) {
         heap_caps_free(m_code);
     }
+}
+
+void EspFunction::init_members() {
+    m_alloc_size = 0;
+    m_code_size = 0;
+    m_code_index = 0;
+    m_code = 0;
 }
 
 // Ex: X=0, w=1: b[2]=c
@@ -154,13 +283,14 @@ void EspFunction::draw_pixel(uint32_t x) {
 
 // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
 void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
-    {
+{
+    return;
     uint32_t at_jump = enter_outer_function();
     begin_code(at_jump);
     mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
     mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
     mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
-    call_inner_fcn((uint32_t) &fcn_dummy);
+    call_inner_fcn(p_call_fcn_dummy);
     //call0(0);
     mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
     leave_outer_function();
@@ -401,24 +531,25 @@ void EspFunction::set_reg_dst_pixel_ptr(uint32_t at_x) {
 
 void EspFunction::call_inner_fcn(uint32_t real_address) {
     uint32_t offset = (real_address - 4 - (get_real_address(get_code_index() & 0xFFFFFFFC))) & 0xFFFFF;
-    debug_log("(here=%X, call address=%X, offset=%X)\n", get_real_address(get_code_index()), real_address, offset);
+    debug_log("(here=%X, call address=%X, offset=%X)\n", get_real_address(), real_address, offset);
     call0(offset);
 }
 
 void EspFunction::store(uint8_t instr_byte) {
     auto i = m_code_index >> 2;
+    debug_log(" -- store @%u [%u] %02X\n",  m_code_index, i, instr_byte);
     switch (m_code_index & 3) {
         case 0:
             m_code[i] = (m_code[i] & 0xFFFFFF00) | (uint32_t)instr_byte;
             break;
         case 1:
-            m_code[i] = (m_code[i] & 0xFFFF00FF) |((uint32_t)instr_byte) << 8;
+            m_code[i] = (m_code[i] & 0xFFFF00FF) | ((uint32_t)instr_byte) << 8;
             break;
         case 2:
-            m_code[i] = (m_code[i] & 0xFF00FFFF) |((uint32_t)instr_byte) << 16;
+            m_code[i] = (m_code[i] & 0xFF00FFFF) | ((uint32_t)instr_byte) << 16;
             break;
         case 3:
-            m_code[i] = (m_code[i] & 0x00FFFFFF) |((uint32_t)instr_byte) << 24;
+            m_code[i] = (m_code[i] & 0x00FFFFFF) | ((uint32_t)instr_byte) << 24;
             break;
     }
 
@@ -464,18 +595,22 @@ uint32_t EspFunction::dup16_to_32(uint16_t value) {
 }
 
 void EspFunction::allocate(uint32_t size) {
+    debug_log("m_alloc_size=%u, size=%u, ci=%u, cs=%u\n", m_alloc_size, size, m_code_index, m_code_size);
     if (m_alloc_size) {
         if (m_alloc_size - m_code_index < size) {
             size_t new_size = (size_t)(m_alloc_size + size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
             void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-            memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);
+            debug_log("alloc %u %08X\n", new_size, p);
+            //memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);
             heap_caps_free(m_code);
             m_alloc_size = (uint32_t)new_size;
             m_code = (uint32_t*)p;
         }
     } else {
-        size_t new_size = (size_t)(size + EXTRA_CODE_SIZE);
+size = 512;
+        size_t new_size = (size_t)(size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
         void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
+        debug_log("alloc %u %08X\n", new_size, p);
         m_alloc_size = (uint32_t)new_size;
         m_code = (uint32_t*)p;
     }
@@ -511,7 +646,7 @@ uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
     allocate(4);
     auto at_data = get_code_index();
-    debug_log("%04hX: %08X %s\n", at_data, data & 0xFFFFFF, mnemonic);
+    debug_log("%04hX: %08X %s\n", at_data, data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));

@@ -89,39 +89,55 @@ DiManager::DiManager() {
 
   logicalCoords = false; // this mode always uses regular coordinates
   terminalMode = false; // this mode is not (yet) terminal mode
+}
+
+DiManager::~DiManager() {
+    clear();
+
+    if (m_jumps_to_code) {
+      delete m_jumps_to_code;
+    }
+}
+
+void DiManager::create_root() {
+  debug_log("creating jumps\n");
+  m_jumps_to_code = new EspFunction(true);
+  debug_log("created jumps\n");
 
   // The root primitive covers the entire screen, and is not drawn.
   // The application should define what the base layer of the screen
   // is (e.g., solid rectangle, terminal, tile map, etc.).
 
   DiPrimitive* root = new DiPrimitive;
+  debug_log("root %08X\n", root);
   root->init_root();
   m_primitives[ROOT_PRIMITIVE_ID] = root;
-}
-
-DiManager::~DiManager() {
-    clear();
 }
 
 void DiManager::initialize() {
   size_t new_size = (size_t)(sizeof(lldesc_t) * DMA_TOTAL_DESCR);
   void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
+  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_dma_descriptor = (volatile lldesc_t *)p;
 
   new_size = (size_t)(sizeof(DiVideoBuffer) * NUM_ACTIVE_BUFFERS);
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
+  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_video_buffer = (volatile DiVideoBuffer *)p;
 
   new_size = (size_t)(sizeof(DiVideoScanLine));
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
+  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_front_porch = (volatile DiVideoScanLine *)p;
 
   new_size = (size_t)(sizeof(DiVideoBuffer));
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
+  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_vertical_sync = (volatile DiVideoBuffer *)p;
 
   new_size = (size_t)(sizeof(DiVideoScanLine));
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
+  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_back_porch = (volatile DiVideoScanLine *)p;
 
   // DMA buffer chain: ACT

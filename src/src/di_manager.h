@@ -31,6 +31,7 @@
 #include "di_opaque_bitmap.h"
 #include "di_masked_bitmap.h"
 #include "di_transparent_bitmap.h"
+#include "di_code.h"
 
 typedef void (*DiVoidCallback)();
 
@@ -44,6 +45,9 @@ class DiManager {
 
     // Destroy the manager and its child primitives.
     ~DiManager();
+
+    // Create the root primitive.
+    void create_root();
 
     // Create various types of drawing primitives.
     DiPrimitive* create_point(uint16_t id, uint16_t parent, uint8_t flags,
@@ -167,6 +171,7 @@ class DiManager {
     uint8_t                     m_incoming_command[INCOMING_COMMAND_SIZE];
     DiPrimitive *               m_primitives[MAX_NUM_PRIMITIVES]; // Indexes of array are primitive IDs
     std::vector<DiPrimitive*>   m_groups[ACT_LINES]; // Vertical scan groups (for optimizing paint calls)
+    EspFunction *               m_jumps_to_code;
 
     // Setup the DMA stuff.
     void initialize();

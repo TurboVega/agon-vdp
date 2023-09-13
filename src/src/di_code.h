@@ -40,6 +40,7 @@ typedef void (*CallEspFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_
 
 class EspFunction {
     public:
+    EspFunction(bool init);
     EspFunction();
     ~EspFunction();
 
@@ -101,6 +102,7 @@ class EspFunction {
     inline uint32_t get_code_size() { return m_code_size; }
     inline uint32_t get_code(uint32_t address) { return m_code[address >> 2]; }
     inline uint32_t get_code_start() { return (uint32_t)(void*) m_code; }
+    inline uint32_t get_real_address() { return ((uint32_t)&m_code) + m_code_index; }
     inline uint32_t get_real_address(uint32_t code_index) { return ((uint32_t)&m_code) + code_index; }
     void align16();
     void align32();
@@ -142,6 +144,7 @@ class EspFunction {
     uint32_t d32(uint32_t value) { return write32("d32", value); }
     void entry(reg_t src, u_off_t offset) { write24("entry", iso(0x000036, src, (offset >> 3))); }
     void j(s_off_t offset) { write24("j", io(0x000006, offset)); }
+    void jx(reg_t src) { write24("jx", iscxo(0x0000A0, src)); }
     void l16si(reg_t dst, reg_t src, u_off_t offset) { write24("l16si", idso16(0x009002, dst, src, offset)); }
     void l16ui(reg_t dst, reg_t src, u_off_t offset) { write24("l16ui", idso16(0x001002, dst, src, offset)); }
     void l32i(reg_t dst, reg_t src, u_off_t offset) { write24("l32i", idso32(0x002002, dst, src, offset)); }
@@ -173,6 +176,7 @@ class EspFunction {
     uint32_t    m_code_index;
     uint32_t*   m_code;
 
+    void init_members();
     void allocate(uint32_t size);
     void store(uint8_t instr_byte);
     uint32_t write8(const char* mnemonic, instr_t data);
