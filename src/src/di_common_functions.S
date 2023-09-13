@@ -52,7 +52,6 @@
 #define REG_LINE_INDEX      a4
 // Temporary registers:
 #define REG_ABS_Y           a6
-#define REG_JUMP_ADDRESS    a5
 #define REG_DST_PIXEL_PTR   a5
 #define REG_SRC_PIXEL_PTR   a6
 #define REG_PIXEL_COLOR     a7
@@ -65,6 +64,7 @@
 #define REG_DOUBLE_COLOR    a12
 #define REG_ISOLATE_BR      a13     // 0x33333333: mask to isolate blue & red, removing green
 #define REG_ISOLATE_G       a14     // 0x0C0C0C0C: mask to isolate green, removing red & blue
+#define REG_JUMP_ADDRESS    a14
 #define REG_SAVE_RETURN     a15
 
 #define FIX_OFFSET(off)    ((off)^2)

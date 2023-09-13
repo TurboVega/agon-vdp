@@ -101,91 +101,91 @@ EspFunction::EspFunction(bool init) {
     align32();
     p_call_fcn_draw_128_pixels_in_loop = get_real_address();
     debug_log("p_call_fcn_draw_128_pixels_in_loop = %08X\n", p_call_fcn_draw_128_pixels_in_loop);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_128_pixels_in_loop);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_128_pixels_in_loop);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_128_pixels = get_real_address();
     debug_log("p_call_fcn_draw_128_pixels = %08X\n", p_call_fcn_draw_128_pixels);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_128_pixels);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_128_pixels);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_128_pixels_last = get_real_address();
     debug_log("p_call_fcn_draw_128_pixels_last = %08X\n", p_call_fcn_draw_128_pixels_last);
-    l32r(REG_JUMP_ADDRESS, p_call_fcn_draw_128_pixels_last);
+    l32r_from(REG_JUMP_ADDRESS, p_call_fcn_draw_128_pixels_last);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_64_pixels = get_real_address();
     debug_log("p_call_fcn_draw_64_pixels = %08X\n", p_call_fcn_draw_64_pixels);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_64_pixels);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_64_pixels);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_64_pixels_last = get_real_address();
     debug_log("p_call_fcn_draw_64_pixels_last = %08X\n", p_call_fcn_draw_64_pixels_last);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_64_pixels_last);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_64_pixels_last);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_32_pixels = get_real_address();
     debug_log("p_call_fcn_draw_32_pixels = %08X\n", p_call_fcn_draw_32_pixels);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_32_pixels);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_32_pixels);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_32_pixels_last = get_real_address();
     debug_log("p_call_fcn_draw_32_pixels_last = %08X\n", p_call_fcn_draw_32_pixels_last);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_32_pixels_last);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_32_pixels_last);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_16_pixels = get_real_address();
     debug_log("p_call_fcn_draw_16_pixels = %08X\n", p_call_fcn_draw_16_pixels);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_16_pixels);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_16_pixels);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_16_pixels_last = get_real_address();
     debug_log("p_call_fcn_draw_16_pixels_last = %08X\n", p_call_fcn_draw_16_pixels_last);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_16_pixels_last);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_16_pixels_last);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_8_pixels = get_real_address();
     debug_log("p_call_fcn_draw_8_pixels = %08X\n", p_call_fcn_draw_8_pixels);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_8_pixels);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_8_pixels);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_draw_8_pixels_last = get_real_address();
     debug_log("p_call_fcn_draw_8_pixels_last = %08X\n", p_call_fcn_draw_8_pixels_last);
-    l32r(REG_JUMP_ADDRESS, at_fcn_draw_8_pixels_last);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_8_pixels_last);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_get_blend_25_for_4_pixels = get_real_address();
     debug_log("p_call_fcn_get_blend_25_for_4_pixels = %08X\n", p_call_fcn_get_blend_25_for_4_pixels);
-    l32r(REG_JUMP_ADDRESS, at_fcn_get_blend_25_for_4_pixels);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_get_blend_25_for_4_pixels);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_get_blend_50_for_4_pixels = get_real_address();
     debug_log("p_call_fcn_get_blend_50_for_4_pixels = %08X\n", p_call_fcn_get_blend_50_for_4_pixels);
-    l32r(REG_JUMP_ADDRESS, at_fcn_get_blend_50_for_4_pixels);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_get_blend_50_for_4_pixels);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_get_blend_75_for_4_pixels = get_real_address();
     debug_log("p_call_fcn_get_blend_75_for_4_pixels = %08X\n", p_call_fcn_get_blend_75_for_4_pixels);
-    l32r(REG_JUMP_ADDRESS, at_fcn_get_blend_75_for_4_pixels);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_get_blend_75_for_4_pixels);
     jx(REG_JUMP_ADDRESS);
 
     align32();
     p_call_fcn_dummy = get_real_address();
     debug_log("p_call_fcn_dummy = %08X\n", p_call_fcn_dummy);
-    l32r(REG_JUMP_ADDRESS, at_fcn_dummy);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_dummy);
     jx(REG_JUMP_ADDRESS);
 }
 
@@ -283,18 +283,18 @@ void EspFunction::draw_pixel(uint32_t x) {
 
 // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
 void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
-{
-    return;
-    uint32_t at_jump = enter_outer_function();
-    begin_code(at_jump);
-    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
-    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
-    mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
-    call_inner_fcn(p_call_fcn_dummy);
-    //call0(0);
-    mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
-    leave_outer_function();
-    return;
+    {
+        // test code
+        uint32_t at_jump = enter_outer_function();
+        begin_code(at_jump);
+        mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+        mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+        mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
+        //call_inner_fcn(p_call_fcn_dummy);
+        //call0(0);
+        mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
+        leave_outer_function();
+        return;
     }
 
     debug_log("enter draw_line %i %i %i\n", x, width, outer_fcn);
