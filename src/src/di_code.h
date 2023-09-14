@@ -102,8 +102,8 @@ class EspFunction {
     inline uint32_t get_code_size() { return m_code_size; }
     inline uint32_t get_code(uint32_t address) { return m_code[address >> 2]; }
     inline uint32_t get_code_start() { return (uint32_t)(void*) m_code; }
-    inline uint32_t get_real_address() { return ((uint32_t)&m_code) + m_code_index; }
-    inline uint32_t get_real_address(uint32_t code_index) { return ((uint32_t)&m_code) + code_index; }
+    inline uint32_t get_real_address() { return ((uint32_t)m_code) + m_code_index; }
+    inline uint32_t get_real_address(uint32_t code_index) { return ((uint32_t)m_code) + code_index; }
     void align16();
     void align32();
     void j_to_here(uint32_t from);
