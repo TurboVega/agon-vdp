@@ -185,7 +185,6 @@ EspFunction::EspFunction(bool init) {
     align32();
     p_call_fcn_dummy = get_real_address();
     debug_log("p_call_fcn_dummy = %08X\n", p_call_fcn_dummy);
-    ret();
     l32r_from(REG_JUMP_ADDRESS, at_fcn_dummy);
     jx(REG_JUMP_ADDRESS);
 }
