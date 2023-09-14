@@ -82,26 +82,25 @@ uint32_t p_call_fcn_dummy;
 
 EspFunction::EspFunction(bool init) {
     init_members();
-    uint32_t at_fcn_draw_128_pixels_in_loop = d32((uint32_t) &fcn_draw_128_pixels_in_loop);
-    uint32_t at_fcn_draw_128_pixels = d32((uint32_t) &fcn_draw_128_pixels);
-    uint32_t at_fcn_draw_128_pixels_last = d32((uint32_t) &fcn_draw_128_pixels_last);
-    uint32_t at_fcn_draw_64_pixels = d32((uint32_t) &fcn_draw_64_pixels);
-    uint32_t at_fcn_draw_64_pixels_last = d32((uint32_t) &fcn_draw_64_pixels_last);
-    uint32_t at_fcn_draw_32_pixels = d32((uint32_t) &fcn_draw_32_pixels);
-    uint32_t at_fcn_draw_32_pixels_last = d32((uint32_t) &fcn_draw_32_pixels_last);
-    uint32_t at_fcn_draw_16_pixels = d32((uint32_t) &fcn_draw_16_pixels);
-    uint32_t at_fcn_draw_16_pixels_last = d32((uint32_t) &fcn_draw_16_pixels_last);
-    uint32_t at_fcn_draw_8_pixels = d32((uint32_t) &fcn_draw_8_pixels);
-    uint32_t at_fcn_draw_8_pixels_last = d32((uint32_t) &fcn_draw_8_pixels_last);
-    uint32_t at_fcn_get_blend_25_for_4_pixels = d32((uint32_t) &fcn_get_blend_25_for_4_pixels);
-    uint32_t at_fcn_get_blend_50_for_4_pixels = d32((uint32_t) &fcn_get_blend_50_for_4_pixels);
-    uint32_t at_fcn_get_blend_75_for_4_pixels = d32((uint32_t) &fcn_get_blend_75_for_4_pixels);
-    uint32_t at_fcn_dummy = d32((uint32_t) &fcn_dummy);
+    auto at_fcn_draw_128_pixels_in_loop = d32((uint32_t) &fcn_draw_128_pixels_in_loop);
+    auto at_fcn_draw_128_pixels = d32((uint32_t) &fcn_draw_128_pixels);
+    auto at_fcn_draw_128_pixels_last = d32((uint32_t) &fcn_draw_128_pixels_last);
+    auto at_fcn_draw_64_pixels = d32((uint32_t) &fcn_draw_64_pixels);
+    auto at_fcn_draw_64_pixels_last = d32((uint32_t) &fcn_draw_64_pixels_last);
+    auto at_fcn_draw_32_pixels = d32((uint32_t) &fcn_draw_32_pixels);
+    auto at_fcn_draw_32_pixels_last = d32((uint32_t) &fcn_draw_32_pixels_last);
+    auto at_fcn_draw_16_pixels = d32((uint32_t) &fcn_draw_16_pixels);
+    auto at_fcn_draw_16_pixels_last = d32((uint32_t) &fcn_draw_16_pixels_last);
+    auto at_fcn_draw_8_pixels = d32((uint32_t) &fcn_draw_8_pixels);
+    auto at_fcn_draw_8_pixels_last = d32((uint32_t) &fcn_draw_8_pixels_last);
+    auto at_fcn_get_blend_25_for_4_pixels = d32((uint32_t) &fcn_get_blend_25_for_4_pixels);
+    auto at_fcn_get_blend_50_for_4_pixels = d32((uint32_t) &fcn_get_blend_50_for_4_pixels);
+    auto at_fcn_get_blend_75_for_4_pixels = d32((uint32_t) &fcn_get_blend_75_for_4_pixels);
+    auto at_fcn_dummy = d32((uint32_t) &fcn_dummy);
  
     align32();
     p_call_fcn_draw_128_pixels_in_loop = get_real_address();
     debug_log("p_call_fcn_draw_128_pixels_in_loop = %08X\n", p_call_fcn_draw_128_pixels_in_loop);
-    ret();
     l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_128_pixels_in_loop);
     jx(REG_JUMP_ADDRESS);
 
@@ -138,7 +137,6 @@ EspFunction::EspFunction(bool init) {
     align32();
     p_call_fcn_draw_32_pixels_last = get_real_address();
     debug_log("p_call_fcn_draw_32_pixels_last = %08X\n", p_call_fcn_draw_32_pixels_last);
-    ret();
     l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_32_pixels_last);
     jx(REG_JUMP_ADDRESS);
 
@@ -263,7 +261,7 @@ void EspFunction::set_4_pixels_at_offset(u_off_t offset) {
 
 // Ex: X1=27, x2=55, color=0x03
 void EspFunction::draw_pixel(uint32_t x) {
-    uint32_t at_jump = enter_outer_function();
+    auto at_jump = enter_outer_function();
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
     auto at_x = d32(aligned_x);
@@ -287,9 +285,9 @@ void EspFunction::draw_pixel(uint32_t x) {
 void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
     /*{
         // test code
-        uint32_t at_jump = enter_outer_function();
+        auto at_jump = enter_outer_function();
         begin_data();
-        uint32_t at_addr = write32("addr", p_call_fcn_dummy);
+        auto at_addr = write32("addr", p_call_fcn_dummy);
         begin_code(at_jump);
         mov(REG_SAVE_RETURN, REG_RETURN_ADDR);
         l32r_from(a7, at_addr);
@@ -302,7 +300,7 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
     }*/
 
     debug_log("enter draw_line %i %i %i\n", x, width, outer_fcn);
-    uint32_t at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
+    auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
     auto at_x = d32(aligned_x);
@@ -331,8 +329,7 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         auto times = width / 128;
                         movi(REG_LOOP_INDEX, times);
                         call_spots.push_back(get_code_index());
-//                        call_dests.push_back((uint32_t) &fcn_draw_128_pixels_in_loop);
-                        call_dests.push_back((uint32_t) p_call_fcn_draw_128_pixels_in_loop);
+                        call_dests.push_back((uint32_t) &fcn_draw_128_pixels_in_loop);
                         debug_log(">> call fcn_draw_128_pixels_in_loop <<\n");
                         call0(0);
                         sub = times * 128;
@@ -376,8 +373,7 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         }
                         else {
                             call_spots.push_back(get_code_index());
-//                            call_dests.push_back((uint32_t) &fcn_draw_32_pixels_last);
-                            call_dests.push_back((uint32_t) p_call_fcn_draw_32_pixels_last);
+                            call_dests.push_back((uint32_t) &fcn_draw_32_pixels_last);
                             debug_log(">> call fcn_draw_32_pixels_last <<\n");
                             call0(0);
                         }
@@ -524,7 +520,7 @@ uint32_t EspFunction::init_jump_table(uint32_t num_items) {
     /* 27 */ callx0(REG_JUMP_ADDRESS);
     /* 30 */ mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
     /* 33 */ leave_outer_function();
-    /* 36 */ uint32_t at_jump_table = get_code_index();
+    /* 36 */ auto at_jump_table = get_code_index();
     for (uint32_t i = 0; i < num_items; i++) {
         /* 36+i*4 */ j(0);
         /* 39+i*4 */ align32();

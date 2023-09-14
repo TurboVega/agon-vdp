@@ -423,6 +423,7 @@
 
   .align 4
 fcn_draw_128_pixels_in_loop:
+  ret
   loop   REG_LOOP_INDEX, end_loop
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
