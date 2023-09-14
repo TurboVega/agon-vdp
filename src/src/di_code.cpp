@@ -82,25 +82,26 @@ uint32_t p_call_fcn_dummy;
 
 EspFunction::EspFunction(bool init) {
     init_members();
-    uint32_t at_fcn_draw_128_pixels_in_loop = write32("dw", (uint32_t) &fcn_draw_128_pixels_in_loop);
-    uint32_t at_fcn_draw_128_pixels = write32("dw", (uint32_t) &fcn_draw_128_pixels);
-    uint32_t at_fcn_draw_128_pixels_last = write32("dw", (uint32_t) &fcn_draw_128_pixels_last);
-    uint32_t at_fcn_draw_64_pixels = write32("dw", (uint32_t) &fcn_draw_64_pixels);
-    uint32_t at_fcn_draw_64_pixels_last = write32("dw", (uint32_t) &fcn_draw_64_pixels_last);
-    uint32_t at_fcn_draw_32_pixels = write32("dw", (uint32_t) &fcn_draw_32_pixels);
-    uint32_t at_fcn_draw_32_pixels_last = write32("dw", (uint32_t) &fcn_draw_32_pixels_last);
-    uint32_t at_fcn_draw_16_pixels = write32("dw", (uint32_t) &fcn_draw_16_pixels);
-    uint32_t at_fcn_draw_16_pixels_last = write32("dw", (uint32_t) &fcn_draw_16_pixels_last);
-    uint32_t at_fcn_draw_8_pixels = write32("dw", (uint32_t) &fcn_draw_8_pixels);
-    uint32_t at_fcn_draw_8_pixels_last = write32("dw", (uint32_t) &fcn_draw_8_pixels_last);
-    uint32_t at_fcn_get_blend_25_for_4_pixels = write32("dw", (uint32_t) &fcn_get_blend_25_for_4_pixels);
-    uint32_t at_fcn_get_blend_50_for_4_pixels = write32("dw", (uint32_t) &fcn_get_blend_50_for_4_pixels);
-    uint32_t at_fcn_get_blend_75_for_4_pixels = write32("dw", (uint32_t) &fcn_get_blend_75_for_4_pixels);
-    uint32_t at_fcn_dummy = write32("dw", (uint32_t) &fcn_dummy);
+    uint32_t at_fcn_draw_128_pixels_in_loop = d32((uint32_t) &fcn_draw_128_pixels_in_loop);
+    uint32_t at_fcn_draw_128_pixels = d32((uint32_t) &fcn_draw_128_pixels);
+    uint32_t at_fcn_draw_128_pixels_last = d32((uint32_t) &fcn_draw_128_pixels_last);
+    uint32_t at_fcn_draw_64_pixels = d32((uint32_t) &fcn_draw_64_pixels);
+    uint32_t at_fcn_draw_64_pixels_last = d32((uint32_t) &fcn_draw_64_pixels_last);
+    uint32_t at_fcn_draw_32_pixels = d32((uint32_t) &fcn_draw_32_pixels);
+    uint32_t at_fcn_draw_32_pixels_last = d32((uint32_t) &fcn_draw_32_pixels_last);
+    uint32_t at_fcn_draw_16_pixels = d32((uint32_t) &fcn_draw_16_pixels);
+    uint32_t at_fcn_draw_16_pixels_last = d32((uint32_t) &fcn_draw_16_pixels_last);
+    uint32_t at_fcn_draw_8_pixels = d32((uint32_t) &fcn_draw_8_pixels);
+    uint32_t at_fcn_draw_8_pixels_last = d32((uint32_t) &fcn_draw_8_pixels_last);
+    uint32_t at_fcn_get_blend_25_for_4_pixels = d32((uint32_t) &fcn_get_blend_25_for_4_pixels);
+    uint32_t at_fcn_get_blend_50_for_4_pixels = d32((uint32_t) &fcn_get_blend_50_for_4_pixels);
+    uint32_t at_fcn_get_blend_75_for_4_pixels = d32((uint32_t) &fcn_get_blend_75_for_4_pixels);
+    uint32_t at_fcn_dummy = d32((uint32_t) &fcn_dummy);
  
     align32();
     p_call_fcn_draw_128_pixels_in_loop = get_real_address();
     debug_log("p_call_fcn_draw_128_pixels_in_loop = %08X\n", p_call_fcn_draw_128_pixels_in_loop);
+    ret();
     l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_128_pixels_in_loop);
     jx(REG_JUMP_ADDRESS);
 
@@ -137,6 +138,7 @@ EspFunction::EspFunction(bool init) {
     align32();
     p_call_fcn_draw_32_pixels_last = get_real_address();
     debug_log("p_call_fcn_draw_32_pixels_last = %08X\n", p_call_fcn_draw_32_pixels_last);
+    ret();
     l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_32_pixels_last);
     jx(REG_JUMP_ADDRESS);
 
@@ -283,7 +285,7 @@ void EspFunction::draw_pixel(uint32_t x) {
 
 // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
 void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
-    {
+    /*{
         // test code
         uint32_t at_jump = enter_outer_function();
         begin_data();
@@ -297,7 +299,7 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
         mov(REG_RETURN_ADDR, REG_SAVE_RETURN);
         leave_outer_function();
         return;
-    }
+    }*/
 
     debug_log("enter draw_line %i %i %i\n", x, width, outer_fcn);
     uint32_t at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
@@ -329,20 +331,24 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         auto times = width / 128;
                         movi(REG_LOOP_INDEX, times);
                         call_spots.push_back(get_code_index());
-                        call_dests.push_back((uint32_t) &fcn_draw_128_pixels_in_loop);
-                        write24("call0", 0); // room for call0
+//                        call_dests.push_back((uint32_t) &fcn_draw_128_pixels_in_loop);
+                        call_dests.push_back((uint32_t) p_call_fcn_draw_128_pixels_in_loop);
+                        debug_log(">> call fcn_draw_128_pixels_in_loop <<\n");
+                        call0(0);
                         sub = times * 128;
                     } else if (width >= 128) {
                         // Need at least 32 full words
                         if (width > 128) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_128_pixels);
-                            write24("call0", 0); // room for call0
+                            debug_log(">> call fcn_draw_128_pixels <<\n");
+                            call0(0);
                         }
                         else {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_128_pixels_last);
-                            write24("call0", 0); // room for call0
+                            debug_log(">> call fcn_draw_128_pixels_last <<\n");
+                            call0(0);
                         }
                         sub = 128;
                     } else if (width >= 64) {
@@ -350,12 +356,14 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         if (width > 64) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_64_pixels);
-                            write24("call0", 0); // room for call0
+                            debug_log(">> call fcn_draw_64_pixels <<\n");
+                            call0(0);
                         }
                         else {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_64_pixels_last);
-                            write24("call0", 0); // room for call0
+                            debug_log(">> call fcn_draw_64_pixels_last <<\n");
+                            call0(0);
                         }
                         sub = 64;
                     } else if (width >= 32) {
@@ -363,12 +371,15 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         if (width > 32) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_32_pixels);
-                            write24("call0", 0); // room for call0
+                            debug_log(">> call fcn_draw_32_pixels <<\n");
+                            call0(0);
                         }
                         else {
                             call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_32_pixels_last);
-                            write24("call0", 0); // room for call0
+//                            call_dests.push_back((uint32_t) &fcn_draw_32_pixels_last);
+                            call_dests.push_back((uint32_t) p_call_fcn_draw_32_pixels_last);
+                            debug_log(">> call fcn_draw_32_pixels_last <<\n");
+                            call0(0);
                         }
                         sub = 32;
                     } else if (width >= 16) {
@@ -376,12 +387,14 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         if (width > 16) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_16_pixels);
-                            write24("call0", 0); // room for call0
+                            debug_log(">> call fcn_draw_16_pixels <<\n");
+                            call0(0);
                         }
                         else {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_16_pixels_last);
-                            write24("call0", 0); // room for call0
+                            debug_log(">> call fcn_draw_16_pixels_last <<\n");
+                            call0(0);
                         }
                         sub = 16;
                     } else if (width >= 8) {
@@ -389,12 +402,14 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         if (width > 8) {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_8_pixels);
-                            write24("call0", 0); // room for call0
+                            debug_log(">> call fcn_draw_8_pixels <<\n");
+                            call0(0);
                         }
                         else {
                             call_spots.push_back(get_code_index());
                             call_dests.push_back((uint32_t) &fcn_draw_8_pixels_last);
-                            write24("call0", 0); // room for call0
+                            debug_log(">> call fcn_draw_8_pixels_last <<\n");
+                            call0(0);
                         }
                         sub = 8;
                     } else {
