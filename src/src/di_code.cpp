@@ -41,14 +41,21 @@
 #define REG_DST_PIXEL_PTR   a5
 #define REG_SRC_PIXEL_PTR   a6
 #define REG_PIXEL_COLOR     a7
-#define REG_DRAW_WIDTH      a8
-#define REG_LOOP_INDEX      a9
+#define REG_LOOP_INDEX      a4
+#define REG_SRC_PIXELS      a8
+#define REG_SRC_BR_PIXELS   a9
+#define REG_DST_BR_PIXELS   a10
+#define REG_SRC_G_PIXELS    a8
+#define REG_DST_G_PIXELS    a11
+#define REG_DOUBLE_COLOR    a12
+#define REG_ISOLATE_BR      a13     // 0x33333333: mask to isolate blue & red, removing green
+#define REG_ISOLATE_G       a14     // 0x0C0C0C0C: mask to isolate green, removing red & blue
 #define REG_JUMP_ADDRESS    a14
 #define REG_SAVE_RETURN     a15
 
 #define FIX_OFFSET(off)    ((off)^2)
 
-extern uint32_t fcn_draw_128_pixels_in_loop;
+extern uint32_t fcn_draw_256_pixels_in_loop;
 extern uint32_t fcn_draw_128_pixels;
 extern uint32_t fcn_draw_128_pixels_last;
 extern uint32_t fcn_draw_64_pixels;
@@ -64,7 +71,7 @@ extern uint32_t fcn_get_blend_50_for_4_pixels;
 extern uint32_t fcn_get_blend_75_for_4_pixels;
 extern uint32_t fcn_dummy;
 
-uint32_t p_call_fcn_draw_128_pixels_in_loop;
+uint32_t p_call_fcn_draw_256_pixels_in_loop;
 uint32_t p_call_fcn_draw_128_pixels;
 uint32_t p_call_fcn_draw_128_pixels_last;
 uint32_t p_call_fcn_draw_64_pixels;
@@ -82,7 +89,7 @@ uint32_t p_call_fcn_dummy;
 
 EspFunction::EspFunction(bool init) {
     init_members();
-    auto at_fcn_draw_128_pixels_in_loop = d32((uint32_t) &fcn_draw_128_pixels_in_loop);
+    auto at_fcn_draw_256_pixels_in_loop = d32((uint32_t) &fcn_draw_256_pixels_in_loop);
     auto at_fcn_draw_128_pixels = d32((uint32_t) &fcn_draw_128_pixels);
     auto at_fcn_draw_128_pixels_last = d32((uint32_t) &fcn_draw_128_pixels_last);
     auto at_fcn_draw_64_pixels = d32((uint32_t) &fcn_draw_64_pixels);
@@ -99,9 +106,9 @@ EspFunction::EspFunction(bool init) {
     auto at_fcn_dummy = d32((uint32_t) &fcn_dummy);
  
     align32();
-    p_call_fcn_draw_128_pixels_in_loop = get_real_address();
-    debug_log("p_call_fcn_draw_128_pixels_in_loop = %08X\n", p_call_fcn_draw_128_pixels_in_loop);
-    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_128_pixels_in_loop);
+    p_call_fcn_draw_256_pixels_in_loop = get_real_address();
+    debug_log("p_call_fcn_draw_256_pixels_in_loop = %08X\n", p_call_fcn_draw_256_pixels_in_loop);
+    l32r_from(REG_JUMP_ADDRESS, at_fcn_draw_256_pixels_in_loop);
     jx(REG_JUMP_ADDRESS);
 
     align32();
@@ -326,13 +333,13 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                 if (width >= 4) {
                     if (width >= 256) {
                         // Need at least 64 full words
-                        auto times = width / 128;
+                        auto times = width / 256;
                         movi(REG_LOOP_INDEX, times);
                         call_spots.push_back(get_code_index());
-                        call_dests.push_back((uint32_t) &fcn_draw_128_pixels_in_loop);
-                        debug_log(">> call fcn_draw_128_pixels_in_loop <<\n");
+                        call_dests.push_back((uint32_t) &fcn_draw_256_pixels_in_loop);
+                        debug_log(">> call fcn_draw_256_pixels_in_loop <<\n");
                         call0(0);
-                        sub = times * 128;
+                        sub = times * 256;
                     } else if (width >= 128) {
                         // Need at least 32 full words
                         if (width > 128) {
@@ -531,10 +538,6 @@ uint32_t EspFunction::init_jump_table(uint32_t num_items) {
 void EspFunction::begin_code(uint32_t at_jump) {
     align32();
     j_to_here(at_jump);
-}
-
-void EspFunction::set_reg_draw_width(uint32_t at_width) {
-    l32r_from(REG_DRAW_WIDTH, at_width);
 }
 
 void EspFunction::set_reg_dst_pixel_ptr(uint32_t at_x) {

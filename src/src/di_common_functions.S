@@ -28,7 +28,7 @@
   .section .iram1.text
   .align 4
 
-  .global   fcn_draw_128_pixels_in_loop
+  .global   fcn_draw_256_pixels_in_loop
   .global   fcn_draw_128_pixels
   .global   fcn_draw_128_pixels_last
   .global   fcn_draw_64_pixels
@@ -422,9 +422,8 @@
 
 
   .align 4
-fcn_draw_128_pixels_in_loop:
-  ret
-  loop   REG_LOOP_INDEX, end_loop
+fcn_draw_256_pixels_in_loop:
+begin_loop:
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   set_4_pixels_at_offset 8
@@ -457,9 +456,46 @@ fcn_draw_128_pixels_in_loop:
   set_4_pixels_at_offset 116
   set_4_pixels_at_offset 120
   set_4_pixels_at_offset 124
+
+  set_4_pixels_at_offset 128
+  set_4_pixels_at_offset 132
+  set_4_pixels_at_offset 136
+  set_4_pixels_at_offset 140
+  set_4_pixels_at_offset 144
+  set_4_pixels_at_offset 148
+  set_4_pixels_at_offset 152
+  set_4_pixels_at_offset 156
+  set_4_pixels_at_offset 160
+  set_4_pixels_at_offset 164
+  set_4_pixels_at_offset 168
+  set_4_pixels_at_offset 172
+  set_4_pixels_at_offset 176
+  set_4_pixels_at_offset 180
+  set_4_pixels_at_offset 184
+  set_4_pixels_at_offset 188
+  set_4_pixels_at_offset 192
+  set_4_pixels_at_offset 196
+  set_4_pixels_at_offset 200
+  set_4_pixels_at_offset 204
+  set_4_pixels_at_offset 208
+  set_4_pixels_at_offset 212
+  set_4_pixels_at_offset 216
+  set_4_pixels_at_offset 220
+  set_4_pixels_at_offset 224
+  set_4_pixels_at_offset 228
+  set_4_pixels_at_offset 232
+  set_4_pixels_at_offset 236
+  set_4_pixels_at_offset 240
+  set_4_pixels_at_offset 244
+  set_4_pixels_at_offset 248
+  set_4_pixels_at_offset 252
+
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64
-end_loop:
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64
+  addi   REG_LOOP_INDEX, REG_LOOP_INDEX, -1
+  bnez   REG_LOOP_INDEX, begin_loop
   ret
 
   .align 4

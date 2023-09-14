@@ -163,7 +163,7 @@ void otf(void * pvParameters) {
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
 	di_manager->set_on_lines_painted_cb(&on_lines_painted);
 	
-	di_manager->create_point(4, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x13);
+	di_manager->create_point(248, ROOT_PRIMITIVE_ID, 1, 400, 300, 0x3F);
 
 	/*di_manager->create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
 	di_manager->create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left
