@@ -113,7 +113,7 @@
 // This number determines how many primitives may exist simultaneously.
 // Some may exist without being drawn. Primitive #0 is the root primitive,
 // is created by default, and cannot be modified or deleted.
-#define MAX_NUM_PRIMITIVES    256
+#define MAX_NUM_PRIMITIVES    512
 #define ROOT_PRIMITIVE_ID     0
 #define FIRST_PRIMITIVE_ID    1
 #define LAST_PRIMITIVE_ID     (MAX_NUM_PRIMITIVES-1)
