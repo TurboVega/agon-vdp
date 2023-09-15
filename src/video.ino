@@ -223,6 +223,7 @@ void otf(void * pvParameters) {
 
 		di_manager->create_triangle(280+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, 63-c);
 		di_manager->create_triangle(281+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, 63-c);
+		return;
 	}
 #endif
 

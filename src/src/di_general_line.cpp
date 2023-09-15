@@ -87,7 +87,6 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
       m_paint_fcn.align32();
       m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
       m_paint_fcn.draw_line(piece->m_x, piece->m_width, false);
-      return;
     }
   }
   //debug_log("end DiGeneralLine::generate_instructions\r\n");

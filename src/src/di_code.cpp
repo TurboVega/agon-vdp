@@ -302,11 +302,9 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
     begin_code(at_jump);
 
     set_reg_dst_pixel_ptr(at_x);
-    if (outer_fcn) {
-        l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
-    }
 
     if (outer_fcn) {
+        l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
         mov(REG_SAVE_RET_OUTER, REG_RETURN_ADDR);
     } else {
         mov(REG_SAVE_RET_INNER, REG_RETURN_ADDR);
@@ -578,6 +576,7 @@ void EspFunction::align32() {
 
 void EspFunction::j_to_here(uint32_t from) {
     uint32_t save_pc = get_code_index();
+    debug_log("  jump from %u to %u\n", from, save_pc);
     set_code_index(from);
     j(save_pc - from - 4);
     set_code_index(save_pc);
