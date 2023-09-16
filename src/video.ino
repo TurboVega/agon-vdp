@@ -152,7 +152,7 @@ void otf(void * pvParameters) {
 	di_manager->create_solid_rectangle(42, ROOT_PRIMITIVE_ID, 1, 100, 100, 600, 400, 0x01);
 	di_manager->create_solid_rectangle(43, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 300, 0x33);
 	di_manager->create_solid_rectangle(44, ROOT_PRIMITIVE_ID, 1, 200, 200, 400, 200, 0x0F);
-	di_manager->create_solid_rectangle(45, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x2E);
+	di_manager->create_solid_rectangle(45, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x15);
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
 
@@ -179,7 +179,7 @@ void otf(void * pvParameters) {
 #define DO_ELLIPSES 1
 #if DO_ELLIPSES
     double twopi = PI*2.0;
-	for (int c = 0; c<32; c++) {
+	for (int c = 0; c<64; c++) {
 		double a1 = twopi * c / 64.0;
 		double a2 = twopi * (c + 1) / 64.0;
 
@@ -206,7 +206,7 @@ void otf(void * pvParameters) {
 		di_manager->create_triangle(150+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c);
 		di_manager->create_triangle(151+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c);
 
-		w1 = 200.0;
+		/*w1 = 200.0;
 		w2 = 240.0;
 		h1 = 160.0; 
 		h2 = 200.0;
@@ -222,7 +222,7 @@ void otf(void * pvParameters) {
 		y4 = 300 + (int32_t)(h2 * sin2);
 
 		di_manager->create_triangle(280+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, 63-c);
-		di_manager->create_triangle(281+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, 63-c);
+		di_manager->create_triangle(281+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, 63-c);*/
 	}
 #endif
 

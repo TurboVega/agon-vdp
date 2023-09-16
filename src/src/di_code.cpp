@@ -603,7 +603,7 @@ void EspFunction::allocate(uint32_t size) {
         if (m_alloc_size - m_code_index < size) {
             size_t new_size = (size_t)(m_alloc_size + size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
             void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-            //debug_log("alloc %u %08X\n", new_size, p);
+            //debug_log("alloc %u %08X, free %u\n", new_size, p, heap_caps_get_free_size(MALLOC_CAP_EXEC));
             memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);
             heap_caps_free(m_code);
             m_alloc_size = (uint32_t)new_size;
@@ -613,7 +613,7 @@ void EspFunction::allocate(uint32_t size) {
     } else {
         size_t new_size = (size_t)(size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
         void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-        //debug_log("** alloc %u %08X\n", new_size, p);
+        //debug_log("alloc %u %08X, free %u\n", new_size, p, heap_caps_get_free_size(MALLOC_CAP_EXEC));
         m_alloc_size = (uint32_t)new_size;
         m_code = (uint32_t*)p;
         //debug_log("** m_code %08X\n", m_code);

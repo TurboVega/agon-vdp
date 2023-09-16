@@ -117,27 +117,27 @@ void DiManager::create_root() {
 void DiManager::initialize() {
   size_t new_size = (size_t)(sizeof(lldesc_t) * DMA_TOTAL_DESCR);
   void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
+  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_dma_descriptor = (volatile lldesc_t *)p;
 
   new_size = (size_t)(sizeof(DiVideoBuffer) * NUM_ACTIVE_BUFFERS);
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
+  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_video_buffer = (volatile DiVideoBuffer *)p;
 
   new_size = (size_t)(sizeof(DiVideoScanLine));
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
+  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_front_porch = (volatile DiVideoScanLine *)p;
 
   new_size = (size_t)(sizeof(DiVideoBuffer));
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
+  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_vertical_sync = (volatile DiVideoBuffer *)p;
 
   new_size = (size_t)(sizeof(DiVideoScanLine));
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
+  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_back_porch = (volatile DiVideoScanLine *)p;
 
   // DMA buffer chain: ACT
