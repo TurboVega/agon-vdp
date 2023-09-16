@@ -83,10 +83,11 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
     debug_log("m_line_pieces.m_num_pieces %u\r\n", m_line_pieces.m_num_pieces);
     for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
       DiLinePiece* piece = &m_line_pieces.m_pieces[i];
-      //debug_log("%u x%i y%i w%i\r\n", i, piece->m_x, piece->m_y, piece->m_width);
+      debug_log("\ni=%u x%i y%i w%i\n", i, piece->m_x, piece->m_y, piece->m_width);
       m_paint_fcn.align32();
       m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
       m_paint_fcn.draw_line(piece->m_x, piece->m_width, false);
+      if (i >= 1) break;
     }
   }
   //debug_log("end DiGeneralLine::generate_instructions\r\n");
