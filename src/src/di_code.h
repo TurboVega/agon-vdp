@@ -24,6 +24,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <vector>
 
 typedef enum {
     a0 = 0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15,
@@ -37,6 +38,13 @@ typedef int32_t s_off_t;   // signed offset
 extern "C" {
 typedef void (*CallEspFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index);
 };
+
+typedef struct {
+    uint32_t code_index;
+    uint32_t fcn_address;
+} EspFixup;
+
+typedef std::vector<EspFixup> EspFixups;
 
 class EspFunction {
     public:
@@ -80,10 +88,11 @@ class EspFunction {
     void draw_pixel(uint32_t x);
 
     // Ex: X1=27, x2=55, color=0x03030303
-    void draw_line(uint32_t x, uint32_t width, bool outer_fcn);
+    void draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn);
 
     // Common operations in functions:
 
+    void do_fixups(EspFixups& fixups);
     uint32_t enter_outer_function();
     uint32_t enter_inner_function();
     void leave_outer_function();

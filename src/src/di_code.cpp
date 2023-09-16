@@ -290,14 +290,12 @@ void EspFunction::draw_pixel(uint32_t x) {
 }
 
 // Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
-void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
-    debug_log("\nenter draw_line %i %i %i\n", x, width, outer_fcn);
+void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn) {
+    //debug_log("\nenter draw_line %i %i %i\n", x, width, outer_fcn);
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
     auto at_x = d32(aligned_x);
-    std::vector<uint32_t> call_spots;
-    std::vector<uint32_t> call_dests;
 
     begin_code(at_jump);
 
@@ -311,7 +309,7 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
     }
 
     while (width) {
-        debug_log("  x=%i, w=%i\n", x, width);
+        //debug_log("  x=%i, w=%i\n", x, width);
         auto offset = x & 3;
         uint32_t sub = 1;
         switch (offset) {
@@ -321,83 +319,82 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
                         // Need at least 64 full words
                         auto times = width / 256;
                         movi(REG_LOOP_INDEX, times);
-                        call_spots.push_back(get_code_index());
-                        call_dests.push_back((uint32_t) &fcn_draw_256_pixels_in_loop);
-                        debug_log(">> call fcn_draw_256_pixels_in_loop <<\n");
+                        fixups.push_back(EspFixup { get_code_index(),
+                            ((uint32_t) &fcn_draw_256_pixels_in_loop) });
+                        //debug_log(">> call fcn_draw_256_pixels_in_loop <<\n");
                         call0(0);
                         sub = times * 256;
                     } else if (width >= 128) {
                         // Need at least 32 full words
                         if (width > 128) {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_128_pixels);
-                            debug_log(">> call fcn_draw_128_pixels <<\n");
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_128_pixels) });
+                            //debug_log(">> call fcn_draw_128_pixels <<\n");
                             call0(0);
-                        }
-                        else {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_128_pixels_last);
-                            debug_log(">> call fcn_draw_128_pixels_last <<\n");
+                        } else {
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_128_pixels_last) });
+                            //debug_log(">> call fcn_draw_128_pixels_last <<\n");
                             call0(0);
                         }
                         sub = 128;
                     } else if (width >= 64) {
                         // Need at least 16 full words
                         if (width > 64) {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_64_pixels);
-                            debug_log(">> call fcn_draw_64_pixels <<\n");
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_64_pixels) });
+                            //debug_log(">> call fcn_draw_64_pixels <<\n");
                             call0(0);
                         }
                         else {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_64_pixels_last);
-                            debug_log(">> call fcn_draw_64_pixels_last <<\n");
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_64_pixels_last) });
+                            //debug_log(">> call fcn_draw_64_pixels_last <<\n");
                             call0(0);
                         }
                         sub = 64;
                     } else if (width >= 32) {
                         // Need at least 8 full words
                         if (width > 32) {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_32_pixels);
-                            debug_log(">> call fcn_draw_32_pixels <<\n");
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_32_pixels) });
+                            //debug_log(">> call fcn_draw_32_pixels <<\n");
                             call0(0);
                         }
                         else {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_32_pixels_last);
-                            debug_log(">> call fcn_draw_32_pixels_last <<\n");
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_32_pixels_last) });
+                            //debug_log(">> call fcn_draw_32_pixels_last <<\n");
                             call0(0);
                         }
                         sub = 32;
                     } else if (width >= 16) {
                         // Need at least 4 full words
                         if (width > 16) {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_16_pixels);
-                            debug_log(">> call fcn_draw_16_pixels <<\n");
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_16_pixels) });
+                            //debug_log(">> call fcn_draw_16_pixels <<\n");
                             call0(0);
                         }
                         else {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_16_pixels_last);
-                            debug_log(">> call fcn_draw_16_pixels_last <<\n");
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_16_pixels_last) });
+                            //debug_log(">> call fcn_draw_16_pixels_last <<\n");
                             call0(0);
                         }
                         sub = 16;
                     } else if (width >= 8) {
                         // Need at least 2 full words
                         if (width > 8) {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_8_pixels);
-                            debug_log(">> call fcn_draw_8_pixels <<\n");
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_8_pixels) });
+                            //debug_log(">> call fcn_draw_8_pixels <<\n");
                             call0(0);
                         }
                         else {
-                            call_spots.push_back(get_code_index());
-                            call_dests.push_back((uint32_t) &fcn_draw_8_pixels_last);
-                            debug_log(">> call fcn_draw_8_pixels_last <<\n");
+                            fixups.push_back(EspFixup { get_code_index(),
+                                ((uint32_t) &fcn_draw_8_pixels_last) });
+                            //debug_log(">> call fcn_draw_8_pixels_last <<\n");
                             call0(0);
                         }
                         sub = 8;
@@ -463,16 +460,18 @@ void EspFunction::draw_line(uint32_t x, uint32_t width, bool outer_fcn) {
         leave_inner_function();
     }
 
-    // Repair calls, if any
+    //debug_log("leave draw_line\n");
+}
+
+void EspFunction::do_fixups(EspFixups& fixups) {
     uint32_t save_pc = get_code_index();
-    for (auto spot = call_spots.begin(), dest = call_dests.begin();
-        spot != call_spots.end() && dest != call_dests.end();
-        ++spot, ++dest) {
-        set_code_index(*spot);
-        call_inner_fcn(*dest);
+    for (auto fixup = fixups.begin();
+        fixup != fixups.end();
+        ++fixup) {
+        set_code_index(fixup->code_index);
+        call_inner_fcn(fixup->fcn_address);
     }
     set_code_index(save_pc);
-    //debug_log("leave draw_line\n");
 }
 
 uint32_t EspFunction::enter_outer_function() {
@@ -576,7 +575,7 @@ void EspFunction::align32() {
 
 void EspFunction::j_to_here(uint32_t from) {
     uint32_t save_pc = get_code_index();
-    debug_log("  jump from %04X(%u) to %04X(%u)\n", from, from, save_pc, save_pc);
+    //debug_log("  jump from %04X(%u) to %04X(%u)\n", from, from, save_pc, save_pc);
     set_code_index(from);
     j(save_pc - from - 4);
     set_code_index(save_pc);
@@ -624,7 +623,7 @@ void EspFunction::allocate(uint32_t size) {
 uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
     allocate(1);
     auto at_data = get_code_index();
-    debug_log("  %08X/%04hX: %02hX       %s\n", get_real_address(), at_data, data & 0xFF, mnemonic);
+    //debug_log("  %08X/%04hX: %02hX       %s\n", get_real_address(), at_data, data & 0xFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     return at_data;
 }
@@ -632,7 +631,7 @@ uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
     allocate(2);
     auto at_data = get_code_index();
-    debug_log("  %08X/%04hX: %04hX     %s\n", get_real_address(), at_data, data & 0xFFFF, mnemonic);
+    //debug_log("  %08X/%04hX: %04hX     %s\n", get_real_address(), at_data, data & 0xFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     return at_data;
@@ -641,7 +640,7 @@ uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
     allocate(3);
     auto at_data = get_code_index();
-    debug_log("  %08X/%04hX: %06X   %s\n", get_real_address(), at_data, data & 0xFFFFFF, mnemonic);
+    //debug_log("  %08X/%04hX: %06X   %s\n", get_real_address(), at_data, data & 0xFFFFFF, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
@@ -651,7 +650,7 @@ uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
     allocate(4);
     auto at_data = get_code_index();
-    debug_log("  %08X/%04hX: %08X %s\n", get_real_address(), at_data, data, mnemonic);
+    //debug_log("  %08X/%04hX: %08X %s\n", get_real_address(), at_data, data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));

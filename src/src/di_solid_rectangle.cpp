@@ -47,7 +47,9 @@ void IRAM_ATTR DiSolidRectangle::delete_instructions() {
 void IRAM_ATTR DiSolidRectangle::generate_instructions() {
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
-    m_paint_fcn.draw_line(m_draw_x, m_width, true);
+    EspFixups fixups;
+    m_paint_fcn.draw_line(fixups, m_draw_x, m_width, true);
+    m_paint_fcn.do_fixups(fixups);
   }
 }
 
