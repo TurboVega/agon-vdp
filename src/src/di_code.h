@@ -48,7 +48,6 @@ typedef std::vector<EspFixup> EspFixups;
 
 class EspFunction {
     public:
-    EspFunction(bool init);
     EspFunction();
     ~EspFunction();
 

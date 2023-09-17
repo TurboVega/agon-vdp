@@ -93,17 +93,9 @@ DiManager::DiManager() {
 
 DiManager::~DiManager() {
     clear();
-
-    if (m_jumps_to_code) {
-      delete m_jumps_to_code;
-    }
 }
 
 void DiManager::create_root() {
-  debug_log("creating jumps\n");
-  m_jumps_to_code = new EspFunction(true);
-  debug_log("created jumps\n");
-
   // The root primitive covers the entire screen, and is not drawn.
   // The application should define what the base layer of the screen
   // is (e.g., solid rectangle, terminal, tile map, etc.).
