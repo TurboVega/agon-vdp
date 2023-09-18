@@ -53,41 +53,18 @@ class EspFunction {
 
     // Pixel-level operations:
 
-    // Ex: X=0, w=1: b[2]=c
-    void set_1_pixel_at_offset_0();
-
-    // Ex: X=1, w=1: b[3]=c
-    void set_1_pixel_at_offset_1();
-
-    // Ex: X=2, w=1: b[0]=c
-    void set_1_pixel_at_offset_2();
-
-    // Ex: X=3, w=1: b[1]=c
-    void set_1_pixel_at_offset_3();
-
-    // Ex: X=0, w=2: h[2]=c1c0
-    void set_2_pixels_at_offset_0();
-
-    // Ex: X=1, w=2: b[3]=c0; b[0]=c1
-    void set_2_pixels_at_offset_1();
-
-    // Ex: X=2, w=2: h[0]=c1c0
-    void set_2_pixels_at_offset_2();
-
-    // Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
-    void set_3_pixels_at_offset_0();
-
-    // Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
-    void set_3_pixels_at_offset_1();
-
-    // Ex: X=0, w=4: w=c1c0c3c2
-    void set_4_pixels_at_offset(u_off_t word_offset);
-
-    // Ex: X1=27, x2=55, color=0x03
+    void set_1_pixel_at_offset_0(uint8_t opaqueness);
+    void set_1_pixel_at_offset_1(uint8_t opaqueness);
+    void set_1_pixel_at_offset_2(uint8_t opaqueness);
+    void set_1_pixel_at_offset_3(uint8_t opaqueness);
+    void set_2_pixels_at_offset_0(uint8_t opaqueness);
+    void set_2_pixels_at_offset_1(uint8_t opaqueness);
+    void set_2_pixels_at_offset_2(uint8_t opaqueness);
+    void set_3_pixels_at_offset_0(uint8_t opaqueness);
+    void set_3_pixels_at_offset_1(uint8_t opaqueness);
+    void set_4_pixels_at_offset(u_off_t word_offset, uint8_t opaqueness);
     void draw_pixel(uint32_t x);
-
-    // Ex: X1=27, x2=55, color=0x03030303
-    void draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn);
+    void draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness);
 
     // Common operations in functions:
 

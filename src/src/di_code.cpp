@@ -117,7 +117,7 @@ extern uint32_t fcn_blend_25_for_3_pixels_at_offset_1_last;
 extern uint32_t fcn_blend_25_for_4_pixels_at_offset_0;
 extern uint32_t fcn_blend_25_for_4_pixels_at_offset_0_last;
 
-extern uint32_t fcn_blend_50_for_506_pixels_in_loop;
+extern uint32_t fcn_blend_50_for_256_pixels_in_loop;
 extern uint32_t fcn_blend_50_for_128_pixels;
 extern uint32_t fcn_blend_50_for_128_pixels_last;
 extern uint32_t fcn_blend_50_for_64_pixels;
@@ -198,60 +198,149 @@ void EspFunction::init_members() {
     m_code = 0;
 }
 
-// Ex: X=0, w=1: b[2]=c
-void EspFunction::set_1_pixel_at_offset_0() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+void EspFunction::set_1_pixel_at_offset_0(uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+            break;
+    }
 }
 
-// Ex: X=1, w=1: b[3]=c
-void EspFunction::set_1_pixel_at_offset_1() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+void EspFunction::set_1_pixel_at_offset_1(uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+            break;
+    }
 }
 
-// Ex: X=2, w=1: b[0]=c
-void EspFunction::set_1_pixel_at_offset_2() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+void EspFunction::set_1_pixel_at_offset_2(uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+            break;
+    }
 }
 
-// Ex: X=3, w=1: b[1]=c
-void EspFunction::set_1_pixel_at_offset_3() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
+void EspFunction::set_1_pixel_at_offset_3(uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
+            break;
+    }
 }
 
-// Ex: X=0, w=2: h[2]=c1c0
-void EspFunction::set_2_pixels_at_offset_0() {
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+void EspFunction::set_2_pixels_at_offset_0(uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+            break;
+    }
 }
 
-// Ex: X=1, w=2: b[3]=c0; b[0]=c1
-void EspFunction::set_2_pixels_at_offset_1() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+void EspFunction::set_2_pixels_at_offset_1(uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+            break;
+    }
 }
 
-// Ex: X=2, w=2: h[0]=c1c0
-void EspFunction::set_2_pixels_at_offset_2() {
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
+void EspFunction::set_2_pixels_at_offset_2(uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
+            break;
+    }
 }
 
-// Ex: X=0, w=3: h[2]=c1c0; b[0]=c2
-void EspFunction::set_3_pixels_at_offset_0() {
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+void EspFunction::set_3_pixels_at_offset_0(uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+            break;
+    }
 }
 
-// Ex: X=1, w=3: b[3]=c0; h[0]=c2c1
-void EspFunction::set_3_pixels_at_offset_1() {
-    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
-    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+void EspFunction::set_3_pixels_at_offset_1(uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
+            s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+            break;
+    }
 }
 
-// Ex: X=0, w=4: w=c1c0c3c2
-void EspFunction::set_4_pixels_at_offset(u_off_t offset) {
-    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, offset);
+void EspFunction::set_4_pixels_at_offset(u_off_t offset, uint8_t opaqueness) {
+    switch (opaqueness) {
+        case 25:
+            break;
+        case 50:
+            break;
+        case 75:
+            break;
+        case 100:
+            s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, offset);
+            break;
+    }
 }
 
-// Ex: X1=27, x2=55, color=0x03
 void EspFunction::draw_pixel(uint32_t x) {
     auto at_jump = enter_outer_function();
     auto at_data = begin_data();
@@ -264,17 +353,16 @@ void EspFunction::draw_pixel(uint32_t x) {
 
     auto offset = x & 3;
     switch (offset) {
-        case 0: set_1_pixel_at_offset_0(); break;
-        case 1: set_1_pixel_at_offset_1(); break;
-        case 2: set_1_pixel_at_offset_2(); break;
-        default: set_1_pixel_at_offset_3(); break;
+        case 0: set_1_pixel_at_offset_0(100); break;
+        case 1: set_1_pixel_at_offset_1(100); break;
+        case 2: set_1_pixel_at_offset_2(100); break;
+        default: set_1_pixel_at_offset_3(100); break;
     }
 
     leave_outer_function();
 }
 
-// Ex: X1=27, x2=55, color=0x03030303, outer_fcn=true
-void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn) {
+void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness) {
     //debug_log("\nenter draw_line %i %i %i\n", x, width, outer_fcn);
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
@@ -292,6 +380,8 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
         mov(REG_SAVE_RET_INNER, REG_RETURN_ADDR);
     }
 
+    uint32_t p_fcn = 0;
+
     while (width) {
         //debug_log("  x=%i, w=%i\n", x, width);
         auto offset = x & 3;
@@ -303,21 +393,60 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         // Need at least 64 full words
                         auto times = width / 256;
                         movi(REG_LOOP_INDEX, times);
-                        fixups.push_back(EspFixup { get_code_index(),
-                            ((uint32_t) &fcn_draw_256_pixels_in_loop) });
+                        switch (opaqueness) {
+                            case 25:
+                                p_fcn = (uint32_t) &fcn_blend_25_for_256_pixels_in_loop;
+                                break;
+                            case 50:
+                                p_fcn = (uint32_t) &fcn_blend_50_for_256_pixels_in_loop;
+                                break;
+                            case 75:
+                                p_fcn =  (uint32_t) &fcn_blend_75_for_256_pixels_in_loop;
+                                break;
+                            case 100:
+                                p_fcn = (uint32_t) &fcn_draw_256_pixels_in_loop;
+                                break;
+                        }
+                        fixups.push_back(EspFixup { get_code_index(), p_fcn });
                         //debug_log(">> call fcn_draw_256_pixels_in_loop <<\n");
                         call0(0);
                         sub = times * 256;
                     } else if (width >= 128) {
                         // Need at least 32 full words
                         if (width > 128) {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_128_pixels) });
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_128_pixels;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_128_pixels;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_128_pixels;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_128_pixels;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_128_pixels <<\n");
                             call0(0);
                         } else {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_128_pixels_last) });
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_128_pixels_last;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_128_pixels_last;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_128_pixels_last;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_128_pixels_last;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_128_pixels_last <<\n");
                             call0(0);
                         }
@@ -325,14 +454,39 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     } else if (width >= 64) {
                         // Need at least 16 full words
                         if (width > 64) {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_64_pixels) });
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_64_pixels;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_64_pixels;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_64_pixels;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_64_pixels;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_64_pixels <<\n");
                             call0(0);
-                        }
-                        else {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_64_pixels_last) });
+                        } else {
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_64_pixels_last;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_64_pixels_last;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_64_pixels_last;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_64_pixels_last;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_64_pixels_last <<\n");
                             call0(0);
                         }
@@ -340,14 +494,39 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     } else if (width >= 32) {
                         // Need at least 8 full words
                         if (width > 32) {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_32_pixels) });
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_32_pixels;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_32_pixels;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_32_pixels;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_32_pixels;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_32_pixels <<\n");
                             call0(0);
-                        }
-                        else {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_32_pixels_last) });
+                        } else {
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_32_pixels_last;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_32_pixels_last;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_32_pixels_last;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_32_pixels_last;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_32_pixels_last <<\n");
                             call0(0);
                         }
@@ -355,14 +534,39 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     } else if (width >= 16) {
                         // Need at least 4 full words
                         if (width > 16) {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_16_pixels) });
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_16_pixels;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_16_pixels;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_16_pixels;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_16_pixels;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_16_pixels <<\n");
                             call0(0);
-                        }
-                        else {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_16_pixels_last) });
+                        } else {
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_16_pixels_last;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_16_pixels_last;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_16_pixels_last;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_16_pixels_last;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_16_pixels_last <<\n");
                             call0(0);
                         }
@@ -370,21 +574,46 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     } else if (width >= 8) {
                         // Need at least 2 full words
                         if (width > 8) {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_8_pixels) });
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_8_pixels;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_8_pixels;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_8_pixels;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_8_pixels;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_8_pixels <<\n");
                             call0(0);
-                        }
-                        else {
-                            fixups.push_back(EspFixup { get_code_index(),
-                                ((uint32_t) &fcn_draw_8_pixels_last) });
+                        } else {
+                            switch (opaqueness) {
+                                case 25:
+                                    p_fcn = (uint32_t) &fcn_blend_25_for_8_pixels_last;
+                                    break;
+                                case 50:
+                                    p_fcn = (uint32_t) &fcn_blend_50_for_8_pixels_last;
+                                    break;
+                                case 75:
+                                    p_fcn = (uint32_t) &fcn_blend_75_for_8_pixels_last;
+                                    break;
+                                case 100:
+                                    p_fcn = (uint32_t) &fcn_draw_8_pixels_last;
+                                    break;
+                            }
+                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
                             //debug_log(">> call fcn_draw_8_pixels_last <<\n");
                             call0(0);
                         }
                         sub = 8;
                     } else {
                         // Need at least 1 full word
-                        set_4_pixels_at_offset(0);
+                        set_4_pixels_at_offset(0, opaqueness);
                         sub = 4;
                         if (width > 4) {
                             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
@@ -394,39 +623,39 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     x += sub;
                     continue;
                 } else if (width == 3) {
-                    set_3_pixels_at_offset_0();
+                    set_3_pixels_at_offset_0(opaqueness);
                     sub = 3;
                 } else if (width == 2) {
-                    set_2_pixels_at_offset_0();
+                    set_2_pixels_at_offset_0(opaqueness);
                     sub = 2;
                 } else { // width == 1
-                    set_1_pixel_at_offset_0();
+                    set_1_pixel_at_offset_0(opaqueness);
                 }
                 break;
 
             case 1:
                 if (width >= 3) {
-                    set_3_pixels_at_offset_1();
+                    set_3_pixels_at_offset_1(opaqueness);
                     sub = 3;                
                 } else if (width == 2) {
-                    set_2_pixels_at_offset_1();
+                    set_2_pixels_at_offset_1(opaqueness);
                     sub = 2;
                 } else { // width == 1
-                    set_1_pixel_at_offset_1();
+                    set_1_pixel_at_offset_1(opaqueness);
                 }
                 break;
 
             case 2:
                 if (width >= 2) {
-                    set_2_pixels_at_offset_2();
+                    set_2_pixels_at_offset_2(opaqueness);
                     sub = 2;
                 } else { // width == 1
-                    set_1_pixel_at_offset_2();
+                    set_1_pixel_at_offset_2(opaqueness);
                 }
                 break;
             
             case 3:
-                set_1_pixel_at_offset_3();
+                set_1_pixel_at_offset_3(opaqueness);
                 break;
         }
         width -= sub;

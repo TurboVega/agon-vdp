@@ -40,7 +40,8 @@ static int32_t max3(int32_t a, int32_t b, int32_t c) {
 
 DiGeneralLine::DiGeneralLine() {}
 
-void DiGeneralLine::init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color) {
+void DiGeneralLine::init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t opaqueness) {
+  m_opaqueness = opaqueness;
   m_rel_x = MIN(x1,x2);
   m_rel_y = MIN(y1,y2);
   m_width = MAX(x1,x2) - m_rel_x + 1;
@@ -56,7 +57,8 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
 }
 
 void DiGeneralLine::init_params(int32_t x1, int32_t y1,
-  int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color) {
+  int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color, uint8_t opaqueness) {
+  m_opaqueness = opaqueness;
   m_rel_x = min3(x1,x2,x3);
   m_rel_y = min3(y1,y2,y3);
   m_width = max3(x1,x2,x3) - m_rel_x + 1;
@@ -87,7 +89,7 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
       //debug_log("\ni=%u x%i y%i w%i\n", i, piece->m_x, piece->m_y, piece->m_width);
       m_paint_fcn.align32();
       m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
-      m_paint_fcn.draw_line(fixups, piece->m_x, piece->m_width, false);
+      m_paint_fcn.draw_line(fixups, piece->m_x, piece->m_width, false, m_opaqueness);
     }
     m_paint_fcn.do_fixups(fixups);
   }

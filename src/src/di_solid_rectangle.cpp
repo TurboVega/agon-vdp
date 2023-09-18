@@ -29,11 +29,11 @@ DiSolidRectangle::DiSolidRectangle() {
 }
 
 void DiSolidRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
+  m_opaqueness = DiPrimitive::color_to_opaqueness(color);
   m_rel_x = x;
   m_rel_y = y;
   m_width = width;
   m_height = height;
-  color &= 0x3F; // remove any alpha bits
   m_color = (((uint32_t)color) << 24) |
       (((uint32_t)color) << 16) |
       (((uint32_t)color) << 8) |
@@ -48,7 +48,7 @@ void IRAM_ATTR DiSolidRectangle::generate_instructions() {
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     EspFixups fixups;
-    m_paint_fcn.draw_line(fixups, m_draw_x, m_width, true);
+    m_paint_fcn.draw_line(fixups, m_draw_x, m_width, true, m_opaqueness);
     m_paint_fcn.do_fixups(fixups);
   }
 }

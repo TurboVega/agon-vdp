@@ -88,7 +88,7 @@
   .global   fcn_blend_25_for_4_pixels_at_offset_0
   .global   fcn_blend_25_for_4_pixels_at_offset_0_last
 
-  .global   fcn_blend_50_for_506_pixels_in_loop
+  .global   fcn_blend_50_for_256_pixels_in_loop
   .global   fcn_blend_50_for_128_pixels
   .global   fcn_blend_50_for_128_pixels_last
   .global   fcn_blend_50_for_64_pixels

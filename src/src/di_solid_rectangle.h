@@ -29,6 +29,8 @@
 
 class DiSolidRectangle: public DiPrimitive {
   public:
+  uint8_t   m_opaqueness;
+
   // Construct a solid rectangle. This requires calling init_params() afterward.
   DiSolidRectangle();
   
