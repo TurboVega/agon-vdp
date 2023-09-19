@@ -85,101 +85,197 @@ extern uint32_t fcn_copy_16_pixels_last;
 extern uint32_t fcn_copy_8_pixels;
 extern uint32_t fcn_copy_8_pixels_last;
 
-extern uint32_t fcn_blend_25_for_256_pixels_in_loop;
-extern uint32_t fcn_blend_25_for_128_pixels;
-extern uint32_t fcn_blend_25_for_128_pixels_last;
-extern uint32_t fcn_blend_25_for_64_pixels;
-extern uint32_t fcn_blend_25_for_64_pixels_last;
-extern uint32_t fcn_blend_25_for_32_pixels;
-extern uint32_t fcn_blend_25_for_32_pixels_last;
-extern uint32_t fcn_blend_25_for_16_pixels;
-extern uint32_t fcn_blend_25_for_16_pixels_last;
-extern uint32_t fcn_blend_25_for_8_pixels;
-extern uint32_t fcn_blend_25_for_8_pixels_last;
-extern uint32_t fcn_blend_25_for_1_pixel_at_offset_0;
-extern uint32_t fcn_blend_25_for_1_pixel_at_offset_0_last;
-extern uint32_t fcn_blend_25_for_1_pixel_at_offset_1;
-extern uint32_t fcn_blend_25_for_1_pixel_at_offset_1_last;
-extern uint32_t fcn_blend_25_for_1_pixel_at_offset_2;
-extern uint32_t fcn_blend_25_for_1_pixel_at_offset_2_last;
-extern uint32_t fcn_blend_25_for_1_pixel_at_offset_3;
-extern uint32_t fcn_blend_25_for_1_pixel_at_offset_3_last;
-extern uint32_t fcn_blend_25_for_2_pixels_at_offset_0;
-extern uint32_t fcn_blend_25_for_2_pixels_at_offset_0_last;
-extern uint32_t fcn_blend_25_for_2_pixels_at_offset_1;
-extern uint32_t fcn_blend_25_for_2_pixels_at_offset_1_last;
-extern uint32_t fcn_blend_25_for_2_pixels_at_offset_2;
-extern uint32_t fcn_blend_25_for_2_pixels_at_offset_2_last;
-extern uint32_t fcn_blend_25_for_3_pixels_at_offset_0;
-extern uint32_t fcn_blend_25_for_3_pixels_at_offset_0_last;
-extern uint32_t fcn_blend_25_for_3_pixels_at_offset_1;
-extern uint32_t fcn_blend_25_for_3_pixels_at_offset_1_last;
-extern uint32_t fcn_blend_25_for_4_pixels_at_offset_0;
-extern uint32_t fcn_blend_25_for_4_pixels_at_offset_0_last;
+extern uint32_t fcn_color_blend_25_for_256_pixels_in_loop;
+extern uint32_t fcn_color_blend_25_for_128_pixels;
+extern uint32_t fcn_color_blend_25_for_128_pixels_last;
+extern uint32_t fcn_color_blend_25_for_64_pixels;
+extern uint32_t fcn_color_blend_25_for_64_pixels_last;
+extern uint32_t fcn_color_blend_25_for_32_pixels;
+extern uint32_t fcn_color_blend_25_for_32_pixels_last;
+extern uint32_t fcn_color_blend_25_for_16_pixels;
+extern uint32_t fcn_color_blend_25_for_16_pixels_last;
+extern uint32_t fcn_color_blend_25_for_8_pixels;
+extern uint32_t fcn_color_blend_25_for_8_pixels_last;
+extern uint32_t fcn_color_blend_25_for_1_pixel_at_offset_0;
+extern uint32_t fcn_color_blend_25_for_1_pixel_at_offset_0_last;
+extern uint32_t fcn_color_blend_25_for_1_pixel_at_offset_1;
+extern uint32_t fcn_color_blend_25_for_1_pixel_at_offset_1_last;
+extern uint32_t fcn_color_blend_25_for_1_pixel_at_offset_2;
+extern uint32_t fcn_color_blend_25_for_1_pixel_at_offset_2_last;
+extern uint32_t fcn_color_blend_25_for_1_pixel_at_offset_3;
+extern uint32_t fcn_color_blend_25_for_1_pixel_at_offset_3_last;
+extern uint32_t fcn_color_blend_25_for_2_pixels_at_offset_0;
+extern uint32_t fcn_color_blend_25_for_2_pixels_at_offset_0_last;
+extern uint32_t fcn_color_blend_25_for_2_pixels_at_offset_1;
+extern uint32_t fcn_color_blend_25_for_2_pixels_at_offset_1_last;
+extern uint32_t fcn_color_blend_25_for_2_pixels_at_offset_2;
+extern uint32_t fcn_color_blend_25_for_2_pixels_at_offset_2_last;
+extern uint32_t fcn_color_blend_25_for_3_pixels_at_offset_0;
+extern uint32_t fcn_color_blend_25_for_3_pixels_at_offset_0_last;
+extern uint32_t fcn_color_blend_25_for_3_pixels_at_offset_1;
+extern uint32_t fcn_color_blend_25_for_3_pixels_at_offset_1_last;
+extern uint32_t fcn_color_blend_25_for_4_pixels_at_offset_0;
+extern uint32_t fcn_color_blend_25_for_4_pixels_at_offset_0_last;
 
-extern uint32_t fcn_blend_50_for_256_pixels_in_loop;
-extern uint32_t fcn_blend_50_for_128_pixels;
-extern uint32_t fcn_blend_50_for_128_pixels_last;
-extern uint32_t fcn_blend_50_for_64_pixels;
-extern uint32_t fcn_blend_50_for_64_pixels_last;
-extern uint32_t fcn_blend_50_for_32_pixels;
-extern uint32_t fcn_blend_50_for_32_pixels_last;
-extern uint32_t fcn_blend_50_for_16_pixels;
-extern uint32_t fcn_blend_50_for_16_pixels_last;
-extern uint32_t fcn_blend_50_for_8_pixels;
-extern uint32_t fcn_blend_50_for_8_pixels_last;
-extern uint32_t fcn_blend_50_for_1_pixel_at_offset_0;
-extern uint32_t fcn_blend_50_for_1_pixel_at_offset_0_last;
-extern uint32_t fcn_blend_50_for_1_pixel_at_offset_1;
-extern uint32_t fcn_blend_50_for_1_pixel_at_offset_1_last;
-extern uint32_t fcn_blend_50_for_1_pixel_at_offset_2;
-extern uint32_t fcn_blend_50_for_1_pixel_at_offset_2_last;
-extern uint32_t fcn_blend_50_for_1_pixel_at_offset_3;
-extern uint32_t fcn_blend_50_for_1_pixel_at_offset_3_last;
-extern uint32_t fcn_blend_50_for_2_pixels_at_offset_0;
-extern uint32_t fcn_blend_50_for_2_pixels_at_offset_0_last;
-extern uint32_t fcn_blend_50_for_2_pixels_at_offset_1;
-extern uint32_t fcn_blend_50_for_2_pixels_at_offset_1_last;
-extern uint32_t fcn_blend_50_for_2_pixels_at_offset_2;
-extern uint32_t fcn_blend_50_for_2_pixels_at_offset_2_last;
-extern uint32_t fcn_blend_50_for_3_pixels_at_offset_0;
-extern uint32_t fcn_blend_50_for_3_pixels_at_offset_0_last;
-extern uint32_t fcn_blend_50_for_3_pixels_at_offset_1;
-extern uint32_t fcn_blend_50_for_3_pixels_at_offset_1_last;
-extern uint32_t fcn_blend_50_for_4_pixels_at_offset_0;
-extern uint32_t fcn_blend_50_for_4_pixels_at_offset_0_last;
+extern uint32_t fcn_color_blend_50_for_256_pixels_in_loop;
+extern uint32_t fcn_color_blend_50_for_128_pixels;
+extern uint32_t fcn_color_blend_50_for_128_pixels_last;
+extern uint32_t fcn_color_blend_50_for_64_pixels;
+extern uint32_t fcn_color_blend_50_for_64_pixels_last;
+extern uint32_t fcn_color_blend_50_for_32_pixels;
+extern uint32_t fcn_color_blend_50_for_32_pixels_last;
+extern uint32_t fcn_color_blend_50_for_16_pixels;
+extern uint32_t fcn_color_blend_50_for_16_pixels_last;
+extern uint32_t fcn_color_blend_50_for_8_pixels;
+extern uint32_t fcn_color_blend_50_for_8_pixels_last;
+extern uint32_t fcn_color_blend_50_for_1_pixel_at_offset_0;
+extern uint32_t fcn_color_blend_50_for_1_pixel_at_offset_0_last;
+extern uint32_t fcn_color_blend_50_for_1_pixel_at_offset_1;
+extern uint32_t fcn_color_blend_50_for_1_pixel_at_offset_1_last;
+extern uint32_t fcn_color_blend_50_for_1_pixel_at_offset_2;
+extern uint32_t fcn_color_blend_50_for_1_pixel_at_offset_2_last;
+extern uint32_t fcn_color_blend_50_for_1_pixel_at_offset_3;
+extern uint32_t fcn_color_blend_50_for_1_pixel_at_offset_3_last;
+extern uint32_t fcn_color_blend_50_for_2_pixels_at_offset_0;
+extern uint32_t fcn_color_blend_50_for_2_pixels_at_offset_0_last;
+extern uint32_t fcn_color_blend_50_for_2_pixels_at_offset_1;
+extern uint32_t fcn_color_blend_50_for_2_pixels_at_offset_1_last;
+extern uint32_t fcn_color_blend_50_for_2_pixels_at_offset_2;
+extern uint32_t fcn_color_blend_50_for_2_pixels_at_offset_2_last;
+extern uint32_t fcn_color_blend_50_for_3_pixels_at_offset_0;
+extern uint32_t fcn_color_blend_50_for_3_pixels_at_offset_0_last;
+extern uint32_t fcn_color_blend_50_for_3_pixels_at_offset_1;
+extern uint32_t fcn_color_blend_50_for_3_pixels_at_offset_1_last;
+extern uint32_t fcn_color_blend_50_for_4_pixels_at_offset_0;
+extern uint32_t fcn_color_blend_50_for_4_pixels_at_offset_0_last;
 
-extern uint32_t fcn_blend_75_for_256_pixels_in_loop;
-extern uint32_t fcn_blend_75_for_128_pixels;
-extern uint32_t fcn_blend_75_for_128_pixels_last;
-extern uint32_t fcn_blend_75_for_64_pixels;
-extern uint32_t fcn_blend_75_for_64_pixels_last;
-extern uint32_t fcn_blend_75_for_32_pixels;
-extern uint32_t fcn_blend_75_for_32_pixels_last;
-extern uint32_t fcn_blend_75_for_16_pixels;
-extern uint32_t fcn_blend_75_for_16_pixels_last;
-extern uint32_t fcn_blend_75_for_8_pixels;
-extern uint32_t fcn_blend_75_for_8_pixels_last;
-extern uint32_t fcn_blend_75_for_1_pixel_at_offset_0;
-extern uint32_t fcn_blend_75_for_1_pixel_at_offset_0_last;
-extern uint32_t fcn_blend_75_for_1_pixel_at_offset_1;
-extern uint32_t fcn_blend_75_for_1_pixel_at_offset_1_last;
-extern uint32_t fcn_blend_75_for_1_pixel_at_offset_2;
-extern uint32_t fcn_blend_75_for_1_pixel_at_offset_2_last;
-extern uint32_t fcn_blend_75_for_1_pixel_at_offset_3;
-extern uint32_t fcn_blend_75_for_1_pixel_at_offset_3_last;
-extern uint32_t fcn_blend_75_for_2_pixels_at_offset_0;
-extern uint32_t fcn_blend_75_for_2_pixels_at_offset_0_last;
-extern uint32_t fcn_blend_75_for_2_pixels_at_offset_1;
-extern uint32_t fcn_blend_75_for_2_pixels_at_offset_1_last;
-extern uint32_t fcn_blend_75_for_2_pixels_at_offset_2;
-extern uint32_t fcn_blend_75_for_2_pixels_at_offset_2_last;
-extern uint32_t fcn_blend_75_for_3_pixels_at_offset_0;
-extern uint32_t fcn_blend_75_for_3_pixels_at_offset_0_last;
-extern uint32_t fcn_blend_75_for_3_pixels_at_offset_1;
-extern uint32_t fcn_blend_75_for_3_pixels_at_offset_1_last;
-extern uint32_t fcn_blend_75_for_4_pixels_at_offset_0;
-extern uint32_t fcn_blend_75_for_4_pixels_at_offset_0_last;
+extern uint32_t fcn_color_blend_75_for_256_pixels_in_loop;
+extern uint32_t fcn_color_blend_75_for_128_pixels;
+extern uint32_t fcn_color_blend_75_for_128_pixels_last;
+extern uint32_t fcn_color_blend_75_for_64_pixels;
+extern uint32_t fcn_color_blend_75_for_64_pixels_last;
+extern uint32_t fcn_color_blend_75_for_32_pixels;
+extern uint32_t fcn_color_blend_75_for_32_pixels_last;
+extern uint32_t fcn_color_blend_75_for_16_pixels;
+extern uint32_t fcn_color_blend_75_for_16_pixels_last;
+extern uint32_t fcn_color_blend_75_for_8_pixels;
+extern uint32_t fcn_color_blend_75_for_8_pixels_last;
+extern uint32_t fcn_color_blend_75_for_1_pixel_at_offset_0;
+extern uint32_t fcn_color_blend_75_for_1_pixel_at_offset_0_last;
+extern uint32_t fcn_color_blend_75_for_1_pixel_at_offset_1;
+extern uint32_t fcn_color_blend_75_for_1_pixel_at_offset_1_last;
+extern uint32_t fcn_color_blend_75_for_1_pixel_at_offset_2;
+extern uint32_t fcn_color_blend_75_for_1_pixel_at_offset_2_last;
+extern uint32_t fcn_color_blend_75_for_1_pixel_at_offset_3;
+extern uint32_t fcn_color_blend_75_for_1_pixel_at_offset_3_last;
+extern uint32_t fcn_color_blend_75_for_2_pixels_at_offset_0;
+extern uint32_t fcn_color_blend_75_for_2_pixels_at_offset_0_last;
+extern uint32_t fcn_color_blend_75_for_2_pixels_at_offset_1;
+extern uint32_t fcn_color_blend_75_for_2_pixels_at_offset_1_last;
+extern uint32_t fcn_color_blend_75_for_2_pixels_at_offset_2;
+extern uint32_t fcn_color_blend_75_for_2_pixels_at_offset_2_last;
+extern uint32_t fcn_color_blend_75_for_3_pixels_at_offset_0;
+extern uint32_t fcn_color_blend_75_for_3_pixels_at_offset_0_last;
+extern uint32_t fcn_color_blend_75_for_3_pixels_at_offset_1;
+extern uint32_t fcn_color_blend_75_for_3_pixels_at_offset_1_last;
+extern uint32_t fcn_color_blend_75_for_4_pixels_at_offset_0;
+extern uint32_t fcn_color_blend_75_for_4_pixels_at_offset_0_last;
+
+extern uint32_t fcn_src_blend_25_for_256_pixels_in_loop;
+extern uint32_t fcn_src_blend_25_for_128_pixels;
+extern uint32_t fcn_src_blend_25_for_128_pixels_last;
+extern uint32_t fcn_src_blend_25_for_64_pixels;
+extern uint32_t fcn_src_blend_25_for_64_pixels_last;
+extern uint32_t fcn_src_blend_25_for_32_pixels;
+extern uint32_t fcn_src_blend_25_for_32_pixels_last;
+extern uint32_t fcn_src_blend_25_for_16_pixels;
+extern uint32_t fcn_src_blend_25_for_16_pixels_last;
+extern uint32_t fcn_src_blend_25_for_8_pixels;
+extern uint32_t fcn_src_blend_25_for_8_pixels_last;
+extern uint32_t fcn_src_blend_25_for_1_pixel_at_offset_0;
+extern uint32_t fcn_src_blend_25_for_1_pixel_at_offset_0_last;
+extern uint32_t fcn_src_blend_25_for_1_pixel_at_offset_1;
+extern uint32_t fcn_src_blend_25_for_1_pixel_at_offset_1_last;
+extern uint32_t fcn_src_blend_25_for_1_pixel_at_offset_2;
+extern uint32_t fcn_src_blend_25_for_1_pixel_at_offset_2_last;
+extern uint32_t fcn_src_blend_25_for_1_pixel_at_offset_3;
+extern uint32_t fcn_src_blend_25_for_1_pixel_at_offset_3_last;
+extern uint32_t fcn_src_blend_25_for_2_pixels_at_offset_0;
+extern uint32_t fcn_src_blend_25_for_2_pixels_at_offset_0_last;
+extern uint32_t fcn_src_blend_25_for_2_pixels_at_offset_1;
+extern uint32_t fcn_src_blend_25_for_2_pixels_at_offset_1_last;
+extern uint32_t fcn_src_blend_25_for_2_pixels_at_offset_2;
+extern uint32_t fcn_src_blend_25_for_2_pixels_at_offset_2_last;
+extern uint32_t fcn_src_blend_25_for_3_pixels_at_offset_0;
+extern uint32_t fcn_src_blend_25_for_3_pixels_at_offset_0_last;
+extern uint32_t fcn_src_blend_25_for_3_pixels_at_offset_1;
+extern uint32_t fcn_src_blend_25_for_3_pixels_at_offset_1_last;
+extern uint32_t fcn_src_blend_25_for_4_pixels_at_offset_0;
+extern uint32_t fcn_src_blend_25_for_4_pixels_at_offset_0_last;
+
+extern uint32_t fcn_src_blend_50_for_256_pixels_in_loop;
+extern uint32_t fcn_src_blend_50_for_128_pixels;
+extern uint32_t fcn_src_blend_50_for_128_pixels_last;
+extern uint32_t fcn_src_blend_50_for_64_pixels;
+extern uint32_t fcn_src_blend_50_for_64_pixels_last;
+extern uint32_t fcn_src_blend_50_for_32_pixels;
+extern uint32_t fcn_src_blend_50_for_32_pixels_last;
+extern uint32_t fcn_src_blend_50_for_16_pixels;
+extern uint32_t fcn_src_blend_50_for_16_pixels_last;
+extern uint32_t fcn_src_blend_50_for_8_pixels;
+extern uint32_t fcn_src_blend_50_for_8_pixels_last;
+extern uint32_t fcn_src_blend_50_for_1_pixel_at_offset_0;
+extern uint32_t fcn_src_blend_50_for_1_pixel_at_offset_0_last;
+extern uint32_t fcn_src_blend_50_for_1_pixel_at_offset_1;
+extern uint32_t fcn_src_blend_50_for_1_pixel_at_offset_1_last;
+extern uint32_t fcn_src_blend_50_for_1_pixel_at_offset_2;
+extern uint32_t fcn_src_blend_50_for_1_pixel_at_offset_2_last;
+extern uint32_t fcn_src_blend_50_for_1_pixel_at_offset_3;
+extern uint32_t fcn_src_blend_50_for_1_pixel_at_offset_3_last;
+extern uint32_t fcn_src_blend_50_for_2_pixels_at_offset_0;
+extern uint32_t fcn_src_blend_50_for_2_pixels_at_offset_0_last;
+extern uint32_t fcn_src_blend_50_for_2_pixels_at_offset_1;
+extern uint32_t fcn_src_blend_50_for_2_pixels_at_offset_1_last;
+extern uint32_t fcn_src_blend_50_for_2_pixels_at_offset_2;
+extern uint32_t fcn_src_blend_50_for_2_pixels_at_offset_2_last;
+extern uint32_t fcn_src_blend_50_for_3_pixels_at_offset_0;
+extern uint32_t fcn_src_blend_50_for_3_pixels_at_offset_0_last;
+extern uint32_t fcn_src_blend_50_for_3_pixels_at_offset_1;
+extern uint32_t fcn_src_blend_50_for_3_pixels_at_offset_1_last;
+extern uint32_t fcn_src_blend_50_for_4_pixels_at_offset_0;
+extern uint32_t fcn_src_blend_50_for_4_pixels_at_offset_0_last;
+
+extern uint32_t fcn_src_blend_75_for_256_pixels_in_loop;
+extern uint32_t fcn_src_blend_75_for_128_pixels;
+extern uint32_t fcn_src_blend_75_for_128_pixels_last;
+extern uint32_t fcn_src_blend_75_for_64_pixels;
+extern uint32_t fcn_src_blend_75_for_64_pixels_last;
+extern uint32_t fcn_src_blend_75_for_32_pixels;
+extern uint32_t fcn_src_blend_75_for_32_pixels_last;
+extern uint32_t fcn_src_blend_75_for_16_pixels;
+extern uint32_t fcn_src_blend_75_for_16_pixels_last;
+extern uint32_t fcn_src_blend_75_for_8_pixels;
+extern uint32_t fcn_src_blend_75_for_8_pixels_last;
+extern uint32_t fcn_src_blend_75_for_1_pixel_at_offset_0;
+extern uint32_t fcn_src_blend_75_for_1_pixel_at_offset_0_last;
+extern uint32_t fcn_src_blend_75_for_1_pixel_at_offset_1;
+extern uint32_t fcn_src_blend_75_for_1_pixel_at_offset_1_last;
+extern uint32_t fcn_src_blend_75_for_1_pixel_at_offset_2;
+extern uint32_t fcn_src_blend_75_for_1_pixel_at_offset_2_last;
+extern uint32_t fcn_src_blend_75_for_1_pixel_at_offset_3;
+extern uint32_t fcn_src_blend_75_for_1_pixel_at_offset_3_last;
+extern uint32_t fcn_src_blend_75_for_2_pixels_at_offset_0;
+extern uint32_t fcn_src_blend_75_for_2_pixels_at_offset_0_last;
+extern uint32_t fcn_src_blend_75_for_2_pixels_at_offset_1;
+extern uint32_t fcn_src_blend_75_for_2_pixels_at_offset_1_last;
+extern uint32_t fcn_src_blend_75_for_2_pixels_at_offset_2;
+extern uint32_t fcn_src_blend_75_for_2_pixels_at_offset_2_last;
+extern uint32_t fcn_src_blend_75_for_3_pixels_at_offset_0;
+extern uint32_t fcn_src_blend_75_for_3_pixels_at_offset_0_last;
+extern uint32_t fcn_src_blend_75_for_3_pixels_at_offset_1;
+extern uint32_t fcn_src_blend_75_for_3_pixels_at_offset_1_last;
+extern uint32_t fcn_src_blend_75_for_4_pixels_at_offset_0;
+extern uint32_t fcn_src_blend_75_for_4_pixels_at_offset_0_last;
 
 EspFunction::EspFunction() {
     init_members();
@@ -395,13 +491,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         movi(REG_LOOP_INDEX, times);
                         switch (opaqueness) {
                             case 25:
-                                p_fcn = (uint32_t) &fcn_blend_25_for_256_pixels_in_loop;
+                                p_fcn = (uint32_t) &fcn_color_blend_25_for_256_pixels_in_loop;
                                 break;
                             case 50:
-                                p_fcn = (uint32_t) &fcn_blend_50_for_256_pixels_in_loop;
+                                p_fcn = (uint32_t) &fcn_color_blend_50_for_256_pixels_in_loop;
                                 break;
                             case 75:
-                                p_fcn =  (uint32_t) &fcn_blend_75_for_256_pixels_in_loop;
+                                p_fcn =  (uint32_t) &fcn_color_blend_75_for_256_pixels_in_loop;
                                 break;
                             case 100:
                                 p_fcn = (uint32_t) &fcn_draw_256_pixels_in_loop;
@@ -416,13 +512,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         if (width > 128) {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_128_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_128_pixels;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_128_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_128_pixels;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_128_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_128_pixels;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_128_pixels;
@@ -434,13 +530,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         } else {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_128_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_128_pixels_last;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_128_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_128_pixels_last;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_128_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_128_pixels_last;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_128_pixels_last;
@@ -456,13 +552,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         if (width > 64) {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_64_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_64_pixels;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_64_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_64_pixels;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_64_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_64_pixels;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_64_pixels;
@@ -474,13 +570,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         } else {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_64_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_64_pixels_last;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_64_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_64_pixels_last;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_64_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_64_pixels_last;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_64_pixels_last;
@@ -496,13 +592,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         if (width > 32) {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_32_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_32_pixels;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_32_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_32_pixels;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_32_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_32_pixels;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_32_pixels;
@@ -514,13 +610,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         } else {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_32_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_32_pixels_last;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_32_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_32_pixels_last;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_32_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_32_pixels_last;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_32_pixels_last;
@@ -536,13 +632,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         if (width > 16) {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_16_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_16_pixels;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_16_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_16_pixels;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_16_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_16_pixels;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_16_pixels;
@@ -554,13 +650,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         } else {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_16_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_16_pixels_last;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_16_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_16_pixels_last;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_16_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_16_pixels_last;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_16_pixels_last;
@@ -576,13 +672,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         if (width > 8) {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_8_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_8_pixels;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_8_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_8_pixels;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_8_pixels;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_8_pixels;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_8_pixels;
@@ -594,13 +690,13 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         } else {
                             switch (opaqueness) {
                                 case 25:
-                                    p_fcn = (uint32_t) &fcn_blend_25_for_8_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_8_pixels_last;
                                     break;
                                 case 50:
-                                    p_fcn = (uint32_t) &fcn_blend_50_for_8_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_8_pixels_last;
                                     break;
                                 case 75:
-                                    p_fcn = (uint32_t) &fcn_blend_75_for_8_pixels_last;
+                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_8_pixels_last;
                                     break;
                                 case 100:
                                     p_fcn = (uint32_t) &fcn_draw_8_pixels_last;
