@@ -71,8 +71,6 @@ class EspFunction {
     void do_fixups(EspFixups& fixups);
     uint32_t enter_outer_function();
     uint32_t enter_inner_function();
-    void leave_outer_function();
-    void leave_inner_function();
     uint32_t begin_data();
     uint32_t init_jump_table(uint32_t num_items);
     void begin_code(uint32_t at_jump);

@@ -38,6 +38,7 @@
 #define REG_LINE_INDEX      a4
 // Temporary registers:
 #define REG_SAVE_RET_INNER  a2
+#define REG_SAVE_RET_DEEP   a3
 #define REG_ABS_Y           a6
 #define REG_DST_PIXEL_PTR   a5
 #define REG_SRC_PIXEL_PTR   a6
@@ -455,7 +456,7 @@ void EspFunction::draw_pixel(uint32_t x) {
         default: set_1_pixel_at_offset_3(100); break;
     }
 
-    leave_outer_function();
+    retw();
 }
 
 void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness) {
@@ -763,10 +764,9 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
 
     if (outer_fcn) {
         mov(REG_RETURN_ADDR, REG_SAVE_RET_OUTER);
-        leave_outer_function();
+        retw();
     } else {
-        mov(REG_RETURN_ADDR, REG_SAVE_RET_INNER);
-        leave_inner_function();
+        jx(REG_SAVE_RET_INNER);
     }
 
     //debug_log("leave draw_line\n");
@@ -796,14 +796,6 @@ uint32_t EspFunction::enter_inner_function() {
     return at_jump;
 }
 
-void EspFunction::leave_outer_function() {
-    retw();
-}
-
-void EspFunction::leave_inner_function() {
-    ret();
-}
-
 uint32_t EspFunction::begin_data() {
     align32();
     return get_code_index();
@@ -821,7 +813,7 @@ uint32_t EspFunction::init_jump_table(uint32_t num_items) {
     /* 24 */ l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
     /* 27 */ callx0(REG_JUMP_ADDRESS);
     /* 30 */ mov(REG_RETURN_ADDR, REG_SAVE_RET_OUTER);
-    /* 33 */ leave_outer_function();
+    /* 33 */ retw();
     /* 36 */ auto at_jump_table = get_code_index();
     for (uint32_t i = 0; i < num_items; i++) {
         /* 36+i*4 */ ret(); // will be changed to j(?) later
