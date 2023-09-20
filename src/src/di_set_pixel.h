@@ -29,6 +29,8 @@
 
 class DiSetPixel: public DiPrimitive {
   public:
+  uint8_t   m_opaqueness;
+
   // Draws a single pixel on the screen.
   DiSetPixel(int32_t x, int32_t y, uint8_t color);
 

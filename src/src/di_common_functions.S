@@ -1445,14 +1445,14 @@ fcn_color_blend_25_for_3_pixels_at_offset_1_last:
   leave_blend_fcn
 
   .align 4
-fcn_color_blend_25_for_4_pixels_at_offset:
+fcn_color_blend_25_for_4_pixels_at_offset_0:
   enter_blend_fcn
   blend_for_4_pixels_at_offset 25 clr 0
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4
   leave_blend_fcn
 
   .align 4
-fcn_color_blend_25_for_4_pixels_at_offset_last:
+fcn_color_blend_25_for_4_pixels_at_offset_0_last:
   enter_blend_fcn
   blend_for_4_pixels_at_offset 25 clr 0
   leave_blend_fcn
@@ -1844,14 +1844,14 @@ fcn_color_blend_50_for_3_pixels_at_offset_1_last:
   leave_blend_fcn
 
   .align 4
-fcn_color_blend_50_for_4_pixels_at_offset:
+fcn_color_blend_50_for_4_pixels_at_offset_0:
   enter_blend_fcn
   blend_for_4_pixels_at_offset 50 clr 0
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4
   leave_blend_fcn
 
   .align 4
-fcn_color_blend_50_for_4_pixels_at_offset_last:
+fcn_color_blend_50_for_4_pixels_at_offset_0_last:
   enter_blend_fcn
   blend_for_4_pixels_at_offset 50 clr 0
   leave_blend_fcn
@@ -2243,14 +2243,14 @@ fcn_color_blend_75_for_3_pixels_at_offset_1_last:
   leave_blend_fcn
 
   .align 4
-fcn_color_blend_75_for_4_pixels_at_offset:
+fcn_color_blend_75_for_4_pixels_at_offset_0:
   enter_blend_fcn
   blend_for_4_pixels_at_offset 75 clr 0
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4
   leave_blend_fcn
 
   .align 4
-fcn_color_blend_75_for_4_pixels_at_offset_last:
+fcn_color_blend_75_for_4_pixels_at_offset_0_last:
   enter_blend_fcn
   blend_for_4_pixels_at_offset 75 clr 0
   leave_blend_fcn

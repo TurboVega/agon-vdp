@@ -26,6 +26,7 @@
 #include "di_set_pixel.h"
 
 DiSetPixel::DiSetPixel(int32_t x, int32_t y, uint8_t color) {
+  m_opaqueness = DiPrimitive::color_to_opaqueness(color);
   m_rel_x = x;
   m_rel_y = y;
   m_width = 1;
@@ -40,7 +41,9 @@ void IRAM_ATTR DiSetPixel::delete_instructions() {
 void IRAM_ATTR DiSetPixel::generate_instructions() {
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
-    m_paint_fcn.draw_pixel(m_draw_x);
+    EspFixups fixups;
+    m_paint_fcn.draw_line(fixups, m_draw_x, 1, true, m_opaqueness);
+    m_paint_fcn.do_fixups(fixups);
   }
 }
 

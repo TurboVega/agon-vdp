@@ -53,17 +53,6 @@ class EspFunction {
 
     // Pixel-level operations:
 
-    void set_1_pixel_at_offset_0(uint8_t opaqueness);
-    void set_1_pixel_at_offset_1(uint8_t opaqueness);
-    void set_1_pixel_at_offset_2(uint8_t opaqueness);
-    void set_1_pixel_at_offset_3(uint8_t opaqueness);
-    void set_2_pixels_at_offset_0(uint8_t opaqueness);
-    void set_2_pixels_at_offset_1(uint8_t opaqueness);
-    void set_2_pixels_at_offset_2(uint8_t opaqueness);
-    void set_3_pixels_at_offset_0(uint8_t opaqueness);
-    void set_3_pixels_at_offset_1(uint8_t opaqueness);
-    void set_4_pixels_at_offset(u_off_t word_offset, uint8_t opaqueness);
-    void draw_pixel(uint32_t x);
     void draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness);
 
     // Common operations in functions:
