@@ -493,7 +493,6 @@
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
     .endif
-    l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, \wo
     l32i   REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, \wo
     call0  fcn_get_blend_\pct\()_for_4_pixels
     s32i   REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, \wo

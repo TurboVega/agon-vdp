@@ -301,12 +301,25 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     debug_log("\nenter draw_line %i %i %i\n", x, width, outer_fcn);
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
+
     auto aligned_x = x & 0xFFFFFFFC;
     auto at_x = d32(aligned_x);
+
+    uint32_t at_isolate_br = 0;
+    uint32_t at_isolate_g = 0;
+    if (opaqueness != 100) {
+        at_isolate_br = d32(0x33333333); // mask to isolate blue & red, removing green
+        at_isolate_g = d32(0x0C0C0C0C); // mask to isolate green, removing red & blue
+    }
 
     begin_code(at_jump);
 
     set_reg_dst_pixel_ptr(at_x);
+
+    if (opaqueness != 100) {
+        l32r_from(REG_ISOLATE_BR, at_isolate_br);
+        l32r_from(REG_ISOLATE_G, at_isolate_g);
+    }
 
     if (outer_fcn) {
         l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);

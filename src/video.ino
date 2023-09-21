@@ -148,8 +148,8 @@ void otf(void * pvParameters) {
 	//di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x04);
 
 	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, PIXEL_COLOR_ABGR(PIXEL_ALPHA_100, 2, 0, 0));
-	/*di_manager->create_solid_rectangle(41, ROOT_PRIMITIVE_ID, 1, 50, 50, 650, 350, 0x00|0x04);
-	di_manager->create_solid_rectangle(42, ROOT_PRIMITIVE_ID, 1, 100, 100, 200, 400, 0x40|0x01);
+	di_manager->create_solid_rectangle(41, ROOT_PRIMITIVE_ID, 1, 50, 50, 650, 350, PIXEL_COLOR_ABGR(PIXEL_ALPHA_25, 0, 1, 0));
+	/*di_manager->create_solid_rectangle(42, ROOT_PRIMITIVE_ID, 1, 100, 100, 200, 400, 0x40|0x01);
 	di_manager->create_solid_rectangle(43, ROOT_PRIMITIVE_ID, 1, 150, 150, 500, 275, 0x80|0x33);
 	di_manager->create_solid_rectangle(44, ROOT_PRIMITIVE_ID, 1, 200, 200, 333, 333, 0x00|0x0F);
 	di_manager->create_solid_rectangle(45, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, 0x40|0x15);*/
