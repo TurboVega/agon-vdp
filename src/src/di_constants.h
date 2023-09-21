@@ -117,3 +117,16 @@
 #define ROOT_PRIMITIVE_ID     0
 #define FIRST_PRIMITIVE_ID    1
 #define LAST_PRIMITIVE_ID     (MAX_NUM_PRIMITIVES-1)
+
+// Pixel color macros
+#define PIXEL_ALPHA_25                  ((uint8_t)0)
+#define PIXEL_ALPHA_50                  ((uint8_t)1)
+#define PIXEL_ALPHA_75                  ((uint8_t)2)
+#define PIXEL_ALPHA_100                 ((uint8_t)3)
+#define PIXEL_ALPHA_25_MASK             (((uint8_t)0) << 6)
+#define PIXEL_ALPHA_50_MASK             (((uint8_t)1) << 6)
+#define PIXEL_ALPHA_75_MASK             (((uint8_t)2) << 6)
+#define PIXEL_ALPHA_100_MASK            (((uint8_t)3) << 6)
+#define PIXEL_COLOR_AC(alpha, color)    (((alpha) << 6) | (color))
+#define PIXEL_COLOR_ARGB(a, r, g, b)    (PIXEL_COLOR_AC(a, MASK_RGB(r, g, b)))
+#define PIXEL_COLOR_ABGR(a, b, g, r)    (PIXEL_COLOR_AC(a, MASK_RGB(r, g, b)))
