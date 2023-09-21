@@ -379,7 +379,7 @@
 // pixel1 pixel0 pixel3 pixel2
 
   .macro blend_for_1_pixel_at_offset_0 pct src
-    .ifc \src,src
+    .ifc \src\(),src
       l32i  REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, 0
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -391,7 +391,7 @@
   .endm
 
   .macro blend_for_1_pixel_at_offset_1 pct src
-    .ifc \src,src
+    .ifc \src\(),src
       l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, 0
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -403,7 +403,7 @@
   .endm
 
   .macro blend_for_1_pixel_at_offset_2 pct src
-    .ifc \src,src
+    .ifc \src\(),src
       l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, 0
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -414,7 +414,7 @@
   .endm
 
   .macro blend_for_1_pixel_at_offset_3 pct src
-    .ifc \src,src
+    .ifc \src\(),src
       l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, 0
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -426,7 +426,7 @@
   .endm
 
   .macro blend_for_2_pixels_at_offset_0 pct src
-    .ifc \src,src
+    .ifc \src\(),src
       l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, 0
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -438,7 +438,7 @@
   .endm
 
   .macro blend_for_2_pixels_at_offset_1 pct src
-    .ifc \src,src
+    .ifc \src\(),src
       l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, 0
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -451,7 +451,7 @@
   .endm
 
   .macro blend_for_2_pixels_at_offset_2 pct src
-    .ifc \src,src
+    .ifc \src\(),src
       l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, 0
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -462,7 +462,7 @@
   .endm
 
   .macro blend_for_3_pixels_at_offset_0 pct src
-    .ifc \src,src
+    .ifc \src\(),src
       l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, 0
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -475,7 +475,7 @@
   .endm
 
   .macro blend_for_3_pixels_at_offset_1 pct src
-    .ifc \src,src
+    .ifc \src\(),src
       l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, 0
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -488,7 +488,7 @@
   .endm
 
   .macro blend_for_4_pixels_at_offset pct src wo
-    .ifc \src,src
+    .ifc \src\(),src
       l32i   REG_SRC_PIXELS, REG_SRC_PIXEL_PTR, \wo
     .else
       mov   REG_SRC_PIXELS, REG_SAVE_COLOR
@@ -796,6 +796,7 @@ fcn_get_blend_75_for_4_pixels:
   add   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS // sum of blue & sum of red
   srli  REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2 // averages of mixed blue & mixed red, in 4 bits each
   and   REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR // averages in 2 bits each
+
   and   REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G // src green (no red or blue)
   and   REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G // dst green (no red or blue)
   slli  REG_DOUBLE_COLOR, REG_SRC_G_PIXELS, 1 // double the src color values
@@ -803,7 +804,7 @@ fcn_get_blend_75_for_4_pixels:
   add   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS // sum of green
   srli  REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1 // averages of mixed green, in 4 bits each
   and   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G // averages in 2 bits each
-  or    REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
+  or    REG_PIXEL_COLOR, REG_DST_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
   ret
 
   .align 4
