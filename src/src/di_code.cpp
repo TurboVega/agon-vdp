@@ -55,7 +55,7 @@
 #define REG_JUMP_ADDRESS    a14
 #define REG_SAVE_COLOR      a15
 
-#define RET_ADDR_IN_STACK   16
+#define RET_ADDR_IN_STACK   0
 
 #define FIX_OFFSET(off)    ((off)^2)
 
@@ -453,9 +453,6 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         }
                         sub = 4;
                     }
-                    width -= sub;
-                    x += sub;
-                    continue;
                 } else if (width == 3) {
                     switch (opaqueness) {
                         case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_3_pixels_at_offset_0_last; break;
@@ -600,6 +597,7 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
         if (p_fcn) {
             fixups.push_back(EspFixup { get_code_index(), p_fcn });
             call0(0);
+            p_fcn = 0;
         }
     }
 
