@@ -333,239 +333,109 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                         auto times = width / 256;
                         movi(REG_LOOP_INDEX, times);
                         switch (opaqueness) {
-                            case 25:
-                                p_fcn = (uint32_t) &fcn_color_blend_25_for_256_pixels_in_loop;
-                                break;
-                            case 50:
-                                p_fcn = (uint32_t) &fcn_color_blend_50_for_256_pixels_in_loop;
-                                break;
-                            case 75:
-                                p_fcn =  (uint32_t) &fcn_color_blend_75_for_256_pixels_in_loop;
-                                break;
-                            case 100:
-                                p_fcn = (uint32_t) &fcn_draw_256_pixels_in_loop;
-                                break;
+                            case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_256_pixels_in_loop; break;
+                            case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_256_pixels_in_loop; break;
+                            case 75: p_fcn =  (uint32_t) &fcn_color_blend_75_for_256_pixels_in_loop; break;
+                            case 100: p_fcn = (uint32_t) &fcn_draw_256_pixels_in_loop; break;
                         }
-                        fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                        //debug_log(">> call fcn_draw_256_pixels_in_loop <<\n");
-                        call0(0);
                         sub = times * 256;
                     } else if (width >= 128) {
                         // Need at least 32 full words
                         if (width > 128) {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_128_pixels;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_128_pixels;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_128_pixels;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_128_pixels;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_128_pixels; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_128_pixels; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_128_pixels; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_128_pixels; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_128_pixels <<\n");
-                            call0(0);
                         } else {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_128_pixels_last;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_128_pixels_last;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_128_pixels_last;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_128_pixels_last;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_128_pixels_last; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_128_pixels_last; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_128_pixels_last; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_128_pixels_last; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_128_pixels_last <<\n");
-                            call0(0);
                         }
                         sub = 128;
                     } else if (width >= 64) {
                         // Need at least 16 full words
                         if (width > 64) {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_64_pixels;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_64_pixels;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_64_pixels;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_64_pixels;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_64_pixels; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_64_pixels; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_64_pixels; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_64_pixels; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_64_pixels <<\n");
-                            call0(0);
                         } else {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_64_pixels_last;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_64_pixels_last;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_64_pixels_last;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_64_pixels_last;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_64_pixels_last; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_64_pixels_last; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_64_pixels_last; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_64_pixels_last; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_64_pixels_last <<\n");
-                            call0(0);
                         }
                         sub = 64;
                     } else if (width >= 32) {
                         // Need at least 8 full words
                         if (width > 32) {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_32_pixels;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_32_pixels;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_32_pixels;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_32_pixels;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_32_pixels; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_32_pixels; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_32_pixels; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_32_pixels; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_32_pixels <<\n");
-                            call0(0);
                         } else {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_32_pixels_last;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_32_pixels_last;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_32_pixels_last;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_32_pixels_last;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_32_pixels_last; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_32_pixels_last; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_32_pixels_last; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_32_pixels_last; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_32_pixels_last <<\n");
-                            call0(0);
                         }
                         sub = 32;
                     } else if (width >= 16) {
                         // Need at least 4 full words
                         if (width > 16) {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_16_pixels;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_16_pixels;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_16_pixels;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_16_pixels;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_16_pixels; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_16_pixels; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_16_pixels; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_16_pixels; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_16_pixels <<\n");
-                            call0(0);
                         } else {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_16_pixels_last;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_16_pixels_last;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_16_pixels_last;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_16_pixels_last;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_16_pixels_last; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_16_pixels_last; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_16_pixels_last; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_16_pixels_last; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_16_pixels_last <<\n");
-                            call0(0);
                         }
                         sub = 16;
                     } else if (width >= 8) {
                         // Need at least 2 full words
                         if (width > 8) {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_8_pixels;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_8_pixels;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_8_pixels;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_8_pixels;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_8_pixels; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_8_pixels; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_8_pixels; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_8_pixels; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_8_pixels <<\n");
-                            call0(0);
                         } else {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_8_pixels_last;
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_8_pixels_last;
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_8_pixels_last;
-                                    break;
-                                case 100:
-                                    p_fcn = (uint32_t) &fcn_draw_8_pixels_last;
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_8_pixels_last; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_8_pixels_last; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_8_pixels_last; break;
+                                case 100: p_fcn = (uint32_t) &fcn_draw_8_pixels_last; break;
                             }
-                            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                            //debug_log(">> call fcn_draw_8_pixels_last <<\n");
-                            call0(0);
                         }
                         sub = 8;
                     } else {
                         // Need at least 1 full word
                         if (width > 4) {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_4_pixels_at_offset_0;
-                                    call0(0);
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_4_pixels_at_offset_0;
-                                    call0(0);
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_4_pixels_at_offset_0;
-                                    call0(0);
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_4_pixels_at_offset_0; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_4_pixels_at_offset_0; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_4_pixels_at_offset_0; break;
                                 case 100:
                                     s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
                                     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
@@ -573,18 +443,9 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                             }
                         } else {
                             switch (opaqueness) {
-                                case 25:
-                                    p_fcn = (uint32_t) &fcn_color_blend_25_for_4_pixels_at_offset_0_last;
-                                    call0(0);
-                                    break;
-                                case 50:
-                                    p_fcn = (uint32_t) &fcn_color_blend_50_for_4_pixels_at_offset_0_last;
-                                    call0(0);
-                                    break;
-                                case 75:
-                                    p_fcn = (uint32_t) &fcn_color_blend_75_for_4_pixels_at_offset_0_last;
-                                    call0(0);
-                                    break;
+                                case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_4_pixels_at_offset_0_last; break;
+                                case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_4_pixels_at_offset_0_last; break;
+                                case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_4_pixels_at_offset_0_last; break;
                                 case 100:
                                     s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
                                     break;
@@ -597,18 +458,9 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     continue;
                 } else if (width == 3) {
                     switch (opaqueness) {
-                        case 25:
-                            p_fcn = (uint32_t) &fcn_color_blend_25_for_3_pixels_at_offset_0_last;
-                            call0(0);
-                            break;
-                        case 50:
-                            p_fcn = (uint32_t) &fcn_color_blend_50_for_3_pixels_at_offset_0_last;
-                            call0(0);
-                            break;
-                        case 75:
-                            p_fcn = (uint32_t) &fcn_color_blend_75_for_3_pixels_at_offset_0_last;
-                            call0(0);
-                            break;
+                        case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_3_pixels_at_offset_0_last; break;
+                        case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_3_pixels_at_offset_0_last; break;
+                        case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_3_pixels_at_offset_0_last; break;
                         case 100:
                             s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
                             s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
@@ -617,18 +469,9 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     sub = 3;
                 } else if (width == 2) {
                     switch (opaqueness) {
-                        case 25:
-                            p_fcn = (uint32_t) &fcn_color_blend_25_for_2_pixels_at_offset_0_last;
-                            call0(0);
-                            break;
-                        case 50:
-                            p_fcn = (uint32_t) &fcn_color_blend_50_for_2_pixels_at_offset_0_last;
-                            call0(0);
-                            break;
-                        case 75:
-                            p_fcn = (uint32_t) &fcn_color_blend_75_for_2_pixels_at_offset_0_last;
-                            call0(0);
-                            break;
+                        case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_2_pixels_at_offset_0_last; break;
+                        case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_2_pixels_at_offset_0_last; break;
+                        case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_2_pixels_at_offset_0_last; break;
                         case 100:
                             s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
                             break;
@@ -636,18 +479,9 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     sub = 2;
                 } else { // width == 1
                     switch (opaqueness) {
-                        case 25:
-                            p_fcn = (uint32_t) &fcn_color_blend_25_for_1_pixel_at_offset_0_last;
-                            call0(0);
-                            break;
-                        case 50:
-                            p_fcn = (uint32_t) &fcn_color_blend_50_for_1_pixel_at_offset_0_last;
-                            call0(0);
-                            break;
-                        case 75:
-                            p_fcn = (uint32_t) &fcn_color_blend_75_for_1_pixel_at_offset_0_last;
-                            call0(0);
-                            break;
+                        case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_1_pixel_at_offset_0_last; break;
+                        case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_1_pixel_at_offset_0_last; break;
+                        case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_1_pixel_at_offset_0_last; break;
                         case 100:
                             s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
                             break;
@@ -657,39 +491,34 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
 
             case 1:
                 if (width >= 3) {
-                    switch (opaqueness) {
-                        case 25:
-                            p_fcn = (uint32_t) &fcn_color_blend_25_for_3_pixels_at_offset_1_last;
-                            call0(0);
-                            break;
-                        case 50:
-                            p_fcn = (uint32_t) &fcn_color_blend_50_for_3_pixels_at_offset_1_last;
-                            call0(0);
-                            break;
-                        case 75:
-                            p_fcn = (uint32_t) &fcn_color_blend_75_for_3_pixels_at_offset_1_last;
-                            call0(0);
-                            break;
-                        case 100:
-                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
-                            s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-                            break;
+                    if (width > 3) {
+                        switch (opaqueness) {
+                            case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_3_pixels_at_offset_1; break;
+                            case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_3_pixels_at_offset_1; break;
+                            case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_3_pixels_at_offset_1; break;
+                            case 100:
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
+                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                                break;
+                        }
+                    } else {
+                        switch (opaqueness) {
+                            case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_3_pixels_at_offset_1_last; break;
+                            case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_3_pixels_at_offset_1_last; break;
+                            case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_3_pixels_at_offset_1_last; break;
+                            case 100:
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
+                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                break;
+                        }
                     }
                     sub = 3;                
                 } else if (width == 2) {
                     switch (opaqueness) {
-                        case 25:
-                            p_fcn = (uint32_t) &fcn_color_blend_25_for_2_pixels_at_offset_1_last;
-                            call0(0);
-                            break;
-                        case 50:
-                            p_fcn = (uint32_t) &fcn_color_blend_50_for_2_pixels_at_offset_1_last;
-                            call0(0);
-                            break;
-                        case 75:
-                            p_fcn = (uint32_t) &fcn_color_blend_75_for_2_pixels_at_offset_1_last;
-                            call0(0);
-                            break;
+                        case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_2_pixels_at_offset_1_last; break;
+                        case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_2_pixels_at_offset_1_last; break;
+                        case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_2_pixels_at_offset_1_last; break;
                         case 100:
                             s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
                             s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
@@ -698,18 +527,9 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     sub = 2;
                 } else { // width == 1
                     switch (opaqueness) {
-                        case 25:
-                            p_fcn = (uint32_t) &fcn_color_blend_25_for_1_pixel_at_offset_1_last;
-                            call0(0);
-                            break;
-                        case 50:
-                            p_fcn = (uint32_t) &fcn_color_blend_50_for_1_pixel_at_offset_1_last;
-                            call0(0);
-                            break;
-                        case 75:
-                            p_fcn = (uint32_t) &fcn_color_blend_75_for_1_pixel_at_offset_1_last;
-                            call0(0);
-                            break;
+                        case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_1_pixel_at_offset_1_last; break;
+                        case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_1_pixel_at_offset_1_last; break;
+                        case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_1_pixel_at_offset_1_last; break;
                         case 100:
                             s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
                             break;
@@ -719,38 +539,32 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
 
             case 2:
                 if (width >= 2) {
-                    switch (opaqueness) {
-                        case 25:
-                            p_fcn = (uint32_t) &fcn_color_blend_25_for_2_pixels_at_offset_2_last;
-                            call0(0);
-                            break;
-                        case 50:
-                            p_fcn = (uint32_t) &fcn_color_blend_50_for_2_pixels_at_offset_2_last;
-                            call0(0);
-                            break;
-                        case 75:
-                            p_fcn = (uint32_t) &fcn_color_blend_75_for_2_pixels_at_offset_2_last;
-                            call0(0);
-                            break;
-                        case 100:
-                            s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));    
-                            break;
+                    if (width > 2) {
+                        switch (opaqueness) {
+                            case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_2_pixels_at_offset_2; break;
+                            case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_2_pixels_at_offset_2; break;
+                            case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_2_pixels_at_offset_2; break;
+                            case 100:
+                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                                break;
+                        }
+                    } else {
+                        switch (opaqueness) {
+                            case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_2_pixels_at_offset_2_last; break;
+                            case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_2_pixels_at_offset_2_last; break;
+                            case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_2_pixels_at_offset_2_last; break;
+                            case 100:
+                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                break;
+                        }
                     }
                     sub = 2;
                 } else { // width == 1
                     switch (opaqueness) {
-                        case 25:
-                            p_fcn = (uint32_t) &fcn_color_blend_25_for_1_pixel_at_offset_2_last;
-                            call0(0);
-                            break;
-                        case 50:
-                            p_fcn = (uint32_t) &fcn_color_blend_50_for_1_pixel_at_offset_2_last;
-                            call0(0);
-                            break;
-                        case 75:
-                            p_fcn = (uint32_t) &fcn_color_blend_75_for_1_pixel_at_offset_2_last;
-                            call0(0);
-                            break;
+                        case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_1_pixel_at_offset_2_last; break;
+                        case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_1_pixel_at_offset_2_last; break;
+                        case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_1_pixel_at_offset_2_last; break;
                         case 100:
                             s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                             break;
@@ -759,29 +573,33 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                 break;
             
             case 3:
-                switch (opaqueness) {
-                    case 25:
-                        p_fcn = (uint32_t) &fcn_color_blend_25_for_1_pixel_at_offset_3_last;
-                        call0(0);
-                        break;
-                    case 50:
-                        p_fcn = (uint32_t) &fcn_color_blend_50_for_1_pixel_at_offset_3_last;
-                        call0(0);
-                        break;
-                    case 75:
-                        p_fcn = (uint32_t) &fcn_color_blend_75_for_1_pixel_at_offset_3_last;
-                        call0(0);
-                        break;
-                    case 100:
-                        s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
-                        break;
+                if (width > 1) {
+                    switch (opaqueness) {
+                        case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_1_pixel_at_offset_3; break;
+                        case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_1_pixel_at_offset_3; break;
+                        case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_1_pixel_at_offset_3; break;
+                        case 100:
+                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
+                            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                            break;
+                    }
+                } else {
+                    switch (opaqueness) {
+                        case 25: p_fcn = (uint32_t) &fcn_color_blend_25_for_1_pixel_at_offset_3_last; break;
+                        case 50: p_fcn = (uint32_t) &fcn_color_blend_50_for_1_pixel_at_offset_3_last; break;
+                        case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_1_pixel_at_offset_3_last; break;
+                        case 100:
+                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
+                            break;
+                    }
                 }
                 break;
         }
         width -= sub;
         x += sub;
-        if (width) {
-            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+        if (p_fcn) {
+            fixups.push_back(EspFixup { get_code_index(), p_fcn });
+            call0(0);
         }
     }
 
