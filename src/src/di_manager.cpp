@@ -468,8 +468,10 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint8_t flags,
             }
         } else {
             if (y2 - y1 == x2 - x1) {
-                auto line = new DiDiagonalLeftLine();
-                line->init_params(x2, y1, x2 - x1 + 1, color);
+                //auto line = new DiDiagonalLeftLine();
+                //line->init_params(x2, y1, x2 - x1 + 1, color);
+                auto line = new DiGeneralLine();
+                line->init_params(x1, y1, x2, y2, color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
@@ -484,8 +486,10 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint8_t flags,
             prim = line;
         } else if (y1 < y2) {
             if (y2 - y1 == x1 - x2) {
-                auto line = new DiDiagonalLeftLine();
-                line->init_params(x1, y1, x1 - x2 + 1, color);
+                //auto line = new DiDiagonalLeftLine();
+                //line->init_params(x1, y1, x1 - x2 + 1, color);
+                auto line = new DiGeneralLine();
+                line->init_params(x1, y1, x2, y2, color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
