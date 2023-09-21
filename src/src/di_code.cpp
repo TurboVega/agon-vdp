@@ -53,7 +53,9 @@
 #define REG_ISOLATE_BR      a13     // 0x33333333: mask to isolate blue & red, removing green
 #define REG_ISOLATE_G       a14     // 0x0C0C0C0C: mask to isolate green, removing red & blue
 #define REG_JUMP_ADDRESS    a14
-#define REG_SAVE_RET_OUTER  a15
+#define REG_SAVE_COLOR      a15
+
+#define RET_ADDR_IN_STACK   16
 
 #define FIX_OFFSET(off)    ((off)^2)
 
@@ -296,7 +298,7 @@ void EspFunction::init_members() {
 }
 
 void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness) {
-    //debug_log("\nenter draw_line %i %i %i\n", x, width, outer_fcn);
+    debug_log("\nenter draw_line %i %i %i\n", x, width, outer_fcn);
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto aligned_x = x & 0xFFFFFFFC;
@@ -308,15 +310,19 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
 
     if (outer_fcn) {
         l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
-        mov(REG_SAVE_RET_OUTER, REG_RETURN_ADDR);
+        s32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
     } else {
         mov(REG_SAVE_RET_INNER, REG_RETURN_ADDR);
+    }
+
+    if (opaqueness != 100) {
+        mov(REG_SAVE_COLOR, REG_PIXEL_COLOR);
     }
 
     uint32_t p_fcn = 0;
 
     while (width) {
-        //debug_log("  x=%i, w=%i\n", x, width);
+        debug_log("  x=%i, w=%i\n", x, width);
         auto offset = x & 3;
         uint32_t sub = 1;
         switch (offset) {
@@ -598,11 +604,11 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                             call0(0);
                             break;
                         case 50:
-                            p_fcn = (uint32_t) &fcn_color_blend_50_for_3_pixels_at_offset_0_last;
+                            p_fcn = (uint32_t) &fcn_color_blend_50_for_2_pixels_at_offset_0_last;
                             call0(0);
                             break;
                         case 75:
-                            p_fcn = (uint32_t) &fcn_color_blend_75_for_3_pixels_at_offset_0_last;
+                            p_fcn = (uint32_t) &fcn_color_blend_75_for_2_pixels_at_offset_0_last;
                             call0(0);
                             break;
                         case 100:
@@ -762,7 +768,7 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     }
 
     if (outer_fcn) {
-        mov(REG_RETURN_ADDR, REG_SAVE_RET_OUTER);
+        l32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
         retw();
     } else {
         jx(REG_SAVE_RET_INNER);
@@ -783,7 +789,7 @@ void EspFunction::do_fixups(EspFixups& fixups) {
 }
 
 uint32_t EspFunction::enter_outer_function() {
-    entry(sp, 16);
+    entry(sp, 32);
     auto at_jump = get_code_index();
     j(0);
     return at_jump;
@@ -801,9 +807,9 @@ uint32_t EspFunction::begin_data() {
 }
 
 uint32_t EspFunction::init_jump_table(uint32_t num_items) {
-    /* 00 */ entry(sp, 16);
+    /* 00 */ entry(sp, 32);
     /* 03 */ l32i(REG_ABS_Y, REG_THIS_PTR, FLD_abs_y);
-    /* 06 */ mov(REG_SAVE_RET_OUTER, REG_RETURN_ADDR);
+    /* 06 */ s32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
     /* 09 */ call0(0); // 8 + 0*4 + 4
     /* 12 */ sub(REG_LINE_INDEX, REG_LINE_INDEX, REG_ABS_Y);
     /* 15 */ slli(REG_JUMP_ADDRESS, REG_LINE_INDEX, 2);
@@ -811,7 +817,7 @@ uint32_t EspFunction::init_jump_table(uint32_t num_items) {
     /* 21 */ add(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, REG_RETURN_ADDR);
     /* 24 */ l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
     /* 27 */ callx0(REG_JUMP_ADDRESS);
-    /* 30 */ mov(REG_RETURN_ADDR, REG_SAVE_RET_OUTER);
+    /* 30 */ l32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
     /* 33 */ retw();
     /* 36 */ auto at_jump_table = get_code_index();
     for (uint32_t i = 0; i < num_items; i++) {
