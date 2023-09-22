@@ -761,15 +761,17 @@ fcn_get_blend_25_for_4_pixels:
   add   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_DOUBLE_COLOR // add dst color values again (total of 3X)
   add   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS // sum of blue & sum of red
   srli  REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2 // averages of mixed blue & mixed red, in 4 bits each
-  and   REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR // averages in 2 bits each
+  and   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_ISOLATE_BR // averages in 2 bits each
+
   and   REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G // src green (no red or blue)
   and   REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G // dst green (no red or blue)
   slli  REG_DOUBLE_COLOR, REG_DST_G_PIXELS, 1 // double the dst color values
   add   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_DOUBLE_COLOR // add dst color values again (total of 3X)
   add   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS // sum of green
-  srli  REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1 // averages of mixed green, in 4 bits each
+  srli  REG_DST_G_PIXELS, REG_DST_G_PIXELS, 2 // averages of mixed green, in 4 bits each
   and   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G // averages in 2 bits each
-  or    REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
+
+  or    REG_PIXEL_COLOR, REG_DST_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
   ret
 
   .align 4
@@ -779,12 +781,14 @@ fcn_get_blend_50_for_4_pixels:
   add   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS // sum of blue & sum of red
   srli  REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 1 // averages of mixed blue & mixed red, in 3 bits each
   and   REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR // averages in 2 bits each
+
   and   REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G // src green (no red or blue)
   and   REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G // dst green (no red or blue)
   add   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS // sum of green
   srli  REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1 // averages of mixed green, in 3 bits each
   and   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G // averages in 2 bits each
-  or    REG_PIXEL_COLOR, REG_SRC_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
+
+  or    REG_PIXEL_COLOR, REG_DST_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
   ret
 
   .align 4
@@ -795,15 +799,16 @@ fcn_get_blend_75_for_4_pixels:
   add   REG_SRC_BR_PIXELS, REG_SRC_BR_PIXELS, REG_DOUBLE_COLOR // add src color values again (total of 3X)
   add   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS // sum of blue & sum of red
   srli  REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 2 // averages of mixed blue & mixed red, in 4 bits each
-  and   REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR // averages in 2 bits each
+  and   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_ISOLATE_BR // averages in 2 bits each
 
   and   REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G // src green (no red or blue)
   and   REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G // dst green (no red or blue)
   slli  REG_DOUBLE_COLOR, REG_SRC_G_PIXELS, 1 // double the src color values
   add   REG_SRC_G_PIXELS, REG_SRC_G_PIXELS, REG_DOUBLE_COLOR // add src color values again (total of 3X)
   add   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_SRC_G_PIXELS // sum of green
-  srli  REG_DST_G_PIXELS, REG_DST_G_PIXELS, 1 // averages of mixed green, in 4 bits each
+  srli  REG_DST_G_PIXELS, REG_DST_G_PIXELS, 2 // averages of mixed green, in 4 bits each
   and   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G // averages in 2 bits each
+
   or    REG_PIXEL_COLOR, REG_DST_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
   ret
 
