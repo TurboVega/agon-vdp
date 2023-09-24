@@ -54,6 +54,7 @@ class EspFunction {
     // Pixel-level operations:
 
     void draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness);
+    void copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn);
 
     // Common operations in functions:
 

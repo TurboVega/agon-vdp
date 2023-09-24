@@ -26,7 +26,6 @@
 // 
 
 #include "di_general_line.h"
-//void debug_log(const char *format, ...);
 
 static int32_t min3(int32_t a, int32_t b, int32_t c) {
   int32_t m = MIN(a, b);
@@ -78,27 +77,20 @@ void IRAM_ATTR DiGeneralLine::delete_instructions() {
 }
   
 void IRAM_ATTR DiGeneralLine::generate_instructions() {
-  //debug_log("start DiGeneralLine::generate_instructions\r\n");
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     EspFixups fixups;
     uint32_t at_jump_table = m_paint_fcn.init_jump_table(m_line_pieces.m_num_pieces);
-    //debug_log("m_line_pieces.m_num_pieces %u\r\n", m_line_pieces.m_num_pieces);
     for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
       DiLinePiece* piece = &m_line_pieces.m_pieces[i];
-      //debug_log("\ni=%u x%i y%i w%i\n", i, piece->m_x, piece->m_y, piece->m_width);
       m_paint_fcn.align32();
       m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
       m_paint_fcn.draw_line(fixups, piece->m_x, piece->m_width, false, m_opaqueness);
     }
     m_paint_fcn.do_fixups(fixups);
   }
-  //debug_log("end DiGeneralLine::generate_instructions\r\n");
-
-  //debug_log("\r\nleave DiGeneralLine::generate_instructions\r\n");
 }
 
 void IRAM_ATTR DiGeneralLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
   m_paint_fcn.call(this, p_scan_line, line_index);
-  //debug_log("this=0x%X, code=0x%X, calc=0x%X\r\n", this, m_paint_fcn.get_code_start(), m_future32);
 }

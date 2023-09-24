@@ -101,7 +101,6 @@ void DiManager::create_root() {
   // is (e.g., solid rectangle, terminal, tile map, etc.).
 
   DiPrimitive* root = new DiPrimitive;
-  debug_log("root %08X\n", root);
   root->init_root();
   m_primitives[ROOT_PRIMITIVE_ID] = root;
 }
@@ -109,27 +108,22 @@ void DiManager::create_root() {
 void DiManager::initialize() {
   size_t new_size = (size_t)(sizeof(lldesc_t) * DMA_TOTAL_DESCR);
   void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_dma_descriptor = (volatile lldesc_t *)p;
 
   new_size = (size_t)(sizeof(DiVideoBuffer) * NUM_ACTIVE_BUFFERS);
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_video_buffer = (volatile DiVideoBuffer *)p;
 
   new_size = (size_t)(sizeof(DiVideoScanLine));
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_front_porch = (volatile DiVideoScanLine *)p;
 
   new_size = (size_t)(sizeof(DiVideoBuffer));
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_vertical_sync = (volatile DiVideoBuffer *)p;
 
   new_size = (size_t)(sizeof(DiVideoScanLine));
   p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_DMA);
-  //debug_log("%i p %08X\n", __LINE__, (uint32_t)p);
   m_back_porch = (volatile DiVideoScanLine *)p;
 
   // DMA buffer chain: ACT
@@ -308,7 +302,6 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
 
 void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
                                     int32_t old_min_group, int32_t old_max_group) {
-  //debug_log("recompute_primitive id%u\r\n", prim->get_id());
   auto parent = prim->get_parent();
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
     parent->get_view_x_extent(), parent->get_view_y_extent());
@@ -403,14 +396,6 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
       prim->delete_instructions();
     }
   }
-  //debug_log("end recompute_primitive\r\n");
-  /*for (int i = 0; i < 600; i++) {
-    std::vector<DiPrimitive*> * vp = &m_groups[i];
-    for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
-      debug_log("%i %u\r\n", i, (*prim)->get_id());
-    }
-  }
-  debug_log("-----\r\n");*/
 }
 
 DiPrimitive* DiManager::finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {

@@ -146,7 +146,7 @@ void otf(void * pvParameters) {
 	di_manager->create_root();
 
 	//di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x04);
-
+    /*
 	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, PIXEL_COLOR_ABGR(PIXEL_ALPHA_100, 2, 0, 0));
 	di_manager->create_line(41, ROOT_PRIMITIVE_ID, 1, 180, 90, 480, 390, 0xFF); // diagonal right
 	di_manager->create_solid_rectangle(42, ROOT_PRIMITIVE_ID, 1, 100, 100, 100, 100, PIXEL_COLOR_ABGR(PIXEL_ALPHA_25, 0, 3, 0));
@@ -154,6 +154,7 @@ void otf(void * pvParameters) {
 	di_manager->create_solid_rectangle(44, ROOT_PRIMITIVE_ID, 1, 140, 140, 100, 100, PIXEL_COLOR_ABGR(PIXEL_ALPHA_75, 3, 3, 0));
 	di_manager->create_solid_rectangle(45, ROOT_PRIMITIVE_ID, 1, 200, 200, 333, 133, PIXEL_COLOR_ABGR(PIXEL_ALPHA_25, 0, 3, 3));
 	di_manager->create_solid_rectangle(46, ROOT_PRIMITIVE_ID, 1, 250, 250, 300, 100, PIXEL_COLOR_ABGR(PIXEL_ALPHA_50, 1, 1, 1));
+	*/
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
 
@@ -164,7 +165,7 @@ void otf(void * pvParameters) {
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
 	di_manager->set_on_lines_painted_cb(&on_lines_painted);
 	
-	di_manager->create_point(510, ROOT_PRIMITIVE_ID, 1, 400, 300, 0xC0|0x3F);
+	//di_manager->create_point(510, ROOT_PRIMITIVE_ID, 1, 400, 300, 0xC0|0x3F);
 
 	/*di_manager->create_line(2, ROOT_PRIMITIVE_ID, 1, 200, 20, 100, 120, 0x20); // diagonal left
 	di_manager->create_line(3, ROOT_PRIMITIVE_ID, 1, 205, 20, 105, 120, 0x23); // diagonal left
@@ -177,7 +178,31 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_primitive_group(221, ROOT_PRIMITIVE_ID, 0, 400, 300);
 
-#define DO_ELLIPSES 1
+    uint32_t id = 20;
+	for (uint16_t b = 0; b < 2; b++) {
+		for (uint16_t g = 0; g < 2; g++) {
+			for (uint16_t r = 0; r < 2; r++) {
+				uint8_t c = PIXEL_COLOR_ABGR(PIXEL_ALPHA_100, (b*3), (g*3), (r*3));
+				uint16_t x = (b*4+g*2+r)*100;
+				di_manager->create_solid_rectangle(id++, ROOT_PRIMITIVE_ID, 1, x, 0, 100, 600, c);
+			}
+		}
+	}
+
+    uint16_t y = 2;
+	for (uint16_t b = 0; b < 2; b++) {
+		for (uint16_t g = 0; g < 2; g++) {
+			for (uint16_t r = 0; r < 2; r++) {
+				for (uint16_t a = 0; a < 4; a++) {
+					uint8_t c = PIXEL_COLOR_ABGR(a, (b*3), (g*3), (r*3));
+					di_manager->create_solid_rectangle(id++, ROOT_PRIMITIVE_ID, 1, 50, y, 500, 16, c);
+					y += 16+2;
+				}
+			}
+		}
+	}
+
+#define DO_ELLIPSES 0
 #if DO_ELLIPSES
     double twopi = PI*2.0;
 	for (int c = 0; c<64; c++) {
