@@ -580,7 +580,9 @@ begin_loop:
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16
 
   addi   REG_LOOP_INDEX, REG_LOOP_INDEX, -1
-  bnez   REG_LOOP_INDEX, begin_loop
+  beqz   REG_LOOP_INDEX, end_loop
+  j      begin_loop
+end_loop:
   ret
 
   .align 4
@@ -894,7 +896,9 @@ begin_copy_loop:
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16
 
   addi   REG_LOOP_INDEX, REG_LOOP_INDEX, -1
-  bnez   REG_LOOP_INDEX, begin_copy_loop
+  bnez   REG_LOOP_INDEX, end_copy_loop
+  j      begin_copy_loop
+end_copy_loop:
   ret
 
   .align 4
@@ -1159,7 +1163,9 @@ begin_color_blend_25_loop:
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16
 
   addi   REG_LOOP_INDEX, REG_LOOP_INDEX, -1
-  bnez   REG_LOOP_INDEX, begin_color_blend_25_loop
+  beqz   REG_LOOP_INDEX, end_olor_blend_25_loop
+  j      begin_color_blend_25_loop
+end_color_blend_25_loop:
   leave_blend_fcn
 
   .align 4
@@ -1557,7 +1563,9 @@ begin_color_blend_50_loop:
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16
 
   addi   REG_LOOP_INDEX, REG_LOOP_INDEX, -1
-  bnez   REG_LOOP_INDEX, begin_color_blend_50_loop
+  beqz   REG_LOOP_INDEX, end_color_blend_50_loop
+  j      begin_color_blend_50_loop
+end_color_blend_50_loop:
   leave_blend_fcn
 
   .align 4
@@ -1956,7 +1964,9 @@ begin_color_blend_75_loop:
   addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16
 
   addi   REG_LOOP_INDEX, REG_LOOP_INDEX, -1
-  bnez   REG_LOOP_INDEX, begin_color_blend_75_loop
+  beqz   REG_LOOP_INDEX, end_color_blend_75_loop
+  j      begin_color_blend_75_loop
+end_color_blend_75_loop:
   leave_blend_fcn
 
   .align 4

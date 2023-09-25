@@ -87,28 +87,28 @@ class EspFunction {
     // Assembler-level instructions:
 
     void add(reg_t dst, reg_t src1, reg_t src2) { write24("add", issd(0x800000, src1, src2, dst)); }
-    void addi(reg_t dst, reg_t src, u_off_t offset) { write24("addi", idsi(0x00C002, dst, src, offset)); }
-    void bbc(reg_t src, reg_t dst, u_off_t offset) { write24("bbc", isdo(0x005007, src, dst, offset)); }
-    void bbci(reg_t src, uint32_t imm, u_off_t offset) { write24("bbci", isio(0x006007, src, imm, offset)); }
-    void bbs(reg_t src, reg_t dst, u_off_t offset) { write24("bbs", isdo(0x00D007, src, dst, offset)); }
-    void bbsi(reg_t src, uint32_t imm, u_off_t offset) { write24("bbsi", isio(0x007007, src, imm, offset)); }
-    void beq(reg_t src, reg_t dst, u_off_t offset) { write24("beq", isdo(0x001007, src, dst, offset)); }
-    void beqi(reg_t src, uint32_t imm, u_off_t offset) { write24("beqi", isieo(0x000026, src, imm, offset)); }
-    void beqz(reg_t src, u_off_t offset) { write24("beqz", iso(0x000016, src, offset)); }
-    void bne(reg_t src, reg_t dst, u_off_t offset) { write24("bne", isdo(0x009007, src, dst, offset)); }
-    void bnei(reg_t src, uint32_t imm, u_off_t offset) { write24("bnei", isieo(0x000066, src, imm, offset)); }
-    void bnez(reg_t src, u_off_t offset) { write24("bnez", iso(0x000056, src, offset)); }
-    void bge(reg_t src, reg_t dst, u_off_t offset) { write24("bge", isdo(0x00A007, src, dst, offset)); }
-    void bgei(reg_t src, uint32_t imm, u_off_t offset) { write24("bgei", isieo(0x0000E6, src, imm, offset)); }
-    void bgeu(reg_t src, reg_t dst, u_off_t offset) { write24("bgeu", isdo(0x00B007, src, dst, offset)); }
-    void bgeui(reg_t src, uint32_t imm, u_off_t offset) { write24("bgeui", isieo(0x0000F6, src, imm, offset)); }
-    void bgez(reg_t src, u_off_t offset) { write24("bgez", iso(0x0000D6, src, offset)); }
-    void blt(reg_t src, reg_t dst, u_off_t offset) { write24("blt", isdo(0x002007, src, dst, offset)); }
-    void blti(reg_t src, uint32_t imm, u_off_t offset) { write24("blti", isieo(0x0000A6, src, imm, offset)); }
-    void bltu(reg_t src, reg_t dst, u_off_t offset) { write24("bltu", isdo(0x003007, src, dst, offset)); }
-    void bltui(reg_t src, uint32_t imm, u_off_t offset) { write24("bltui", isieo(0x0000B6, src, imm, offset)); }
-    void bltz(reg_t src, u_off_t offset) { write24("bltz", iso(0x000096, src, offset)); }
-    void call0(u_off_t offset) { write24("call0", isco(0x000005, offset)); }
+    void addi(reg_t dst, reg_t src, s_off_t offset) { write24("addi", idsi(0x00C002, dst, src, offset)); }
+    void bbc(reg_t src, reg_t dst, s_off_t offset) { write24("bbc", isdo(0x005007, src, dst, offset)); }
+    void bbci(reg_t src, uint32_t imm, s_off_t offset) { write24("bbci", isio(0x006007, src, imm, offset)); }
+    void bbs(reg_t src, reg_t dst, s_off_t offset) { write24("bbs", isdo(0x00D007, src, dst, offset)); }
+    void bbsi(reg_t src, uint32_t imm, s_off_t offset) { write24("bbsi", isio(0x007007, src, imm, offset)); }
+    void beq(reg_t src, reg_t dst, s_off_t offset) { write24("beq", isdo(0x001007, src, dst, offset)); }
+    void beqi(reg_t src, uint32_t imm, s_off_t offset) { write24("beqi", isieo(0x000026, src, imm, offset)); }
+    void beqz(reg_t src, s_off_t offset) { write24("beqz", iso(0x000016, src, offset)); }
+    void bne(reg_t src, reg_t dst, s_off_t offset) { write24("bne", isdo(0x009007, src, dst, offset)); }
+    void bnei(reg_t src, uint32_t imm, s_off_t offset) { write24("bnei", isieo(0x000066, src, imm, offset)); }
+    void bnez(reg_t src, s_off_t offset) { write24("bnez", iso(0x000056, src, offset)); }
+    void bge(reg_t src, reg_t dst, s_off_t offset) { write24("bge", isdo(0x00A007, src, dst, offset)); }
+    void bgei(reg_t src, uint32_t imm, s_off_t offset) { write24("bgei", isieo(0x0000E6, src, imm, offset)); }
+    void bgeu(reg_t src, reg_t dst, s_off_t offset) { write24("bgeu", isdo(0x00B007, src, dst, offset)); }
+    void bgeui(reg_t src, uint32_t imm, s_off_t offset) { write24("bgeui", isieo(0x0000F6, src, imm, offset)); }
+    void bgez(reg_t src, s_off_t offset) { write24("bgez", iso(0x0000D6, src, offset)); }
+    void blt(reg_t src, reg_t dst, s_off_t offset) { write24("blt", isdo(0x002007, src, dst, offset)); }
+    void blti(reg_t src, uint32_t imm, s_off_t offset) { write24("blti", isieo(0x0000A6, src, imm, offset)); }
+    void bltu(reg_t src, reg_t dst, s_off_t offset) { write24("bltu", isdo(0x003007, src, dst, offset)); }
+    void bltui(reg_t src, uint32_t imm, s_off_t offset) { write24("bltui", isieo(0x0000B6, src, imm, offset)); }
+    void bltz(reg_t src, s_off_t offset) { write24("bltz", iso(0x000096, src, offset)); }
+    void call0(s_off_t offset) { write24("call0", isco(0x000005, offset)); }
     void callx0(reg_t src) { write24("callx0", iscxo(0x0000C0, src)); }
     uint32_t d8(uint32_t value) { return write8("d8", value); }
     uint32_t d16(uint32_t value) { return write16("d16", value); }
@@ -172,22 +172,22 @@ class EspFunction {
     inline instr_t idso8(uint32_t instr, reg_t dst, reg_t src, u_off_t offset) {
         return instr | (offset << 16) | (dst << 4) | (src << 8); }
 
-    inline instr_t isdo(uint32_t instr, reg_t src, reg_t dst, u_off_t offset) {
+    inline instr_t isdo(uint32_t instr, reg_t src, reg_t dst, s_off_t offset) {
         return instr | (offset << 16) | (dst << 4) | (src << 8); }
 
-    inline instr_t idsi(uint32_t instr, reg_t dst, reg_t src, uint8_t imm) {
-        return instr | (((uint32_t)imm) << 16) | (dst << 4) | (src << 8); }
+    inline instr_t idsi(uint32_t instr, reg_t dst, reg_t src, s_off_t imm) {
+        return instr | (((int32_t)imm) << 16) | (dst << 4) | (src << 8); }
 
     inline instr_t idsb(uint32_t instr, reg_t dst, reg_t src, uint8_t bits) {
         bits = 32 - bits;
         return instr | ((bits >> 4) << 20) | (dst << 12) | (src << 8) | ((bits & 0xF) << 4); }
 
-    inline instr_t isio(uint32_t instr, reg_t src, uint32_t imm, u_off_t offset) {
+    inline instr_t isio(uint32_t instr, reg_t src, uint32_t imm, s_off_t offset) {
         return instr | (offset << 16) | ((imm & 0xF) << 4) | ((imm & 0x10) << 8) | (src << 8); }
 
     instr_t isieo(uint32_t instr, reg_t src, int32_t imm, u_off_t offset);
 
-    inline instr_t iso(uint32_t instr, reg_t src, u_off_t offset) {
+    inline instr_t iso(uint32_t instr, reg_t src, s_off_t offset) {
         return instr | (offset << 12) | (src << 8); }
 
     inline instr_t isco(uint32_t instr, u_off_t offset) {

@@ -195,7 +195,7 @@ void otf(void * pvParameters) {
 			for (uint16_t r = 0; r < 2; r++) {
 				for (uint16_t a = 0; a < 4; a++) {
 					uint8_t c = PIXEL_COLOR_ABGR(a, (b*3), (g*3), (r*3));
-					di_manager->create_solid_rectangle(id++, ROOT_PRIMITIVE_ID, 1, 50, y, 500, 16, c);
+					di_manager->create_solid_rectangle(id++, ROOT_PRIMITIVE_ID, 1, 48, y, 512, 16, c);
 					y += 16+2;
 				}
 			}
