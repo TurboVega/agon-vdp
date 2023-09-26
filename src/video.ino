@@ -178,6 +178,8 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_primitive_group(221, ROOT_PRIMITIVE_ID, 0, 400, 300);
 
+#define DO_RECTANGLES 0
+#if DO_RECTANGLES
     uint32_t id = 20;
 	for (uint16_t b = 0; b < 2; b++) {
 		for (uint16_t g = 0; g < 2; g++) {
@@ -201,6 +203,7 @@ void otf(void * pvParameters) {
 			}
 		}
 	}
+#endif
 
 #define DO_ELLIPSES 0
 #if DO_ELLIPSES
