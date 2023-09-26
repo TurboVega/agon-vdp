@@ -620,16 +620,18 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     }
 }
 
-void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness) {
+void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn,
+        bool is_transparent, uint8_t transparent_color, uint32_t* src_pixels) {
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
 
     auto aligned_x = x & 0xFFFFFFFC;
     auto at_x = d32(aligned_x);
+    auto at_src = d32((uint32_t)src_pixels);
 
     uint32_t at_isolate_br = 0;
     uint32_t at_isolate_g = 0;
-    if (opaqueness != 100) {
+    if (is_transparent) {
         at_isolate_br = d32(0x33333333); // mask to isolate blue & red, removing green
         at_isolate_g = d32(0x0C0C0C0C); // mask to isolate green, removing red & blue
     }
@@ -637,8 +639,9 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     begin_code(at_jump);
 
     set_reg_dst_pixel_ptr(at_x);
+    l32r_from(REG_SRC_PIXEL_PTR, at_src);
 
-    if (opaqueness != 100) {
+    if (is_transparent) {
         l32r_from(REG_ISOLATE_BR, at_isolate_br);
         l32r_from(REG_ISOLATE_G, at_isolate_g);
     }
@@ -647,10 +650,6 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
         s32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
     } else {
         mov(REG_SAVE_RET_INNER, REG_RETURN_ADDR);
-    }
-
-    if (opaqueness != 100) {
-        mov(REG_SAVE_COLOR, REG_PIXEL_COLOR);
     }
 
     uint32_t p_fcn = 0;
