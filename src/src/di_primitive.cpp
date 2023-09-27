@@ -163,6 +163,6 @@ uint8_t DiPrimitive::color_to_opaqueness(uint8_t &color) {
     case 0: return 25;
     case 1: return 50;
     case 2: return 75;
-    case 3: return 100;
+    default: return 100;
   }
 }

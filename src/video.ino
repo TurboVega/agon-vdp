@@ -123,7 +123,7 @@ DiManager* di_manager;  // used for 800x600x64 mode
 HardwareSerial DBGSerial(0);
 #endif 
 
-#include "src/di_opaque_bitmap.h"
+#include "src/di_bitmap.h"
 #define __root /**/
 #define _COMPILE_HEX_DATA_
 #include "00187SCx128X4.h"

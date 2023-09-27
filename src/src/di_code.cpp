@@ -671,305 +671,311 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                 break;
             }
         }
-        while (width < rem_width && ((p_src_bytes[index] & 0xC0) == first_alpha)) {
-            index++;
-        }
         rem_width -= width;
+        uint8_t opaqueness;
+        switch (first_alpha) {
+            case 0x00: opaqueness = 25;
+            case 0x40: opaqueness = 50;
+            case 0x80: opaqueness = 75;
+            default: opaqueness = 100;
+        }
 
         // Use the series of pixels, rather than the rest of the line, if necessary.
-        auto offset = x & 3;
-        uint32_t sub = 1;
-        switch (offset) {
-            case 0:
-                if (width >= 4) {
-                    if (width >= 256) {
-                        // Need at least 64 full words
-                        auto times = width / 256;
-                        movi(REG_LOOP_INDEX, times);
+        while (width) {
+            auto offset = x & 3;
+            uint32_t sub = 1;
+            switch (offset) {
+                case 0:
+                    if (width >= 4) {
+                        if (width >= 256) {
+                            // Need at least 64 full words
+                            auto times = width / 256;
+                            movi(REG_LOOP_INDEX, times);
+                            switch (opaqueness) {
+                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_256_pixels_in_loop; break;
+                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_256_pixels_in_loop; break;
+                                case 75: p_fcn =  (uint32_t) &fcn_src_blend_75_for_256_pixels_in_loop; break;
+                                case 100: p_fcn = (uint32_t) &fcn_copy_256_pixels_in_loop; break;
+                            }
+                            sub = times * 256;
+                        } else if (width >= 128) {
+                            // Need at least 32 full words
+                            if (width > 128) {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_128_pixels; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_128_pixels; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_128_pixels; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_128_pixels; break;
+                                }
+                            } else {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_128_pixels_last; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_128_pixels_last; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_128_pixels_last; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_128_pixels_last; break;
+                                }
+                            }
+                            sub = 128;
+                        } else if (width >= 64) {
+                            // Need at least 16 full words
+                            if (width > 64) {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_64_pixels; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_64_pixels; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_64_pixels; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_64_pixels; break;
+                                }
+                            } else {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_64_pixels_last; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_64_pixels_last; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_64_pixels_last; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_64_pixels_last; break;
+                                }
+                            }
+                            sub = 64;
+                        } else if (width >= 32) {
+                            // Need at least 8 full words
+                            if (width > 32) {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_32_pixels; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_32_pixels; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_32_pixels; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_32_pixels; break;
+                                }
+                            } else {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_32_pixels_last; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_32_pixels_last; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_32_pixels_last; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_32_pixels_last; break;
+                                }
+                            }
+                            sub = 32;
+                        } else if (width >= 16) {
+                            // Need at least 4 full words
+                            if (width > 16) {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_16_pixels; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_16_pixels; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_16_pixels; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_16_pixels; break;
+                                }
+                            } else {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_16_pixels_last; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_16_pixels_last; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_16_pixels_last; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_16_pixels_last; break;
+                                }
+                            }
+                            sub = 16;
+                        } else if (width >= 8) {
+                            // Need at least 2 full words
+                            if (width > 8) {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_8_pixels; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_8_pixels; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_8_pixels; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_8_pixels; break;
+                                }
+                            } else {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_8_pixels_last; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_8_pixels_last; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_8_pixels_last; break;
+                                    case 100: p_fcn = (uint32_t) &fcn_copy_8_pixels_last; break;
+                                }
+                            }
+                            sub = 8;
+                        } else {
+                            // Need at least 1 full word
+                            if (width > 4) {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_4_pixels_at_offset_0; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_4_pixels_at_offset_0; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_4_pixels_at_offset_0; break;
+                                    case 100:
+                                        l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);
+                                        s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
+                                        addi(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 4);
+                                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                                        break;
+                                }
+                            } else {
+                                switch (opaqueness) {
+                                    case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_4_pixels_at_offset_0_last; break;
+                                    case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_4_pixels_at_offset_0_last; break;
+                                    case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_4_pixels_at_offset_0_last; break;
+                                    case 100:
+                                        l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);
+                                        s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
+                                        break;
+                                }
+                            }
+                            sub = 4;
+                        }
+                    } else if (width == 3) {
                         switch (opaqueness) {
-                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_256_pixels_in_loop; break;
-                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_256_pixels_in_loop; break;
-                            case 75: p_fcn =  (uint32_t) &fcn_src_blend_75_for_256_pixels_in_loop; break;
-                            case 100: p_fcn = (uint32_t) &fcn_copy_256_pixels_in_loop; break;
+                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_3_pixels_at_offset_0_last; break;
+                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_3_pixels_at_offset_0_last; break;
+                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_3_pixels_at_offset_0_last; break;
+                            case 100:
+                                l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
+                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                break;
                         }
-                        sub = times * 256;
-                    } else if (width >= 128) {
-                        // Need at least 32 full words
-                        if (width > 128) {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_128_pixels; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_128_pixels; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_128_pixels; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_128_pixels; break;
-                            }
-                        } else {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_128_pixels_last; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_128_pixels_last; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_128_pixels_last; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_128_pixels_last; break;
-                            }
+                        sub = 3;
+                    } else if (width == 2) {
+                        switch (opaqueness) {
+                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_2_pixels_at_offset_0_last; break;
+                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_2_pixels_at_offset_0_last; break;
+                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_2_pixels_at_offset_0_last; break;
+                            case 100:
+                                l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
+                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+                                break;
                         }
-                        sub = 128;
-                    } else if (width >= 64) {
-                        // Need at least 16 full words
-                        if (width > 64) {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_64_pixels; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_64_pixels; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_64_pixels; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_64_pixels; break;
-                            }
-                        } else {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_64_pixels_last; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_64_pixels_last; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_64_pixels_last; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_64_pixels_last; break;
-                            }
+                        sub = 2;
+                    } else { // width == 1
+                        switch (opaqueness) {
+                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_0_last; break;
+                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_0_last; break;
+                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_0_last; break;
+                            case 100:
+                                l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
+                                break;
                         }
-                        sub = 64;
-                    } else if (width >= 32) {
-                        // Need at least 8 full words
-                        if (width > 32) {
+                    }
+                    break;
+
+                case 1:
+                    if (width >= 3) {
+                        if (width > 3) {
                             switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_32_pixels; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_32_pixels; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_32_pixels; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_32_pixels; break;
-                            }
-                        } else {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_32_pixels_last; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_32_pixels_last; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_32_pixels_last; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_32_pixels_last; break;
-                            }
-                        }
-                        sub = 32;
-                    } else if (width >= 16) {
-                        // Need at least 4 full words
-                        if (width > 16) {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_16_pixels; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_16_pixels; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_16_pixels; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_16_pixels; break;
-                            }
-                        } else {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_16_pixels_last; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_16_pixels_last; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_16_pixels_last; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_16_pixels_last; break;
-                            }
-                        }
-                        sub = 16;
-                    } else if (width >= 8) {
-                        // Need at least 2 full words
-                        if (width > 8) {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_8_pixels; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_8_pixels; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_8_pixels; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_8_pixels; break;
-                            }
-                        } else {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_8_pixels_last; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_8_pixels_last; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_8_pixels_last; break;
-                                case 100: p_fcn = (uint32_t) &fcn_copy_8_pixels_last; break;
-                            }
-                        }
-                        sub = 8;
-                    } else {
-                        // Need at least 1 full word
-                        if (width > 4) {
-                            switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_4_pixels_at_offset_0; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_4_pixels_at_offset_0; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_4_pixels_at_offset_0; break;
+                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_3_pixels_at_offset_1; break;
+                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_3_pixels_at_offset_1; break;
+                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_3_pixels_at_offset_1; break;
                                 case 100:
-                                    l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);
-                                    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
+                                    l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);    
+                                    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
+                                    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                                     addi(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 4);
                                     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                                     break;
                             }
                         } else {
                             switch (opaqueness) {
-                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_4_pixels_at_offset_0_last; break;
-                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_4_pixels_at_offset_0_last; break;
-                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_4_pixels_at_offset_0_last; break;
+                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_3_pixels_at_offset_1_last; break;
+                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_3_pixels_at_offset_1_last; break;
+                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_3_pixels_at_offset_1_last; break;
                                 case 100:
-                                    l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);
-                                    s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
+                                    l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);    
+                                    s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
+                                    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                                     break;
                             }
                         }
-                        sub = 4;
-                    }
-                } else if (width == 3) {
-                    switch (opaqueness) {
-                        case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_3_pixels_at_offset_0_last; break;
-                        case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_3_pixels_at_offset_0_last; break;
-                        case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_3_pixels_at_offset_0_last; break;
-                        case 100:
-                            l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
-                            s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-                            break;
-                    }
-                    sub = 3;
-                } else if (width == 2) {
-                    switch (opaqueness) {
-                        case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_2_pixels_at_offset_0_last; break;
-                        case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_2_pixels_at_offset_0_last; break;
-                        case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_2_pixels_at_offset_0_last; break;
-                        case 100:
-                            l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
-                            s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-                            break;
-                    }
-                    sub = 2;
-                } else { // width == 1
-                    switch (opaqueness) {
-                        case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_0_last; break;
-                        case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_0_last; break;
-                        case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_0_last; break;
-                        case 100:
-                            l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(0));
-                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
-                            break;
-                    }
-                }
-                break;
-
-            case 1:
-                if (width >= 3) {
-                    if (width > 3) {
+                        sub = 3;                
+                    } else if (width == 2) {
                         switch (opaqueness) {
-                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_3_pixels_at_offset_1; break;
-                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_3_pixels_at_offset_1; break;
-                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_3_pixels_at_offset_1; break;
+                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_2_pixels_at_offset_1_last; break;
+                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_2_pixels_at_offset_1_last; break;
+                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_2_pixels_at_offset_1_last; break;
                             case 100:
                                 l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);    
-                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
-                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                break;
+                        }
+                        sub = 2;
+                    } else { // width == 1
+                        switch (opaqueness) {
+                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_1_last; break;
+                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_1_last; break;
+                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_1_last; break;
+                            case 100:
+                                l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));    
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
+                                break;
+                        }
+                    }
+                    break;
+
+                case 2:
+                    if (width >= 2) {
+                        if (width > 2) {
+                            switch (opaqueness) {
+                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_2_pixels_at_offset_2; break;
+                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_2_pixels_at_offset_2; break;
+                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_2_pixels_at_offset_2; break;
+                                case 100:
+                                    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
+                                    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                    addi(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 4);
+                                    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                                    break;
+                            }
+                        } else {
+                            switch (opaqueness) {
+                                case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_2_pixels_at_offset_2_last; break;
+                                case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_2_pixels_at_offset_2_last; break;
+                                case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_2_pixels_at_offset_2_last; break;
+                                case 100:
+                                    l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
+                                    s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                    break;
+                            }
+                        }
+                        sub = 2;
+                    } else { // width == 1
+                        switch (opaqueness) {
+                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_2_last; break;
+                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_2_last; break;
+                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_2_last; break;
+                            case 100:
+                                l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                break;
+                        }
+                    }
+                    break;
+                
+                case 3:
+                    if (width > 1) {
+                        switch (opaqueness) {
+                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_3; break;
+                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_3; break;
+                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_3; break;
+                            case 100:
+                                l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(3));
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
                                 addi(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 4);
                                 addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                                 break;
                         }
                     } else {
                         switch (opaqueness) {
-                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_3_pixels_at_offset_1_last; break;
-                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_3_pixels_at_offset_1_last; break;
-                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_3_pixels_at_offset_1_last; break;
+                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_3_last; break;
+                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_3_last; break;
+                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_3_last; break;
                             case 100:
-                                l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);    
-                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
-                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(3));
+                                s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
                                 break;
                         }
                     }
-                    sub = 3;                
-                } else if (width == 2) {
-                    switch (opaqueness) {
-                        case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_2_pixels_at_offset_1_last; break;
-                        case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_2_pixels_at_offset_1_last; break;
-                        case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_2_pixels_at_offset_1_last; break;
-                        case 100:
-                            l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);    
-                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-                            break;
-                    }
-                    sub = 2;
-                } else { // width == 1
-                    switch (opaqueness) {
-                        case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_1_last; break;
-                        case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_1_last; break;
-                        case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_1_last; break;
-                        case 100:
-                            l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(1));    
-                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
-                            break;
-                    }
-                }
-                break;
-
-            case 2:
-                if (width >= 2) {
-                    if (width > 2) {
-                        switch (opaqueness) {
-                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_2_pixels_at_offset_2; break;
-                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_2_pixels_at_offset_2; break;
-                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_2_pixels_at_offset_2; break;
-                            case 100:
-                                l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-                                addi(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 4);
-                                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
-                                break;
-                        }
-                    } else {
-                        switch (opaqueness) {
-                            case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_2_pixels_at_offset_2_last; break;
-                            case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_2_pixels_at_offset_2_last; break;
-                            case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_2_pixels_at_offset_2_last; break;
-                            case 100:
-                                l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-                                s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-                                break;
-                        }
-                    }
-                    sub = 2;
-                } else { // width == 1
-                    switch (opaqueness) {
-                        case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_2_last; break;
-                        case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_2_last; break;
-                        case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_2_last; break;
-                        case 100:
-                            l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
-                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
-                            break;
-                    }
-                }
-                break;
-            
-            case 3:
-                if (width > 1) {
-                    switch (opaqueness) {
-                        case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_3; break;
-                        case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_3; break;
-                        case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_3; break;
-                        case 100:
-                            l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(3));
-                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
-                            addi(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 4);
-                            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
-                            break;
-                    }
-                } else {
-                    switch (opaqueness) {
-                        case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_3_last; break;
-                        case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_3_last; break;
-                        case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_1_pixel_at_offset_3_last; break;
-                        case 100:
-                            l8ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(3));
-                            s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
-                            break;
-                    }
-                }
-                break;
-        }
-        width -= sub;
-        x += sub;
-        if (p_fcn) {
-            fixups.push_back(EspFixup { get_code_index(), p_fcn });
-            call0(0);
-            p_fcn = 0;
+                    break;
+            }
+            width -= sub;
+            x += sub;
+            if (p_fcn) {
+                fixups.push_back(EspFixup { get_code_index(), p_fcn });
+                call0(0);
+                p_fcn = 0;
+            }
         }
     }
 
