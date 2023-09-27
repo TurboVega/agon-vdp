@@ -33,33 +33,27 @@
 #include "esp_heap_caps.h"
 #include <cstring>
 
-DiBitmap::DiBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
+DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint8_t flags) {
   m_width = width;
   m_height = height;
   m_save_height = height;
-  m_scroll_mode = (uint32_t)scroll_mode;
+  m_flags = flags;
   m_is_transparent = false;
 
-  switch (scroll_mode) {
-    case NONE:
-    case VERTICAL:
-      m_words_per_line = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t));
-      m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
-      m_words_per_position = m_words_per_line * height;
-      m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
-      m_pixels = new uint32_t[m_words_per_position];
-      memset(m_pixels, 0x00, m_bytes_per_position);
-      break;
-
-    case HORIZONTAL:
-    case BOTH:
+  if (flags & PRIM_FLAG_H_SCROLL) {
       m_words_per_line = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t) + 2);
       m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
       m_pixels = new uint32_t[m_words_per_position * 4];
       memset(m_pixels, 0x00, m_bytes_per_position * 4);
-      break;
+  } else {
+      m_words_per_line = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t));
+      m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
+      m_words_per_position = m_words_per_line * height;
+      m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
+      m_pixels = new uint32_t[m_words_per_position];
+      memset(m_pixels, 0x00, m_bytes_per_position);
   }
   m_visible_start = m_pixels;
 }
@@ -92,22 +86,16 @@ void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
   uint32_t* p;
   int32_t index;
 
-  switch ((ScrollMode)m_scroll_mode) {
-    case NONE:
-    case VERTICAL:
-      p = m_pixels + y * m_words_per_line + (x / 4);
-      index = FIX_INDEX(x&3);
+  if (m_flags & PRIM_FLAG_H_SCROLL) {
+    p = m_pixels + y * m_words_per_line + (x / 4);
+    index = FIX_INDEX(x&3);
+    pixels(p)[index] = color;
+  } else {
+    for (uint32_t pos = 0; pos < 4; pos++) {
+      p = m_pixels + pos * m_words_per_position + y * m_words_per_line + ((pos+x) / 4);
+      index = FIX_INDEX((pos+x)&3);
       pixels(p)[index] = color;
-      break;
-
-    case HORIZONTAL:
-    case BOTH:
-      for (uint32_t pos = 0; pos < 4; pos++) {
-        p = m_pixels + pos * m_words_per_position + y * m_words_per_line + ((pos+x) / 4);
-        index = FIX_INDEX((pos+x)&3);
-        pixels(p)[index] = color;
-      }
-      break;
+    }
   }
 }
 
@@ -120,15 +108,31 @@ void IRAM_ATTR DiBitmap::delete_instructions() {
 void IRAM_ATTR DiBitmap::generate_instructions() {
   delete_instructions();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
-    for (uint32_t pos = 0; pos < 4; pos++) {
+    if (m_flags & PRIM_FLAG_H_SCROLL) {
+      // Bitmap can be positioned on any horizontal byte boundary (pixel offsets 0..3).
+      for (uint32_t pos = 0; pos < 4; pos++) {
+        EspFixups fixups;
+        EspFunction* paint_fcn = &m_paint_fcn[pos];
+        uint32_t draw_width = m_draw_x_extent - m_draw_x + 1;
+        uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
+        for (uint32_t line = 0; line < m_save_height; line++) {
+          paint_fcn->align32();
+          paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
+          uint32_t* src_pixels = m_pixels + pos * m_words_per_position + line * m_words_per_line;
+          paint_fcn->copy_line(fixups, m_draw_x, draw_width, false, m_is_transparent, m_transparent_color, src_pixels);
+        }
+        paint_fcn->do_fixups(fixups);
+      }
+    } else {
+      // Bitmap must be positioned on a 4-byte boundary (pixel offset 0)!
       EspFixups fixups;
-      EspFunction* paint_fcn = &m_paint_fcn[pos];
+      EspFunction* paint_fcn = &m_paint_fcn[0];
       uint32_t draw_width = m_draw_x_extent - m_draw_x + 1;
       uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
       for (uint32_t line = 0; line < m_save_height; line++) {
         paint_fcn->align32();
         paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
-        uint32_t* src_pixels = m_pixels + pos * m_words_per_position + line * m_words_per_line;
+        uint32_t* src_pixels = m_pixels + line * m_words_per_line;
         paint_fcn->copy_line(fixups, m_draw_x, draw_width, false, m_is_transparent, m_transparent_color, src_pixels);
       }
       paint_fcn->do_fixups(fixups);

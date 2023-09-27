@@ -1775,51 +1775,34 @@ DiPrimitive* DiManager::create_solid_ellipse(uint16_t id, uint16_t parent, uint8
     return finish_create(id, flags, prim, parent_prim);
 }
 
-ScrollMode get_scroll_mode_from_flags(uint8_t flags) {
-    if (flags & PRIM_FLAG_H_SCROLL) {
-      if (flags & PRIM_FLAG_V_SCROLL) {
-        return ScrollMode::BOTH;
-      } else {
-        return ScrollMode::HORIZONTAL;
-      }
-    } else if (flags & PRIM_FLAG_V_SCROLL) {
-      return ScrollMode::VERTICAL;
-    } else {
-      return ScrollMode::NONE;
-    }
-}
-
-DiOpaqueBitmap* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+DiBitmap* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                         uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
-    auto scroll_mode = get_scroll_mode_from_flags(flags);
-    DiOpaqueBitmap* prim = new DiOpaqueBitmap(width, height, scroll_mode);
+    DiBitmap* prim = new DiBitmap(width, height, flags);
 
     finish_create(id, flags, prim, parent_prim);
     return prim;
 }
 
-DiMaskedBitmap* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+DiBitmap* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                         uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
-    auto scroll_mode = get_scroll_mode_from_flags(flags);
-    DiMaskedBitmap* prim = new DiMaskedBitmap(width, height, scroll_mode);
+    DiBitmap* prim = new DiBitmap(width, height, flags);
 
     finish_create(id, flags, prim, parent_prim);
     return prim;
 }
 
-DiTransparentBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+DiBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                         uint32_t width, uint32_t height, uint8_t color) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
-    auto scroll_mode = get_scroll_mode_from_flags(flags);
-    DiTransparentBitmap* prim = new DiTransparentBitmap(width, height, scroll_mode);
+    DiBitmap* prim = new DiBitmap(width, height, flags);
     prim->set_transparent_color(color);
 
     finish_create(id, flags, prim, parent_prim);

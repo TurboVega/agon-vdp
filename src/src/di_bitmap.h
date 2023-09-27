@@ -36,7 +36,7 @@
 class DiBitmap : public DiPrimitive {
   public:
   // Construct a bitmap.
-  DiBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode);
+  DiBitmap(uint32_t width, uint32_t height, uint8_t flags);
 
   // Destroy a bitmap.
   ~DiBitmap();

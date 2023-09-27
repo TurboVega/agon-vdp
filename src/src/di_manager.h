@@ -28,9 +28,7 @@
 #include "rom/lldesc.h"
 #include "di_video_buffer.h"
 #include "di_terminal.h"
-#include "di_opaque_bitmap.h"
-#include "di_masked_bitmap.h"
-#include "di_transparent_bitmap.h"
+#include "di_bitmap.h"
 
 typedef void (*DiVoidCallback)();
 
@@ -88,13 +86,13 @@ class DiManager {
                             uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
                             uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
 
-    DiOpaqueBitmap* create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+    DiBitmap* create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                             uint32_t width, uint32_t height);
 
-    DiMaskedBitmap* create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+    DiBitmap* create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                             uint32_t width, uint32_t height);
 
-    DiTransparentBitmap* create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+    DiBitmap* create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
                             uint32_t width, uint32_t height, uint8_t color);
 
     DiPrimitive* create_primitive_group(uint16_t id, uint16_t parent, uint8_t flags,

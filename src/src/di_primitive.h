@@ -30,14 +30,6 @@
 #include "driver/gpio.h"
 #include "di_constants.h"
 
-// Used as a hint, to potentially save RAM, when allocating bitmaps.
-typedef enum {
-  NONE,       // do not allow scrolling
-  HORIZONTAL, // allow horizontal, but not vertical
-  VERTICAL,   // allow vertical, but not horizontal
-  BOTH        // both horizontal and vertical
-} ScrollMode;
-
 #pragma pack(push,1)
 
 class DiPrimitive {
