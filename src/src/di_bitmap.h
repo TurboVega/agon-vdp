@@ -74,13 +74,16 @@ class DiBitmap : public DiPrimitive {
   // Set a single pixel with an adjusted color value.
   void set_pixel(int32_t x, int32_t y, uint8_t color);
 
-  uint32_t m_words_per_line;
-  uint32_t m_bytes_per_line;
-  uint32_t m_words_per_position;
-  uint32_t m_bytes_per_position;
-  uint32_t* m_visible_start;
-  uint32_t m_scroll_mode;
-  uint32_t m_transparent_color;
-  uint32_t* m_pixels;
-  EspFunction m_paint_fcn;
+  uint32_t    m_words_per_line;
+  uint32_t    m_bytes_per_line;
+  uint32_t    m_words_per_position;
+  uint32_t    m_bytes_per_position;
+  uint32_t*   m_visible_start;
+  uint32_t    m_scroll_mode;
+  uint32_t*   m_pixels;
+  uint32_t    m_save_height;
+  uint32_t    m_built_width;
+  EspFunction m_paint_fcn[4];
+  bool        m_is_transparent;
+  uint8_t     m_transparent_color;
 };

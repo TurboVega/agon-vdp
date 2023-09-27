@@ -653,8 +653,21 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     }
 
     uint32_t p_fcn = 0;
+    uint32_t rem_width = width;
+    uint8_t* p_src_bytes = (uint8_t*) src_pixels;
 
-    while (width) {
+    while (rem_width) {
+        // Determine the width of adjacent, similarly transparent (or opaque) pixels in the line.
+        // The colors do not have to be equal.
+        width = 1;
+        uint32_t index = FIX_OFFSET(x);
+        uint8_t first_alpha = p_src_bytes[index] & 0xC0;
+        while (width < rem_width && ((p_src_bytes[index] & 0xC0) == first_alpha)) {
+            index++;
+        }
+        rem_width -= width;
+
+        // Use the series of pixels, rather than the rest of the line, if necessary.
         auto offset = x & 3;
         uint32_t sub = 1;
         switch (offset) {

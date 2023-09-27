@@ -36,7 +36,9 @@
 DiBitmap::DiBitmap(uint32_t width, uint32_t height, ScrollMode scroll_mode) {
   m_width = width;
   m_height = height;
+  m_save_height = height;
   m_scroll_mode = (uint32_t)scroll_mode;
+  m_is_transparent = false;
 
   switch (scroll_mode) {
     case NONE:
@@ -82,11 +84,8 @@ void DiBitmap::set_transparent_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void DiBitmap::set_transparent_color(uint8_t color) {
-  m_transparent_color =
-    (((uint32_t)color) << 24) |
-    (((uint32_t)color) << 16) |
-    (((uint32_t)color) << 8) |
-    ((uint32_t)color);
+  m_is_transparent = true;
+  m_transparent_color = color;
 }
 
 void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
@@ -97,7 +96,7 @@ void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
     case NONE:
     case VERTICAL:
       p = m_pixels + y * m_words_per_line + (x / 4);
-      index = x&3;
+      index = FIX_INDEX(x&3);
       pixels(p)[index] = color;
       break;
 
@@ -105,7 +104,7 @@ void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
     case BOTH:
       for (uint32_t pos = 0; pos < 4; pos++) {
         p = m_pixels + pos * m_words_per_position + y * m_words_per_line + ((pos+x) / 4);
-        index = (pos+x)&3;
+        index = FIX_INDEX((pos+x)&3);
         pixels(p)[index] = color;
       }
       break;
@@ -113,23 +112,30 @@ void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void IRAM_ATTR DiBitmap::delete_instructions() {
-  m_paint_fcn.clear();
+  for (uint32_t pos = 0; pos < 4; pos++) {
+    m_paint_fcn[pos].clear();
+  }
 }
   
 void IRAM_ATTR DiBitmap::generate_instructions() {
-  m_paint_fcn.clear();
+  delete_instructions();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
-    EspFixups fixups;
-    uint32_t at_jump_table = m_paint_fcn.init_jump_table(m_line_pieces.m_num_pieces);
-    for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
-      m_paint_fcn.align32();
-      m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
-      m_paint_fcn.draw_line(fixups, piece->m_x, piece->m_width, false, m_opaqueness);
+    for (uint32_t pos = 0; pos < 4; pos++) {
+      EspFixups fixups;
+      EspFunction* paint_fcn = &m_paint_fcn[pos];
+      uint32_t draw_width = m_draw_x_extent - m_draw_x + 1;
+      uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
+      for (uint32_t line = 0; line < m_save_height; line++) {
+        paint_fcn->align32();
+        paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
+        uint32_t* src_pixels = m_pixels + pos * m_words_per_position + line * m_words_per_line;
+        paint_fcn->copy_line(fixups, m_draw_x, draw_width, false, m_is_transparent, m_transparent_color, src_pixels);
+      }
+      paint_fcn->do_fixups(fixups);
     }
-    m_paint_fcn.do_fixups(fixups);
   }
 }
 
 void IRAM_ATTR DiBitmap::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
-  m_paint_fcn.call(this, p_scan_line, line_index);
+  m_paint_fcn[m_draw_x & 3].call(this, p_scan_line, line_index);
 }
