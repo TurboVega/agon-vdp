@@ -662,6 +662,15 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
         width = 1;
         uint32_t index = FIX_OFFSET(x);
         uint8_t first_alpha = p_src_bytes[index] & 0xC0;
+        for (uint32_t i = 1; i < rem_width; i++) {
+            index = FIX_OFFSET(x + i);
+            uint8_t next_alpha = p_src_bytes[index] & 0xC0;
+            if (next_alpha == first_alpha) {
+                width++;
+            } else {
+                break;
+            }
+        }
         while (width < rem_width && ((p_src_bytes[index] & 0xC0) == first_alpha)) {
             index++;
         }
