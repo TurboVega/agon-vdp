@@ -754,7 +754,11 @@ fcn_draw_8_pixels_last:
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   ret
- 
+
+  .align 4
+  .global holdit
+holdit: .word 0
+
   .align 4
 fcn_get_blend_25_for_4_pixels:
   // 00BBGGRR 00BBGGRR 00BBGGRR 00BBGGRR - source or destination pixels
@@ -777,6 +781,10 @@ fcn_get_blend_25_for_4_pixels:
   and   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G // averages in 2 bits each
 
   or    REG_PIXEL_COLOR, REG_DST_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
+
+  movi REG_DST_BR_PIXELS,holdit
+  s32i REG_PIXEL_COLOR,REG_DST_BR_PIXELS,0
+  movi REG_PIXEL_COLOR,1
   ret
 
   .align 4

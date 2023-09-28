@@ -657,32 +657,38 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     uint8_t* p_src_bytes = (uint8_t*) src_pixels;
 
     while (rem_width) {
-        debug_log("rw=%u\n", rem_width);
-        // Determine the width of adjacent, similarly transparent (or opaque) pixels in the line.
-        // The colors do not have to be equal.
-        width = 1;
-        uint32_t index = FIX_OFFSET(x);
-        uint8_t first_alpha = p_src_bytes[index] & 0xC0;
-        for (uint32_t i = 1; i < rem_width; i++) {
-            index = FIX_OFFSET(x + i);
-            uint8_t next_alpha = p_src_bytes[index] & 0xC0;
-            if (next_alpha == first_alpha) {
-                width++;
-            } else {
-                break;
+        debug_log("\nx=%u, rw=%u\n", x, rem_width);
+
+        uint8_t opaqueness = 100;
+        if (!is_transparent) {
+            // Transfer all pixels at 100% opaqueness.
+            width = rem_width;            
+        } else {
+            // Determine the width of adjacent, similarly transparent (or opaque) pixels in the line.
+            // The colors do not have to be equal.
+            width = 1;
+            uint32_t index = FIX_OFFSET(x);
+            uint8_t first_alpha = p_src_bytes[index] & 0xC0;
+            for (uint32_t i = 1; i < rem_width; i++) {
+                index = FIX_OFFSET(x + i);
+                uint8_t next_alpha = p_src_bytes[index] & 0xC0;
+                if (next_alpha == first_alpha) {
+                    width++;
+                } else {
+                    break;
+                }
             }
+            debug_log("w=%u, fa=%02X\n", width, first_alpha);
+            switch (first_alpha) {
+                case 0x00: opaqueness = 25; break;
+                case 0x40: opaqueness = 50; break;
+                case 0x80: opaqueness = 75; break;
+                default: opaqueness = 100; break;
+            }
+            debug_log("op=%hu\n", opaqueness);
         }
-        debug_log("w=%u, fa=%02X\n", width, first_alpha);
         rem_width -= width;
         debug_log("rw=%u\n", rem_width);
-        uint8_t opaqueness;
-        switch (first_alpha) {
-            case 0x00: opaqueness = 25; break;
-            case 0x40: opaqueness = 50; break;
-            case 0x80: opaqueness = 75; break;
-            default: opaqueness = 100; break;
-        }
-        debug_log("op=%hu\n", opaqueness);
 
         // Use the series of pixels, rather than the rest of the line, if necessary.
         while (width) {

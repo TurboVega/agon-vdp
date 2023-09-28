@@ -87,15 +87,15 @@ void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
   int32_t index;
 
   if (m_flags & PRIM_FLAG_H_SCROLL) {
-    p = m_pixels + y * m_words_per_line + (x / 4);
-    index = FIX_INDEX(x&3);
-    pixels(p)[index] = color;
-  } else {
     for (uint32_t pos = 0; pos < 4; pos++) {
       p = m_pixels + pos * m_words_per_position + y * m_words_per_line + ((pos+x) / 4);
       index = FIX_INDEX((pos+x)&3);
       pixels(p)[index] = color;
     }
+  } else {
+    p = m_pixels + y * m_words_per_line + (x / 4);
+    index = FIX_INDEX(x&3);
+    pixels(p)[index] = color;
   }
 }
 

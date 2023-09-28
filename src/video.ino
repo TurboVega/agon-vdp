@@ -255,7 +255,7 @@ void otf(void * pvParameters) {
 	}
 #endif
 
-	auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x01, 128, 90);
+	auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90);
 	int i = 0;
 	for (int y = 0; y < 90; y++) {
 		for (int x = 0; x < 128; x++) {
@@ -264,6 +264,7 @@ void otf(void * pvParameters) {
 			prim->set_transparent_pixel(x, y, c);
 		}
 	}
+	prim->generate_instructions();
 	//di_manager->move_primitive_relative(99, 650, 45);
 
 	debug_log("Running OTF manager...\r\n");
