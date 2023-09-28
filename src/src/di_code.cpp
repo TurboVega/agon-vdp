@@ -672,15 +672,15 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                 break;
             }
         }
-        debug_log("w=%u\n", width);
+        debug_log("w=%u, fa=%02X\n", width, first_alpha);
         rem_width -= width;
         debug_log("rw=%u\n", rem_width);
         uint8_t opaqueness;
         switch (first_alpha) {
-            case 0x00: opaqueness = 25;
-            case 0x40: opaqueness = 50;
-            case 0x80: opaqueness = 75;
-            default: opaqueness = 100;
+            case 0x00: opaqueness = 25; break;
+            case 0x40: opaqueness = 50; break;
+            case 0x80: opaqueness = 75; break;
+            default: opaqueness = 100; break;
         }
         debug_log("op=%hu\n", opaqueness);
 

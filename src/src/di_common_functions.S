@@ -27,7 +27,7 @@
 
   .section .iram1.text
   .align 4
-
+  
   .global   fcn_draw_256_pixels_in_loop
   .global   fcn_draw_128_pixels
   .global   fcn_draw_128_pixels_last
@@ -754,9 +754,12 @@ fcn_draw_8_pixels_last:
   set_4_pixels_at_offset 0
   set_4_pixels_at_offset 4
   ret
-
+ 
   .align 4
 fcn_get_blend_25_for_4_pixels:
+  // 00BBGGRR 00BBGGRR 00BBGGRR 00BBGGRR - source or destination pixels
+  // 00110011 00110011 00110011 00110011 - isolate blue & red
+  // 00001100 00001100 00001100 00001100 - isolate green
   and   REG_SRC_BR_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_BR // src blue & red (no green)
   and   REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR // dst blue & red (no green)
   slli  REG_DOUBLE_COLOR, REG_DST_BR_PIXELS, 1 // double the dst color values

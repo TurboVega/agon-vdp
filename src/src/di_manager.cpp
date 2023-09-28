@@ -631,7 +631,6 @@ void IRAM_ATTR DiManager::loop() {
       if (ESPSerial.available() > 0) {
         process_character(ESPSerial.read());
       }
-
     } else {
       // Keep storing incoming characters
       if (ESPSerial.available() > 0) {
