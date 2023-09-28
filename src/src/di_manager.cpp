@@ -570,7 +570,7 @@ void IRAM_ATTR DiManager::run() {
   loop();
   clear();
 }
-extern uint32_t holdit;
+
 void IRAM_ATTR DiManager::loop() {
   uint32_t current_line_index = 0;//NUM_ACTIVE_BUFFERS * NUM_LINES_PER_BUFFER;
   uint32_t current_buffer_index = 0;
@@ -631,7 +631,6 @@ void IRAM_ATTR DiManager::loop() {
       if (ESPSerial.available() > 0) {
         process_character(ESPSerial.read());
       }
-      if (holdit) { debug_log("%08X\n",holdit);}
     } else {
       // Keep storing incoming characters
       if (ESPSerial.available() > 0) {

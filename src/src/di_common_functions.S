@@ -756,10 +756,6 @@ fcn_draw_8_pixels_last:
   ret
 
   .align 4
-  .global holdit
-holdit: .word 0
-
-  .align 4
 fcn_get_blend_25_for_4_pixels:
   // 00BBGGRR 00BBGGRR 00BBGGRR 00BBGGRR - source or destination pixels
   // 00110011 00110011 00110011 00110011 - isolate blue & red
@@ -781,10 +777,6 @@ fcn_get_blend_25_for_4_pixels:
   and   REG_DST_G_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_G // averages in 2 bits each
 
   or    REG_PIXEL_COLOR, REG_DST_BR_PIXELS, REG_DST_G_PIXELS // 4 mixed pixels
-
-  movi REG_DST_BR_PIXELS,holdit
-  s32i REG_PIXEL_COLOR,REG_DST_BR_PIXELS,0
-  movi REG_PIXEL_COLOR,1
   ret
 
   .align 4
@@ -793,7 +785,7 @@ fcn_get_blend_50_for_4_pixels:
   and   REG_DST_BR_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_BR // dst blue & red (no green)
   add   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_SRC_BR_PIXELS // sum of blue & sum of red
   srli  REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, 1 // averages of mixed blue & mixed red, in 3 bits each
-  and   REG_DST_BR_PIXELS, REG_DST_G_PIXELS, REG_ISOLATE_BR // averages in 2 bits each
+  and   REG_DST_BR_PIXELS, REG_DST_BR_PIXELS, REG_ISOLATE_BR // averages in 2 bits each
 
   and   REG_SRC_G_PIXELS, REG_SRC_PIXELS, REG_ISOLATE_G // src green (no red or blue)
   and   REG_DST_G_PIXELS, REG_PIXEL_COLOR, REG_ISOLATE_G // dst green (no red or blue)

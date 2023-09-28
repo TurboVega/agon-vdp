@@ -255,13 +255,13 @@ void otf(void * pvParameters) {
 	}
 #endif
 
-	auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90);
+	auto prim = di_manager->create_transparent_bitmap(99, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90, 0x40);
 	int i = 0;
 	for (int y = 0; y < 90; y++) {
 		for (int x = 0; x < 128; x++) {
 			uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
 			i += 3;
-			prim->set_transparent_pixel(x, y, c);
+			prim->set_transparent_pixel(x, y, c|0x00);
 		}
 	}
 	prim->generate_instructions();
