@@ -619,7 +619,7 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
         jx(REG_SAVE_RET_INNER);
     }
 }
-
+extern void debug_log(const char* fmt, ...);
 void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn,
         bool is_transparent, uint8_t transparent_color, uint32_t* src_pixels) {
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
@@ -657,6 +657,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     uint8_t* p_src_bytes = (uint8_t*) src_pixels;
 
     while (rem_width) {
+        debug_log("rw=%u\n", rem_width);
         // Determine the width of adjacent, similarly transparent (or opaque) pixels in the line.
         // The colors do not have to be equal.
         width = 1;
@@ -671,7 +672,9 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                 break;
             }
         }
+        debug_log("w=%u\n", width);
         rem_width -= width;
+        debug_log("rw=%u\n", rem_width);
         uint8_t opaqueness;
         switch (first_alpha) {
             case 0x00: opaqueness = 25;
@@ -679,6 +682,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
             case 0x80: opaqueness = 75;
             default: opaqueness = 100;
         }
+        debug_log("op=%hu\n", opaqueness);
 
         // Use the series of pixels, rather than the rest of the line, if necessary.
         while (width) {
@@ -972,7 +976,6 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
             width -= sub;
             x += sub;
             if (p_fcn) {
-                p_fcn = (uint32_t) &fcn_dummy;
                 fixups.push_back(EspFixup { get_code_index(), p_fcn });
                 call0(0);
                 p_fcn = 0;

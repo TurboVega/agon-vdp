@@ -113,7 +113,7 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
       for (uint32_t pos = 0; pos < 4; pos++) {
         EspFixups fixups;
         EspFunction* paint_fcn = &m_paint_fcn[pos];
-        uint32_t draw_width = m_draw_x_extent - m_draw_x + 1;
+        uint32_t draw_width = m_draw_x_extent - m_draw_x;
         uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
         for (uint32_t line = 0; line < m_save_height; line++) {
           paint_fcn->align32();
@@ -127,7 +127,7 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
       // Bitmap must be positioned on a 4-byte boundary (pixel offset 0)!
       EspFixups fixups;
       EspFunction* paint_fcn = &m_paint_fcn[0];
-      uint32_t draw_width = m_draw_x_extent - m_draw_x + 1;
+      uint32_t draw_width = m_draw_x_extent - m_draw_x;
       uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
       for (uint32_t line = 0; line < m_save_height; line++) {
         paint_fcn->align32();
