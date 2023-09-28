@@ -74,7 +74,8 @@ void DiBitmap::set_slice_position(int32_t x, int32_t y, uint32_t start_line, uin
 }
 
 void DiBitmap::set_transparent_pixel(int32_t x, int32_t y, uint8_t color) {
-  set_pixel(x, y, color);
+  // Invert the meaning of the alpha bits.
+  set_pixel(x, y, PIXEL_ALPHA_INV_MASK(color));
 }
 
 void DiBitmap::set_transparent_color(uint8_t color) {

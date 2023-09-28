@@ -22,6 +22,7 @@
 // 
 
 #include "di_code.h"
+#include "di_constants.h"
 #include "di_primitive_const.h"
 #include "../agon.h"
 #include "freertos/FreeRTOS.h"
@@ -679,10 +680,12 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                 }
             }
             debug_log("w=%u, fa=%02X\n", width, first_alpha);
+
+            // This tests using inverted alpha masks.
             switch (first_alpha) {
-                case 0x00: opaqueness = 25; break;
-                case 0x40: opaqueness = 50; break;
-                case 0x80: opaqueness = 75; break;
+                case PIXEL_ALPHA_INV_25_MASK: opaqueness = 25; break;
+                case PIXEL_ALPHA_INV_50_MASK: opaqueness = 50; break;
+                case PIXEL_ALPHA_INV_75_MASK: opaqueness = 75; break;
                 default: opaqueness = 100; break;
             }
             debug_log("op=%hu\n", opaqueness);

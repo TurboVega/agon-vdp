@@ -29,7 +29,7 @@ DiSolidRectangle::DiSolidRectangle() {
 }
 
 void DiSolidRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
-  m_opaqueness = DiPrimitive::color_to_opaqueness(color);
+  m_opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
   m_rel_x = x;
   m_rel_y = y;
   m_width = width;
