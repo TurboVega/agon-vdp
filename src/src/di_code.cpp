@@ -658,7 +658,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     uint8_t* p_src_bytes = (uint8_t*) src_pixels;
 
     while (rem_width) {
-        debug_log("\nx=%u, rw=%u\n", x, rem_width);
+        debug_log("x=%u, rw=%u, ", x, rem_width);
 
         uint8_t opaqueness = 100;
         if (!is_transparent) {
@@ -679,7 +679,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     break;
                 }
             }
-            debug_log("w=%u, fa=%02X\n", width, first_alpha);
+            debug_log("w=%u, fa=%02X, ", width, first_alpha);
 
             // This tests using inverted alpha masks.
             switch (first_alpha) {
@@ -688,7 +688,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                 case PIXEL_ALPHA_INV_75_MASK: opaqueness = 75; break;
                 default: opaqueness = 100; break;
             }
-            debug_log("op=%hu\n", opaqueness);
+            debug_log("op=%hu, ", opaqueness);
         }
         rem_width -= width;
         debug_log("rw=%u\n", rem_width);
