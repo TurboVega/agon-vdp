@@ -700,7 +700,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                             sub = times * 256;
                         } else if (width >= 128) {
                             // Need at least 32 full words
-                            if (width > 128) {
+                            if (width > 128 || rem_width) {
                                 switch (opaqueness) {
                                     case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_128_pixels; break;
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_128_pixels; break;
@@ -718,7 +718,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                             sub = 128;
                         } else if (width >= 64) {
                             // Need at least 16 full words
-                            if (width > 64) {
+                            if (width > 64 || rem_width) {
                                 switch (opaqueness) {
                                     case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_64_pixels; break;
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_64_pixels; break;
@@ -736,7 +736,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                             sub = 64;
                         } else if (width >= 32) {
                             // Need at least 8 full words
-                            if (width > 32) {
+                            if (width > 32 || rem_width) {
                                 switch (opaqueness) {
                                     case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_32_pixels; break;
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_32_pixels; break;
@@ -754,7 +754,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                             sub = 32;
                         } else if (width >= 16) {
                             // Need at least 4 full words
-                            if (width > 16) {
+                            if (width > 16 || rem_width) {
                                 switch (opaqueness) {
                                     case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_16_pixels; break;
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_16_pixels; break;
@@ -772,7 +772,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                             sub = 16;
                         } else if (width >= 8) {
                             // Need at least 2 full words
-                            if (width > 8) {
+                            if (width > 8 || rem_width) {
                                 switch (opaqueness) {
                                     case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_8_pixels; break;
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_8_pixels; break;
@@ -790,7 +790,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                             sub = 8;
                         } else {
                             // Need at least 1 full word
-                            if (width > 4) {
+                            if (width > 4 || rem_width) {
                                 switch (opaqueness) {
                                     case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_4_pixels_at_offset_0; break;
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_4_pixels_at_offset_0; break;
@@ -972,6 +972,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
             width -= sub;
             x += sub;
             if (p_fcn) {
+                p_fcn = (uint32_t) &fcn_dummy;
                 fixups.push_back(EspFixup { get_code_index(), p_fcn });
                 call0(0);
                 p_fcn = 0;

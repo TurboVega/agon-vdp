@@ -255,16 +255,16 @@ void otf(void * pvParameters) {
 	}
 #endif
 
-	/*auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x31, 128, 90);
+	auto prim = di_manager->create_solid_bitmap(99, ROOT_PRIMITIVE_ID, 0x01, 128, 90);
 	int i = 0;
 	for (int y = 0; y < 90; y++) {
 		for (int x = 0; x < 128; x++) {
-      uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
-      i += 3;
-			prim->set_opaque_pixel(x, y, c);
+			uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
+			i += 3;
+			prim->set_transparent_pixel(x, y, c);
 		}
 	}
-	di_manager->move_primitive_relative(99, 650, 45);*/
+	//di_manager->move_primitive_relative(99, 650, 45);
 
 	debug_log("Running OTF manager...\r\n");
 	di_manager->run();

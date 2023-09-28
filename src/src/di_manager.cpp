@@ -43,9 +43,7 @@
 #include "di_rectangle.h"
 #include "di_solid_rectangle.h"
 #include "di_tile_map.h"
-#include "di_opaque_bitmap.h"
-#include "di_masked_bitmap.h"
-#include "di_transparent_bitmap.h"
+#include "di_bitmap.h"
 
 #include "../agon.h"
 #include "freertos/FreeRTOS.h"
@@ -1821,7 +1819,7 @@ DiPrimitive* DiManager::create_primitive_group(uint16_t id, uint16_t parent, uin
 }
 
 void DiManager::slice_solid_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  DiOpaqueBitmap* prim; if (!(prim = (DiOpaqueBitmap*)get_safe_primitive(id))) return;
+  DiBitmap* prim; if (!(prim = (DiBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
   if (old_flags & PRIM_FLAGS_CAN_DRAW) {
@@ -1832,7 +1830,7 @@ void DiManager::slice_solid_bitmap_absolute(uint16_t id, int32_t x, int32_t y, i
 }
 
 void DiManager::slice_masked_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  DiMaskedBitmap* prim; if (!(prim = (DiMaskedBitmap*)get_safe_primitive(id))) return;
+  DiBitmap* prim; if (!(prim = (DiBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
   if (old_flags & PRIM_FLAGS_CAN_DRAW) {
@@ -1843,7 +1841,7 @@ void DiManager::slice_masked_bitmap_absolute(uint16_t id, int32_t x, int32_t y, 
 }
 
 void DiManager::slice_transparent_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  DiTransparentBitmap* prim; if (!(prim = (DiTransparentBitmap*)get_safe_primitive(id))) return;
+  DiBitmap* prim; if (!(prim = (DiBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
   if (old_flags & PRIM_FLAGS_CAN_DRAW) {
@@ -1854,7 +1852,7 @@ void DiManager::slice_transparent_bitmap_absolute(uint16_t id, int32_t x, int32_
 }
 
 void DiManager::slice_solid_bitmap_relative(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  DiOpaqueBitmap* prim; if (!(prim = (DiOpaqueBitmap*)get_safe_primitive(id))) return;
+  DiBitmap* prim; if (!(prim = (DiBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
   if (old_flags & PRIM_FLAGS_CAN_DRAW) {
@@ -1867,7 +1865,7 @@ void DiManager::slice_solid_bitmap_relative(uint16_t id, int32_t x, int32_t y, i
 }
 
 void DiManager::slice_masked_bitmap_relative(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  DiMaskedBitmap* prim; if (!(prim = (DiMaskedBitmap*)get_safe_primitive(id))) return;
+  DiBitmap* prim; if (!(prim = (DiBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
   if (old_flags & PRIM_FLAGS_CAN_DRAW) {
@@ -1880,7 +1878,7 @@ void DiManager::slice_masked_bitmap_relative(uint16_t id, int32_t x, int32_t y, 
 }
 
 void DiManager::slice_transparent_bitmap_relative(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
-  DiTransparentBitmap* prim; if (!(prim = (DiTransparentBitmap*)get_safe_primitive(id))) return;
+  DiBitmap* prim; if (!(prim = (DiBitmap*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
   if (old_flags & PRIM_FLAGS_CAN_DRAW) {
@@ -1893,29 +1891,29 @@ void DiManager::slice_transparent_bitmap_relative(uint16_t id, int32_t x, int32_
 }
 
 void DiManager::set_solid_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
-  DiOpaqueBitmap* prim; if (!(prim = (DiOpaqueBitmap*)get_safe_primitive(id))) return;
+  DiBitmap* prim; if (!(prim = (DiBitmap*)get_safe_primitive(id))) return;
   int32_t px = x + nth;
   int32_t py = y;
   while (px >= prim->get_width()) {
     px -= prim->get_width();
     py++;
   }
-  prim->set_opaque_pixel(px, py, color);
+  prim->set_transparent_pixel(px, py, color);
 }
 
 void DiManager::set_masked_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
-  DiMaskedBitmap* prim; if (!(prim = (DiMaskedBitmap*)get_safe_primitive(id))) return;
+  DiBitmap* prim; if (!(prim = (DiBitmap*)get_safe_primitive(id))) return;
   int32_t px = x + nth;
   int32_t py = y;
   while (px >= prim->get_width()) {
     px -= prim->get_width();
     py++;
   }
-  prim->set_masked_pixel(px, py, color);
+  prim->set_transparent_pixel(px, py, color);
 }
 
 void DiManager::set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
-  DiTransparentBitmap* prim; if (!(prim = (DiTransparentBitmap*)get_safe_primitive(id))) return;
+  DiBitmap* prim; if (!(prim = (DiBitmap*)get_safe_primitive(id))) return;
   int32_t px = x + nth;
   int32_t py = y;
   while (px >= prim->get_width()) {
