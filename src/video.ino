@@ -256,26 +256,26 @@ void otf(void * pvParameters) {
 #endif
 
 	auto prim0 = di_manager->create_transparent_bitmap(100, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90, 0x40);
-	//auto prim1 = di_manager->create_transparent_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90, 0x40);
-	//auto prim2 = di_manager->create_transparent_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90, 0x40);
-	//auto prim3 = di_manager->create_transparent_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90, 0x40);
+	auto prim1 = di_manager->create_transparent_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90, 0x40);
+	auto prim2 = di_manager->create_transparent_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90, 0x40);
+	auto prim3 = di_manager->create_transparent_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90, 0x40);
 
 	int i = 0;
 	for (int y = 0; y < 90; y++) {
 		for (int x = 0; x < 128; x++) {
 			uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
 			i += 3;
-			prim0->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
-			//prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_50_MASK);
-			//prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_75_MASK);
-			//prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
+			prim0->set_transparent_pixel(x, y, c|PIXEL_ALPHA_25_MASK);
+			prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_50_MASK);
+			prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_75_MASK);
+			prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 		}
 	}
 
 	di_manager->move_primitive_absolute(100, 100, 100);
-	//di_manager->move_primitive_absolute(101, 200, 200);
-	//di_manager->move_primitive_absolute(102, 300, 100);
-	//di_manager->move_primitive_absolute(103, 400, 200);
+	di_manager->move_primitive_absolute(101, 200, 200);
+	di_manager->move_primitive_absolute(102, 300, 100);
+	di_manager->move_primitive_absolute(103, 400, 200);
 
 	//prim0->generate_instructions();
 	//prim1->generate_instructions();

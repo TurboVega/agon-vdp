@@ -32,6 +32,7 @@
 #include "di_bitmap.h"
 #include "esp_heap_caps.h"
 #include <cstring>
+extern void debug_log(const char* fmt, ...);
 
 DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint8_t flags) {
   m_width = width;
@@ -75,6 +76,7 @@ void DiBitmap::set_slice_position(int32_t x, int32_t y, uint32_t start_line, uin
 
 void DiBitmap::set_transparent_pixel(int32_t x, int32_t y, uint8_t color) {
   // Invert the meaning of the alpha bits.
+  //debug_log("x=%u y=%u c=%02hX i=%02hX, ", x, y, color, PIXEL_ALPHA_INV_MASK(color));
   set_pixel(x, y, PIXEL_ALPHA_INV_MASK(color));
 }
 
@@ -89,12 +91,13 @@ void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
 
   if (m_flags & PRIM_FLAG_H_SCROLL) {
     for (uint32_t pos = 0; pos < 4; pos++) {
-      p = m_pixels + pos * m_words_per_position + y * m_words_per_line + ((pos+x) / 4);
+      p = m_pixels + pos * m_words_per_position + y * m_words_per_line + (FIX_INDEX(pos+x) / 4);
       index = FIX_INDEX((pos+x)&3);
       pixels(p)[index] = color;
     }
   } else {
-    p = m_pixels + y * m_words_per_line + (x / 4);
+    p = m_pixels + y * m_words_per_line + (FIX_INDEX(x) / 4);
+    //debug_log("  p=%08X\n", p);
     index = FIX_INDEX(x&3);
     pixels(p)[index] = color;
   }
@@ -105,7 +108,7 @@ void IRAM_ATTR DiBitmap::delete_instructions() {
     m_paint_fcn[pos].clear();
   }
 }
-extern void debug_log(const char* fmt, ...);
+
 void IRAM_ATTR DiBitmap::generate_instructions() {
   delete_instructions();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {

@@ -303,6 +303,7 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     auto at_data = begin_data();
 
     auto aligned_x = x & 0xFFFFFFFC;
+    auto x_offset = x & 3;
     auto at_x = d32(aligned_x);
 
     uint32_t at_isolate_br = 0;
@@ -335,7 +336,7 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     uint32_t p_fcn = 0;
 
     while (width) {
-        auto offset = x & 3;
+        auto offset = x_offset & 3;
         uint32_t sub = 1;
         switch (offset) {
             case 0:
@@ -605,7 +606,7 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                 break;
         }
         width -= sub;
-        x += sub;
+        x_offset += sub;
         if (p_fcn) {
             fixups.push_back(EspFixup { get_code_index(), p_fcn });
             call0(0);
@@ -627,6 +628,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     auto at_data = begin_data();
 
     auto aligned_x = x & 0xFFFFFFFC;
+    auto x_offset = x & 3;
     auto at_x = d32(aligned_x);
     auto at_src = d32((uint32_t)src_pixels);
 
@@ -658,7 +660,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     uint8_t* p_src_bytes = (uint8_t*) src_pixels;
 
     while (rem_width) {
-        debug_log("x=%u, rw=%u, ", x, rem_width);
+        debug_log("src=%08X, xo=%u, rw=%u, ", src_pixels, x_offset, rem_width);
 
         uint8_t opaqueness = 100;
         if (!is_transparent) {
@@ -668,10 +670,10 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
             // Determine the width of adjacent, similarly transparent (or opaque) pixels in the line.
             // The colors do not have to be equal.
             width = 1;
-            uint32_t index = FIX_OFFSET(x);
+            uint32_t index = FIX_OFFSET(x_offset);
             uint8_t first_alpha = p_src_bytes[index] & 0xC0;
             for (uint32_t i = 1; i < rem_width; i++) {
-                index = FIX_OFFSET(x + i);
+                index = FIX_OFFSET(x_offset + i);
                 uint8_t next_alpha = p_src_bytes[index] & 0xC0;
                 if (next_alpha == first_alpha) {
                     width++;
@@ -695,7 +697,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
 
         // Use the series of pixels, rather than the rest of the line, if necessary.
         while (width) {
-            auto offset = x & 3;
+            auto offset = x_offset & 3;
             uint32_t sub = 1;
             switch (offset) {
                 case 0:
@@ -983,7 +985,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     break;
             }
             width -= sub;
-            x += sub;
+            x_offset += sub;
             if (p_fcn) {
                 fixups.push_back(EspFixup { get_code_index(), p_fcn });
                 call0(0);
