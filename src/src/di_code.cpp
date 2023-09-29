@@ -38,7 +38,6 @@
 #define REG_LINE_PTR        a3
 #define REG_LINE_INDEX      a4
 // Temporary registers:
-#define REG_SAVE_RET_INNER  a2
 #define REG_SAVE_RET_DEEP   a3
 #define REG_ABS_Y           a6
 #define REG_DST_PIXEL_PTR   a5
@@ -56,7 +55,8 @@
 #define REG_JUMP_ADDRESS    a14
 #define REG_SAVE_COLOR      a15     // also the transparent color when copying pixels
 
-#define RET_ADDR_IN_STACK   0
+#define OUTER_RET_ADDR_IN_STACK   (-4)
+#define INNER_RET_ADDR_IN_STACK   (0)
 
 #define FIX_OFFSET(off)    ((off)^2)
 
@@ -324,9 +324,9 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
 
     if (outer_fcn) {
         l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
-        s32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
+        s32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
     } else {
-        mov(REG_SAVE_RET_INNER, REG_RETURN_ADDR);
+        s32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
     }
 
     if (opaqueness != 100) {
@@ -615,13 +615,14 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     }
 
     if (outer_fcn) {
-        l32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
+        l32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
         retw();
     } else {
-        jx(REG_SAVE_RET_INNER);
+        l32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
+        ret();
     }
 }
-extern void debug_log(const char* fmt, ...);
+//extern void debug_log(const char* fmt, ...);
 void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn,
         bool is_transparent, uint8_t transparent_color, uint32_t* src_pixels) {
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
@@ -650,9 +651,9 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     }
 
     if (outer_fcn) {
-        s32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
+        s32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
     } else {
-        mov(REG_SAVE_RET_INNER, REG_RETURN_ADDR);
+        s32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
     }
 
     uint32_t p_fcn = 0;
@@ -660,7 +661,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     uint8_t* p_src_bytes = (uint8_t*) src_pixels;
 
     while (rem_width) {
-        debug_log("src=%08X, xo=%u, rw=%u, ", src_pixels, x_offset, rem_width);
+        //debug_log("src=%08X, xo=%u, rw=%u, ", src_pixels, x_offset, rem_width);
 
         uint8_t opaqueness = 100;
         if (!is_transparent) {
@@ -681,7 +682,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                     break;
                 }
             }
-            debug_log("w=%u, fa=%02X, ", width, first_alpha);
+            //debug_log("w=%u, fa=%02X, ", width, first_alpha);
 
             // This tests using inverted alpha masks.
             switch (first_alpha) {
@@ -690,10 +691,10 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
                 case PIXEL_ALPHA_INV_75_MASK: opaqueness = 75; break;
                 default: opaqueness = 100; break;
             }
-            debug_log("op=%hu, ", opaqueness);
+            //debug_log("op=%hu, ", opaqueness);
         }
         rem_width -= width;
-        debug_log("rw=%u\n", rem_width);
+        //debug_log("rw=%u\n", rem_width);
 
         // Use the series of pixels, rather than the rest of the line, if necessary.
         while (width) {
@@ -995,10 +996,11 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     }
 
     if (outer_fcn) {
-        l32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
+        l32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
         retw();
     } else {
-        jx(REG_SAVE_RET_INNER);
+        l32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
+        ret();
     }
 }
 
@@ -1014,7 +1016,7 @@ void EspFunction::do_fixups(EspFixups& fixups) {
 }
 
 uint32_t EspFunction::enter_outer_function() {
-    entry(sp, 32);
+    entry(REG_STACK_PTR, 32);
     auto at_jump = get_code_index();
     j(0);
     return at_jump;
@@ -1034,7 +1036,7 @@ uint32_t EspFunction::begin_data() {
 uint32_t EspFunction::init_jump_table(uint32_t num_items) {
     /* 00 */ entry(sp, 32);
     /* 03 */ l32i(REG_ABS_Y, REG_THIS_PTR, FLD_abs_y);
-    /* 06 */ s32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
+    /* 06 */ s32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
     /* 09 */ call0(0); // 8 + 0*4 + 4
     /* 12 */ sub(REG_LINE_INDEX, REG_LINE_INDEX, REG_ABS_Y);
     /* 15 */ slli(REG_JUMP_ADDRESS, REG_LINE_INDEX, 2);
@@ -1042,7 +1044,7 @@ uint32_t EspFunction::init_jump_table(uint32_t num_items) {
     /* 21 */ add(REG_JUMP_ADDRESS, REG_JUMP_ADDRESS, REG_RETURN_ADDR);
     /* 24 */ l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
     /* 27 */ callx0(REG_JUMP_ADDRESS);
-    /* 30 */ l32i(REG_RETURN_ADDR, REG_STACK_PTR, RET_ADDR_IN_STACK);
+    /* 30 */ l32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
     /* 33 */ retw();
     /* 36 */ auto at_jump_table = get_code_index();
     for (uint32_t i = 0; i < num_items; i++) {

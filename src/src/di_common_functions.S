@@ -255,7 +255,6 @@
 #define REG_LINE_PTR        a3
 #define REG_LINE_INDEX      a4
 // Temporary registers:
-#define REG_SAVE_RET_INNER  a2
 #define REG_SAVE_RET_DEEP   a3
 #define REG_ABS_Y           a6
 #define REG_DST_PIXEL_PTR   a5

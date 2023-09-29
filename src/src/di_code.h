@@ -132,6 +132,7 @@ class EspFunction {
     void s32i(reg_t dst, reg_t src, u_off_t offset) { write24("s32i", idso32(0x006002, dst, src, offset)); }
     void s8i(reg_t dst, reg_t src, u_off_t offset) { write24("s8i", idso8(0x004002, dst, src, offset)); }
     void slli(reg_t dst, reg_t src, uint8_t bits) { write24("slli", idsb(0x010000, dst, src, bits)); }
+    void srli(reg_t dst, reg_t src, uint8_t bits) { write24("srli", idsrb(0x410000, dst, src, bits)); }
     void sub(reg_t dst, reg_t src1, reg_t src2) { write24("sub", issd(0xC00000, src1, src2, dst)); }
 
     // a0 = return address
@@ -182,6 +183,9 @@ class EspFunction {
     inline instr_t idsb(uint32_t instr, reg_t dst, reg_t src, uint8_t bits) {
         bits = 32 - bits;
         return instr | ((bits >> 4) << 20) | (dst << 12) | (src << 8) | ((bits & 0xF) << 4); }
+
+    inline instr_t idsrb(uint32_t instr, reg_t dst, reg_t src, uint8_t bits) {
+        return instr | (dst << 12) | (src << 4) | (bits << 8); }
 
     inline instr_t isio(uint32_t instr, reg_t src, uint32_t imm, s_off_t offset) {
         return instr | (offset << 16) | ((imm & 0xF) << 4) | ((imm & 0x10) << 8) | (src << 8); }

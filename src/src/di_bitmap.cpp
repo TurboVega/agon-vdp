@@ -32,7 +32,7 @@
 #include "di_bitmap.h"
 #include "esp_heap_caps.h"
 #include <cstring>
-extern void debug_log(const char* fmt, ...);
+//extern void debug_log(const char* fmt, ...);
 
 DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint8_t flags) {
   m_width = width;
@@ -123,7 +123,7 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
           paint_fcn->align32();
           paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
           uint32_t* src_pixels = m_pixels + pos * m_words_per_position + line * m_words_per_line;
-          debug_log("line=%u, ", line);
+          //debug_log("line=%u, ", line);
           paint_fcn->copy_line(fixups, m_draw_x, draw_width, false, m_is_transparent, m_transparent_color, src_pixels);
         }
         paint_fcn->do_fixups(fixups);
@@ -138,7 +138,7 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
         paint_fcn->align32();
         paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
         uint32_t* src_pixels = m_pixels + line * m_words_per_line;
-        debug_log("line=%u, ", line);
+        //debug_log("line=%u, ", line);
         paint_fcn->copy_line(fixups, m_draw_x, draw_width, false, m_is_transparent, m_transparent_color, src_pixels);
       }
       paint_fcn->do_fixups(fixups);
