@@ -266,8 +266,8 @@ void otf(void * pvParameters) {
 	//auto prim2 = di_manager->create_transparent_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS|PRIM_FLAG_H_SCROLL, BM_WIDTH, BM_HEIGHT, 0x40);
 	//auto prim3 = di_manager->create_transparent_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS|PRIM_FLAG_H_SCROLL, BM_WIDTH, BM_HEIGHT, 0x40);
 
-#define BM_WIDTH 64
-#define BM_HEIGHT 64
+#define BM_WIDTH 128
+#define BM_HEIGHT 90
 
 	auto prim0 = di_manager->create_transparent_bitmap(100, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
 	auto prim1 = di_manager->create_transparent_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
@@ -284,23 +284,23 @@ void otf(void * pvParameters) {
 		for (int x = 0; x < BM_WIDTH; x++) {
 			uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
 			i += 3;
-			prim0->set_transparent_pixel(x, y, c|PIXEL_ALPHA_25_MASK);
-			prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_50_MASK);
-			prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_75_MASK);
-			prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
+			prim0->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
+			prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
+			prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_25_MASK);
+			prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_75_MASK);
 
 			//prim0->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 			//prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 			//prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 			//prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 		}
-		i += 3 * (128 - BM_WIDTH);
+		//i += 3 * (128 - BM_WIDTH);
 	}
 
-	di_manager->move_primitive_absolute(100, 248, 100);
-	di_manager->move_primitive_absolute(101, 200, 200);
-	di_manager->move_primitive_absolute(102, 300, 300);
-	di_manager->move_primitive_absolute(103, 400, 400);
+	di_manager->move_primitive_absolute(100, 100, 120);
+	di_manager->move_primitive_absolute(101, 240, 130);
+	di_manager->move_primitive_absolute(102, 200, 180);
+	di_manager->move_primitive_absolute(103, 340, 360);
 
 	//prim0->generate_instructions();
 	//prim1->generate_instructions();
