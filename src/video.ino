@@ -267,9 +267,9 @@ void otf(void * pvParameters) {
 	//auto prim3 = di_manager->create_transparent_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS|PRIM_FLAG_H_SCROLL, 128, 90, 0x40);
 
 	auto prim0 = di_manager->create_solid_bitmap(100, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90);
-	//auto prim1 = di_manager->create_solid_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90);
-	//auto prim2 = di_manager->create_solid_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90);
-	//auto prim3 = di_manager->create_solid_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90);
+	auto prim1 = di_manager->create_solid_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90);
+	auto prim2 = di_manager->create_solid_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90);
+	auto prim3 = di_manager->create_solid_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, 128, 90);
 
 	int i = 0;
 	for (int y = 0; y < 90; y++) {
@@ -282,16 +282,16 @@ void otf(void * pvParameters) {
 			//prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 
 			prim0->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
-			//prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
-			//prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
-			//prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
+			prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
+			prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
+			prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 		}
 	}
 
-	//di_manager->move_primitive_absolute(100, 101, 100);
-	//di_manager->move_primitive_absolute(101, 202, 200);
-	//di_manager->move_primitive_absolute(102, 303, 100);
-	//di_manager->move_primitive_absolute(103, 404, 200);
+	di_manager->move_primitive_absolute(100, 100, 100);
+	di_manager->move_primitive_absolute(101, 200, 200);
+	di_manager->move_primitive_absolute(102, 300, 100);
+	di_manager->move_primitive_absolute(103, 400, 200);
 
 	//prim0->generate_instructions();
 	//prim1->generate_instructions();
