@@ -65,7 +65,7 @@ class EspFunction {
     uint32_t begin_data();
     uint32_t init_jump_table(uint32_t num_items);
     void begin_code(uint32_t at_jump);
-    void set_reg_dst_pixel_ptr(uint32_t at_x);
+    void set_reg_dst_pixel_ptr();
 
     // Utility operations:
 

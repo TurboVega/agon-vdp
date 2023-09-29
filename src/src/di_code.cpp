@@ -301,10 +301,7 @@ void EspFunction::init_members() {
 void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness) {
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
-
-    auto aligned_x = x & 0xFFFFFFFC;
     auto x_offset = x & 3;
-    auto at_x = d32(aligned_x);
 
     uint32_t at_isolate_br = 0;
     uint32_t at_isolate_g = 0;
@@ -315,7 +312,7 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
 
     begin_code(at_jump);
 
-    set_reg_dst_pixel_ptr(at_x);
+    set_reg_dst_pixel_ptr();
 
     if (opaqueness != 100) {
         l32r_from(REG_ISOLATE_BR, at_isolate_br);
@@ -627,11 +624,8 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
         bool is_transparent, uint8_t transparent_color, uint32_t* src_pixels) {
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
-
-    auto aligned_x = x & 0xFFFFFFFC;
-    auto x_offset = x & 3;
-    auto at_x = d32(aligned_x);
     auto at_src = d32((uint32_t)src_pixels);
+    auto x_offset = x & 3;
 
     uint32_t at_isolate_br = 0;
     uint32_t at_isolate_g = 0;
@@ -642,7 +636,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
 
     begin_code(at_jump);
 
-    set_reg_dst_pixel_ptr(at_x);
+    set_reg_dst_pixel_ptr();
     l32r_from(REG_SRC_PIXEL_PTR, at_src);
 
     if (is_transparent) {
@@ -1059,8 +1053,10 @@ void EspFunction::begin_code(uint32_t at_jump) {
     j_to_here(at_jump);
 }
 
-void EspFunction::set_reg_dst_pixel_ptr(uint32_t at_x) {
-    l32r_from(REG_DST_PIXEL_PTR, at_x);
+void EspFunction::set_reg_dst_pixel_ptr() {
+    l32i(REG_DST_PIXEL_PTR, REG_THIS_PTR, FLD_draw_x);
+    srli(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 2);
+    slli(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 2);
     add(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, REG_LINE_PTR);
 }
 
