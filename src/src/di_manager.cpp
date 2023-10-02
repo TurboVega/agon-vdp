@@ -539,7 +539,7 @@ DiPrimitive* DiManager::create_solid_triangle(uint16_t id, uint16_t parent, uint
 
 DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint8_t flags,
                             int32_t screen_width, int32_t screen_height,
-                            uint32_t bitmaps, uint32_t columns, uint32_t rows,
+                            uint32_t columns, uint32_t rows,
                             uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
@@ -1048,7 +1048,7 @@ VDU 23, 30, 25, id; x; y; c: [10] Set transparent bitmap pixel
 VDU 23, 30, 26, id; x; y; n; c0, c1, c2, ...: [11+n] Set solid bitmap pixels
 VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...: [11+n] Set masked bitmap pixels
 VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...: [11+n] Set transparent bitmap pixels
-VDU 23, 30, 29, id; col; row; bi: [10] Set bitmap index for tile in tile map
+VDU 23, 30, 29, id; col; row; img;: [11] Set image ID for tile in tile map
 VDU 23, 30, 30, id; bi, x; y; c: [11] Set bitmap pixel in tile map
 VDU 23, 30, 31, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map
 */
@@ -1497,14 +1497,14 @@ bool DiManager::handle_otf_cmd() {
         }
       } break;
 
-      // VDU 23, 30, 29, id; col; row; bi: [10] Set bitmap index for tile in tile map
+      // VDU 23, 30, 29, id; col; row; img: [11] Set image ID for tile in tile map
       case 29: {
-        if (m_num_command_chars == 10) {
+        if (m_num_command_chars == 11) {
           auto id = get_param_16(3);
           auto col = get_param_16(5);
           auto row = get_param_16(7);
-          auto bi = get_param_8(9);
-          set_tile_bitmap_index(id, col, row, bi);
+          auto img = get_param_16(9);
+          set_tile_bitmap_index(id, col, row, img);
           m_num_command_chars = 0;
           return true;
         }

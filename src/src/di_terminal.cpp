@@ -1,7 +1,7 @@
 // di_terminal.cpp - Function definitions for supporting a character terminal display
 //
 // A terminal is a specialized tile map, where each tile is a single character
-// cell, and the character codes are used as tile bitmap indexes.
+// cell, and the character codes are used as tile image IDs.
 //
 // Copyright (c) 2023 Curtis Whitley
 // 
@@ -93,8 +93,8 @@ void DiTerminal::write_character(uint8_t character) {
     m_current_row = m_rows - 1;
   }
 
-  // Set the tile bitmap index using the character code.
-  set_tile(m_current_column, m_current_row, character);
+  // Set the tile image ID using the character code.
+  set_tile(m_current_column, m_current_row, (DiTileImageID)character);
 
   // Advance the current position
   if (++m_current_column >= m_columns) {

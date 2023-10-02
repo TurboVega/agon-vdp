@@ -1,7 +1,7 @@
 // di_terminal.h - Function declarations for supporting a character terminal display
 //
 // A terminal is a specialized tile map, where each tile is a single character
-// cell, and the character codes are used as tile bitmap indexes.
+// cell, and the character codes are used as tile image IDs.
 //
 // Copyright (c) 2023 Curtis Whitley
 // 
@@ -61,13 +61,13 @@ class DiTerminal: public DiTileMap {
   // Write a character at the current character position. This may cause scrolling
   // BEFORE writing the character (not after), if the current character position is
   // off the visible terminal area. This function will advance the current character
-  // position. The character is treated as a tile bitmap index, and is not interpreted
+  // position. The character is treated as a tile image ID, and is not interpreted
   // as a terminal command of any kind.
   void write_character(uint8_t character);
 
-  // Set the bitmap index to use to draw a character at a specific row and column.
+  // Set the image ID to use to draw a character at a specific row and column.
   // This function does not cause scrolling, nor does it change the current
-  // character position. The character is treated as a tile bitmap index, and is not
+  // character position. The character is treated as a tile image ID, and is not
   // interpreted as a terminal command of any kind.
   void write_character(int32_t column, int32_t row, uint8_t character);
 

@@ -139,8 +139,8 @@ VDU 23, 30, 25, id; x; y; c: [10] Set transparent bitmap pixel
 VDU 23, 30, 26, id; x; y; n; c0, c1, c2, ...: [11+n] Set solid bitmap pixels  
 VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...: [11+n] Set masked bitmap pixels  
 VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...: [11+n] Set transparent bitmap pixels  
-VDU 23, 30, 29, id; col; row; bi: [10] Set bitmap index for tile in tile map  
-VDU 23, 30, 30, id; bi, x; y; c: [11] Set bitmap pixel in tile map  
-VDU 23, 30, 31, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map  
+VDU 23, 30, 29, id; col; row; img;: [11] Set image ID for tile in tile map  
+VDU 23, 30, 30, id; img; x; y; c: [12] Set image pixel in tile map  
+VDU 23, 30, 31, id; img; x; y; n; c0, c1, c2, ...: [13+n] Set image pixels in tile map  
 
 

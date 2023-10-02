@@ -52,7 +52,8 @@ class DiBitmap : public DiPrimitive {
   // are the transparency level (00BBGGRR is 25% opaque, 01BBGGRR is 50% opaque,
   // 10BBGGRR is 75% opaque, and 11BBGGRR is 100% opaque). If the given color value
   // equals the already-set transparent color, then the pixel will be fully transparent,
-  // meaning 0% opaque.
+  // meaning 0% opaque. Use this function when the tile is NOT intended to be scrolled
+  // horizontal at a 1 pixel boundary.
   void set_transparent_pixel(int32_t x, int32_t y, uint8_t color);
 
   // Set the single 8-bit color value used to represent a transparent pixel. This should be
