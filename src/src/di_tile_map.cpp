@@ -67,6 +67,19 @@ DiTileMap::~DiTileMap() {
   }
 }
 
+void IRAM_ATTR DiTileMap::delete_instructions() {
+  for (auto bitmap = m_id_to_type_map.begin(); bitmap != m_id_to_type_map.end(); bitmap++) {
+    bitmap->second->delete_instructions();
+  }
+}
+
+void IRAM_ATTR DiTileMap::generate_instructions() {
+  debug_log(" tm @%i flags=%hX\n", m_flags);
+  for (auto bitmap = m_id_to_type_map.begin(); bitmap != m_id_to_type_map.end(); bitmap++) {
+    bitmap->second->generate_instructions(0, m_tile_width);
+  }
+}
+
 void DiTileMap::create_bitmap(DiTileBitmapID bm_id) {
   auto bitmap_item = m_id_to_type_map.find(bm_id);
   if (bitmap_item == m_id_to_type_map.end()) {
@@ -128,7 +141,7 @@ DiTileBitmapID DiTileMap::get_tile(int16_t column, int16_t row) {
 
 void IRAM_ATTR DiTileMap::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
   auto y_offset_within_tile_map = (int32_t)line_index - m_abs_y;
-  debug_log("paint li=%ui yotm=%i", line_index, y_offset_within_tile_map);
+  debug_log("paint li=%u yotm=%i", line_index, y_offset_within_tile_map);
   if (y_offset_within_tile_map >= 0 && y_offset_within_tile_map < m_height) {
     auto row = y_offset_within_tile_map / (int32_t)m_tile_height;
     debug_log(" row=%i", row);
@@ -143,12 +156,12 @@ void IRAM_ATTR DiTileMap::paint(volatile uint32_t* p_scan_line, uint32_t line_in
       auto y_offset_within_tile = y_offset_within_tile_map % (int32_t)m_tile_height;
       debug_log(" sx=%i sc=%i ex=%i ec=%i x=%i yot=%i",
         start_x_offset_within_tile_map, start_column, end_x_offset_within_tile_map, end_column, x, y_offset_within_tile);
-      for (auto column = start_column; column <= end_column; column++) {
+      for (auto column = start_column; column < end_column; column++) {
         auto bitmap_item = cb_map->find(column);
         if (bitmap_item != cb_map->end()) {
           auto bitmap = bitmap_item->second;
           debug_log(" paint col=%i x=%i", column, x);
-          //bitmap->paint(x, p_scan_line, y_offset_within_tile);
+          bitmap->paint(this, x, p_scan_line, y_offset_within_tile);
           x += m_tile_width;
         }
       }

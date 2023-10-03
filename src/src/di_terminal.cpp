@@ -30,7 +30,7 @@
 DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint32_t codes,
                         uint32_t columns, uint32_t rows,
                         uint8_t fg_color, uint8_t bg_color, const uint8_t* font) :
-  DiTileMap(ACT_PIXELS, ACT_LINES, codes, columns, rows, 8, 8, false) {
+  DiTileMap(ACT_PIXELS, ACT_LINES, columns, rows, 8, 8, PRIM_FLAGS_DEFAULT) {
   m_current_column = 0;
   m_current_row = 0;
 
@@ -94,7 +94,7 @@ void DiTerminal::write_character(uint8_t character) {
   }
 
   // Set the tile image ID using the character code.
-  set_tile(m_current_column, m_current_row, (DiTileImageID)character);
+  set_tile(m_current_column, m_current_row, (DiTileBitmapID)character);
 
   // Advance the current position
   if (++m_current_column >= m_columns) {
@@ -127,7 +127,7 @@ void DiTerminal::erase_text(int32_t column, int32_t row, int32_t columns, int32_
 
 void DiTerminal::move_text(int32_t column, int32_t row, int32_t columns, int32_t rows,
                             int32_t delta_horiz, int32_t delta_vert) {
-  int32_t size_to_copy = columns * sizeof(uint32_t*);
+  /*int32_t size_to_copy = columns * sizeof(uint32_t*);
   if (delta_vert > 0) {
     // moving rows down; copy bottom-up
     row += rows - 1;
@@ -145,7 +145,7 @@ void DiTerminal::move_text(int32_t column, int32_t row, int32_t columns, int32_t
       memcpy(dst, src, size_to_copy);
       row++;
     }
-  }
+  }*/
 }
 
 void DiTerminal::clear_screen() {

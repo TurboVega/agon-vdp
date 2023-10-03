@@ -546,7 +546,7 @@ DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint8_t flag
 
     auto hscroll = ((flags & PRIM_FLAG_H_SCROLL) != 0);
     DiTileMap* tile_map =
-      new DiTileMap(screen_width, screen_height, bitmaps, columns, rows, width, height, hscroll);
+      new DiTileMap(screen_width, screen_height, columns, rows, width, height, flags);
 
     finish_create(id, flags, tile_map, parent_prim);
     return tile_map;
@@ -1251,7 +1251,7 @@ bool DiManager::handle_otf_cmd() {
           auto bitmaps = get_param_8(12);
           auto w = get_param_16(13);
           auto h = get_param_16(15);
-          create_tile_map(id, pid, flags, ACT_PIXELS, ACT_LINES, bitmaps, cols, rows, w, h);
+          create_tile_map(id, pid, flags, ACT_PIXELS, ACT_LINES, cols, rows, w, h);
           m_num_command_chars = 0;
           return true;
         }
@@ -1504,7 +1504,7 @@ bool DiManager::handle_otf_cmd() {
           auto col = get_param_16(5);
           auto row = get_param_16(7);
           auto img = get_param_16(9);
-          set_tile_bitmap_index(id, col, row, img);
+          //set_tile_bitmap_index(id, col, row, img);
           m_num_command_chars = 0;
           return true;
         }
@@ -1518,7 +1518,7 @@ bool DiManager::handle_otf_cmd() {
           auto x = get_param_16(6);
           auto y = get_param_16(8);
           auto c = get_param_8(10);
-          set_tile_bitmap_pixel(id, bi, x, y, c, 0);
+          //set_tile_bitmap_pixel(id, bi, x, y, c, 0);
           m_num_command_chars = 0;
           return true;
         }
@@ -1533,7 +1533,7 @@ bool DiManager::handle_otf_cmd() {
           auto y = get_param_16(8);
           auto n = get_param_16(10);
           auto c = get_param_8(12);
-          set_tile_bitmap_pixel(id, bi, x, y, c, m_command_data_index);
+          //set_tile_bitmap_pixel(id, bi, x, y, c, m_command_data_index);
           if (++m_command_data_index >= n) {
             m_num_command_chars = 0;
             return true;
@@ -1921,7 +1921,7 @@ void DiManager::set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, 
   }
   prim->set_transparent_pixel(px, py, color);
 }
-
+/*
 void DiManager::set_tile_bitmap_index(uint16_t id, uint16_t col, uint16_t row, uint8_t bitmap) {
   DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
   prim->set_tile(col, row, bitmap);
@@ -1940,3 +1940,4 @@ void DiManager::set_tile_bitmap_pixel(uint16_t id, uint8_t bitmap, int32_t x, in
     prim->set_pixel(bitmap, x, y, color);
   }
 }
+*/

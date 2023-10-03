@@ -269,6 +269,7 @@ void otf(void * pvParameters) {
 #define BM_WIDTH 128
 #define BM_HEIGHT 90
 
+#if DRAW_SEVERAL_BITMAPS
 	auto prim0 = di_manager->create_transparent_bitmap(100, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
 	auto prim1 = di_manager->create_transparent_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
 	auto prim2 = di_manager->create_transparent_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
@@ -306,6 +307,24 @@ void otf(void * pvParameters) {
 	//prim1->generate_instructions();
 	//prim2->generate_instructions();
 	//prim3->generate_instructions();
+#endif
+
+#define DRAW_TILE_MAP 1
+#if DRAW_TILE_MAP
+    DiTileMap* tile_map = di_manager->create_tile_map(500, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT,
+                            ACT_PIXELS, ACT_LINES, 1, 1, BM_WIDTH, BM_HEIGHT);
+	tile_map->create_bitmap(1);
+	int i = 0;
+	for (int y = 0; y < BM_HEIGHT; y++) {
+		for (int x = 0; x < BM_WIDTH; x++) {
+			uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
+			i += 3;
+			tile_map->set_pixel(1, x, y, c|PIXEL_ALPHA_100_MASK);
+		}
+	}
+	tile_map->set_tile(0, 0, 1);
+	di_manager->move_primitive_relative(500, 0, 0);
+#endif
 
 	debug_log("Running OTF manager...\r\n");
 	di_manager->run();

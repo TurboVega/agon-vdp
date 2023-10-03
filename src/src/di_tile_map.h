@@ -49,6 +49,12 @@ class DiTileMap: public DiPrimitive {
   // Destroy a tile map.
   virtual ~DiTileMap();
 
+  // Clear the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR delete_instructions();
+   
+  // Reassemble the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR generate_instructions();
+
   // Create the array of pixels for the tile bitmap.
   void create_bitmap(DiTileBitmapID bm_id);
 
