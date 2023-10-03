@@ -1,4 +1,8 @@
-// di_bitmap.h - Function declarations for drawing bitmaps 
+// di_tile_bitmap.h - Function declarations for drawing tile bitmaps 
+//
+// A tile bitmap is essentially like a regular bitmap, except that it is not
+// based on a primitive, thus reducing memory requirements. It still holds an
+// array of pixels, and contains similar drawing code.
 //
 // An opaque bitmap is a rectangle of fully opaque pixels of various colors.
 //
@@ -33,20 +37,15 @@
 #include "di_primitive.h"
 #include "di_code.h"
 
-class DiBitmap : public DiPrimitive {
+typedef uint16_t DiTileBitmapID;
+
+class DiTileBitmap {
   public:
   // Construct a bitmap.
-  DiBitmap(uint32_t width, uint32_t height, uint8_t flags);
+  DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height, uint8_t flags);
 
   // Destroy a bitmap.
-  ~DiBitmap();
-
-  // Set the X, Y position relative to the parent (which may be the screen).
-  virtual void IRAM_ATTR set_relative_position(int32_t rel_x, int32_t rel_y);
-
-  // Set the position of the bitmap, and assume using pixels starting at the given line in the bitmap.
-  // This makes it possible to use a single (tall) bitmap to support animated sprites.
-  void IRAM_ATTR set_slice_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height);
+  ~DiTileBitmap();
 
   // Set a single pixel within the allocated bitmap. The upper 2 bits of the color
   // are the transparency level (00BBGGRR is 25% opaque, 01BBGGRR is 50% opaque,
@@ -63,17 +62,21 @@ class DiBitmap : public DiPrimitive {
   void set_transparent_color(uint8_t color);
 
   // Clear the custom instructions needed to draw the primitive.
-  virtual void IRAM_ATTR delete_instructions();
+  void IRAM_ATTR delete_instructions();
    
   // Reassemble the custom instructions needed to draw the primitive.
-  virtual void IRAM_ATTR generate_instructions();
+  void IRAM_ATTR generate_instructions(int32_t draw_x, uint32_t draw_width);
    
-  virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
+  void IRAM_ATTR paint(int32_t draw_x, volatile uint32_t* p_scan_line, uint32_t line_index);
+
+  // Get the bitmap ID.
+  inline DiTileBitmapID get_id() { return m_bm_id; } 
 
   protected:
   // Set a single pixel with an adjusted color value.
   void set_pixel(int32_t x, int32_t y, uint8_t color);
 
+  DiTileBitmapID m_bm_id;
   uint32_t    m_words_per_line;
   uint32_t    m_bytes_per_line;
   uint32_t    m_words_per_position;
@@ -83,6 +86,7 @@ class DiBitmap : public DiPrimitive {
   uint32_t    m_save_height;
   uint32_t    m_built_width;
   EspFunction m_paint_fcn[4];
+  uint16_t    m_flags;
   bool        m_is_transparent;
   uint8_t     m_transparent_color;
 };

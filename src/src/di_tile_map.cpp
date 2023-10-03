@@ -28,61 +28,7 @@
 // 
 
 #include "di_tile_map.h"
-#include "esp_heap_caps.h"
 #include <cstring>
-
-DiTileImage::DiTileImage(uint32_t tile_width, uint32_t tile_height, uint8_t flags) {
-  m_tile_width = tile_width;
-  m_tile_height = tile_height;
-  uint32_t draw_words_per_line = (tile_width + sizeof(uint32_t) - 1) / sizeof(uint32_t);
-  uint32_t words_per_line = draw_words_per_line + 2;
-  uint32_t words_per_position = words_per_line * tile_height;
-  uint32_t words_per_bitmap = words_per_position * ((flags & PRIM_FLAG_H_SCROLL) ? 4 : 1);
-  uint32_t bytes_per_bitmap = words_per_bitmap * sizeof(uint32_t);
-  m_is_transparent = false;
-  m_transparent_color = 0;
-
-  size_t new_size = (size_t)(bytes_per_bitmap);
-  void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_8BIT|MALLOC_CAP_INTERNAL);
-  m_pixels = (uint32_t*)p;
-  memset(m_pixels, 0x00, bytes_per_bitmap);
-}
-
-DiTileImage::~DiTileImage() {
-  delete [] m_pixels;
-}
-
-void DiTileImage::set_pixel(int32_t x, int32_t y, uint8_t color, uint32_t bytes_per_line) {
-  color = PIXEL_ALPHA_INV_MASK(color);
-  ((uint8_t*)m_pixels)[y * bytes_per_line + FIX_INDEX(x)] = color;
-}
-
-void DiTileImage::set_pixel_hscroll(int32_t x, int32_t y, uint8_t color,
-                uint32_t bytes_per_line, uint32_t bytes_per_position) {
-  color = PIXEL_ALPHA_INV_MASK(color);
-  for (uint32_t pos = 0; pos < 4; pos++) {
-    ((uint8_t*)m_pixels)[pos * bytes_per_position + y * bytes_per_line + FIX_INDEX(x)] = color;
-  }
-}
-
-void DiTileImage::set_transparent_color(uint8_t color) {
-  m_is_transparent = true;
-  m_transparent_color = PIXEL_ALPHA_INV_MASK(color);
-}
-
-void IRAM_ATTR DiTileImage::delete_instructions() {
-
-}
-  
-void IRAM_ATTR DiTileImage::generate_instructions() {
-
-}
-
-inline void IRAM_ATTR DiTileImage::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
-
-}
-
-//------------------------------------------------------------------------------
 
 DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
                       uint32_t columns, uint32_t rows,
@@ -126,27 +72,26 @@ void IRAM_ATTR DiTileMap::set_relative_position(int32_t rel_x, int32_t rel_y) {
   DiPrimitive::set_relative_position(-rel_x, rel_y);
 }
 
-void DiTileMap::set_pixel(DiTileImageID img_id, int32_t x, int32_t y, uint8_t color) { 
+void DiTileMap::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t color) {
+  m_id_to_type_map[bm_id]->set_transparent_pixel(x, y, color);
 }
 
-void DiTileMap::set_pixel_hscroll(DiTileImageID img_id, int32_t x, int32_t y, uint8_t color) { 
-  for (uint32_t pos = 0; pos < 4; pos++) {
-    pixels(m_pixels)[bitmap * m_bytes_per_bitmap + pos * m_bytes_per_position + y * m_bytes_per_line + FIX_INDEX(pos + x)] =
-      (color & 0x3F) | SYNCS_OFF;
+void DiTileMap::set_tile(int32_t column, int32_t row, DiTileBitmapID bm_id) {
+  uint32_t pos = (row << 16) | column;
+  auto rc_map = m_pos_to_type_map.find(pos);
+  if (rc_map != m_pos_to_type_map.end()) {
+
+  } else {
+    auto cb_map = new DiTileColumnToBitmapMap();
+    auto bitmap = new DiTileBitmap();
+    cb_map[column] = bitmap;
   }
 }
 
-void DiTileMap::set_tile(int32_t column, int32_t row, DiTileImageID img_id) {
-  m_tiles[row * m_words_per_row + column] = m_pixels + bitmap * m_words_per_bitmap;
-}
-
 void DiTileMap::unset_tile(int32_t column, int32_t row) {
-  m_tiles[row * m_words_per_row + column] = m_pixels + bitmap * m_words_per_bitmap;
 }
 
-DiTileImageID DiTileMap::get_tile(int32_t column, int32_t row) {
-  uint32_t offset = (uint32_t) m_tiles[row * m_words_per_row + column] - (uint32_t) m_pixels;
-  return offset / m_words_per_bitmap;
+DiTileBitmapID DiTileMap::get_tile(int32_t column, int32_t row) {
 }
 
 void IRAM_ATTR DiTileMap::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
