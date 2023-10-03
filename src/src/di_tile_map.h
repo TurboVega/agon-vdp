@@ -49,9 +49,6 @@ class DiTileMap: public DiPrimitive {
   // Destroy a tile map.
   virtual ~DiTileMap();
 
-  // Set the X, Y position relative to the parent (which may be the screen).
-  virtual void IRAM_ATTR set_relative_position(int32_t rel_x, int32_t rel_y);
-
   // Create the array of pixels for the tile bitmap.
   void create_bitmap(DiTileBitmapID bm_id);
 
@@ -60,10 +57,10 @@ class DiTileMap: public DiPrimitive {
   void set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t color);
 
   // Set the bitmap ID to use to draw a tile at a specific row and column.
-  void set_tile(int32_t column, int32_t row, DiTileBitmapID bm_id);
+  void set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id);
 
   // Unset the bitmap ID to use to draw a tile at a specific row and column.
-  void unset_tile(int32_t column, int32_t row);
+  void unset_tile(int16_t column, int16_t row);
 
   // Get the bitmap ID presently at the given row and column.
   DiTileBitmapID get_tile(int16_t column, int16_t row);
@@ -81,6 +78,6 @@ class DiTileMap: public DiPrimitive {
   uint32_t  m_tile_height;          // height of 1 tile in pixels
   bool      m_is_transparent;       // whether to use the transparent color
   uint8_t   m_transparent_color;    // value indicating not to draw the pixel
-  DiTileIdToBitmapMap m_id_to_type_map;     // caches bitmaps based on bitmap ID
-  DiTileRowToColumnMap m_pos_to_type_map;  // refers to bitmaps based on row & column
+  DiTileIdToBitmapMap m_id_to_type_map;   // caches bitmaps based on bitmap ID
+  DiTileRowToColumnMap m_row_to_col_map;  // refers to bitmaps based on row & column
 };

@@ -29,6 +29,7 @@
 
 #include "di_tile_map.h"
 #include <cstring>
+extern void debug_log(const char* fmt, ...);
 
 DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
                       uint32_t columns, uint32_t rows,
@@ -61,38 +62,97 @@ DiTileMap::~DiTileMap() {
   for (auto map = m_id_to_type_map.begin(); map != m_id_to_type_map.end(); map++) {
     delete map->second;
   }
-  for (auto map = m_pos_to_type_map.begin(); map != m_pos_to_type_map.end(); map++) {
+  for (auto map = m_row_to_col_map.begin(); map != m_row_to_col_map.end(); map++) {
     delete map->second;
   }
 }
 
-void IRAM_ATTR DiTileMap::set_relative_position(int32_t rel_x, int32_t rel_y) {
-  // Tile maps are offset in the reverse direction. Setting a position more to
-  // the right (in X) causes the tile map to scroll left, not right.
-  DiPrimitive::set_relative_position(-rel_x, rel_y);
+void DiTileMap::create_bitmap(DiTileBitmapID bm_id) {
+  auto bitmap_item = m_id_to_type_map.find(bm_id);
+  if (bitmap_item == m_id_to_type_map.end()) {
+    auto bitmap = new DiTileBitmap(bm_id, m_tile_width, m_tile_height, m_flags);
+    m_id_to_type_map[bm_id] = bitmap;
+  }
 }
 
 void DiTileMap::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t color) {
   m_id_to_type_map[bm_id]->set_transparent_pixel(x, y, color);
 }
 
-void DiTileMap::set_tile(int32_t column, int32_t row, DiTileBitmapID bm_id) {
-  uint32_t pos = (row << 16) | column;
-  auto rc_map = m_pos_to_type_map.find(pos);
-  if (rc_map != m_pos_to_type_map.end()) {
-
-  } else {
-    auto cb_map = new DiTileColumnToBitmapMap();
-    auto bitmap = new DiTileBitmap();
-    cb_map[column] = bitmap;
+void DiTileMap::set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id) {
+  debug_log("set_tile %hi %hi %hi\n", column, row, bm_id);
+  auto bitmap_item = m_id_to_type_map.find(bm_id);
+  if (bitmap_item != m_id_to_type_map.end()) {
+    auto row_item = m_row_to_col_map.find(row);
+    if (row_item != m_row_to_col_map.end()) {
+      auto cb_map = row_item->second;
+      (*cb_map)[column] = bitmap_item->second;
+    } else {
+      auto cb_map = new DiTileColumnToBitmapMap();
+      m_row_to_col_map[row] = cb_map;
+      (*cb_map)[column] = bitmap_item->second;
+    }
   }
 }
 
-void DiTileMap::unset_tile(int32_t column, int32_t row) {
+void DiTileMap::unset_tile(int16_t column, int16_t row) {
+  auto row_item = m_row_to_col_map.find(row);
+  if (row_item != m_row_to_col_map.end()) {
+    auto cb_map = row_item->second;
+    auto bitmap_item = cb_map->find(column);
+    if (bitmap_item != cb_map->end()) {
+      cb_map->erase(bitmap_item);
+      if (!cb_map->size()) {
+        delete cb_map;
+        m_row_to_col_map.erase(row_item);
+      }
+    }
+  }
 }
 
-DiTileBitmapID DiTileMap::get_tile(int32_t column, int32_t row) {
+DiTileBitmapID DiTileMap::get_tile(int16_t column, int16_t row) {
+  auto row_item = m_row_to_col_map.find(row);
+  if (row_item != m_row_to_col_map.end()) {
+    auto cb_map = row_item->second;
+    auto bitmap_item = cb_map->find(column);
+    if (bitmap_item != cb_map->end()) {
+      cb_map->erase(bitmap_item);
+      if (!cb_map->size()) {
+        delete cb_map;
+        m_row_to_col_map.erase(row_item);
+      }
+    }
+  }
+  return 0;
 }
 
 void IRAM_ATTR DiTileMap::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
+  auto y_offset_within_tile_map = (int32_t)line_index - m_abs_y;
+  debug_log("paint li=%ui yotm=%i", line_index, y_offset_within_tile_map);
+  if (y_offset_within_tile_map >= 0 && y_offset_within_tile_map < m_height) {
+    auto row = y_offset_within_tile_map / (int32_t)m_tile_height;
+    debug_log(" row=%i", row);
+    auto row_item = m_row_to_col_map.find((uint16_t)row);
+    if (row_item != m_row_to_col_map.end()) {
+      auto cb_map = row_item->second;
+      auto start_x_offset_within_tile_map = m_draw_x - m_abs_x;
+      auto start_column = (start_x_offset_within_tile_map + m_tile_width - 1) / m_tile_width;
+      auto end_x_offset_within_tile_map = m_draw_x_extent - m_abs_x;
+      auto end_column = end_x_offset_within_tile_map / m_tile_width;
+      auto x = m_draw_x & 0xFFFFFFFC; // TBD
+      auto y_offset_within_tile = y_offset_within_tile_map % (int32_t)m_tile_height;
+      debug_log(" sx=%i sc=%i ex=%i ec=%i x=%i yot=%i",
+        start_x_offset_within_tile_map, start_column, end_x_offset_within_tile_map, end_column, x, y_offset_within_tile);
+      for (auto column = start_column; column <= end_column; column++) {
+        auto bitmap_item = cb_map->find(column);
+        if (bitmap_item != cb_map->end()) {
+          auto bitmap = bitmap_item->second;
+          debug_log(" paint col=%i x=%i", column, x);
+          //bitmap->paint(x, p_scan_line, y_offset_within_tile);
+          x += m_tile_width;
+        }
+      }
+    }
+  }
+  debug_log("\n");
 }
