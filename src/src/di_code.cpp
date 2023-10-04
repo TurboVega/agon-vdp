@@ -619,10 +619,10 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
         ret();
     }
 }
-//extern void debug_log(const char* fmt, ...);
+
 void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn,
         bool is_transparent, uint8_t transparent_color, uint32_t* src_pixels) {
-    debug_log(" copy_line x=%i w=%i it=%i tc=%02X src=%08X\n", x, width, is_transparent, transparent_color, src_pixels);
+    //debug_log(" copy_line x=%i w=%i it=%i tc=%02X src=%08X\n", x, width, is_transparent, transparent_color, src_pixels);
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto at_src = d32((uint32_t)src_pixels);
@@ -656,7 +656,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
     uint8_t* p_src_bytes = (uint8_t*) src_pixels;
 
     while (rem_width) {
-        debug_log("src=%08X, xo=%u, rw=%u, ", src_pixels, x_offset, rem_width);
+        //debug_log("src=%08X, xo=%u, rw=%u, ", src_pixels, x_offset, rem_width);
 
         uint8_t opaqueness = 100;
         if (!is_transparent) {
@@ -689,7 +689,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
             //debug_log("op=%hu, ", opaqueness);
         }
         rem_width -= width;
-        debug_log("rw=%u\n", rem_width);
+        //debug_log("rw=%u\n", rem_width);
 
         // Use the series of pixels, rather than the rest of the line, if necessary.
         while (width) {
@@ -1004,7 +1004,7 @@ void EspFunction::do_fixups(EspFixups& fixups) {
     for (auto fixup = fixups.begin();
         fixup != fixups.end();
         ++fixup) {
-        debug_log(" (fix @%04X to %08X)\n", fixup->code_index, fixup->fcn_address);
+        //debug_log(" (fix @%04X to %08X)\n", fixup->code_index, fixup->fcn_address);
         set_code_index(fixup->code_index);
         call_inner_fcn(fixup->fcn_address);
     }
@@ -1134,21 +1134,21 @@ void EspFunction::allocate(uint32_t size) {
             heap_caps_free(m_code);
             m_alloc_size = (uint32_t)new_size;
             m_code = (uint32_t*)p;
-            debug_log("-- realloc %u at %08X --\n", new_size, p);
+            //debug_log("-- realloc %u at %08X --\n", new_size, p);
         }
     } else {
         size_t new_size = (size_t)(size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
         void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
         m_alloc_size = (uint32_t)new_size;
         m_code = (uint32_t*)p;
-        debug_log("-- alloc %u at %08X --\n", new_size, p);
+        //debug_log("-- alloc %u at %08X --\n", new_size, p);
     }
 }
 
 uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
     allocate(1);
     auto at_data = get_code_index();
-    debug_log("%04X %08X: %02hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    //debug_log("%04X %08X: %02hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     return at_data;
 }
@@ -1156,7 +1156,7 @@ uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
     allocate(2);
     auto at_data = get_code_index();
-    debug_log("%04X %08X: %04hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    //debug_log("%04X %08X: %04hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     return at_data;
@@ -1165,7 +1165,7 @@ uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
     allocate(3);
     auto at_data = get_code_index();
-    debug_log("%04X %08X: %06X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    //debug_log("%04X %08X: %06X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
@@ -1175,7 +1175,7 @@ uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
     allocate(4);
     auto at_data = get_code_index();
-    debug_log("%04X %08X: %08X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    //debug_log("%04X %08X: %08X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
