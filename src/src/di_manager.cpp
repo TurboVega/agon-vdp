@@ -639,10 +639,11 @@ void IRAM_ATTR DiManager::loop() {
     }
   }
 }
-
+extern void debug_log(const char* fmt, ...);
 void IRAM_ATTR DiManager::draw_primitives(volatile uint32_t* p_scan_line, uint32_t line_index) {
   std::vector<DiPrimitive*> * vp = &m_groups[line_index];
   for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
+      debug_log("paint id %u\n",(*prim)->get_id());
       (*prim)->paint(p_scan_line, line_index);
   }
 }
