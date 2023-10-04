@@ -622,6 +622,7 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
 //extern void debug_log(const char* fmt, ...);
 void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn,
         bool is_transparent, uint8_t transparent_color, uint32_t* src_pixels) {
+    debug_log(" copy_line x=%i w=%i it=%i tc=%02X src=%08X\n", x, width, is_transparent, transparent_color, src_pixels);
     auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
     auto at_data = begin_data();
     auto at_src = d32((uint32_t)src_pixels);

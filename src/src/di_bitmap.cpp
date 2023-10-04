@@ -40,6 +40,7 @@ DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint8_t flags) {
   m_save_height = height;
   m_flags = flags;
   m_is_transparent = false;
+  m_transparent_color = 0;
 
   if (flags & PRIM_FLAG_H_SCROLL) {
       m_words_per_line = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t) + 2);
