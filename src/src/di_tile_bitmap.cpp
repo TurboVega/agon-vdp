@@ -143,11 +143,11 @@ void IRAM_ATTR DiTileBitmap::generate_instructions(int32_t draw_x, uint32_t draw
   }
 }
 static bool done;
-void IRAM_ATTR DiTileBitmap::paint(DiPrimitive* tile_map, int32_t draw_x, volatile uint32_t* p_scan_line, uint32_t line_index) {
+void IRAM_ATTR DiTileBitmap::paint(DiPrimitive* tile_map, int32_t fcn_index, volatile uint32_t* p_scan_line, uint32_t line_index) {
   if (!done) {
-    //debug_log(" pf %i size %u line %u from %08X to %08X\n", draw_x & 3, m_paint_fcn[draw_x & 3].get_code_size(), line_index,
-    //  m_paint_fcn[draw_x & 3].get_real_address(0), m_paint_fcn[draw_x & 3].get_real_address(m_paint_fcn[draw_x & 3].get_code_size()));
+    //debug_log(" pf %i size %u line %u from %08X to %08X\n", fcn_index, m_paint_fcn[fcn_index].get_code_size(), line_index,
+    //  m_paint_fcn[fcn_index].get_real_address(0), m_paint_fcn[fcn_index].get_real_address(m_paint_fcn[fcn_index].get_code_size()));
     done=true;
   }
-  m_paint_fcn[draw_x & 3].call(tile_map, p_scan_line, line_index);
+  m_paint_fcn[fcn_index].call(tile_map, p_scan_line, line_index);
 }

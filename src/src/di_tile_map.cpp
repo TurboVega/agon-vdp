@@ -153,7 +153,9 @@ void IRAM_ATTR DiTileMap::paint(volatile uint32_t* p_scan_line, uint32_t line_in
       auto start_column = (start_x_offset_within_tile_map + m_tile_width - 1) / m_tile_width;
       auto end_x_offset_within_tile_map = m_draw_x_extent - m_abs_x;
       auto end_column = end_x_offset_within_tile_map / m_tile_width;
-      auto x = m_draw_x & 0xFFFFFFFC; // TBD
+      auto save_draw_x = m_draw_x;
+      auto fcn_index = m_draw_x & 0x3;
+      m_draw_x &= 0xFFFFFFFC; // TBD
       auto y_offset_within_tile = y_offset_within_tile_map % (int32_t)m_tile_height;
       //if (!done) debug_log(" sx=%i sc=%i ex=%i ec=%i x=%i yot=%i",
       //  start_x_offset_within_tile_map, start_column, end_x_offset_within_tile_map, end_column, x, y_offset_within_tile);
@@ -162,10 +164,11 @@ void IRAM_ATTR DiTileMap::paint(volatile uint32_t* p_scan_line, uint32_t line_in
         if (bitmap_item != cb_map->end()) {
           auto bitmap = bitmap_item->second;
           //if (!done) debug_log(" paint col=%i x=%i", column, x);
-          bitmap->paint(this, x, p_scan_line, y_offset_within_tile);
+          bitmap->paint(this, fcn_index, p_scan_line, y_offset_within_tile);
         }
-        x += m_tile_width;
+        m_draw_x += m_tile_width;
       }
+      m_draw_x = save_draw_x;
     }
   }
   //if (!done) debug_log("\n");

@@ -311,8 +311,10 @@ void otf(void * pvParameters) {
 
 #define DRAW_TILE_MAP 1
 #if DRAW_TILE_MAP
+#define TM_ROWS 6
+#define TM_COLS 6
     DiTileMap* tile_map = di_manager->create_tile_map(500, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT,
-                            ACT_PIXELS, ACT_LINES, 1, 1, BM_WIDTH, BM_HEIGHT);
+                            ACT_PIXELS, ACT_LINES, TM_ROWS, TM_COLS, BM_WIDTH, BM_HEIGHT);
 	tile_map->create_bitmap(1);
 	int i = 0;
 	for (int y = 0; y < BM_HEIGHT; y++) {
@@ -322,7 +324,12 @@ void otf(void * pvParameters) {
 			tile_map->set_pixel(1, x, y, c|PIXEL_ALPHA_100_MASK);
 		}
 	}
-	tile_map->set_tile(0, 0, 1);
+
+	for (uint16_t row = 0; row < TM_ROWS; row++) {
+		for (uint16_t col = 0; col < TM_COLS; col++) {
+			tile_map->set_tile(col, row, 1);
+		}
+	}
 	di_manager->move_primitive_relative(500, 0, 0);
 #endif
 
