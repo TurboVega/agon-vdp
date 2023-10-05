@@ -55,8 +55,8 @@
 #define REG_JUMP_ADDRESS    a14
 #define REG_SAVE_COLOR      a15     // also the transparent color when copying pixels
 
-#define OUTER_RET_ADDR_IN_STACK   (-4)
-#define INNER_RET_ADDR_IN_STACK   (0)
+#define OUTER_RET_ADDR_IN_STACK   (4)
+#define INNER_RET_ADDR_IN_STACK   (8)
 
 #define FIX_OFFSET(off)    ((off)^2)
 
