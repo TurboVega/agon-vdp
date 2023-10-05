@@ -122,7 +122,7 @@ class DiPrimitive {
   }
 
   // Recompute the geometry and paint list membership of a primitive.
-  void recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
+  void recompute_primitive(DiPrimitive* prim, uint16_t old_flags,
                             int32_t old_min_group, int32_t old_max_group);
 
   int32_t   m_view_x;       // upper-left x coordinate of the enclosing viewport, relative to the screen

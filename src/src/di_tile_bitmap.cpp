@@ -37,7 +37,7 @@
 #include <cstring>
 //extern void debug_log(const char* fmt, ...);
 
-DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height, uint8_t flags) {
+DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height, uint16_t flags) {
   m_bm_id = bm_id;
   m_save_height = height;
   m_flags = flags;

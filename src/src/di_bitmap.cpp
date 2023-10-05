@@ -34,7 +34,7 @@
 #include <cstring>
 //extern void debug_log(const char* fmt, ...);
 
-DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint8_t flags) {
+DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint16_t flags) {
   m_width = width;
   m_height = height;
   m_save_height = height;

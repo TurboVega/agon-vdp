@@ -44,7 +44,7 @@ class DiTileMap: public DiPrimitive {
   // Construct a tile map.
   DiTileMap(uint32_t screen_width, uint32_t screen_height,
             uint32_t columns, uint32_t rows,
-            uint32_t tile_width, uint32_t tile_height, uint8_t flags);
+            uint32_t tile_width, uint32_t tile_height, uint16_t flags);
 
   // Destroy a tile map.
   virtual ~DiTileMap();

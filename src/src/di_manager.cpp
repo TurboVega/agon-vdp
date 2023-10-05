@@ -298,7 +298,7 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
   }
 }
 
-void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
+void DiManager::recompute_primitive(DiPrimitive* prim, uint16_t old_flags,
                                     int32_t old_min_group, int32_t old_max_group) {
   auto parent = prim->get_parent();
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
@@ -396,14 +396,14 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
   }
 }
 
-DiPrimitive* DiManager::finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {
+DiPrimitive* DiManager::finish_create(uint16_t id, uint16_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {
     prim->set_id(id);
     prim->set_flags(flags);
     add_primitive(prim, parent_prim);
     return prim;
 }
 
-DiPrimitive* DiManager::create_point(uint16_t id, uint16_t parent, uint8_t flags,
+DiPrimitive* DiManager::create_point(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint8_t color) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
@@ -413,7 +413,7 @@ DiPrimitive* DiManager::create_point(uint16_t id, uint16_t parent, uint8_t flags
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint8_t flags,
+DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             uint8_t color) {
     if (!validate_id(id)) return NULL;
@@ -497,7 +497,7 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint8_t flags,
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiPrimitive* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent, uint8_t flags,
+DiPrimitive* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
                             uint8_t color) {
     if (!validate_id(id)) return NULL;
@@ -509,7 +509,7 @@ DiPrimitive* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent, uin
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiPrimitive* DiManager::create_triangle(uint16_t id, uint16_t parent, uint8_t flags,
+DiPrimitive* DiManager::create_triangle(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             int32_t x3, int32_t y3,
                             uint8_t color) {
@@ -523,7 +523,7 @@ DiPrimitive* DiManager::create_triangle(uint16_t id, uint16_t parent, uint8_t fl
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiPrimitive* DiManager::create_solid_triangle(uint16_t id, uint16_t parent, uint8_t flags,
+DiPrimitive* DiManager::create_solid_triangle(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             int32_t x3, int32_t y3,
                             uint8_t color) {
@@ -537,14 +537,13 @@ DiPrimitive* DiManager::create_solid_triangle(uint16_t id, uint16_t parent, uint
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint8_t flags,
+DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t screen_width, int32_t screen_height,
                             uint32_t columns, uint32_t rows,
                             uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
-    auto hscroll = ((flags & PRIM_FLAG_H_SCROLL) != 0);
     DiTileMap* tile_map =
       new DiTileMap(screen_width, screen_height, columns, rows, width, height, flags);
 
@@ -552,7 +551,7 @@ DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint8_t flag
     return tile_map;
 }
 
-DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint8_t flags,
+DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
                             uint8_t fg_color, uint8_t bg_color, const uint8_t* font) {
     if (!validate_id(id)) return NULL;
@@ -1020,23 +1019,23 @@ bool DiManager::handle_udg_sys_cmd(uint8_t character) {
 
 /*
 800x600x64 On-the-Fly Command Set:
-VDU 23, 30, 0, id; flags: [6] Set flags for primitive
+VDU 23, 30, 0, id; flags;: [6] Set flags for primitive
 VDU 23, 30, 1, id; x; y;: [9] Move primitive: absolute
 VDU 23, 30, 2, id; x; y;: [9] Move primitive: relative
 VDU 23, 30, 3, id;: [5] Delete primitive
-VDU 23, 30, 4, id; pid; flags, x; y; c: [13] Create primitive: Point
-VDU 23, 30, 5, id; pid; flags, x1; y1; x2; y2; c: [17] Create primitive: Line
-VDU 23, 30, 6, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Triangle Outline
-VDU 23, 30, 7, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Solid Triangle
-VDU 23, 30, 8, id; pid; flags, x; y; w; h; c: [17] Create primitive: Rectangle Outline
-VDU 23, 30, 9, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Rectangle
-VDU 23, 30, 10, id; pid; flags, x; y; w; h; c: [17] Create primitive: Ellipse Outline
-VDU 23, 30, 11, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Ellipse
-VDU 23, 30, 12, id; pid; flags, cols; rows; bitmaps, w; h;: [17] Create primitive: Tile Map
-VDU 23, 30, 13, id; pid; flags, w; h;: [12] Create primitive: Solid Bitmap
-VDU 23, 30, 14, id; pid; flags, w; h;: [12] Create primitive: Masked Bitmap
-VDU 23, 30, 15, id; pid; flags, w; h; c: [13] Create primitive: Transparent Bitmap
-VDU 23, 30, 16, id; pid; flags, x; y;: [12] Create primitive: Group
+VDU 23, 30, 4, id; pid; flags; x; y; c: [13] Create primitive: Point
+VDU 23, 30, 5, id; pid; flags; x1; y1; x2; y2; c: [17] Create primitive: Line
+VDU 23, 30, 6, id; pid; flags; x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Triangle Outline
+VDU 23, 30, 7, id; pid; flags; x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Solid Triangle
+VDU 23, 30, 8, id; pid; flags; x; y; w; h; c: [17] Create primitive: Rectangle Outline
+VDU 23, 30, 9, id; pid; flags; x; y; w; h; c: [17] Create primitive: Solid Rectangle
+VDU 23, 30, 10, id; pid; flags; x; y; w; h; c: [17] Create primitive: Ellipse Outline
+VDU 23, 30, 11, id; pid; flags; x; y; w; h; c: [17] Create primitive: Solid Ellipse
+VDU 23, 30, 12, id; pid; flags; cols; rows; bitmaps, w; h;: [17] Create primitive: Tile Map
+VDU 23, 30, 13, id; pid; flags; w; h;: [12] Create primitive: Solid Bitmap
+VDU 23, 30, 14, id; pid; flags; w; h;: [12] Create primitive: Masked Bitmap
+VDU 23, 30, 15, id; pid; flags; w; h; c: [13] Create primitive: Transparent Bitmap
+VDU 23, 30, 16, id; pid; flags; x; y;: [12] Create primitive: Group
 VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice solid bitmap: absolute
 VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice masked bitmap: absolute
 VDU 23, 30, 19, id; x; y; s; h;: [13] Move & slice transparent bitmap: absolute
@@ -1058,11 +1057,11 @@ bool DiManager::handle_otf_cmd() {
     int16_t p = get_param_16(3); // get primitive index number
     switch (m_incoming_command[2]) {
 
-      // VDU 23, 30, 0, id; flags: [6] Set flags for primitive
+      // VDU 23, 30, 0, id; flags;: [6] Set flags for primitive
       case 0: {
         if (m_num_command_chars == 6) {
           auto id = get_param_16(3);
-          auto flags = get_param_8(5);
+          auto flags = get_param_16(5);
           set_primitive_flags(id, flags);
           m_num_command_chars = 0;
           return true;
@@ -1103,12 +1102,12 @@ bool DiManager::handle_otf_cmd() {
         }
       } break;
 
-      // VDU 23, 30, 4, id; pid; flags, x; y; c: [13] Create primitive: Point
+      // VDU 23, 30, 4, id; pid; flags; x; y; c: [13] Create primitive: Point
       case 4: {
         if (m_num_command_chars == 13) {
           auto id = get_param_16(3);
           auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
+          auto flags = get_param_16(7);
           auto x = get_param_16(8);
           auto y = get_param_16(10);
           auto c = get_param_8(12);
@@ -1698,7 +1697,7 @@ void DiManager::send_general_poll(uint8_t b) {
 	initialised = true;	
 }
 
-void DiManager::set_primitive_flags(uint16_t id, uint8_t flags) {
+void DiManager::set_primitive_flags(uint16_t id, uint16_t flags) {
   DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
   auto old_flags = prim->get_flags();
   int32_t old_min_group = -1, old_max_group = -1;
@@ -1740,7 +1739,7 @@ void DiManager::delete_primitive(uint16_t id) {
   delete_primitive(prim);  
 }
 
-DiPrimitive* DiManager::create_rectangle(uint16_t id, uint16_t parent, uint8_t flags,
+DiPrimitive* DiManager::create_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
                         int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
@@ -1751,7 +1750,7 @@ DiPrimitive* DiManager::create_rectangle(uint16_t id, uint16_t parent, uint8_t f
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiPrimitive* DiManager::create_ellipse(uint16_t id, uint16_t parent, uint8_t flags,
+DiPrimitive* DiManager::create_ellipse(uint16_t id, uint16_t parent, uint16_t flags,
                         int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
@@ -1762,7 +1761,7 @@ DiPrimitive* DiManager::create_ellipse(uint16_t id, uint16_t parent, uint8_t fla
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiPrimitive* DiManager::create_solid_ellipse(uint16_t id, uint16_t parent, uint8_t flags,
+DiPrimitive* DiManager::create_solid_ellipse(uint16_t id, uint16_t parent, uint16_t flags,
                         int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
@@ -1773,7 +1772,7 @@ DiPrimitive* DiManager::create_solid_ellipse(uint16_t id, uint16_t parent, uint8
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiBitmap* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+DiBitmap* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
                         uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
@@ -1784,7 +1783,7 @@ DiBitmap* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t f
     return prim;
 }
 
-DiBitmap* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+DiBitmap* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
                         uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
@@ -1795,7 +1794,7 @@ DiBitmap* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t 
     return prim;
 }
 
-DiBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+DiBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
                         uint32_t width, uint32_t height, uint8_t color) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
@@ -1807,7 +1806,7 @@ DiBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uin
     return prim;
 }
 
-DiPrimitive* DiManager::create_primitive_group(uint16_t id, uint16_t parent, uint8_t flags,
+DiPrimitive* DiManager::create_primitive_group(uint16_t id, uint16_t parent, uint16_t flags,
                         int32_t x, int32_t y) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;

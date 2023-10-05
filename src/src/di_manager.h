@@ -47,59 +47,59 @@ class DiManager {
     void create_root();
 
     // Create various types of drawing primitives.
-    DiPrimitive* create_point(uint16_t id, uint16_t parent, uint8_t flags,
+    DiPrimitive* create_point(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint8_t color);
 
-    DiPrimitive* create_line(uint16_t id, uint16_t parent, uint8_t flags,
+    DiPrimitive* create_line(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             uint8_t color);
 
-    DiPrimitive* create_rectangle(uint16_t id, uint16_t parent, uint8_t flags,
+    DiPrimitive* create_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
                             uint8_t color);
 
-    DiPrimitive* create_solid_rectangle(uint16_t id, uint16_t parent, uint8_t flags,
+    DiPrimitive* create_solid_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
                             uint8_t color);
 
-    DiPrimitive* create_ellipse(uint16_t id, uint16_t parent, uint8_t flags,
+    DiPrimitive* create_ellipse(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
                             uint8_t color);
 
-    DiPrimitive* create_solid_ellipse(uint16_t id, uint16_t parent, uint8_t flags,
+    DiPrimitive* create_solid_ellipse(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
                             uint8_t color);
 
-    DiPrimitive* create_triangle(uint16_t id, uint16_t parent, uint8_t flags,
+    DiPrimitive* create_triangle(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3,
                             uint8_t color);
 
-    DiPrimitive* create_solid_triangle(uint16_t id, uint16_t parent, uint8_t flags,
+    DiPrimitive* create_solid_triangle(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3,
                             uint8_t color);
 
-    DiTileMap* create_tile_map(uint16_t id, uint16_t parent, uint8_t flags,
+    DiTileMap* create_tile_map(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t screen_width, int32_t screen_height,
                             uint32_t columns, uint32_t rows, uint32_t width, uint32_t height);
 
-    DiTerminal* create_terminal(uint16_t id, uint16_t parent, uint8_t flags,
+    DiTerminal* create_terminal(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
                             uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
 
-    DiBitmap* create_solid_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+    DiBitmap* create_solid_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t width, uint32_t height);
 
-    DiBitmap* create_masked_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+    DiBitmap* create_masked_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t width, uint32_t height);
 
-    DiBitmap* create_transparent_bitmap(uint16_t id, uint16_t parent, uint8_t flags,
+    DiBitmap* create_transparent_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t width, uint32_t height, uint8_t color);
 
-    DiPrimitive* create_primitive_group(uint16_t id, uint16_t parent, uint8_t flags,
+    DiPrimitive* create_primitive_group(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y);
 
     // Set the flags for an existing primitive.
-    void set_primitive_flags(uint16_t id, uint8_t flags);
+    void set_primitive_flags(uint16_t id, uint16_t flags);
 
     // Move an existing primitive to an absolute position.
     void move_primitive_absolute(uint16_t id, int32_t x, int32_t y);
@@ -192,10 +192,10 @@ class DiManager {
     void delete_primitive(DiPrimitive* prim);
 
     // Recompute the geometry and paint list membership for a primitive.
-    void recompute_primitive(DiPrimitive* prim, uint8_t old_flags,
+    void recompute_primitive(DiPrimitive* prim, uint16_t old_flags,
                              int32_t old_min_group, int32_t old_max_group);
     // Finish creating a primitive.
-    DiPrimitive* finish_create(uint16_t id, uint8_t flags, DiPrimitive* prim, DiPrimitive* parent_prim);
+    DiPrimitive* finish_create(uint16_t id, uint16_t flags, DiPrimitive* prim, DiPrimitive* parent_prim);
 
     // Draw all primitives that belong to the active scan line group.
     void IRAM_ATTR draw_primitives(volatile uint32_t* p_scan_line, uint32_t line_index);

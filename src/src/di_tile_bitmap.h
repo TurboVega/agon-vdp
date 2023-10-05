@@ -42,7 +42,7 @@ typedef uint16_t DiTileBitmapID;
 class DiTileBitmap {
   public:
   // Construct a bitmap.
-  DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height, uint8_t flags);
+  DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height, uint16_t flags);
 
   // Destroy a bitmap.
   ~DiTileBitmap();
