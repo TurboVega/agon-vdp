@@ -105,14 +105,34 @@ screen will not be painted properly, giving undesirable effects.
 # OTF Function Codes
 
 The OTF mode uses VDU 23, 0, 30 as its command signature for defining and processing drawing primitives. The following list gives an overview of the available commands in OTF mode; <b>however, not all of these commands have
-been implemented yet.</b>
+been implemented yet, and this section is subject to change!</b>
 Each of these commands will be explained in detail once the code has all been written and tested.
 
 800x600x64 On-the-Fly Command Set:
 
-VDU 23, 30, 0, id; flags: [6] Set flags for primitive  
-VDU 23, 30, 1, id; x; y;: [9] Move primitive: absolute  
-VDU 23, 30, 2, id; x; y;: [9] Move primitive: relative  
+VDU 23, 30, 0, id; flags: [6] Set flags for primitive
+
+This command modifies certain flag bits for a primitive. Some flag bits are fixed upon creation
+of the primitive, and cannot be changed. The following bits can be changed.
+
+VDU 23, 30, 1, id; x; y;: [9] Set primitive position
+
+If a primitive is not using the "absolute position" flag, then
+this command sets the relative position of the primitive, with respect to its parent's position. If the
+parent is at (100, 100), then setting the primitive's position to (5, 5) will
+place the primitive at position (105, 105), relative to the primitive's grandparent (if any),
+or at a 5-pixel offset from its parent, in X and Y.
+
+If a primitive is using the "absolute position" flag, then this command
+sets the absolute position of the primitive, and that position is relative to the screen,
+not to the parent.
+
+VDU 23, 30, 2, id; x; y;: [9] Adjust primitive position  
+
+This sets the relative position of a primitive by adding the given X and Y offsets to its
+current position. If the primitive is at (5, 5), and the given values are (10, 10), then
+the primitive will move to (15, 15), relative to its parent's position.
+
 VDU 23, 30, 3, id;: [5] Delete primitive  
 VDU 23, 30, 4, id; pid; flags, x; y; c: [13] Create primitive: Point  
 VDU 23, 30, 5, id; pid; flags, x1; y1; x2; y2; c: [17] Create primitive: Line  
@@ -143,4 +163,38 @@ VDU 23, 30, 29, id; col; row; img;: [11] Set image ID for tile in tile map
 VDU 23, 30, 30, id; img; x; y; c: [12] Set image pixel in tile map  
 VDU 23, 30, 31, id; img; x; y; n; c0, c1, c2, ...: [13+n] Set image pixels in tile map  
 
+VDU 23, 30, 32, id; pid; flags, n; x1; y1; ... xn; yn; c: [11 + n*6] Create primitive: Triangle List Outline
+
+A triangle list is a series of triangles that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each triangle, its 3 points must be specified.
+
+VDU 23, 30, 33, id; pid; flags, n; x1; y1; ... xn; yn; c: [11 + n*6] Create primitive: Solid Triangle List
+
+VDU 23, 30, 34, id; pid; flags, n; sx0; sy0; sx1; sy1; ... xn; yn; c: [19 + n*4] Create primitive: Triangle Fan Outline
+
+A triangle fan is a series of triangles that share a common center point, and each 2 consecutive triangles share an edge point.
+
+
+VDU 23, 30, 35, id; pid; flags, n; sx0; sy0; sx1; sy1; ... xn; yn; c: [19 +n*4] Create primitive: Solid Triangle Fan
+
+VDU 23, 30, 36, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c: [19 + n*4] Create primitive: Triangle Strip Outline
+
+A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points.
+
+VDU 23, 30, 37, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c: [19 + n*4] Create primitive: Solid Triangle Strip
+
+VDU 23, 30, 38, id; pid; flags, x1; y1; x2; y2; x3; y3; x4; y4; c: [25] Create primitive: Quad Outline
+
+A quad is  4-sided, regular polygon that does not necessarily have any internal right angles, but could.
+
+VDU 23, 30, 39, id; pid; flags, x1; y1; x2; y2; x3; y3; x4; y4; c: [25] Create primitive: Solid Quad
+
+VDU 23, 30, 40, id; pid; flags, n; x1; y1; ... xn; yn; c: [11 + n*8] Create primitive: Quad List Outline
+
+A quad list is a series of quads that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each quad, its 4 points must be specified.
+
+VDU 23, 30, 41, id; pid; flags, n; x1; y1; ... xn; yn; c: [11 +n*8] Create primitive: Solid Quad List
+
+VDU 23, 30, 42, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c: [19 + n*4] Create primitive: Quad Strip Outline
+
+VDU 23, 30, 43, id; pid; flags, n; x1; y1; ... xn; yn; c: [19 + n*4] Create primitive: Solid Quad Strip
 
