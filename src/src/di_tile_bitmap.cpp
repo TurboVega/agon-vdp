@@ -96,7 +96,7 @@ void IRAM_ATTR DiTileBitmap::delete_instructions() {
   }
 }
 
-void IRAM_ATTR DiTileBitmap::generate_instructions(int32_t draw_x, uint32_t draw_width) {
+void IRAM_ATTR DiTileBitmap::generate_instructions(uint32_t draw_x, int32_t x, uint32_t draw_width) {
   delete_instructions();
   if (m_flags & PRIM_FLAG_H_SCROLL) {
     // Bitmap can be positioned on any horizontal byte boundary (pixel offsets 0..3).
@@ -106,13 +106,13 @@ void IRAM_ATTR DiTileBitmap::generate_instructions(int32_t draw_x, uint32_t draw
       uint32_t* src_pixels = m_pixels + pos * m_words_per_position;
 
       if (m_flags & PRIM_FLAGS_ALL_SAME) {
-        paint_fcn->copy_line_as_outer_fcn(fixups, draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+        paint_fcn->copy_line_as_outer_fcn(fixups, draw_x, x, draw_width, m_flags, m_transparent_color, src_pixels);
       } else {
         uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
         for (uint32_t line = 0; line < m_save_height; line++) {
           paint_fcn->align32();
           paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
-          paint_fcn->copy_line_as_inner_fcn(fixups, draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+          paint_fcn->copy_line_as_inner_fcn(fixups, draw_x, x, draw_width, m_flags, m_transparent_color, src_pixels);
           src_pixels += m_words_per_line;
         }
       }
@@ -125,13 +125,13 @@ void IRAM_ATTR DiTileBitmap::generate_instructions(int32_t draw_x, uint32_t draw
     uint32_t* src_pixels = m_pixels;
 
     if (m_flags & PRIM_FLAGS_ALL_SAME) {
-      paint_fcn->copy_line_as_inner_fcn(fixups, draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+      paint_fcn->copy_line_as_inner_fcn(fixups, draw_x, x, draw_width, m_flags, m_transparent_color, src_pixels);
     } else {
       uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
       for (uint32_t line = 0; line < m_save_height; line++) {
         paint_fcn->align32();
         paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
-        paint_fcn->copy_line_as_outer_fcn(fixups, draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+        paint_fcn->copy_line_as_outer_fcn(fixups, draw_x, x, draw_width, m_flags, m_transparent_color, src_pixels);
         src_pixels += m_words_per_line;
       }
     }

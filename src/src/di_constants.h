@@ -137,6 +137,7 @@
 #define PIXEL_COLOR_AC(alpha, color)    (((alpha) << 6) | (color))
 #define PIXEL_COLOR_ARGB(a, r, g, b)    (PIXEL_COLOR_AC(a, MASK_RGB(r, g, b)))
 #define PIXEL_COLOR_ABGR(a, b, g, r)    (PIXEL_COLOR_AC(a, MASK_RGB(r, g, b)))
+#define PIXEL_COLOR_X4(color)           ((((uint32_t)color) << 24)|(((uint32_t)color) << 16)|(((uint32_t)color) << 8)|(((uint32_t)color)))
 
 #define PRIM_FLAG_PAINT_THIS  0x0001  // whether to paint this primitive
 #define PRIM_FLAG_PAINT_KIDS  0x0002  // whether to paint child primitives
@@ -148,6 +149,32 @@
 #define PRIM_FLAGS_BLENDED    0x0100  // hint that pixels may be blended
 #define PRIM_FLAGS_ALL_SAME   0x0200  // hint that all lines can be drawn the same way
 #define PRIM_FLAGS_CAN_DRAW   0x1000  // whether this primitive can be drawn at all
-#define PRIM_FLAGS_X_SRC      0x2000  // hint that x and src pixel ptr will be given
+#define PRIM_FLAGS_X          0x2000  // hint that x will be given
+#define PRIM_FLAGS_X_SRC      0x4000  // hint that x and src pixel ptr will be given
 #define PRIM_FLAGS_DEFAULT    0x000F  // flags set when a new base primitive is constructed
 #define PRIM_FLAGS_CHANGEABLE 0x000F  // flags that the app can change after primitive creation
+
+// Input registers:
+#define REG_RETURN_ADDR     a0
+#define REG_STACK_PTR       a1
+#define REG_THIS_PTR        a2
+#define REG_LINE_PTR        a3
+#define REG_LINE_INDEX      a4
+#define REG_DST_DRAW_X      a5
+#define REG_SRC_PIXEL_PTR   a6
+// Temporary registers:
+#define REG_SAVE_RET_DEEP   a3
+#define REG_ABS_Y           a6
+#define REG_DST_PIXEL_PTR   a5
+#define REG_PIXEL_COLOR     a7
+#define REG_LOOP_INDEX      a4
+#define REG_SRC_PIXELS      a8
+#define REG_SRC_BR_PIXELS   a9
+#define REG_DST_BR_PIXELS   a10
+#define REG_SRC_G_PIXELS    a8
+#define REG_DST_G_PIXELS    a11
+#define REG_DOUBLE_COLOR    a12
+#define REG_ISOLATE_BR      a13
+#define REG_ISOLATE_G       a14
+#define REG_JUMP_ADDRESS    a14
+#define REG_SAVE_COLOR      a15     // also the transparent color when copying pixels

@@ -34,10 +34,7 @@ void DiSolidEllipse::init_params(int32_t x, int32_t y, uint32_t width, uint32_t 
   m_width = width;
   m_height = height;
   color &= 0x3F; // remove any alpha bits
-  m_color = (((uint32_t)color) << 24) |
-      (((uint32_t)color) << 16) |
-      (((uint32_t)color) << 8) |
-      (uint32_t)color | SYNCS_OFF_X4;
+  m_color = PIXEL_COLOR_X4(color);
 }
 
 void IRAM_ATTR DiSolidEllipse::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {

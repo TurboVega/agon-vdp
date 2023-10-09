@@ -29,8 +29,6 @@
 
 class DiSetPixel: public DiPrimitive {
   public:
-  uint8_t   m_opaqueness;
-
   // Draws a single pixel on the screen.
   DiSetPixel(int32_t x, int32_t y, uint8_t color);
 
@@ -43,5 +41,6 @@ class DiSetPixel: public DiPrimitive {
   virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 
   protected:
+  uint8_t   m_opaqueness;
   EspFunction m_paint_fcn;
 };

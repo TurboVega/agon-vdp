@@ -34,10 +34,7 @@ void DiSolidRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_
   m_rel_y = y;
   m_width = width;
   m_height = height;
-  m_color = (((uint32_t)color) << 24) |
-      (((uint32_t)color) << 16) |
-      (((uint32_t)color) << 8) |
-      (uint32_t)color | SYNCS_OFF_X4;
+  m_color = PIXEL_COLOR_X4(color);
 }
 
 void IRAM_ATTR DiSolidRectangle::delete_instructions() {
@@ -48,7 +45,7 @@ void IRAM_ATTR DiSolidRectangle::generate_instructions() {
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     EspFixups fixups;
-    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_width, m_opaqueness);
+    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, m_width, m_flags, m_opaqueness);
     m_paint_fcn.do_fixups(fixups);
   }
 }

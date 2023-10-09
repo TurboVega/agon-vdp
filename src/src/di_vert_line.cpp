@@ -33,7 +33,7 @@ void DiVerticalLine::init_params(int32_t x, int32_t y, uint32_t height, uint8_t 
   m_rel_y = y;
   m_width = 1;
   m_height = height;
-  m_color = (color & 0x3F) | SYNCS_OFF;
+  m_color = PIXEL_COLOR_X4(color);
 }
 
 void IRAM_ATTR DiVerticalLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {

@@ -37,7 +37,7 @@ void DiHorizontalLine::init_params(int32_t x, int32_t y, uint32_t width, uint8_t
     (((uint32_t)color) << 24) |
     (((uint32_t)color) << 16) |
     (((uint32_t)color) << 8) |
-    ((uint32_t)color) | SYNCS_OFF_X4;
+    ((uint32_t)color);
 }
 
 void IRAM_ATTR DiHorizontalLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {

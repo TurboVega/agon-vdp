@@ -77,7 +77,7 @@ void IRAM_ATTR DiTileMap::delete_instructions() {
 void IRAM_ATTR DiTileMap::generate_instructions() {
   //debug_log(" tm @%i flags=%hX\n", __LINE__, m_flags);
   for (auto bitmap = m_id_to_type_map.begin(); bitmap != m_id_to_type_map.end(); bitmap++) {
-    bitmap->second->generate_instructions(0, m_tile_width);
+    bitmap->second->generate_instructions(m_draw_x, 0, m_tile_width);
   }
 }
 

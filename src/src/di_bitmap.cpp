@@ -120,14 +120,14 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
         uint32_t draw_width = m_draw_x_extent - m_draw_x;
 
         if (m_flags & PRIM_FLAGS_ALL_SAME) {
-          paint_fcn->copy_line_as_outer_fcn(fixups, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);          
+          paint_fcn->copy_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);          
         } else {
           uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
           for (uint32_t line = 0; line < m_save_height; line++) {
             paint_fcn->align32();
             paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
             //debug_log("line=%u, ", line);
-            paint_fcn->copy_line_as_inner_fcn(fixups, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+            paint_fcn->copy_line_as_inner_fcn(fixups, m_draw_x, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
             src_pixels += m_words_per_line;
           }
         }
@@ -141,14 +141,14 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
       uint32_t* src_pixels = m_pixels;
 
       if (m_flags & PRIM_FLAGS_ALL_SAME) {
-        paint_fcn->copy_line_as_outer_fcn(fixups, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);          
+        paint_fcn->copy_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);          
       } else {
         uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
         for (uint32_t line = 0; line < m_save_height; line++) {
           paint_fcn->align32();
           paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
           //debug_log("line=%u, ", line);
-          paint_fcn->copy_line_as_inner_fcn(fixups, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+          paint_fcn->copy_line_as_inner_fcn(fixups, m_draw_x, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
           src_pixels += m_words_per_line;
         }
       }

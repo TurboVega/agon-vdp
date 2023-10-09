@@ -31,7 +31,7 @@ DiSetPixel::DiSetPixel(int32_t x, int32_t y, uint8_t color) {
   m_rel_y = y;
   m_width = 1;
   m_height = 1;
-  m_color = (color & 0x3F) | SYNCS_OFF;
+  m_color = PIXEL_COLOR_X4(color);
 }
 
 void IRAM_ATTR DiSetPixel::delete_instructions() {
@@ -42,7 +42,7 @@ void IRAM_ATTR DiSetPixel::generate_instructions() {
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     EspFixups fixups;
-    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, 1, m_opaqueness);
+    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, 1, m_flags, m_opaqueness);
     m_paint_fcn.do_fixups(fixups);
   }
 }

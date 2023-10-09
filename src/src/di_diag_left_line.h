@@ -26,6 +26,7 @@
 
 #pragma once
 #include "di_primitive.h"
+#include "di_code.h"
 
 class DiDiagonalLeftLine: public DiPrimitive {
   public:
@@ -33,8 +34,18 @@ class DiDiagonalLeftLine: public DiPrimitive {
   DiDiagonalLeftLine();
 
   // The line starts at its upper-right point, and goes diagonally down and left,
-  // covering the given number of pixels. The upper 2 bits of the color must be zeros.
+  // covering the given number of pixels.
   void init_params(int32_t x, int32_t y, int32_t length, uint8_t color);
   
+  // Clear the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR delete_instructions();
+   
+  // Reassemble the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR generate_instructions();
+   
   virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
+
+  protected:
+  uint8_t   m_opaqueness;
+  EspFunction m_paint_fcn;
 };

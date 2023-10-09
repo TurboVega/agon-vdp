@@ -77,10 +77,12 @@ class DiPrimitive {
   // Reassemble the custom instructions needed to draw the primitive.
   virtual void IRAM_ATTR generate_instructions();
 
-  // Convert normal alpha bits of color to opaqueness percentage.  
+  // Convert normal alpha bits of color to opaqueness percentage.
+  // This will also remove the alpha bits from the color.
   static uint8_t normal_alpha_to_opaqueness(uint8_t &color);
 
   // Convert inverted alpha bits of color to opaqueness percentage.  
+  // This will also remove the alpha bits from the color.
   static uint8_t inverted_alpha_to_opaqueness(uint8_t &color);
 
   // Gets various data members.

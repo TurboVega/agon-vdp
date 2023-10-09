@@ -155,11 +155,12 @@ void IRAM_ATTR DiPrimitive::delete_instructions() {
 void IRAM_ATTR DiPrimitive::generate_instructions() {
 }
 
-// Convert normal alpha bits of color to opaqueness percentage.  
+// Convert normal alpha bits of color to opaqueness percentage.
+// This will also remove the alpha bits from the color.
 uint8_t DiPrimitive::normal_alpha_to_opaqueness(uint8_t &color) {
-  uint8_t c = color >> 6;
+  uint8_t alpha = color >> 6;
   color &= 0x3F; // remove alpha bits
-  switch (c) {
+  switch (alpha) {
     case 0: return 25;
     case 1: return 50;
     case 2: return 75;
@@ -168,10 +169,11 @@ uint8_t DiPrimitive::normal_alpha_to_opaqueness(uint8_t &color) {
 }
 
 // Convert inverted alpha bits of color to opaqueness percentage.  
+// This will also remove the alpha bits from the color.
 uint8_t DiPrimitive::inverted_alpha_to_opaqueness(uint8_t &color) {
-  uint8_t c = color >> 6;
+  uint8_t alpha = color >> 6;
   color &= 0x3F; // remove alpha bits
-  switch (c) {
+  switch (alpha) {
     case 1: return 75;
     case 2: return 50;
     case 3: return 25;

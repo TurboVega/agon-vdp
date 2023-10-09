@@ -30,12 +30,31 @@ DiDiagonalLeftLine::DiDiagonalLeftLine() {
 }
 
 void DiDiagonalLeftLine::init_params(int32_t x, int32_t y, int32_t length, uint8_t color) {
+  m_opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
   m_rel_x = x - length + 1;
   m_rel_y = y;
   m_width = length;
   m_height = length;
-  m_color = (color & 0x3F) | SYNCS_OFF;
+  m_color = PIXEL_COLOR_X4(color);
+}
+
+void IRAM_ATTR DiDiagonalLeftLine::delete_instructions() {
+  m_paint_fcn.clear();
+}
+  
+void IRAM_ATTR DiDiagonalLeftLine::generate_instructions() {
+  m_paint_fcn.clear();
+  if (m_flags & PRIM_FLAGS_CAN_DRAW) {
+    //EspFixups fixups;
+    //m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, 1, m_flags, m_opaqueness);
+    //m_paint_fcn.do_fixups(fixups);
+    m_paint_fcn.enter_outer_function();
+    m_paint_fcn.s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
+    m_paint_fcn.retw();
+  }
 }
 
 void IRAM_ATTR DiDiagonalLeftLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
+  int32_t x = m_x_extent - (line_index - m_abs_y) - 1;
+  m_paint_fcn.call_x(this, p_scan_line, line_index, x);
 }

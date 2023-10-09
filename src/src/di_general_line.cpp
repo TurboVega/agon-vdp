@@ -46,12 +46,7 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
   m_width = MAX(x1,x2) - m_rel_x + 1;
   m_height = MAX(y1,y2) - m_rel_y + 1;
   color &= 0x3F; // remove any alpha bits
-  m_color =
-    (((uint32_t)color) << 24) |
-    (((uint32_t)color) << 16) |
-    (((uint32_t)color) << 8) |
-    ((uint32_t)color) | SYNCS_OFF_X4;
-  
+  m_color = PIXEL_COLOR_X4(color);  
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2);
 }
 
@@ -63,12 +58,7 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1,
   m_width = max3(x1,x2,x3) - m_rel_x + 1;
   m_height = max3(y1,y2,y3) - m_rel_y + 1;
   color &= 0x3F; // remove any alpha bits
-  m_color =
-    (((uint32_t)color) << 24) |
-    (((uint32_t)color) << 16) |
-    (((uint32_t)color) << 8) |
-    ((uint32_t)color) | SYNCS_OFF_X4;
-  
+  m_color = PIXEL_COLOR_X4(color); 
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2, x3, y3);
 }
 
@@ -85,7 +75,7 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
       DiLinePiece* piece = &m_line_pieces.m_pieces[i];
       m_paint_fcn.align32();
       m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
-      m_paint_fcn.draw_line_as_inner_fcn(fixups, piece->m_x, piece->m_width, m_opaqueness);
+      m_paint_fcn.draw_line_as_inner_fcn(fixups, m_draw_x, piece->m_x, piece->m_width, m_flags, m_opaqueness);
     }
     m_paint_fcn.do_fixups(fixups);
   }
