@@ -173,13 +173,11 @@ void otf(void * pvParameters) {
 	
 	//di_manager->create_point(510, ROOT_PRIMITIVE_ID, 1, 400, 300, 0xC0|0x3F);
 
-	//di_manager->create_line(7, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 4, 0, 0, 4, 0xC0|0x3F); // diagonal left
-	di_manager->create_line(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 204, 20, 194, 30, 0xC0|0x23); // diagonal left
-	//di_manager->create_line(2, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 200, 20, 100, 120, 0xC0|0x20); // diagonal left
-	//di_manager->create_line(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 205, 20, 105, 120, 0xC0|0x23); // diagonal left
+	di_manager->create_line(2, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 200, 20, 100, 120, 0xC0|0x20); // diagonal left
+	di_manager->create_line(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 205, 20, 105, 120, 0xC0|0x23); // diagonal left
 
-	//di_manager->create_line(5, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 20, 440, 60, 0xC0|0x20); // diagonal right
-	//di_manager->create_line(6, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 405, 20, 445, 60, 0xC0|0x23); // diagonal right
+	di_manager->create_line(5, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 20, 440, 60, 0xC0|0x20); // diagonal right
+	di_manager->create_line(6, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 405, 20, 445, 60, 0xC0|0x23); // diagonal right
 	
 	//di_manager->create_line(7, ROOT_PRIMITIVE_ID, 1, 249, 599, 285, 599, 0xC0|0x0C); // horizontal
 	//di_manager->create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 599, 0xC0|0x0D); // vertical
