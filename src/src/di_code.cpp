@@ -344,29 +344,40 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
     uint32_t p_fcn = 0;
     auto x_offset = x & 3;
 
-    while (x > draw_x) {
-        uint32_t diff = x - draw_x;
+    debug_log("\ndrx=%u, x=%u, w=%u\n", draw_x, x, width);
+    auto start_x = draw_x & 0xFFFFFFFC;
+    auto end_x = x & 0xFFFFFFFC;
+    debug_log("  sx=%u, ex=%u\n", start_x, end_x);
+    while (end_x > start_x) {
+        uint32_t diff = end_x - start_x;
         if (diff < 4) {
             break;
         }
+        debug_log("  sx=%u, ex=%u, w=%u, d=%u\n", start_x, end_x, width, diff);
         if (diff >= 120) {
+            debug_log("-120 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 120);
-            draw_x += 120;
+            start_x += 120;
         } else if (diff >= 64) {
+            debug_log("-64 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
-            draw_x += 64;
+            start_x += 64;
         } else if (diff >= 32) {
+            debug_log("-32 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32);
-            draw_x += 32;
+            start_x += 32;
         } else if (diff >= 16) {
+            debug_log("-16 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16);
-            draw_x += 16;
+            start_x += 16;
         } else if (diff >= 8) {
+            debug_log("-8 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8);
-            draw_x += 8;
+            start_x += 8;
         } else {
+            debug_log("-4 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
-            draw_x += 4;
+            start_x += 4;
         }
     }
 
