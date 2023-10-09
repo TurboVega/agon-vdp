@@ -37,11 +37,12 @@
 #define REG_THIS_PTR        a2
 #define REG_LINE_PTR        a3
 #define REG_LINE_INDEX      a4
+#define REG_DST_DRAW_X      a5
+#define REG_SRC_PIXEL_PTR   a6
 // Temporary registers:
 #define REG_SAVE_RET_DEEP   a3
 #define REG_ABS_Y           a6
 #define REG_DST_PIXEL_PTR   a5
-#define REG_SRC_PIXEL_PTR   a6
 #define REG_PIXEL_COLOR     a7
 #define REG_LOOP_INDEX      a4
 #define REG_SRC_PIXELS      a8
@@ -50,8 +51,8 @@
 #define REG_SRC_G_PIXELS    a8
 #define REG_DST_G_PIXELS    a11
 #define REG_DOUBLE_COLOR    a12
-#define REG_ISOLATE_BR      a13     // 0x33333333: mask to isolate blue & red, removing green
-#define REG_ISOLATE_G       a14     // 0x0C0C0C0C: mask to isolate green, removing red & blue
+#define REG_ISOLATE_BR      a13
+#define REG_ISOLATE_G       a14
 #define REG_JUMP_ADDRESS    a14
 #define REG_SAVE_COLOR      a15     // also the transparent color when copying pixels
 
@@ -59,6 +60,9 @@
 #define INNER_RET_ADDR_IN_STACK   (8)
 
 #define FIX_OFFSET(off)    ((off)^2)
+
+#define MASK_ISOLATE_BR    0x33333333 // mask to isolate blue & red, removing green
+#define MASK_ISOLATE_G     0x0C0C0C0C // mask to isolate green, removing red & blue
 
 extern uint32_t fcn_draw_256_pixels_in_loop;
 extern uint32_t fcn_draw_128_pixels;
@@ -298,39 +302,72 @@ void EspFunction::init_members() {
     m_code = 0;
 }
 
-void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness) {
-    auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
+void EspFunction::draw_line_as_outer_fcn(EspFixups& fixups, uint32_t x, uint32_t width, uint8_t opaqueness) {
+    auto at_jump = enter_outer_function();
     auto at_data = begin_data();
-    auto x_offset = x & 3;
 
     uint32_t at_isolate_br = 0;
     uint32_t at_isolate_g = 0;
     if (opaqueness != 100) {
-        at_isolate_br = d32(0x33333333); // mask to isolate blue & red, removing green
-        at_isolate_g = d32(0x0C0C0C0C); // mask to isolate green, removing red & blue
+        at_isolate_br = d32(MASK_ISOLATE_BR); // mask to isolate blue & red, removing green
+        at_isolate_g = d32(MASK_ISOLATE_G); // mask to isolate green, removing red & blue
     }
 
     begin_code(at_jump);
-
-    set_reg_dst_pixel_ptr();
+    set_reg_dst_pixel_ptr_for_draw();
 
     if (opaqueness != 100) {
         l32r_from(REG_ISOLATE_BR, at_isolate_br);
         l32r_from(REG_ISOLATE_G, at_isolate_g);
     }
 
-    if (outer_fcn) {
-        l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
-        s32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
-    } else {
-        s32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
-    }
+    l32i(REG_PIXEL_COLOR, REG_THIS_PTR, FLD_color);
+    s32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
 
     if (opaqueness != 100) {
         mov(REG_SAVE_COLOR, REG_PIXEL_COLOR);
     }
 
+    draw_line_loop(fixups, x, width, opaqueness);
+
+    l32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
+    retw();
+}
+
+void EspFunction::draw_line_as_inner_fcn(EspFixups& fixups, uint32_t x, uint32_t width, uint8_t opaqueness) {
+    auto at_jump = enter_inner_function();
+    auto at_data = begin_data();
+
+    uint32_t at_isolate_br = 0;
+    uint32_t at_isolate_g = 0;
+    if (opaqueness != 100) {
+        at_isolate_br = d32(MASK_ISOLATE_BR); // mask to isolate blue & red, removing green
+        at_isolate_g = d32(MASK_ISOLATE_G); // mask to isolate green, removing red & blue
+    }
+
+    begin_code(at_jump);
+    set_reg_dst_pixel_ptr_for_draw();
+
+    if (opaqueness != 100) {
+        l32r_from(REG_ISOLATE_BR, at_isolate_br);
+        l32r_from(REG_ISOLATE_G, at_isolate_g);
+    }
+
+    s32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
+
+    if (opaqueness != 100) {
+        mov(REG_SAVE_COLOR, REG_PIXEL_COLOR);
+    }
+
+    draw_line_loop(fixups, x, width, opaqueness);
+
+    l32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
+    ret();
+}
+
+void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t x, uint32_t width, uint8_t opaqueness) {
     uint32_t p_fcn = 0;
+    auto x_offset = x & 3;
 
     while (width) {
         auto offset = x_offset & 3;
@@ -610,47 +647,84 @@ void EspFunction::draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
             p_fcn = 0;
         }
     }
-
-    if (outer_fcn) {
-        l32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
-        retw();
-    } else {
-        l32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
-        ret();
-    }
 }
 
-void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn,
-        bool is_transparent, uint8_t transparent_color, uint32_t* src_pixels) {
-    //debug_log(" copy_line x=%i w=%i it=%i tc=%02X src=%08X\n", x, width, is_transparent, transparent_color, src_pixels);
-    auto at_jump = (outer_fcn ? enter_outer_function() : enter_inner_function());
+void EspFunction::copy_line_as_outer_fcn(EspFixups& fixups, uint32_t x, uint32_t width,
+        uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels) {
+    auto at_jump = enter_outer_function();
     auto at_data = begin_data();
-    auto at_src = d32((uint32_t)src_pixels);
-    auto x_offset = x & 3;
+
+    uint32_t at_src = 0;
+    if (!(flags & PRIM_FLAGS_X_SRC)) {
+        at_src = d32((uint32_t)src_pixels);
+    }
 
     uint32_t at_isolate_br = 0;
     uint32_t at_isolate_g = 0;
-    if (is_transparent) {
-        at_isolate_br = d32(0x33333333); // mask to isolate blue & red, removing green
-        at_isolate_g = d32(0x0C0C0C0C); // mask to isolate green, removing red & blue
+    if (flags & PRIM_FLAGS_BLENDED) {
+        at_isolate_br = d32(MASK_ISOLATE_BR); // mask to isolate blue & red, removing green
+        at_isolate_g = d32(MASK_ISOLATE_G); // mask to isolate green, removing red & blue
     }
 
     begin_code(at_jump);
+    set_reg_dst_pixel_ptr_for_copy(flags);
 
-    set_reg_dst_pixel_ptr();
-    l32r_from(REG_SRC_PIXEL_PTR, at_src);
+    if (!(flags & PRIM_FLAGS_X_SRC)) {
+        l32r_from(REG_SRC_PIXEL_PTR, at_src);
+    }
 
-    if (is_transparent) {
+    if (flags & PRIM_FLAGS_BLENDED) {
         l32r_from(REG_ISOLATE_BR, at_isolate_br);
         l32r_from(REG_ISOLATE_G, at_isolate_g);
     }
 
-    if (outer_fcn) {
-        s32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
-    } else {
-        s32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
+    s32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
+    copy_line_loop(fixups, x, width, flags, transparent_color, src_pixels);
+    l32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
+    retw();
+}
+
+void EspFunction::copy_line_as_inner_fcn(EspFixups& fixups, uint32_t x, uint32_t width,
+        uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels) {
+    //debug_log(" copy_line x=%i w=%i tc=%02X src=%08X\n", x, width, transparent_color, src_pixels);
+    auto at_jump = enter_inner_function();
+    auto at_data = begin_data();
+
+    uint32_t at_src = 0;
+    if (!(flags & PRIM_FLAGS_X_SRC)) {
+        at_src = d32((uint32_t)src_pixels);
     }
 
+    uint32_t at_isolate_br = 0;
+    uint32_t at_isolate_g = 0;
+    if (flags & PRIM_FLAGS_BLENDED) {
+        at_isolate_br = d32(MASK_ISOLATE_BR); // mask to isolate blue & red, removing green
+        at_isolate_g = d32(MASK_ISOLATE_G); // mask to isolate green, removing red & blue
+    }
+
+    begin_code(at_jump);
+
+    set_reg_dst_pixel_ptr_for_copy(flags);
+
+    if (!(flags & PRIM_FLAGS_X_SRC)) {
+        l32r_from(REG_SRC_PIXEL_PTR, at_src);
+    }
+
+    if (flags & PRIM_FLAGS_BLENDED) {
+        l32r_from(REG_ISOLATE_BR, at_isolate_br);
+        l32r_from(REG_ISOLATE_G, at_isolate_g);
+    }
+
+    s32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
+    copy_line_loop(fixups, x, width, flags, transparent_color, src_pixels);
+    l32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
+    ret();
+}
+
+void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t x, uint32_t width,
+        uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels) {
+
+    auto x_offset = x & 3;
     uint32_t p_fcn = 0;
     uint32_t rem_width = width;
     uint8_t* p_src_bytes = (uint8_t*) src_pixels;
@@ -659,7 +733,7 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
         //debug_log("src=%08X, xo=%u, rw=%u, ", src_pixels, x_offset, rem_width);
 
         uint8_t opaqueness = 100;
-        if (!is_transparent) {
+        if (!(flags & PRIM_FLAGS_BLENDED)) {
             // Transfer all pixels at 100% opaqueness.
             width = rem_width;            
         } else {
@@ -989,14 +1063,6 @@ void EspFunction::copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool 
             }
         }
     }
-
-    if (outer_fcn) {
-        l32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
-        retw();
-    } else {
-        l32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
-        ret();
-    }
 }
 
 void EspFunction::do_fixups(EspFixups& fixups) {
@@ -1055,8 +1121,17 @@ void EspFunction::begin_code(uint32_t at_jump) {
     j_to_here(at_jump);
 }
 
-void EspFunction::set_reg_dst_pixel_ptr() {
+void EspFunction::set_reg_dst_pixel_ptr_for_draw() {
     l32i(REG_DST_PIXEL_PTR, REG_THIS_PTR, FLD_draw_x);
+    srli(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 2);
+    slli(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 2);
+    add(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, REG_LINE_PTR);
+}
+
+void EspFunction::set_reg_dst_pixel_ptr_for_copy(uint16_t flags) {
+    if (!(flags & PRIM_FLAGS_X_SRC)) {
+        l32i(REG_DST_PIXEL_PTR, REG_THIS_PTR, FLD_draw_x);
+    }
     srli(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 2);
     slli(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 2);
     add(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, REG_LINE_PTR);

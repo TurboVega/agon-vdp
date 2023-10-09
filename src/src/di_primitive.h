@@ -157,15 +157,4 @@ class DiPrimitive {
   uint16_t  m_flags;        // flag bits to control painting, etc.
 };
 
-#define PRIM_FLAG_PAINT_THIS  0x01  // whether to paint this primitive
-#define PRIM_FLAG_PAINT_KIDS  0x02  // whether to paint child primitives
-#define PRIM_FLAG_CLIP_THIS   0x04  // whether to clip this primitive
-#define PRIM_FLAG_CLIP_KIDS   0x08  // whether to clip child primitives
-#define PRIM_FLAG_H_SCROLL    0x10  // whether to support horizontal scrolling
-#define PRIM_FLAG_FUTURE      0x20  // for future use
-#define PRIM_FLAG_ABSOLUTE    0x40  // whether to use absolute coordinates always
-#define PRIM_FLAGS_CAN_DRAW   0x1000 // whether this primitive can be drawn at all
-#define PRIM_FLAGS_DEFAULT    0x0F  // flags set when a new base primitive is constructed
-#define PRIM_FLAGS_CHANGEABLE 0x0F  // flags that the app can change after primitive creation
-
 #pragma pack(pop)

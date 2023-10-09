@@ -85,7 +85,7 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
       DiLinePiece* piece = &m_line_pieces.m_pieces[i];
       m_paint_fcn.align32();
       m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
-      m_paint_fcn.draw_line(fixups, piece->m_x, piece->m_width, false, m_opaqueness);
+      m_paint_fcn.draw_line_as_inner_fcn(fixups, piece->m_x, piece->m_width, m_opaqueness);
     }
     m_paint_fcn.do_fixups(fixups);
   }

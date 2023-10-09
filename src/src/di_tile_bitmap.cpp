@@ -35,13 +35,11 @@
 
 #include "di_tile_bitmap.h"
 #include <cstring>
-//extern void debug_log(const char* fmt, ...);
 
 DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height, uint16_t flags) {
   m_bm_id = bm_id;
   m_save_height = height;
   m_flags = flags;
-  m_is_transparent = false;
   m_transparent_color = 0;
 
   if (flags & PRIM_FLAG_H_SCROLL) {
@@ -68,12 +66,10 @@ DiTileBitmap::~DiTileBitmap() {
 
 void DiTileBitmap::set_transparent_pixel(int32_t x, int32_t y, uint8_t color) {
   // Invert the meaning of the alpha bits.
-  //debug_log("x=%u y=%u c=%02hX i=%02hX, ", x, y, color, PIXEL_ALPHA_INV_MASK(color));
   set_pixel(x, y, PIXEL_ALPHA_INV_MASK(color));
 }
 
 void DiTileBitmap::set_transparent_color(uint8_t color) {
-  m_is_transparent = true;
   m_transparent_color = color;
 }
 
@@ -89,7 +85,6 @@ void DiTileBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
     }
   } else {
     p = m_pixels + y * m_words_per_line + (FIX_INDEX(x) / 4);
-    //debug_log("  p=%08X\n", p);
     index = FIX_INDEX(x&3);
     ((uint8_t*)(p))[index] = color;
   }
@@ -102,52 +97,52 @@ void IRAM_ATTR DiTileBitmap::delete_instructions() {
 }
 
 void IRAM_ATTR DiTileBitmap::generate_instructions(int32_t draw_x, uint32_t draw_width) {
-  //debug_log(" @%i flags=%hX", __LINE__, m_flags);
   delete_instructions();
   if (m_flags & PRIM_FLAG_H_SCROLL) {
-//debug_log(" @%i ", __LINE__);
     // Bitmap can be positioned on any horizontal byte boundary (pixel offsets 0..3).
     for (uint32_t pos = 0; pos < 4; pos++) {
-//debug_log(" @%i ", __LINE__);
       EspFixups fixups;
       EspFunction* paint_fcn = &m_paint_fcn[pos];
-      uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
       uint32_t* src_pixels = m_pixels + pos * m_words_per_position;
-      for (uint32_t line = 0; line < m_save_height; line++) {
-//debug_log(" @%i ", __LINE__);
-        paint_fcn->align32();
-        paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
-        //debug_log("gen line=%u, ", line);
-        paint_fcn->copy_line(fixups, draw_x, draw_width, false, m_is_transparent, m_transparent_color, src_pixels);
-        src_pixels += m_words_per_line;
+
+      if (m_flags & PRIM_FLAGS_ALL_SAME) {
+        paint_fcn->copy_line_as_outer_fcn(fixups, draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+      } else {
+        uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
+        for (uint32_t line = 0; line < m_save_height; line++) {
+          paint_fcn->align32();
+          paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
+          paint_fcn->copy_line_as_inner_fcn(fixups, draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+          src_pixels += m_words_per_line;
+        }
       }
       paint_fcn->do_fixups(fixups);
     }
   } else {
-//debug_log(" @%i ", __LINE__);
     // Bitmap must be positioned on a 4-byte boundary (pixel offset 0)!
     EspFixups fixups;
     EspFunction* paint_fcn = &m_paint_fcn[0];
-    uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
     uint32_t* src_pixels = m_pixels;
-    for (uint32_t line = 0; line < m_save_height; line++) {
-//debug_log(" @%i ", __LINE__);
-      paint_fcn->align32();
-      paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
-      //debug_log("gen line=%u, ", line);
-      paint_fcn->copy_line(fixups, draw_x, draw_width, false, m_is_transparent, m_transparent_color, src_pixels);
-      src_pixels += m_words_per_line;
+
+    if (m_flags & PRIM_FLAGS_ALL_SAME) {
+      paint_fcn->copy_line_as_inner_fcn(fixups, draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+    } else {
+      uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
+      for (uint32_t line = 0; line < m_save_height; line++) {
+        paint_fcn->align32();
+        paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
+        paint_fcn->copy_line_as_outer_fcn(fixups, draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+        src_pixels += m_words_per_line;
+      }
     }
     paint_fcn->do_fixups(fixups);
-//debug_log(" @%i ", __LINE__);
   }
 }
-static bool done;
-void IRAM_ATTR DiTileBitmap::paint(DiPrimitive* tile_map, int32_t fcn_index, volatile uint32_t* p_scan_line, uint32_t line_index) {
-  if (!done) {
-    //debug_log(" pf %i size %u line %u from %08X to %08X\n", fcn_index, m_paint_fcn[fcn_index].get_code_size(), line_index,
-    //  m_paint_fcn[fcn_index].get_real_address(0), m_paint_fcn[fcn_index].get_real_address(m_paint_fcn[fcn_index].get_code_size()));
-    done=true;
-  }
-  m_paint_fcn[fcn_index].call(tile_map, p_scan_line, line_index);
+
+void IRAM_ATTR DiTileBitmap::paint(DiPrimitive* tile_map, int32_t fcn_index, volatile uint32_t* p_scan_line,
+        uint32_t line_index, uint32_t draw_x) {
+  //debug_log(" pf %i size %u line %u from %08X to %08X\n", fcn_index, m_paint_fcn[fcn_index].get_code_size(), line_index,
+  //  m_paint_fcn[fcn_index].get_real_address(0), m_paint_fcn[fcn_index].get_real_address(m_paint_fcn[fcn_index].get_code_size()));
+  uint32_t* src_pixels = m_pixels + fcn_index * m_words_per_position;
+  m_paint_fcn[fcn_index].call_x_src(tile_map, p_scan_line, line_index, draw_x, src_pixels);
 }

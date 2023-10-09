@@ -137,3 +137,17 @@
 #define PIXEL_COLOR_AC(alpha, color)    (((alpha) << 6) | (color))
 #define PIXEL_COLOR_ARGB(a, r, g, b)    (PIXEL_COLOR_AC(a, MASK_RGB(r, g, b)))
 #define PIXEL_COLOR_ABGR(a, b, g, r)    (PIXEL_COLOR_AC(a, MASK_RGB(r, g, b)))
+
+#define PRIM_FLAG_PAINT_THIS  0x0001  // whether to paint this primitive
+#define PRIM_FLAG_PAINT_KIDS  0x0002  // whether to paint child primitives
+#define PRIM_FLAG_CLIP_THIS   0x0004  // whether to clip this primitive
+#define PRIM_FLAG_CLIP_KIDS   0x0008  // whether to clip child primitives
+#define PRIM_FLAG_H_SCROLL    0x0010  // whether to support horizontal scrolling
+#define PRIM_FLAG_ABSOLUTE    0x0040  // whether to use absolute coordinates always
+#define PRIM_FLAGS_MASKED     0x0080  // hint that pixels are fully opaque or transparent
+#define PRIM_FLAGS_BLENDED    0x0100  // hint that pixels may be blended
+#define PRIM_FLAGS_ALL_SAME   0x0200  // hint that all lines can be drawn the same way
+#define PRIM_FLAGS_CAN_DRAW   0x1000  // whether this primitive can be drawn at all
+#define PRIM_FLAGS_X_SRC      0x2000  // hint that x and src pixel ptr will be given
+#define PRIM_FLAGS_DEFAULT    0x000F  // flags set when a new base primitive is constructed
+#define PRIM_FLAGS_CHANGEABLE 0x000F  // flags that the app can change after primitive creation

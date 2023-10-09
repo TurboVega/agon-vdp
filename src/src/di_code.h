@@ -37,6 +37,8 @@ typedef int32_t s_off_t;   // signed offset
 
 extern "C" {
 typedef void (*CallEspFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index);
+typedef void (*CallEspXSrcFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index,
+                                uint32_t x, uint32_t* p_src_pixels);
 };
 
 typedef struct {
@@ -53,9 +55,20 @@ class EspFunction {
 
     // Pixel-level operations:
 
-    void draw_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn, uint8_t opaqueness);
-    void copy_line(EspFixups& fixups, uint32_t x, uint32_t width, bool outer_fcn,
-        bool is_transparent, uint8_t transparent_color, uint32_t* src_pixels);
+    void draw_line_as_outer_fcn(EspFixups& fixups, uint32_t x, uint32_t width, uint8_t opaqueness);
+
+    void draw_line_as_inner_fcn(EspFixups& fixups, uint32_t x, uint32_t width, uint8_t opaqueness);
+
+    void draw_line_loop(EspFixups& fixups, uint32_t x, uint32_t width, uint8_t opaqueness);
+
+    void copy_line_as_outer_fcn(EspFixups& fixups, uint32_t x, uint32_t width,
+        uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels);
+
+    void copy_line_as_inner_fcn(EspFixups& fixups, uint32_t x, uint32_t width,
+        uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels);
+
+    void copy_line_loop(EspFixups& fixups, uint32_t x, uint32_t width,
+        uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels);
 
     // Common operations in functions:
 
@@ -65,7 +78,8 @@ class EspFunction {
     uint32_t begin_data();
     uint32_t init_jump_table(uint32_t num_items);
     void begin_code(uint32_t at_jump);
-    void set_reg_dst_pixel_ptr();
+    void set_reg_dst_pixel_ptr_for_draw();
+    void set_reg_dst_pixel_ptr_for_copy(uint16_t flags);
 
     // Utility operations:
 
@@ -142,6 +156,18 @@ class EspFunction {
     // a4 = line_index
     inline void call(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index) {
         (*((CallEspFcn)m_code))(p_this, p_scan_line, line_index);
+    }
+
+    // a0 = return address
+    // a1 = stack ptr
+    // a2 = p_this
+    // a3 = p_scan_line
+    // a4 = line_index
+    // a5 = draw_x
+    // a6 = p_src_pixels
+    inline void call_x_src(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index,
+                        uint32_t draw_x, uint32_t* p_src_pixels) {
+        (*((CallEspXSrcFcn)m_code))(p_this, p_scan_line, line_index, draw_x, p_src_pixels);
     }
 
     protected:

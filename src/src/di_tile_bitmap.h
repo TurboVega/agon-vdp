@@ -67,7 +67,8 @@ class DiTileBitmap {
   // Reassemble the custom instructions needed to draw the primitive.
   void IRAM_ATTR generate_instructions(int32_t draw_x, uint32_t draw_width);
    
-  void IRAM_ATTR paint(DiPrimitive* tile_map, int32_t fcn_index, volatile uint32_t* p_scan_line, uint32_t line_index);
+  void IRAM_ATTR paint(DiPrimitive* tile_map, int32_t fcn_index, volatile uint32_t* p_scan_line,
+                      uint32_t line_index, uint32_t draw_x);
 
   // Get the bitmap ID.
   inline DiTileBitmapID get_id() { return m_bm_id; } 
@@ -87,6 +88,5 @@ class DiTileBitmap {
   uint32_t    m_built_width;
   EspFunction m_paint_fcn[4];
   uint16_t    m_flags;
-  bool        m_is_transparent;
   uint8_t     m_transparent_color;
 };

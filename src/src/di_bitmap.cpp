@@ -39,7 +39,6 @@ DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint16_t flags) {
   m_height = height;
   m_save_height = height;
   m_flags = flags;
-  m_is_transparent = false;
   m_transparent_color = 0;
 
   if (flags & PRIM_FLAG_H_SCROLL) {
@@ -82,7 +81,6 @@ void DiBitmap::set_transparent_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void DiBitmap::set_transparent_color(uint8_t color) {
-  m_is_transparent = true;
   m_transparent_color = color;
 }
 
@@ -118,15 +116,20 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
       for (uint32_t pos = 0; pos < 4; pos++) {
         EspFixups fixups;
         EspFunction* paint_fcn = &m_paint_fcn[pos];
-        uint32_t draw_width = m_draw_x_extent - m_draw_x;
-        uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
         uint32_t* src_pixels = m_pixels + pos * m_words_per_position;
-        for (uint32_t line = 0; line < m_save_height; line++) {
-          paint_fcn->align32();
-          paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
-          //debug_log("line=%u, ", line);
-          paint_fcn->copy_line(fixups, m_draw_x, draw_width, false, m_is_transparent, m_transparent_color, src_pixels);
-          src_pixels += m_words_per_line;
+        uint32_t draw_width = m_draw_x_extent - m_draw_x;
+
+        if (m_flags & PRIM_FLAGS_ALL_SAME) {
+          paint_fcn->copy_line_as_outer_fcn(fixups, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);          
+        } else {
+          uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
+          for (uint32_t line = 0; line < m_save_height; line++) {
+            paint_fcn->align32();
+            paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
+            //debug_log("line=%u, ", line);
+            paint_fcn->copy_line_as_inner_fcn(fixups, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+            src_pixels += m_words_per_line;
+          }
         }
         paint_fcn->do_fixups(fixups);
       }
@@ -135,14 +138,19 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
       EspFixups fixups;
       EspFunction* paint_fcn = &m_paint_fcn[0];
       uint32_t draw_width = m_draw_x_extent - m_draw_x;
-      uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
       uint32_t* src_pixels = m_pixels;
-      for (uint32_t line = 0; line < m_save_height; line++) {
-        paint_fcn->align32();
-        paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
-        //debug_log("line=%u, ", line);
-        paint_fcn->copy_line(fixups, m_draw_x, draw_width, false, m_is_transparent, m_transparent_color, src_pixels);
-        src_pixels += m_words_per_line;
+
+      if (m_flags & PRIM_FLAGS_ALL_SAME) {
+        paint_fcn->copy_line_as_outer_fcn(fixups, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);          
+      } else {
+        uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);
+        for (uint32_t line = 0; line < m_save_height; line++) {
+          paint_fcn->align32();
+          paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
+          //debug_log("line=%u, ", line);
+          paint_fcn->copy_line_as_inner_fcn(fixups, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
+          src_pixels += m_words_per_line;
+        }
       }
       paint_fcn->do_fixups(fixups);
     }
