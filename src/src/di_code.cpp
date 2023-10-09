@@ -344,6 +344,34 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
     uint32_t p_fcn = 0;
     auto x_offset = x & 3;
 
+    while (x > draw_x) {
+        uint32_t diff = x - draw_x;
+        if (diff < 4) {
+            break;
+        }
+        if (diff >= 120) {
+            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 120);
+            draw_x += 120;
+        } else if (diff >= 64) {
+            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
+            draw_x += 64;
+        } else if (diff >= 32) {
+            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32);
+            draw_x += 32;
+        } else if (diff >= 16) {
+            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16);
+            draw_x += 16;
+        } else if (diff >= 8) {
+            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8);
+            draw_x += 8;
+        } else {
+            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+            draw_x += 4;
+        }
+    }
+
+    debug_log("drx=%u, x=%u, w=%u\n", draw_x, x, width);
+
     while (width) {
         auto offset = x_offset & 3;
         uint32_t sub = 1;
