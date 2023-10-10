@@ -151,7 +151,7 @@ void otf(void * pvParameters) {
 	di_manager = new DiManager();
 	di_manager->create_root();
 
-	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00|PIXEL_ALPHA_100_MASK);
+	//di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00|PIXEL_ALPHA_100_MASK);
     /*
 	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, PIXEL_COLOR_ABGR(PIXEL_ALPHA_100, 2, 0, 0));
 	di_manager->create_line(41, ROOT_PRIMITIVE_ID, 1, 180, 90, 480, 390, 0xFF); // diagonal right
@@ -164,9 +164,9 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
 
-	//di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS,
-	//	0, 0, 256, 100, 75, 0x05, 0x00, fabgl::FONT_AGON_DATA);
-	//boot_screen();
+	di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT,
+		0, 0, 256, 100, 75, PIXEL_ALPHA_100_MASK|0x05, PIXEL_ALPHA_100_MASK|0x00, fabgl::FONT_AGON_DATA);
+	boot_screen();
 	
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
 	di_manager->set_on_lines_painted_cb(&on_lines_painted);
@@ -179,8 +179,8 @@ void otf(void * pvParameters) {
 	//di_manager->create_line(5, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 20, 440, 60, PIXEL_ALPHA_100_MASK|0x20); // diagonal right
 	//di_manager->create_line(6, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 405, 20, 445, 60, PIXEL_ALPHA_100_MASK|0x23); // diagonal right
 	
-	di_manager->create_line(47, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 249, 549, 285, 549, PIXEL_ALPHA_100_MASK|0x04); // horizontal
-	di_manager->create_line(8, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 270, 520, 270, 599, PIXEL_ALPHA_100_MASK|0x10); // vertical
+	//di_manager->create_line(47, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 249, 549, 285, 549, PIXEL_ALPHA_100_MASK|0x04); // horizontal
+	//di_manager->create_line(8, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 270, 520, 270, 599, PIXEL_ALPHA_100_MASK|0x10); // vertical
 	//di_manager->create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, PIXEL_ALPHA_100_MASK|0x30);
 	//di_manager->create_solid_rectangle(220, ROOT_PRIMITIVE_ID, 1, 600, 250, 100, 100, PIXEL_ALPHA_100_MASK|16);
 
@@ -312,7 +312,7 @@ void otf(void * pvParameters) {
 	//prim3->generate_instructions();
 #endif
 
-#define DRAW_TILE_MAP 1
+#define DRAW_TILE_MAP 0
 #if DRAW_TILE_MAP
 #define TM_ROWS 6
 #define TM_COLS 6

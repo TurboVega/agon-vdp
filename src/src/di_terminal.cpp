@@ -27,28 +27,32 @@
 #include "di_terminal.h"
 #include <cstring>
 
-DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint32_t codes,
+DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint8_t flags, uint32_t codes,
                         uint32_t columns, uint32_t rows,
                         uint8_t fg_color, uint8_t bg_color, const uint8_t* font) :
-  DiTileMap(ACT_PIXELS, ACT_LINES, columns, rows, 8, 8, PRIM_FLAGS_DEFAULT) {
+  DiTileMap(ACT_PIXELS, ACT_LINES, columns, rows, 8, 8, flags) {
   m_current_column = 0;
   m_current_row = 0;
 
   // Copy built-in font pixel data to the bitmaps for this terminal.
   for (int b = 0; b < codes; b++) {
+    auto bm_id = (DiTileBitmapID)b;
+    create_bitmap(bm_id);
     uint32_t char_start = (uint32_t)b * 8;
     for (int y = 0; y < 8; y++) {
       uint8_t pixels = font[char_start+y];
       for (int x = 0; x < 8; x++) {
         if (pixels & 0x80) {
-          set_pixel(b, x, y, fg_color);
+          set_pixel(bm_id, x, y, fg_color);
         } else {
-          set_pixel(b, x, y, bg_color);
+          set_pixel(bm_id, x, y, bg_color);
         }
         pixels <<= 1;
       }
     }
   }
+
+  clear_screen();
 }
 
 DiTerminal::~DiTerminal() {
@@ -127,25 +131,30 @@ void DiTerminal::erase_text(int32_t column, int32_t row, int32_t columns, int32_
 
 void DiTerminal::move_text(int32_t column, int32_t row, int32_t columns, int32_t rows,
                             int32_t delta_horiz, int32_t delta_vert) {
-  /*int32_t size_to_copy = columns * sizeof(uint32_t*);
   if (delta_vert > 0) {
     // moving rows down; copy bottom-up
     row += rows - 1;
     while (rows-- > 0) {
-      uint32_t** dst = &m_tiles[row * m_words_per_row + column];
-      uint32_t** src = &m_tiles[(row - delta_vert) * m_words_per_row + column + delta_horiz];
-      memcpy(dst, src, size_to_copy);
+      auto col = column;
+      auto n = columns;
+      while (n > 0) {
+        auto ch = get_tile(col, row);
+        set_tile(col++, row, ch);
+      }
       row--;
     }
   } else {
     // moving rows up; copy top-down
     while (rows-- > 0) {
-      uint32_t** src = &m_tiles[row * m_words_per_row + column];
-      uint32_t** dst = &m_tiles[(row + delta_vert) * m_words_per_row + column + delta_horiz];
-      memcpy(dst, src, size_to_copy);
+      auto col = column;
+      auto n = columns;
+      while (n > 0) {
+        auto ch = get_tile(col, row);
+        set_tile(col++, row, ch);
+      }
       row++;
     }
-  }*/
+  }
 }
 
 void DiTerminal::clear_screen() {

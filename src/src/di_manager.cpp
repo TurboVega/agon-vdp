@@ -563,7 +563,8 @@ DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t fl
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
-    DiTerminal* terminal = new DiTerminal(x, y, codes, columns, rows, fg_color, bg_color, font);
+    flags |= PRIM_FLAGS_ALL_SAME;
+    DiTerminal* terminal = new DiTerminal(x, y, flags, codes, columns, rows, fg_color, bg_color, font);
 
     finish_create(id, flags, terminal, parent_prim);
     m_terminal = terminal;

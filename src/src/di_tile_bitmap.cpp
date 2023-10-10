@@ -42,7 +42,7 @@ DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height
   m_save_height = height;
   m_flags = flags;
   m_transparent_color = 0;
-  debug_log("bm %hu, w %u, h %u, f %04hX\n", bm_id, width, height, flags);
+  //debug_log("bm %hu, w %u, h %u, f %04hX\n", bm_id, width, height, flags);
 
   if (flags & PRIM_FLAG_H_SCROLL) {
       m_words_per_line = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t) + 2);
@@ -124,10 +124,10 @@ void IRAM_ATTR DiTileBitmap::generate_instructions(uint32_t draw_x, int32_t x, u
     EspFixups fixups;
     EspFunction* paint_fcn = &m_paint_fcn[0];
     uint32_t* src_pixels = m_pixels;
-debug_log("@%i dx=%i x=%i dw=%i\n", __LINE__, draw_x, x, draw_width);
+//debug_log("@%i dx=%i x=%i dw=%i\n", __LINE__, draw_x, x, draw_width);
 
     if (m_flags & PRIM_FLAGS_ALL_SAME) {
-debug_log("@%i dx=%i x=%i dw=%i, f=%04hX, src=%08X\n", __LINE__, draw_x, x, draw_width, m_flags, src_pixels);
+//debug_log("@%i dx=%i x=%i dw=%i, f=%04hX, src=%08X\n", __LINE__, draw_x, x, draw_width, m_flags, src_pixels);
       paint_fcn->copy_line_as_outer_fcn(fixups, draw_x, x, draw_width, m_flags, m_transparent_color, src_pixels);
     } else {
       uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);

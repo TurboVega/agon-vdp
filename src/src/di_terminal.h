@@ -40,11 +40,7 @@ class DiTerminal: public DiTileMap {
   // The given colors are used to iniialize the character bitmaps, but individual
   // characters may be defined (modified or replaced) by the application later.
   //
-  // Example:
-  // DiManager manager;
-  // DiTerminal* terminal = manager.create_terminal(0, 0, 128, 100, 75, 0x3C, 0x10);
-  //
-  DiTerminal(uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
+  DiTerminal(uint32_t x, uint32_t y, uint8_t flags, uint32_t codes, uint32_t columns, uint32_t rows,
             uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
 
   // Destroy a terminal, including its allocated data.

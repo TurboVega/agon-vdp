@@ -87,7 +87,7 @@ void IRAM_ATTR DiTileMap::generate_instructions() {
 }
 
 void DiTileMap::create_bitmap(DiTileBitmapID bm_id) {
-  debug_log(" @%i cre bm, flags=%04hX\n", __LINE__, m_flags);
+  //debug_log(" @%i cre bm, flags=%04hX\n", __LINE__, m_flags);
   auto bitmap_item = m_id_to_type_map.find(bm_id);
   if (bitmap_item == m_id_to_type_map.end()) {
     auto bitmap = new DiTileBitmap(bm_id, m_tile_width, m_tile_height, m_flags);
@@ -100,7 +100,7 @@ void DiTileMap::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t co
 }
 
 void DiTileMap::set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id) {
-  //debug_log("set_tile %hi %hi %hi\n", column, row, bm_id);
+  debug_log("set_tile %hi %hi %hi\n", column, row, bm_id);
   auto bitmap_item = m_id_to_type_map.find(bm_id);
   if (bitmap_item != m_id_to_type_map.end()) {
     auto row_item = m_row_to_col_map.find(row);
@@ -136,11 +136,7 @@ DiTileBitmapID DiTileMap::get_tile(int16_t column, int16_t row) {
     auto cb_map = row_item->second;
     auto bitmap_item = cb_map->find(column);
     if (bitmap_item != cb_map->end()) {
-      cb_map->erase(bitmap_item);
-      if (!cb_map->size()) {
-        delete cb_map;
-        m_row_to_col_map.erase(row_item);
-      }
+      return bitmap_item->second->get_id();
     }
   }
   return 0;
