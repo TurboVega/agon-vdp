@@ -25,15 +25,25 @@
 
 #pragma once
 #include "di_primitive.h"
+#include "di_code.h"
 
 class DiVerticalLine: public DiPrimitive {
   public:
   // Construct a vertical line. This requires calling init_params() afterward.
   DiVerticalLine();
   
-  // The line is vertical, covering the given number of pixels. The
-  // upper 2 bits of the color must be zeros.
+  // The line is vertical, covering the given number of pixels.
   void init_params(int32_t x, int32_t y, uint32_t height, uint8_t color);
 
+  // Clear the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR delete_instructions();
+   
+  // Reassemble the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR generate_instructions();
+   
   virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
+
+  protected:
+  uint8_t   m_opaqueness;
+  EspFunction m_paint_fcn;
 };

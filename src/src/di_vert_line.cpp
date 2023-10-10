@@ -29,6 +29,7 @@ DiVerticalLine::DiVerticalLine() {
 }
 
 void DiVerticalLine::init_params(int32_t x, int32_t y, uint32_t height, uint8_t color) {
+  m_opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
   m_rel_x = x;
   m_rel_y = y;
   m_width = 1;
@@ -36,5 +37,19 @@ void DiVerticalLine::init_params(int32_t x, int32_t y, uint32_t height, uint8_t 
   m_color = PIXEL_COLOR_X4(color);
 }
 
+void IRAM_ATTR DiVerticalLine::delete_instructions() {
+  m_paint_fcn.clear();
+}
+  
+void IRAM_ATTR DiVerticalLine::generate_instructions() {
+  m_paint_fcn.clear();
+  if (m_flags & PRIM_FLAGS_CAN_DRAW) {
+    EspFixups fixups;
+    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, 1, m_flags, m_opaqueness);
+    m_paint_fcn.do_fixups(fixups);
+  }
+}
+
 void IRAM_ATTR DiVerticalLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
+  m_paint_fcn.call(this, p_scan_line, line_index);
 }

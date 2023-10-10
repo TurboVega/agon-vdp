@@ -151,7 +151,7 @@ void otf(void * pvParameters) {
 	di_manager = new DiManager();
 	di_manager->create_root();
 
-	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x05|PIXEL_ALPHA_100_MASK);
+	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00|PIXEL_ALPHA_100_MASK);
     /*
 	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, PIXEL_COLOR_ABGR(PIXEL_ALPHA_100, 2, 0, 0));
 	di_manager->create_line(41, ROOT_PRIMITIVE_ID, 1, 180, 90, 480, 390, 0xFF); // diagonal right
@@ -173,14 +173,14 @@ void otf(void * pvParameters) {
 	
 	//di_manager->create_point(510, ROOT_PRIMITIVE_ID, 1, 400, 300, 0xC0|0x3F);
 
-	di_manager->create_line(2, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 200, 20, 100, 120, 0xC0|0x20); // diagonal left
-	di_manager->create_line(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 205, 20, 105, 120, 0xC0|0x23); // diagonal left
+	//di_manager->create_line(2, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 200, 20, 100, 120, 0xC0|0x20); // diagonal left
+	//di_manager->create_line(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 205, 20, 105, 120, 0xC0|0x23); // diagonal left
 
-	di_manager->create_line(5, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 20, 440, 60, 0xC0|0x20); // diagonal right
-	di_manager->create_line(6, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 405, 20, 445, 60, 0xC0|0x23); // diagonal right
+	//di_manager->create_line(5, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 20, 440, 60, 0xC0|0x20); // diagonal right
+	//di_manager->create_line(6, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 405, 20, 445, 60, 0xC0|0x23); // diagonal right
 	
-	//di_manager->create_line(7, ROOT_PRIMITIVE_ID, 1, 249, 599, 285, 599, 0xC0|0x0C); // horizontal
-	//di_manager->create_line(8, ROOT_PRIMITIVE_ID, 1, 270, 520, 270, 599, 0xC0|0x0D); // vertical
+	di_manager->create_line(7, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 249, 599, 285, 599, 0xC0|0x0C); // horizontal
+	//di_manager->create_line(8, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 270, 520, 270, 599, 0xC0|0x0D); // vertical
 	//di_manager->create_solid_rectangle(11, ROOT_PRIMITIVE_ID, 1, 600, 400, 25, 37, 0xC0|0x30);
 	//di_manager->create_solid_rectangle(220, ROOT_PRIMITIVE_ID, 1, 600, 250, 100, 100, 0xC0|16);
 
