@@ -213,7 +213,7 @@ void otf(void * pvParameters) {
 	}
 #endif
 
-#define DO_ELLIPSES 0
+#define DO_ELLIPSES 1
 #if DO_ELLIPSES
     double twopi = PI*2.0;
 	for (int c = 0; c<64; c++) {
@@ -240,8 +240,8 @@ void otf(void * pvParameters) {
 		int32_t x4 = 400 + (int32_t)(w2 * cos2);
 		int32_t y4 = 300 + (int32_t)(h2 * sin2);
 
-		di_manager->create_triangle(150+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c|0x40);
-		di_manager->create_triangle(151+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c|0x20);
+		di_manager->create_triangle(150+c*2, ROOT_PRIMITIVE_ID, 1, x1, y1, x2, y2, x4, y4, c|PIXEL_ALPHA_100_MASK);
+		di_manager->create_triangle(151+c*2, ROOT_PRIMITIVE_ID, 1, x3, y3, x1, y1, x4, y4, c|PIXEL_ALPHA_100_MASK);
 
 		/*w1 = 200.0;
 		w2 = 240.0;
