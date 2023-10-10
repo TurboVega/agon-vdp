@@ -344,7 +344,7 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
     uint32_t p_fcn = 0;
     auto x_offset = x & 3;
 
-    debug_log("\ndrx=%u, x=%u, w=%u\n", draw_x, x, width);
+    debug_log("\ndrx=%u, x=%u, w=%u, op=%hu\n", draw_x, x, width, opaqueness);
     auto start_x = draw_x & 0xFFFFFFFC;
     auto end_x = x & 0xFFFFFFFC;
     debug_log("  sx=%u, ex=%u\n", start_x, end_x);

@@ -418,7 +418,8 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
                             uint8_t color) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
-    uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
+    auto sep_color = color;
+    uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(sep_color);
     DiPrimitive* prim;
     if (x1 == x2) {
         if (y1 == y2) {
@@ -443,11 +444,11 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
                 //line->init_params(x1, y1, x2 - x1 + 1, color);
                 //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
-                line->init_params(x1, y1, x2, y2, color, opaqueness);
+                line->init_params(x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
-                line->init_params(x1, y1, x2, y2, color, opaqueness);
+                line->init_params(x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             }
         } else {
@@ -456,11 +457,11 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
                 //line->init_params(x2, y1, x2 - x1 + 1, color);
                 //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
-                line->init_params(x1, y1, x2, y2, color, opaqueness);
+                line->init_params(x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
-                line->init_params(x1, y1, x2, y2, color, opaqueness);
+                line->init_params(x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             }
         }
@@ -475,11 +476,11 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
                 //line->init_params(x1, y1, x1 - x2 + 1, color);
                 //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
-                line->init_params(x1, y1, x2, y2, color, opaqueness);
+                line->init_params(x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
-                line->init_params(x1, y1, x2, y2, color, opaqueness);
+                line->init_params(x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             }
         } else {
@@ -488,11 +489,11 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
                 //line->init_params(x2, y1, x1 - x2 + 1, color);
                 //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
-                line->init_params(x1, y1, x2, y2, color, opaqueness);
+                line->init_params(x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
-                line->init_params(x1, y1, x2, y2, color, opaqueness);
+                line->init_params(x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             }
         }
