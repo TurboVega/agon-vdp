@@ -340,47 +340,50 @@ void EspFunction::draw_line_as_inner_fcn(EspFixups& fixups, uint32_t draw_x, uin
     ret();
 }
 
-void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x, uint32_t width, uint8_t opaqueness) {
-    uint32_t p_fcn = 0;
-    auto x_offset = x & 3;
-
-    debug_log("\ndrx=%u, x=%u, w=%u, op=%hu\n", draw_x, x, width, opaqueness);
+void EspFunction::adjust_dst_pixel_ptr(uint32_t draw_x, uint32_t x) {
     auto start_x = draw_x & 0xFFFFFFFC;
     auto end_x = x & 0xFFFFFFFC;
-    debug_log("  sx=%u, ex=%u\n", start_x, end_x);
+    //debug_log("  sx=%u, ex=%u\n", start_x, end_x);
     while (end_x > start_x) {
         uint32_t diff = end_x - start_x;
         if (diff < 4) {
             break;
         }
-        debug_log("  sx=%u, ex=%u, w=%u, d=%u\n", start_x, end_x, width, diff);
+        //debug_log("  sx=%u, ex=%u, d=%u\n", start_x, end_x, diff);
         if (diff >= 120) {
-            debug_log("-120 ");
+            //debug_log("-120 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 120);
             start_x += 120;
         } else if (diff >= 64) {
-            debug_log("-64 ");
+            //debug_log("-64 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64);
             start_x += 64;
         } else if (diff >= 32) {
-            debug_log("-32 ");
+            //debug_log("-32 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32);
             start_x += 32;
         } else if (diff >= 16) {
-            debug_log("-16 ");
+            //debug_log("-16 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16);
             start_x += 16;
         } else if (diff >= 8) {
-            debug_log("-8 ");
+            //debug_log("-8 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8);
             start_x += 8;
         } else {
-            debug_log("-4 ");
+            //debug_log("-4 ");
             addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
             start_x += 4;
         }
     }
+}
 
+void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x, uint32_t width, uint8_t opaqueness) {
+    uint32_t p_fcn = 0;
+    auto x_offset = x & 3;
+
+    debug_log("\ndrx=%u, x=%u, w=%u, op=%hu\n", draw_x, x, width, opaqueness);
+    adjust_dst_pixel_ptr(draw_x, x);
     debug_log("drx=%u, x=%u, w=%u\n", draw_x, x, width);
 
     while (width) {
@@ -739,6 +742,11 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
         uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels) {
 
     auto x_offset = x & 3;
+
+    if (!(flags & PRIM_FLAGS_X_SRC)) {
+        adjust_dst_pixel_ptr(draw_x, x);
+    }
+
     uint32_t p_fcn = 0;
     uint32_t rem_width = width;
     uint8_t* p_src_bytes = (uint8_t*) src_pixels;

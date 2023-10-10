@@ -549,6 +549,7 @@ DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint16_t fla
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
+    flags |= PRIM_FLAGS_X_SRC;
     DiTileMap* tile_map =
       new DiTileMap(screen_width, screen_height, columns, rows, width, height, flags);
 

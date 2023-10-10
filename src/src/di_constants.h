@@ -164,7 +164,6 @@
 #define REG_SRC_PIXEL_PTR   a6
 // Temporary registers:
 #define REG_SAVE_RET_DEEP   a3
-#define REG_ABS_Y           a6
 #define REG_DST_PIXEL_PTR   a5
 #define REG_PIXEL_COLOR     a7
 #define REG_LOOP_INDEX      a4
@@ -173,6 +172,7 @@
 #define REG_DST_BR_PIXELS   a10
 #define REG_SRC_G_PIXELS    a8
 #define REG_DST_G_PIXELS    a11
+#define REG_ABS_Y           a12
 #define REG_DOUBLE_COLOR    a12
 #define REG_ISOLATE_BR      a13
 #define REG_ISOLATE_G       a14

@@ -197,6 +197,7 @@ class EspFunction {
     uint32_t write24(const char* mnemonic, instr_t data);
     uint32_t write32(const char* mnemonic, instr_t data);
     void call_inner_fcn(uint32_t real_address);
+    void adjust_dst_pixel_ptr(uint32_t draw_x, uint32_t x);
 
     inline instr_t issd(uint32_t instr, reg_t src1, reg_t src2, reg_t dst) {
         return instr | (dst << 12) | (src1 << 8) | (src2 << 4); }

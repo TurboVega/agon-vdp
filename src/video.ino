@@ -213,7 +213,7 @@ void otf(void * pvParameters) {
 	}
 #endif
 
-#define DO_ELLIPSES 1
+#define DO_ELLIPSES 0
 #if DO_ELLIPSES
     double twopi = PI*2.0;
 	for (int c = 0; c<64; c++) {
@@ -312,12 +312,12 @@ void otf(void * pvParameters) {
 	//prim3->generate_instructions();
 #endif
 
-#define DRAW_TILE_MAP 0
+#define DRAW_TILE_MAP 1
 #if DRAW_TILE_MAP
-#define TM_ROWS 6
-#define TM_COLS 6
-    DiTileMap* tile_map = di_manager->create_tile_map(500, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT,
-                            ACT_PIXELS, ACT_LINES, TM_ROWS, TM_COLS, BM_WIDTH, BM_HEIGHT);
+#define TM_ROWS 1
+#define TM_COLS 1
+    DiTileMap* tile_map = di_manager->create_tile_map(500, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT|PRIM_FLAGS_ALL_SAME,
+                            ACT_PIXELS, ACT_LINES, TM_COLS, TM_ROWS, BM_WIDTH, BM_HEIGHT);
 	tile_map->create_bitmap(1);
 	int i = 0;
 	for (int y = 0; y < BM_HEIGHT; y++) {
