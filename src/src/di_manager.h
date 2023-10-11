@@ -83,8 +83,7 @@ class DiManager {
                             uint32_t columns, uint32_t rows, uint32_t width, uint32_t height);
 
     DiTerminal* create_terminal(uint16_t id, uint16_t parent, uint16_t flags,
-                            uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
-                            uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
+                            uint32_t x, uint32_t y, uint32_t columns, uint32_t rows);
 
     DiBitmap* create_solid_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t width, uint32_t height);

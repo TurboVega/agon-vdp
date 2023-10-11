@@ -558,13 +558,12 @@ DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint16_t fla
 }
 
 DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t flags,
-                            uint32_t x, uint32_t y, uint32_t codes, uint32_t columns, uint32_t rows,
-                            uint8_t fg_color, uint8_t bg_color, const uint8_t* font) {
+                            uint32_t x, uint32_t y, uint32_t columns, uint32_t rows) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
     flags |= PRIM_FLAGS_ALL_SAME;
-    DiTerminal* terminal = new DiTerminal(x, y, flags, codes, columns, rows, fg_color, bg_color, font);
+    DiTerminal* terminal = new DiTerminal(x, y, flags, columns, rows);
 
     finish_create(id, flags, terminal, parent_prim);
     m_terminal = terminal;
@@ -703,6 +702,7 @@ void DiManager::init_dma_descriptor(volatile DiVideoBuffer* vbuf, uint32_t descr
 }
 
 void DiManager::store_character(uint8_t character) {
+  return;
   if (m_num_buffer_chars < INCOMING_DATA_BUFFER_SIZE) {
     m_incoming_data[m_next_buffer_write++] = character;
     if (m_next_buffer_write >= INCOMING_DATA_BUFFER_SIZE) {
@@ -720,6 +720,7 @@ void DiManager::store_string(const uint8_t* string) {
 
 void DiManager::process_stored_characters() {
   while (m_num_buffer_chars > 0) {
+    debug_log("[%02hX]", m_incoming_data[m_next_buffer_read]);
     bool rc = process_character(m_incoming_data[m_next_buffer_read++]);
     if (m_next_buffer_read >= INCOMING_DATA_BUFFER_SIZE) {
       m_next_buffer_read = 0;

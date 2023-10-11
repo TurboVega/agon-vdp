@@ -50,6 +50,9 @@ DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
       m_pixels = new uint32_t[m_words_per_position * 4];
+      if (!m_pixels) {
+        debug_log("@%i NO MEM\n", __LINE__);
+      }
       memset(m_pixels, 0x00, m_bytes_per_position * 4);
   } else {
       m_words_per_line = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t));
@@ -57,6 +60,9 @@ DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
       m_pixels = new uint32_t[m_words_per_position];
+      if (!m_pixels) {
+        debug_log("@%i NO MEM\n", __LINE__);
+      }
       memset(m_pixels, 0x00, m_bytes_per_position);
   }
   m_visible_start = m_pixels;

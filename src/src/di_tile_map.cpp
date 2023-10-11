@@ -82,15 +82,21 @@ extern void debug_log(const char* fmt, ...);
 void IRAM_ATTR DiTileMap::generate_instructions() {
   debug_log(" tm @%i flags=%hX w=%u h=%u\n", __LINE__, m_flags, m_width, m_height);
   for (auto bitmap = m_id_to_type_map.begin(); bitmap != m_id_to_type_map.end(); bitmap++) {
+    debug_log("GEN %hu...", bitmap->second->get_id());
     bitmap->second->generate_instructions(m_draw_x, 0, m_tile_width);
+    debug_log("!\n");
   }
 }
 
 void DiTileMap::create_bitmap(DiTileBitmapID bm_id) {
-  //debug_log(" @%i cre bm, flags=%04hX\n", __LINE__, m_flags);
   auto bitmap_item = m_id_to_type_map.find(bm_id);
   if (bitmap_item == m_id_to_type_map.end()) {
     auto bitmap = new DiTileBitmap(bm_id, m_tile_width, m_tile_height, m_flags);
+    /*if (bitmap) {
+      debug_log(" @%i created tbm %hu, flags=%04hX\n", __LINE__, bm_id, m_flags);
+    } else {
+      debug_log(" @%i NO MEM tbm %hu, flags=%04hX\n", __LINE__, bm_id, m_flags);
+    }*/
     m_id_to_type_map[bm_id] = bitmap;
   }
 }
@@ -100,19 +106,25 @@ void DiTileMap::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t co
 }
 
 void DiTileMap::set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id) {
-  debug_log("set_tile %hi %hi %hi\n", column, row, bm_id);
+  //debug_log("set_tile %hi %hi %hi", column, row, bm_id);
   auto bitmap_item = m_id_to_type_map.find(bm_id);
   if (bitmap_item != m_id_to_type_map.end()) {
     auto row_item = m_row_to_col_map.find(row);
     if (row_item != m_row_to_col_map.end()) {
       auto cb_map = row_item->second;
       (*cb_map)[column] = bitmap_item->second;
+      //debug_log(" old");
     } else {
       auto cb_map = new DiTileColumnToBitmapMap();
+      //if (!cb_map) {
+      //  debug_log("@%i NO MEM", __LINE__);
+      //}
       m_row_to_col_map[row] = cb_map;
       (*cb_map)[column] = bitmap_item->second;
+      //debug_log(" new");
     }
   }
+  //debug_log("\n");
 }
 
 void DiTileMap::unset_tile(int16_t column, int16_t row) {

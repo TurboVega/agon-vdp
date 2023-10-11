@@ -30,21 +30,23 @@
 class DiTerminal: public DiTileMap {
   public:
 
-  // Construct a terminal. Because the terminal is a tile map, this will allocate
-  // data for the tile map. The terminal always shows characters that are 8x8
+  // Construct a terminal. The terminal always shows characters that are 8x8
   // pixels, based on the built-in Agon font.
   //
   // The given x coordinate must be a multiple of 4, to align the terminal on
   // a 4-byte boundary, which saves memory and processing time.
   //
-  // The given colors are used to iniialize the character bitmaps, but individual
-  // characters may be defined (modified or replaced) by the application later.
-  //
-  DiTerminal(uint32_t x, uint32_t y, uint8_t flags, uint32_t codes, uint32_t columns, uint32_t rows,
-            uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
+  DiTerminal(uint32_t x, uint32_t y, uint8_t flags, uint32_t columns, uint32_t rows);
 
   // Destroy a terminal, including its allocated data.
   virtual ~DiTerminal();
+
+  // Define a range of characters using given colors and 8x8 font.
+  void define_character_range(uint8_t first_char, uint8_t last_char,
+                              uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
+
+  // Define an individual character using given colors and 8x8 font.
+  void define_character(uint8_t character, uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
 
   // Set the current character position. The position given may be within the terminal
   // display, or may be outside of it. If it is within the display, then the next
@@ -69,10 +71,10 @@ class DiTerminal: public DiTileMap {
 
   // Read the character code at the current character position. If the current position
   // is outside of the terminal display, this function returns zero.
-  uint8_t read_character();
+  DiTileBitmapID read_character();
 
   // Read the character code at the given character position.
-  uint8_t read_character(int32_t column, int32_t row);
+  DiTileBitmapID read_character(int32_t column, int32_t row);
 
   // Erase an area of text within the terminal display.
   void erase_text(int32_t column, int32_t row, int32_t columns, int32_t rows);
@@ -96,5 +98,7 @@ class DiTerminal: public DiTileMap {
   protected:
   int32_t   m_current_column;
   int32_t   m_current_row;
+  uint8_t   m_fg_color;
+  uint8_t   m_bg_color;
 };
 

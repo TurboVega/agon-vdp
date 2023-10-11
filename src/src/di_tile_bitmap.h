@@ -37,7 +37,7 @@
 #include "di_primitive.h"
 #include "di_code.h"
 
-typedef uint16_t DiTileBitmapID;
+typedef uint32_t DiTileBitmapID;
 
 class DiTileBitmap {
   public:
