@@ -54,12 +54,12 @@ DiTileBitmapID DiTerminal::get_bitmap_id(uint8_t character) {
   return ((DiTileBitmapID)character) | ((DiTileBitmapID)m_bg_color << 24) | ((DiTileBitmapID)m_fg_color << 16);
 }
 
-DiTileBitmapID get_bitmap_id(uint8_t character, uint8_t fg_color, uint8_t bg_color) {
+DiTileBitmapID DiTerminal::get_bitmap_id(uint8_t character, uint8_t fg_color, uint8_t bg_color) {
   return ((DiTileBitmapID)character) | ((DiTileBitmapID)bg_color << 24) | ((DiTileBitmapID)fg_color << 16);
 }
 
 DiTileBitmapID DiTerminal::define_character(uint8_t character, uint8_t fg_color, uint8_t bg_color) {
-  auto bm_id = get_bitmap_id(character);
+  auto bm_id = get_bitmap_id(character, fg_color, bg_color);
   if (m_id_to_bitmap_map.find(bm_id) == m_id_to_bitmap_map.end()) {
     create_bitmap(bm_id);
     uint32_t char_start = (uint32_t)character * 8;
@@ -67,12 +67,15 @@ DiTileBitmapID DiTerminal::define_character(uint8_t character, uint8_t fg_color,
       uint8_t pixels = m_font[char_start+y];
       for (int x = 0; x < 8; x++) {
         if (pixels & 0x80) {
+          debug_log("* %02hX",fg_color);
           set_pixel(bm_id, x, y, fg_color);
         } else {
+          debug_log("  %02hX",bg_color);
           set_pixel(bm_id, x, y, bg_color);
         }
         pixels <<= 1;
       }
+      debug_log("\n");
     }
   }
   return bm_id;

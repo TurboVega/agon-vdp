@@ -577,7 +577,7 @@ DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t fl
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
-    flags |= PRIM_FLAGS_ALL_SAME;
+    flags |= PRIM_FLAGS_X_SRC|PRIM_FLAGS_ALL_SAME;
     DiTerminal* terminal = new DiTerminal(x, y, flags, columns, rows, font);
 
     finish_create(id, flags, terminal, parent_prim);
@@ -717,7 +717,6 @@ void DiManager::init_dma_descriptor(volatile DiVideoBuffer* vbuf, uint32_t descr
 }
 
 void DiManager::store_character(uint8_t character) {
-  return;
   if (m_num_buffer_chars < INCOMING_DATA_BUFFER_SIZE) {
     m_incoming_data[m_next_buffer_write++] = character;
     if (m_next_buffer_write >= INCOMING_DATA_BUFFER_SIZE) {

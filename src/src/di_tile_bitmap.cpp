@@ -85,7 +85,7 @@ void DiTileBitmap::set_transparent_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void DiTileBitmap::set_transparent_color(uint8_t color) {
-  m_transparent_color = color;
+  m_transparent_color = PIXEL_ALPHA_INV_MASK(color);
 }
 
 void DiTileBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
@@ -140,7 +140,7 @@ void IRAM_ATTR DiTileBitmap::generate_instructions(uint32_t draw_x, int32_t x, u
 //debug_log("@%i dx=%i x=%i dw=%i\n", __LINE__, draw_x, x, draw_width);
 
     if (m_flags & PRIM_FLAGS_ALL_SAME) {
-//debug_log("@%i dx=%i x=%i dw=%i, f=%04hX, src=%08X\n", __LINE__, draw_x, x, draw_width, m_flags, src_pixels);
+debug_log("@%i GEN dx=%i x=%i dw=%i, f=%04hX, src=%08X\n", __LINE__, draw_x, x, draw_width, m_flags, src_pixels);
       paint_fcn->copy_line_as_outer_fcn(fixups, draw_x, x, draw_width, m_flags, m_transparent_color, src_pixels);
     } else {
       uint32_t at_jump_table = paint_fcn->init_jump_table(m_save_height);

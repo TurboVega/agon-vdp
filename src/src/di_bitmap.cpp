@@ -81,7 +81,7 @@ void DiBitmap::set_transparent_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void DiBitmap::set_transparent_color(uint8_t color) {
-  m_transparent_color = color;
+  m_transparent_color = PIXEL_ALPHA_INV_MASK(color);
 }
 
 void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {

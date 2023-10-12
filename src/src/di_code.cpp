@@ -1092,7 +1092,7 @@ void EspFunction::do_fixups(EspFixups& fixups) {
     for (auto fixup = fixups.begin();
         fixup != fixups.end();
         ++fixup) {
-        //debug_log(" (fix @%04X to %08X)\n", fixup->code_index, fixup->fcn_address);
+        debug_log(" (fix @%04X to %08X)\n", fixup->code_index, fixup->fcn_address);
         set_code_index(fixup->code_index);
         call_inner_fcn(fixup->fcn_address);
     }
@@ -1249,7 +1249,7 @@ void EspFunction::allocate(uint32_t size) {
 uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
     allocate(1);
     auto at_data = get_code_index();
-    //debug_log("%04X %08X: %02hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    debug_log("%04X %08X: %02hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     return at_data;
 }
@@ -1257,7 +1257,7 @@ uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
     allocate(2);
     auto at_data = get_code_index();
-    //debug_log("%04X %08X: %04hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    debug_log("%04X %08X: %04hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     return at_data;
@@ -1266,7 +1266,7 @@ uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
     allocate(3);
     auto at_data = get_code_index();
-    //debug_log("%04X %08X: %06X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    debug_log("%04X %08X: %06X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
@@ -1276,7 +1276,7 @@ uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
     allocate(4);
     auto at_data = get_code_index();
-    //debug_log("%04X %08X: %08X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    debug_log("%04X %08X: %08X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
