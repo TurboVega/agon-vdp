@@ -382,9 +382,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
     uint32_t p_fcn = 0;
     auto x_offset = x & 3;
 
-    debug_log("\ndrx=%u, x=%u, w=%u, op=%hu\n", draw_x, x, width, opaqueness);
+    //debug_log("\ndrx=%u, x=%u, w=%u, op=%hu\n", draw_x, x, width, opaqueness);
     adjust_dst_pixel_ptr(draw_x, x);
-    debug_log("drx=%u, x=%u, w=%u\n", draw_x, x, width);
+    //debug_log("drx=%u, x=%u, w=%u\n", draw_x, x, width);
 
     while (width) {
         auto offset = x_offset & 3;
@@ -1092,7 +1092,7 @@ void EspFunction::do_fixups(EspFixups& fixups) {
     for (auto fixup = fixups.begin();
         fixup != fixups.end();
         ++fixup) {
-        debug_log(" (fix @%04X to %08X)\n", fixup->code_index, fixup->fcn_address);
+        //debug_log(" (fix @%04X to %08X)\n", fixup->code_index, fixup->fcn_address);
         set_code_index(fixup->code_index);
         call_inner_fcn(fixup->fcn_address);
     }
@@ -1229,7 +1229,7 @@ void EspFunction::allocate(uint32_t size) {
         if (m_alloc_size - m_code_index < size) {
             size_t new_size = (size_t)(m_alloc_size + size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
             void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-            debug_log("-- realloc %u at %08X --\n", new_size, p);
+            //debug_log("-- realloc %u at %08X --\n", new_size, p);
             while (!p);
             memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);
             heap_caps_free(m_code);
@@ -1241,7 +1241,7 @@ void EspFunction::allocate(uint32_t size) {
         void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
         m_alloc_size = (uint32_t)new_size;
         m_code = (uint32_t*)p;
-        debug_log("-- alloc %u at %08X --\n", new_size, p);
+        //debug_log("-- alloc %u at %08X --\n", new_size, p);
         while (!p);
     }
 }
@@ -1249,7 +1249,7 @@ void EspFunction::allocate(uint32_t size) {
 uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
     allocate(1);
     auto at_data = get_code_index();
-    debug_log("%04X %08X: %02hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    //debug_log("%04X %08X: %02hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     return at_data;
 }
@@ -1257,7 +1257,7 @@ uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
     allocate(2);
     auto at_data = get_code_index();
-    debug_log("%04X %08X: %04hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    //debug_log("%04X %08X: %04hX  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     return at_data;
@@ -1266,7 +1266,7 @@ uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
     allocate(3);
     auto at_data = get_code_index();
-    debug_log("%04X %08X: %06X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    //debug_log("%04X %08X: %06X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
@@ -1276,7 +1276,7 @@ uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
 uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
     allocate(4);
     auto at_data = get_code_index();
-    debug_log("%04X %08X: %08X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
+    //debug_log("%04X %08X: %08X  %s\n", at_data, get_real_address(get_code_index()), data, mnemonic);
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));

@@ -659,7 +659,7 @@ void IRAM_ATTR DiManager::loop() {
     }
   }
 }
-extern void debug_log(const char* fmt, ...);
+//extern void debug_log(const char* fmt, ...);
 void IRAM_ATTR DiManager::draw_primitives(volatile uint32_t* p_scan_line, uint32_t line_index) {
   std::vector<DiPrimitive*> * vp = &m_groups[line_index];
   for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
@@ -734,7 +734,7 @@ void DiManager::store_string(const uint8_t* string) {
 
 void DiManager::process_stored_characters() {
   while (m_num_buffer_chars > 0) {
-    debug_log("[%02hX]", m_incoming_data[m_next_buffer_read]);
+    //debug_log("[%02hX]", m_incoming_data[m_next_buffer_read]);
     bool rc = process_character(m_incoming_data[m_next_buffer_read++]);
     if (m_next_buffer_read >= INCOMING_DATA_BUFFER_SIZE) {
       m_next_buffer_read = 0;

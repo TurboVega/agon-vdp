@@ -26,7 +26,7 @@
 
 #include "di_terminal.h"
 #include <cstring>
-void debug_log(const char* fmt, ...);
+//void debug_log(const char* fmt, ...);
 DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint8_t flags,
                         uint32_t columns, uint32_t rows, const uint8_t* font) :
   DiTileArray(ACT_PIXELS, ACT_LINES, columns, rows, 8, 8, flags) {
@@ -67,15 +67,15 @@ DiTileBitmapID DiTerminal::define_character(uint8_t character, uint8_t fg_color,
       uint8_t pixels = m_font[char_start+y];
       for (int x = 0; x < 8; x++) {
         if (pixels & 0x80) {
-          debug_log("* %02hX",fg_color);
+          //debug_log("* %02hX",fg_color);
           set_pixel(bm_id, x, y, fg_color);
         } else {
-          debug_log("  %02hX",bg_color);
+          //debug_log("  %02hX",bg_color);
           set_pixel(bm_id, x, y, bg_color);
         }
         pixels <<= 1;
       }
-      debug_log("\n");
+      //debug_log("\n");
     }
   }
   return bm_id;
@@ -122,7 +122,7 @@ void DiTerminal::write_character(uint8_t character) {
 
   // Set the tile image ID using the character code.
   auto bm_id = get_bitmap_id(character);
-  debug_log(" c %u, r %u, ch %02hX, bmid %08X ", m_current_column, m_current_row, character, bm_id);
+  //debug_log(" c %u, r %u, ch %02hX, bmid %08X ", m_current_column, m_current_row, character, bm_id);
   set_tile(m_current_column, m_current_row, bm_id);
 
   // Advance the current position
@@ -134,7 +134,7 @@ void DiTerminal::write_character(uint8_t character) {
 
 void DiTerminal::set_character(int32_t column, int32_t row, uint8_t character) {
   auto bm_id = define_character(character, m_fg_color, m_bg_color);
-  debug_log(" c %u, r %u, ch %02hX, bmid %08X ", column, row, character, bm_id);
+  //debug_log(" c %u, r %u, ch %02hX, bmid %08X ", column, row, character, bm_id);
   set_tile(column, row, bm_id);
 }
 

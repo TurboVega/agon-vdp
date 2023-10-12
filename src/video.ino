@@ -137,6 +137,7 @@ void IRAM_ATTR on_vertical_blank_start() {
 	//di_manager->move_primitive_absolute(101, the_offset+200, 200+the_offset/2);
 	//di_manager->move_primitive_absolute(102, the_offset+300, 100-the_offset/2);
 	//di_manager->move_primitive_absolute(103, the_offset+400, 200+the_offset/2);
+	do_keyboard();
 }
 
 // This function is called between painting sets of scan lines.
