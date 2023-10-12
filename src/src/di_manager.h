@@ -28,7 +28,7 @@
 #include "rom/lldesc.h"
 #include "di_video_buffer.h"
 #include "di_terminal.h"
-#include "di_tile_array.h"
+#include "di_tile_map.h"
 #include "di_bitmap.h"
 
 typedef void (*DiVoidCallback)();

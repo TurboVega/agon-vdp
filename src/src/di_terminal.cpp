@@ -1,6 +1,6 @@
 // di_terminal.cpp - Function definitions for supporting a character terminal display
 //
-// A terminal is a specialized tile map, where each tile is a single character
+// A terminal is a specialized tile array, where each tile is a single character
 // cell, and the character codes are used as tile image IDs.
 //
 // Copyright (c) 2023 Curtis Whitley
@@ -29,14 +29,12 @@
 void debug_log(const char* fmt, ...);
 DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint8_t flags,
                         uint32_t columns, uint32_t rows, const uint8_t* font) :
-  DiTileMap(ACT_PIXELS, ACT_LINES, columns, rows, 8, 8, flags) {
+  DiTileArray(ACT_PIXELS, ACT_LINES, columns, rows, 8, 8, flags) {
   m_current_column = 0;
   m_current_row = 0;
   m_fg_color = PIXEL_COLOR_ARGB(3, 1, 1, 0);
   m_bg_color = PIXEL_COLOR_ARGB(3, 0, 0, 0);
   m_font = font;
-
-  clear_screen();
 }
 
 DiTerminal::~DiTerminal() {
@@ -49,6 +47,7 @@ void DiTerminal::define_character_range(uint8_t first_char, uint8_t last_char,
   while (ch <= last) {
     define_character((uint8_t)ch++, fg_color, bg_color);
   }
+  generate_instructions();
 }
 
 DiTileBitmapID DiTerminal::get_bitmap_id(uint8_t character) {
@@ -63,7 +62,7 @@ DiTileBitmapID DiTerminal::define_character(uint8_t character, uint8_t fg_color,
   auto bm_id = get_bitmap_id(character);
   if (m_id_to_bitmap_map.find(bm_id) == m_id_to_bitmap_map.end()) {
     create_bitmap(bm_id);
-    /*uint32_t char_start = (uint32_t)character * 8;
+    uint32_t char_start = (uint32_t)character * 8;
     for (int y = 0; y < 8; y++) {
       uint8_t pixels = m_font[char_start+y];
       for (int x = 0; x < 8; x++) {
@@ -74,7 +73,7 @@ DiTileBitmapID DiTerminal::define_character(uint8_t character, uint8_t fg_color,
         }
         pixels <<= 1;
       }
-    }*/
+    }
   }
   return bm_id;
 }
@@ -85,8 +84,6 @@ void DiTerminal::set_character_position(int32_t column, int32_t row) {
 }
 
 void DiTerminal::write_character(uint8_t character) {
-  auto bm_id = define_character(character, m_fg_color, m_bg_color);
-
   if (m_current_column < 0) {
     // scroll text to the right (insert on the left)
     int32_t move = m_columns + m_current_column;
@@ -121,7 +118,8 @@ void DiTerminal::write_character(uint8_t character) {
   }
 
   // Set the tile image ID using the character code.
-  //debug_log(" c %u, r %u, ch %02hX, bmid %08X ", m_current_column, m_current_row, character, bm_id);
+  auto bm_id = get_bitmap_id(character);
+  debug_log(" c %u, r %u, ch %02hX, bmid %08X ", m_current_column, m_current_row, character, bm_id);
   set_tile(m_current_column, m_current_row, bm_id);
 
   // Advance the current position
@@ -133,7 +131,7 @@ void DiTerminal::write_character(uint8_t character) {
 
 void DiTerminal::set_character(int32_t column, int32_t row, uint8_t character) {
   auto bm_id = define_character(character, m_fg_color, m_bg_color);
-  //debug_log(" c %u, r %u, ch %02hX, bmid %08X ", column, row, character, bm_id);
+  debug_log(" c %u, r %u, ch %02hX, bmid %08X ", column, row, character, bm_id);
   set_tile(column, row, bm_id);
 }
 

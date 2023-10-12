@@ -1,6 +1,6 @@
 // di_terminal.h - Function declarations for supporting a character terminal display
 //
-// A terminal is a specialized tile map, where each tile is a single character
+// A terminal is a specialized tile array, where each tile is a single character
 // cell, and the character codes are used as tile image IDs.
 //
 // Copyright (c) 2023 Curtis Whitley
@@ -25,9 +25,9 @@
 // 
 
 #pragma once
-#include "di_tile_map.h"
+#include "di_tile_array.h"
 
-class DiTerminal: public DiTileMap {
+class DiTerminal: public DiTileArray {
   public:
 
   // Construct a terminal. The terminal always shows characters that are 8x8

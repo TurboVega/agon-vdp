@@ -164,11 +164,11 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
 
-	//auto terminal = di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 0, 0, 100, 75, fabgl::FONT_AGON_DATA);
-	//terminal->define_character_range(0, 95, PIXEL_ALPHA_100_MASK|0x05, PIXEL_ALPHA_100_MASK|0x00);
+	auto terminal = di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 0, 0, 100, 75, fabgl::FONT_AGON_DATA);
+	terminal->define_character_range(0x20, 0x7E, PIXEL_ALPHA_100_MASK|0x05, PIXEL_ALPHA_100_MASK|0x00);
 	debug_log("@%i\n", __LINE__); delay(1000);
 	//boot_screen();
-	//terminal->write_character('A');
+	terminal->write_character('A');
 	debug_log("@%i\n", __LINE__); delay(1000);
 	
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
@@ -339,7 +339,7 @@ void otf(void * pvParameters) {
 	di_manager->move_primitive_relative(500, 0, 0);
 #endif
 
-#define DRAW_TILE_ARRAY 1
+#define DRAW_TILE_ARRAY 0
 #if DRAW_TILE_ARRAY
 #define TM_ROWS 6
 #define TM_COLS 6
