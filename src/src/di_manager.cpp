@@ -643,7 +643,7 @@ void IRAM_ATTR DiManager::loop() {
       }
 
       loop_state = LoopState::NearNewFrameStart;
-      current_line_index = 0;
+      //current_line_index = 0;
       current_buffer_index = 0;
 
     } else if (loop_state == LoopState::ProcessingIncomingData) {
