@@ -317,8 +317,8 @@ void otf(void * pvParameters) {
 
 #define DRAW_TILE_MAP 1
 #if DRAW_TILE_MAP
-#define TM_ROWS 1
-#define TM_COLS 1
+#define TM_ROWS 6
+#define TM_COLS 6
     DiTileMap* tile_map = di_manager->create_tile_map(500, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT|PRIM_FLAGS_ALL_SAME,
                             ACT_PIXELS, ACT_LINES, TM_COLS, TM_ROWS, BM_WIDTH, BM_HEIGHT);
 	tile_map->create_bitmap(1);

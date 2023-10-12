@@ -36,6 +36,7 @@
 #include "di_tile_bitmap.h"
 #include <cstring>
 extern void debug_log(const char* fmt, ...);
+#include "freertos/FreeRTOS.h"
 
 DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height, uint16_t flags) {
   m_bm_id = bm_id;
@@ -50,8 +51,10 @@ DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
       m_pixels = new uint32_t[m_words_per_position * 4];
-      while (!m_pixels) {
+      if (!m_pixels) {
         debug_log("@%i NO MEM\n", __LINE__);
+      } else {
+        debug_log("->%08X\n",m_pixels);
       }
       memset(m_pixels, 0x00, m_bytes_per_position * 4);
   } else {
@@ -60,12 +63,16 @@ DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
       m_pixels = new uint32_t[m_words_per_position];
-      while (!m_pixels) {
+      if (!m_pixels) {
         debug_log("@%i NO MEM\n", __LINE__);
+      } else {
+        debug_log("->%08X\n",m_pixels);
       }
       memset(m_pixels, 0x00, m_bytes_per_position);
   }
   m_visible_start = m_pixels;
+  size_t s = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+  debug_log(" mem %u ", s);
 }
 
 DiTileBitmap::~DiTileBitmap() {

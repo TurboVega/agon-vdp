@@ -30,10 +30,13 @@
 #include "di_tile_map.h"
 #include <cstring>
 extern void debug_log(const char* fmt, ...);
+#include "freertos/FreeRTOS.h"
 
 DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
                       uint32_t columns, uint32_t rows,
                       uint32_t tile_width, uint32_t tile_height, uint16_t flags) {
+  size_t s = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+  debug_log(" @TM mem %u ", s);
   m_tile_width = tile_width;
   m_tile_height = tile_height;
   m_rows = rows;
@@ -87,15 +90,16 @@ void IRAM_ATTR DiTileMap::generate_instructions() {
     debug_log("GEN!\n");
   }
 }
-
+extern void delay(uint32_t);
 void DiTileMap::create_bitmap(DiTileBitmapID bm_id) {
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item == m_id_to_bitmap_map.end()) {
     auto bitmap = new DiTileBitmap(bm_id, m_tile_width, m_tile_height, m_flags);
     if (bitmap) {
-      debug_log(" @%i created tbm %hu, flags=%04hX\n", __LINE__, bm_id, m_flags);
+      debug_log(" @%i created tbm %08X, flags=%04hX\n", __LINE__, bm_id, m_flags);
     } else {
-      debug_log(" @%i NO MEM tbm %hu, flags=%04hX\n", __LINE__, bm_id, m_flags);
+      debug_log(" @%i NO MEM tbm %08X, flags=%04hX\n", __LINE__, bm_id, m_flags);
+      while(true) delay(10);
     }
     m_id_to_bitmap_map[bm_id] = bitmap;
   }
@@ -106,7 +110,10 @@ void DiTileMap::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t co
 }
 
 void DiTileMap::set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id) {
-  if (!row) debug_log("set_tile %hi %hi %08X", column, row, bm_id);
+  if (!column) {
+    size_t s = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+    debug_log("set_tile %hi %hi %08X mem %u", column, row, bm_id, s);
+  }
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item != m_id_to_bitmap_map.end()) {
     auto row_item = m_row_to_col_map.find(row);
