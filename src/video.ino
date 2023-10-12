@@ -151,7 +151,7 @@ void otf(void * pvParameters) {
 	di_manager = new DiManager();
 	di_manager->create_root();
 
-	//di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x00|PIXEL_ALPHA_100_MASK);
+	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x10|PIXEL_ALPHA_100_MASK);
     /*
 	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, PIXEL_COLOR_ABGR(PIXEL_ALPHA_100, 2, 0, 0));
 	di_manager->create_line(41, ROOT_PRIMITIVE_ID, 1, 180, 90, 480, 390, 0xFF); // diagonal right
@@ -164,11 +164,11 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
 
-	auto terminal = di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 0, 0, 100, 75);
-	terminal->define_character_range(0, 95, PIXEL_ALPHA_100_MASK|0x05, PIXEL_ALPHA_100_MASK|0x00, fabgl::FONT_AGON_DATA);
+	//auto terminal = di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 0, 0, 100, 75, fabgl::FONT_AGON_DATA);
+	//terminal->define_character_range(0, 95, PIXEL_ALPHA_100_MASK|0x05, PIXEL_ALPHA_100_MASK|0x00);
 	debug_log("@%i\n", __LINE__); delay(1000);
 	//boot_screen();
-	terminal->write_character('A');
+	//terminal->write_character('A');
 	debug_log("@%i\n", __LINE__); delay(1000);
 	
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
@@ -315,10 +315,10 @@ void otf(void * pvParameters) {
 	//prim3->generate_instructions();
 #endif
 
-#define DRAW_TILE_MAP 0
+#define DRAW_TILE_MAP 1
 #if DRAW_TILE_MAP
-#define TM_ROWS 6
-#define TM_COLS 6
+#define TM_ROWS 1
+#define TM_COLS 1
     DiTileMap* tile_map = di_manager->create_tile_map(500, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT|PRIM_FLAGS_ALL_SAME,
                             ACT_PIXELS, ACT_LINES, TM_COLS, TM_ROWS, BM_WIDTH, BM_HEIGHT);
 	tile_map->create_bitmap(1);

@@ -42,7 +42,7 @@ DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height
   m_save_height = height;
   m_flags = flags;
   m_transparent_color = 0;
-  //debug_log("bm %hu, w %u, h %u, f %04hX\n", bm_id, width, height, flags);
+  debug_log("bm %08X, w %u, h %u, f %04hX\n", bm_id, width, height, flags);
 
   if (flags & PRIM_FLAG_H_SCROLL) {
       m_words_per_line = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t) + 2);
@@ -50,7 +50,7 @@ DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
       m_pixels = new uint32_t[m_words_per_position * 4];
-      if (!m_pixels) {
+      while (!m_pixels) {
         debug_log("@%i NO MEM\n", __LINE__);
       }
       memset(m_pixels, 0x00, m_bytes_per_position * 4);
@@ -60,7 +60,7 @@ DiTileBitmap::DiTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height
       m_words_per_position = m_words_per_line * height;
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
       m_pixels = new uint32_t[m_words_per_position];
-      if (!m_pixels) {
+      while (!m_pixels) {
         debug_log("@%i NO MEM\n", __LINE__);
       }
       memset(m_pixels, 0x00, m_bytes_per_position);

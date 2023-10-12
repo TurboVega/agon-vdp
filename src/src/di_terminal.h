@@ -36,17 +36,17 @@ class DiTerminal: public DiTileMap {
   // The given x coordinate must be a multiple of 4, to align the terminal on
   // a 4-byte boundary, which saves memory and processing time.
   //
-  DiTerminal(uint32_t x, uint32_t y, uint8_t flags, uint32_t columns, uint32_t rows);
+  DiTerminal(uint32_t x, uint32_t y, uint8_t flags, uint32_t columns, uint32_t rows, const uint8_t* font);
 
   // Destroy a terminal, including its allocated data.
   virtual ~DiTerminal();
 
   // Define a range of characters using given colors and 8x8 font.
   void define_character_range(uint8_t first_char, uint8_t last_char,
-                              uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
+                              uint8_t fg_color, uint8_t bg_color);
 
   // Define an individual character using given colors and 8x8 font.
-  void define_character(uint8_t character, uint8_t fg_color, uint8_t bg_color, const uint8_t* font);
+  DiTileBitmapID define_character(uint8_t character, uint8_t fg_color, uint8_t bg_color);
 
   // Set the current character position. The position given may be within the terminal
   // display, or may be outside of it. If it is within the display, then the next
@@ -59,15 +59,15 @@ class DiTerminal: public DiTileMap {
   // Write a character at the current character position. This may cause scrolling
   // BEFORE writing the character (not after), if the current character position is
   // off the visible terminal area. This function will advance the current character
-  // position. The character is treated as a tile image ID, and is not interpreted
-  // as a terminal command of any kind.
+  // position. The character is treated as part of a tile image ID, and is not
+  // interpreted as a terminal command of any kind.
   void write_character(uint8_t character);
 
   // Set the image ID to use to draw a character at a specific row and column.
   // This function does not cause scrolling, nor does it change the current
-  // character position. The character is treated as a tile image ID, and is not
-  // interpreted as a terminal command of any kind.
-  void write_character(int32_t column, int32_t row, uint8_t character);
+  // character position. The character is treated as part of a tile image ID,
+  // and is not interpreted as a terminal command of any kind.
+  void set_character(int32_t column, int32_t row, uint8_t character);
 
   // Read the character code at the current character position. If the current position
   // is outside of the terminal display, this function returns zero.
@@ -96,9 +96,16 @@ class DiTerminal: public DiTileMap {
   void get_position(uint16_t& column, uint16_t& row);
 
   protected:
+  // Get the bitmap ID for a character, based on current colors.
+  DiTileBitmapID get_bitmap_id(uint8_t character);
+
+  // Get the bitmap ID for a character, based on given colors.
+  DiTileBitmapID get_bitmap_id(uint8_t character, uint8_t fg_color, uint8_t bg_color);
+
   int32_t   m_current_column;
   int32_t   m_current_row;
   uint8_t   m_fg_color;
   uint8_t   m_bg_color;
+  const uint8_t* m_font;
 };
 

@@ -558,12 +558,12 @@ DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint16_t fla
 }
 
 DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t flags,
-                            uint32_t x, uint32_t y, uint32_t columns, uint32_t rows) {
+                            uint32_t x, uint32_t y, uint32_t columns, uint32_t rows, const uint8_t* font) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
     flags |= PRIM_FLAGS_ALL_SAME;
-    DiTerminal* terminal = new DiTerminal(x, y, flags, columns, rows);
+    DiTerminal* terminal = new DiTerminal(x, y, flags, columns, rows, font);
 
     finish_create(id, flags, terminal, parent_prim);
     m_terminal = terminal;
@@ -648,7 +648,7 @@ extern void debug_log(const char* fmt, ...);
 void IRAM_ATTR DiManager::draw_primitives(volatile uint32_t* p_scan_line, uint32_t line_index) {
   std::vector<DiPrimitive*> * vp = &m_groups[line_index];
   for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
-      //debug_log("paint id %u\n",(*prim)->get_id());
+      //debug_log("paint id %u\n",(*prim)->get_id()); delay(100);
       (*prim)->paint(p_scan_line, line_index);
   }
 }

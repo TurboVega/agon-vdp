@@ -83,6 +83,6 @@ class DiTileMap: public DiPrimitive {
   uint32_t  m_tile_width;           // width of 1 tile in pixels
   uint32_t  m_tile_height;          // height of 1 tile in pixels
   uint8_t   m_transparent_color;    // value indicating not to draw the pixel
-  DiTileIdToBitmapMap m_id_to_type_map;   // caches bitmaps based on bitmap ID
+  DiTileIdToBitmapMap m_id_to_bitmap_map; // caches bitmaps based on bitmap ID
   DiTileRowToColumnMap m_row_to_col_map;  // refers to bitmaps based on row & column
 };
