@@ -557,6 +557,21 @@ DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint16_t fla
     return tile_map;
 }
 
+DiTileArray* DiManager::create_tile_array(uint16_t id, uint16_t parent, uint16_t flags,
+                            int32_t screen_width, int32_t screen_height,
+                            uint32_t columns, uint32_t rows,
+                            uint32_t width, uint32_t height) {
+    if (!validate_id(id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+
+    flags |= PRIM_FLAGS_X_SRC;
+    DiTileArray* tile_array =
+      new DiTileArray(screen_width, screen_height, columns, rows, width, height, flags);
+
+    finish_create(id, flags, tile_array, parent_prim);
+    return tile_array;
+}
+
 DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t x, uint32_t y, uint32_t columns, uint32_t rows, const uint8_t* font) {
     if (!validate_id(id)) return NULL;

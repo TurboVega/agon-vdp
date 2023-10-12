@@ -315,7 +315,7 @@ void otf(void * pvParameters) {
 	//prim3->generate_instructions();
 #endif
 
-#define DRAW_TILE_MAP 1
+#define DRAW_TILE_MAP 0
 #if DRAW_TILE_MAP
 #define TM_ROWS 6
 #define TM_COLS 6
@@ -334,6 +334,30 @@ void otf(void * pvParameters) {
 	for (uint16_t row = 0; row < TM_ROWS; row++) {
 		for (uint16_t col = 0; col < TM_COLS; col++) {
 			tile_map->set_tile(col, row, 1);
+		}
+	}
+	di_manager->move_primitive_relative(500, 0, 0);
+#endif
+
+#define DRAW_TILE_ARRAY 1
+#if DRAW_TILE_ARRAY
+#define TM_ROWS 6
+#define TM_COLS 6
+    DiTileArray* tile_array = di_manager->create_tile_array(500, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT|PRIM_FLAGS_ALL_SAME,
+                            ACT_PIXELS, ACT_LINES, TM_COLS, TM_ROWS, BM_WIDTH, BM_HEIGHT);
+	tile_array->create_bitmap(1);
+	int i = 0;
+	for (int y = 0; y < BM_HEIGHT; y++) {
+		for (int x = 0; x < BM_WIDTH; x++) {
+			uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
+			i += 3;
+			tile_array->set_pixel(1, x, y, c|PIXEL_ALPHA_100_MASK);
+		}
+	}
+
+	for (uint16_t row = 0; row < TM_ROWS; row++) {
+		for (uint16_t col = 0; col < TM_COLS; col++) {
+			tile_array->set_tile(col, row, 1);
 		}
 	}
 	di_manager->move_primitive_relative(500, 0, 0);

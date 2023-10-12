@@ -28,6 +28,7 @@
 #include "rom/lldesc.h"
 #include "di_video_buffer.h"
 #include "di_terminal.h"
+#include "di_tile_array.h"
 #include "di_bitmap.h"
 
 typedef void (*DiVoidCallback)();
@@ -79,6 +80,10 @@ class DiManager {
                             uint8_t color);
 
     DiTileMap* create_tile_map(uint16_t id, uint16_t parent, uint16_t flags,
+                            int32_t screen_width, int32_t screen_height,
+                            uint32_t columns, uint32_t rows, uint32_t width, uint32_t height);
+
+    DiTileArray* create_tile_array(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t screen_width, int32_t screen_height,
                             uint32_t columns, uint32_t rows, uint32_t width, uint32_t height);
 

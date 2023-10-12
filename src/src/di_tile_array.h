@@ -1,6 +1,6 @@
-// di_tile_map.h - Function declarations for drawing tile maps
+// di_tile_array.h - Function declarations for drawing tile arrays
 //
-// A tile map is a set of rectangular tiles, where each tile is a bitmap of
+// A tile array is a set of rectangular tiles, where each tile is a bitmap of
 // the same size (width and height). Tiles are arranged in a rectangular
 // grid, where the entire portion of the grid that fits within the visible
 // area of the screen may be displayed at any given moment. In other words
@@ -40,18 +40,15 @@ typedef uint32_t DiRowColumn;
 typedef std::map<DiTileBitmapID, DiTileBitmap*> DiTileIdToBitmapMap;
 #endif
 
-typedef std::map<uint16_t, DiTileBitmap*> DiTileColumnToBitmapMap;
-typedef std::map<uint16_t, DiTileColumnToBitmapMap*> DiTileRowToColumnMap;
-
-class DiTileMap: public DiPrimitive {
+class DiTileArray: public DiPrimitive {
   public:
-  // Construct a tile map.
-  DiTileMap(uint32_t screen_width, uint32_t screen_height,
+  // Construct a tile array.
+  DiTileArray(uint32_t screen_width, uint32_t screen_height,
             uint32_t columns, uint32_t rows,
             uint32_t tile_width, uint32_t tile_height, uint16_t flags);
 
-  // Destroy a tile map.
-  virtual ~DiTileMap();
+  // Destroy a tile array.
+  virtual ~DiTileArray();
 
   // Clear the custom instructions needed to draw the primitive.
   virtual void IRAM_ATTR delete_instructions();
@@ -88,5 +85,5 @@ class DiTileMap: public DiPrimitive {
   uint32_t  m_tile_height;          // height of 1 tile in pixels
   uint8_t   m_transparent_color;    // value indicating not to draw the pixel
   DiTileIdToBitmapMap m_id_to_bitmap_map; // caches bitmaps based on bitmap ID
-  DiTileRowToColumnMap m_row_to_col_map;  // refers to bitmaps based on row & column
+  DiTileBitmap** m_tiles;           // 2D array of tile bitmap IDs
 };
