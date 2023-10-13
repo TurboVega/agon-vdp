@@ -173,5 +173,5 @@ void IRAM_ATTR DiPaintableTileBitmap::paint(DiPrimitive* tile_map, int32_t fcn_i
   uint32_t* src_pixels = (uint32_t*)((uint32_t)m_pixels + src_pixels_offset);
   //debug_log(" pf %i size %u line %u dx %u from %08X to %08X using %08X\n", fcn_index, m_paint_fcn[fcn_index].get_code_size(), line_index, draw_x,
   //  m_paint_fcn[fcn_index].get_real_address(0), m_paint_fcn[fcn_index].get_real_address(m_paint_fcn[fcn_index].get_code_size()), src_pixels);
-  m_paint_fcn[fcn_index].call_x_src(tile_map, p_scan_line, line_index, draw_x, (uint32_t)src_pixels);
+  m_paint_fcn[fcn_index].call_a5_a6(tile_map, p_scan_line, line_index, draw_x, (uint32_t)src_pixels);
 }

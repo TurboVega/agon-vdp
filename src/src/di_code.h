@@ -40,7 +40,7 @@ typedef void (*CallEspFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_
 typedef void (*CallEspXFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index,
                                 uint32_t x);
 typedef void (*CallEspXSrcFcn)(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index,
-                                uint32_t x, uint32_t src_pixels);
+                                uint32_t a5_value, uint32_t a6_value);
 };
 
 typedef struct {
@@ -176,11 +176,11 @@ class EspFunction {
     // a2 = p_this
     // a3 = p_scan_line
     // a4 = line_index
-    // a5 = draw_x
-    // a6 = src_pixels (pointer or offset)
-    inline void call_x_src(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index,
-                        uint32_t draw_x, uint32_t src_pixels) {
-        (*((CallEspXSrcFcn)m_code))(p_this, p_scan_line, line_index, draw_x, src_pixels);
+    // a5 = a5_value
+    // a6 = a6_value
+    inline void call_a5_a6(void* p_this, volatile uint32_t* p_scan_line, uint32_t line_index,
+                        uint32_t a5_value, uint32_t a6_value) {
+        (*((CallEspXSrcFcn)m_code))(p_this, p_scan_line, line_index, a5_value, a6_value);
     }
 
     protected:

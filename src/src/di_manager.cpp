@@ -717,6 +717,7 @@ void DiManager::init_dma_descriptor(volatile DiVideoBuffer* vbuf, uint32_t descr
 }
 
 void DiManager::store_character(uint8_t character) {
+  return;
   if (m_num_buffer_chars < INCOMING_DATA_BUFFER_SIZE) {
     m_incoming_data[m_next_buffer_write++] = character;
     if (m_next_buffer_write >= INCOMING_DATA_BUFFER_SIZE) {
