@@ -61,17 +61,11 @@ class DiTileBitmap {
   // 11BBGGRR is 100% opaque).
   void set_transparent_color(uint8_t color);
 
-  // Clear the custom instructions needed to draw the primitive.
-  void IRAM_ATTR delete_instructions();
-   
-  // Reassemble the custom instructions needed to draw the primitive.
-  void IRAM_ATTR generate_instructions(uint32_t draw_x, int32_t x, uint32_t draw_width);
-   
-  void IRAM_ATTR paint(DiPrimitive* tile_map, int32_t fcn_index, volatile uint32_t* p_scan_line,
-                      uint32_t line_index, uint32_t draw_x, uint32_t src_pixels_offset);
-
   // Get the bitmap ID.
   inline DiTileBitmapID get_id() { return m_bm_id; } 
+
+  // Get a pointer to the pixel data.
+  inline uint32_t* get_pixels() { return m_pixels; }
 
   protected:
   // Set a single pixel with an adjusted color value.
@@ -86,7 +80,27 @@ class DiTileBitmap {
   uint32_t*   m_pixels;
   uint32_t    m_save_height;
   uint32_t    m_built_width;
-  EspFunction m_paint_fcn[4];
   uint16_t    m_flags;
   uint8_t     m_transparent_color;
+};
+
+class DiPaintableTileBitmap : public DiTileBitmap {
+  public:
+  // Construct a paintable tile bitmap.
+  DiPaintableTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height, uint16_t flags);
+
+  // Destroy a paintable tile bitmap.
+  ~DiPaintableTileBitmap();
+
+  // Clear the custom instructions needed to draw the primitive.
+  void IRAM_ATTR delete_instructions();
+   
+  // Reassemble the custom instructions needed to draw the primitive.
+  void IRAM_ATTR generate_instructions(uint32_t draw_x, int32_t x, uint32_t draw_width);
+   
+  void IRAM_ATTR paint(DiPrimitive* tile_map, int32_t fcn_index, volatile uint32_t* p_scan_line,
+                      uint32_t line_index, uint32_t draw_x, uint32_t src_pixels_offset);
+
+  protected:
+  EspFunction m_paint_fcn[4];
 };

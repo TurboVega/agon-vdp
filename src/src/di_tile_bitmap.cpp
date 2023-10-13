@@ -105,13 +105,26 @@ void DiTileBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
   }
 }
 
-void IRAM_ATTR DiTileBitmap::delete_instructions() {
-  for (uint32_t pos = 0; pos < 4; pos++) {
-    m_paint_fcn[pos].clear();
+//---------------------------------------------------------------------
+
+DiPaintableTileBitmap::DiPaintableTileBitmap(DiTileBitmapID bm_id, uint32_t width, uint32_t height, uint16_t flags) :
+  DiTileBitmap(bm_id, width, height, flags) {
+}
+
+DiPaintableTileBitmap::~DiPaintableTileBitmap() {
+}
+
+void IRAM_ATTR DiPaintableTileBitmap::delete_instructions() {
+  if (m_flags & PRIM_FLAG_H_SCROLL) {
+    for (uint32_t pos = 0; pos < 4; pos++) {
+      m_paint_fcn[pos].clear();
+    }
+  } else {
+    m_paint_fcn[0].clear();
   }
 }
 
-void IRAM_ATTR DiTileBitmap::generate_instructions(uint32_t draw_x, int32_t x, uint32_t draw_width) {
+void IRAM_ATTR DiPaintableTileBitmap::generate_instructions(uint32_t draw_x, int32_t x, uint32_t draw_width) {
   delete_instructions();
   if (m_flags & PRIM_FLAG_H_SCROLL) {
     // Bitmap can be positioned on any horizontal byte boundary (pixel offsets 0..3).
@@ -155,10 +168,10 @@ void IRAM_ATTR DiTileBitmap::generate_instructions(uint32_t draw_x, int32_t x, u
   }
 }
 
-void IRAM_ATTR DiTileBitmap::paint(DiPrimitive* tile_map, int32_t fcn_index, volatile uint32_t* p_scan_line,
+void IRAM_ATTR DiPaintableTileBitmap::paint(DiPrimitive* tile_map, int32_t fcn_index, volatile uint32_t* p_scan_line,
         uint32_t line_index, uint32_t draw_x, uint32_t src_pixels_offset) {
   uint32_t* src_pixels = (uint32_t*)((uint32_t)m_pixels + src_pixels_offset);
   //debug_log(" pf %i size %u line %u dx %u from %08X to %08X using %08X\n", fcn_index, m_paint_fcn[fcn_index].get_code_size(), line_index, draw_x,
   //  m_paint_fcn[fcn_index].get_real_address(0), m_paint_fcn[fcn_index].get_real_address(m_paint_fcn[fcn_index].get_code_size()), src_pixels);
-  m_paint_fcn[fcn_index].call_x_src(tile_map, p_scan_line, line_index, draw_x, src_pixels);
+  m_paint_fcn[fcn_index].call_x_src(tile_map, p_scan_line, line_index, draw_x, (uint32_t)src_pixels);
 }

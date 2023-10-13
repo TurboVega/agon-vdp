@@ -68,8 +68,8 @@ DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
 }
 
 DiTileMap::~DiTileMap() {
-  for (auto map = m_id_to_bitmap_map.begin(); map != m_id_to_bitmap_map.end(); map++) {
-    delete map->second;
+  for (auto bitmap_item = m_id_to_bitmap_map.begin(); bitmap_item != m_id_to_bitmap_map.end(); bitmap_item++) {
+    delete bitmap_item->second;
   }
   for (auto map = m_row_to_col_map.begin(); map != m_row_to_col_map.end(); map++) {
     delete map->second;
@@ -94,7 +94,7 @@ extern void delay(uint32_t);
 void DiTileMap::create_bitmap(DiTileBitmapID bm_id) {
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item == m_id_to_bitmap_map.end()) {
-    auto bitmap = new DiTileBitmap(bm_id, m_tile_width, m_tile_height, m_flags);
+    auto bitmap = new DiPaintableTileBitmap(bm_id, m_tile_width, m_tile_height, m_flags);
     if (bitmap) {
       //debug_log(" @%i created tbm %08X, flags=%04hX\n", __LINE__, bm_id, m_flags);
     } else {

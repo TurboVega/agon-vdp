@@ -13,6 +13,7 @@
         "string_view": "cpp",
         "initializer_list": "cpp",
         "system_error": "cpp",
-        "new": "cpp"
+        "new": "cpp",
+        "map": "cpp"
     }
 }

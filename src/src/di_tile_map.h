@@ -37,10 +37,10 @@ typedef uint32_t DiRowColumn;
 
 #ifndef _DiTileBitmapID
 #define _DiTileBitmapID
-typedef std::map<DiTileBitmapID, DiTileBitmap*> DiTileIdToBitmapMap;
+typedef std::map<DiTileBitmapID, DiPaintableTileBitmap*> DiTileIdToBitmapMap;
 #endif
 
-typedef std::map<uint16_t, DiTileBitmap*> DiTileColumnToBitmapMap;
+typedef std::map<uint16_t, DiPaintableTileBitmap*> DiTileColumnToBitmapMap;
 typedef std::map<uint16_t, DiTileColumnToBitmapMap*> DiTileRowToColumnMap;
 
 class DiTileMap: public DiPrimitive {

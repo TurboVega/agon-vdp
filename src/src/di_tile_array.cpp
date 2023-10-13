@@ -66,36 +66,87 @@ DiTileArray::DiTileArray(uint32_t screen_width, uint32_t screen_height,
   m_width = tile_width * columns;
   m_height = tile_height * rows;
 
-  m_tiles = new DiTileBitmap*[rows * columns];
-  if (m_tiles) {
-    memset(m_tiles, 0, rows * columns * sizeof(DiTileBitmap*));
+  m_tile_pixels = new uint32_t*[rows * columns];
+  if (m_tile_pixels) {
+    memset(m_tile_pixels, 0, rows * columns * sizeof(uint32_t*));
   }
 }
 
 DiTileArray::~DiTileArray() {
-  for (auto map = m_id_to_bitmap_map.begin(); map != m_id_to_bitmap_map.end(); map++) {
-    delete map->second;
+  for (auto bitmap_item = m_id_to_bitmap_map.begin(); bitmap_item != m_id_to_bitmap_map.end(); bitmap_item++) {
+    delete bitmap_item->second;
   }
 
-  if (m_tiles) {
-    delete [] m_tiles;
+  if (m_tile_pixels) {
+    delete [] m_tile_pixels;
   }
 }
 
 void IRAM_ATTR DiTileArray::delete_instructions() {
-  for (auto bitmap = m_id_to_bitmap_map.begin(); bitmap != m_id_to_bitmap_map.end(); bitmap++) {
-    bitmap->second->delete_instructions();
+  if (m_flags & PRIM_FLAG_H_SCROLL) {
+    for (uint32_t pos = 0; pos < 4; pos++) {
+      m_paint_fcn[pos].clear();
+    }
+  } else {
+    m_paint_fcn[0].clear();
   }
 }
+
 //extern void debug_log(const char* fmt, ...);
+//static bool done;
 void IRAM_ATTR DiTileArray::generate_instructions() {
+  delete_instructions();
   //debug_log(" tm @%i flags=%hX w=%u h=%u\n", __LINE__, m_flags, m_width, m_height);
-  for (auto bitmap = m_id_to_bitmap_map.begin(); bitmap != m_id_to_bitmap_map.end(); bitmap++) {
-    //debug_log("GEN %hu...", bitmap->second->get_id());
-    bitmap->second->generate_instructions(m_draw_x, 0, m_tile_width);
-    //debug_log("GEN!\n");
+
+  // Painting is done with this parameter list:
+  // a0 = return address
+  // a1 = stack ptr
+  // a2 = p_this
+  // a3 = p_scan_line
+  // a4 = line_index
+  // a5 = draw_x
+  // a6 = src_pixels (pointer or offset)
+  // m_paint_fcn->call_x_src(this, p_scan_line, y_offset_within_tile, 0, src_pixels_offset);
+
+  if (m_flags & PRIM_FLAG_H_SCROLL) {
+    for (uint32_t pos = 0; pos < 4; pos++) {
+      m_paint_fcn[pos].enter_outer_function();
+      m_paint_fcn[pos].retw();
+    }
+  } else {
+    auto at_jump = m_paint_fcn[0].enter_outer_function();
+    auto at_data = m_paint_fcn[0].begin_data();
+    m_paint_fcn[0].begin_code(at_jump);
+
+    for (uint32_t col = 0; col < m_columns; col++) {
+
+    }
+    m_paint_fcn[0].retw();
+
+    /*
+    //if (!done) debug_log(" row=%i", row);
+    auto start_x_offset_within_tile_array = m_draw_x - m_abs_x;
+    auto start_column = (start_x_offset_within_tile_array + m_tile_width - 1) / m_tile_width;
+    auto end_x_offset_within_tile_array = m_draw_x_extent - m_abs_x;
+    auto end_column = end_x_offset_within_tile_array / m_tile_width;
+    auto fcn_index = m_draw_x & 0x3;
+    uint32_t draw_x = m_draw_x & 0xFFFFFFFC;
+    auto src_pixels_offset = fcn_index * m_bytes_per_position + y_offset_within_tile * m_bytes_per_line;
+    //if (!done) debug_log(" sx=%i sc=%i ex=%i ec=%i drx=%i yot=%i spo=%u",
+    //  start_x_offset_within_tile_array, start_column, end_x_offset_within_tile_array, end_column, draw_x, y_offset_within_tile, src_pixels_offset);
+    auto p_tile_bitmaps = &m_tile_pixels[row * m_columns];
+    for (uint32_t col = 0; col < m_columns; col++) {
+      auto p_tile_bitmap = *p_tile_bitmaps++;
+      if (p_tile_bitmap) {
+        //if (!done) debug_log(" paint col=%i drx=%u", col, draw_x);
+      }
+      draw_x += m_tile_width;
+    }
+    //if (!done) debug_log("\n");
+    //done=true;*/
   }
 }
+
 extern void delay(uint32_t);
 void DiTileArray::create_bitmap(DiTileBitmapID bm_id) {
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
@@ -118,50 +169,29 @@ void DiTileArray::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t 
 void DiTileArray::set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id) {
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item != m_id_to_bitmap_map.end()) {
-    m_tiles[row * m_columns + column] = bitmap_item->second;
+    m_tile_pixels[row * m_columns + column] = bitmap_item->second->get_pixels();
   }
 }
 
 void DiTileArray::unset_tile(int16_t column, int16_t row) {
-    m_tiles[row * m_columns + column] = NULL;
+    m_tile_pixels[row * m_columns + column] = NULL;
 }
 
 DiTileBitmapID DiTileArray::get_tile(int16_t column, int16_t row) {
-  auto tile_bitmap = m_tiles[row * m_columns + column];
-  if (tile_bitmap) {
-    return tile_bitmap->get_id();
-  } else {
-    return 0;
+  auto tile_pixels = m_tile_pixels[row * m_columns + column];
+  for (auto bitmap_item = m_id_to_bitmap_map.begin(); bitmap_item != m_id_to_bitmap_map.end(); bitmap_item++) {
+    if (tile_pixels == bitmap_item->second->get_pixels()) {
+      return bitmap_item->second->get_id();
+    }
   }
+  return (DiTileBitmapID)0;
 }
-//static bool done;
+
 void IRAM_ATTR DiTileArray::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
   //debug_log("NO PAINT!"); return;
   auto y_offset_within_tile_array = (int32_t)line_index - m_abs_y;
-  //if (!done) debug_log("paint li=%u yotm=%i mdx=%i max=%i ", line_index, y_offset_within_tile_array, m_draw_x, m_abs_x);
-  if (y_offset_within_tile_array >= 0 && y_offset_within_tile_array < m_height) {
-    auto row = y_offset_within_tile_array / (int32_t)m_tile_height;
-    //if (!done) debug_log(" row=%i", row);
-    auto start_x_offset_within_tile_array = m_draw_x - m_abs_x;
-    auto start_column = (start_x_offset_within_tile_array + m_tile_width - 1) / m_tile_width;
-    auto end_x_offset_within_tile_array = m_draw_x_extent - m_abs_x;
-    auto end_column = end_x_offset_within_tile_array / m_tile_width;
-    auto fcn_index = m_draw_x & 0x3;
-    uint32_t draw_x = m_draw_x & 0xFFFFFFFC;
-    auto y_offset_within_tile = y_offset_within_tile_array % (int32_t)m_tile_height;
-    auto src_pixels_offset = fcn_index * m_bytes_per_position + y_offset_within_tile * m_bytes_per_line;
-    //if (!done) debug_log(" sx=%i sc=%i ex=%i ec=%i drx=%i yot=%i spo=%u",
-    //  start_x_offset_within_tile_array, start_column, end_x_offset_within_tile_array, end_column, draw_x, y_offset_within_tile, src_pixels_offset);
-    auto p_tile_bitmaps = &m_tiles[row * m_columns];
-    for (uint32_t col = 0; col < m_columns; col++) {
-      auto p_tile_bitmap = *p_tile_bitmaps++;
-      if (p_tile_bitmap) {
-        //if (!done) debug_log(" paint col=%i drx=%u", col, draw_x);
-        p_tile_bitmap->paint(this, fcn_index, p_scan_line, y_offset_within_tile, draw_x, src_pixels_offset);
-      }
-      draw_x += m_tile_width;
-    }
-  }
-  //if (!done) debug_log("\n");
-  //done=true;
+  auto y_offset_within_tile = y_offset_within_tile_array % (int32_t)m_tile_height;
+  auto row = y_offset_within_tile_array / (int32_t)m_tile_height;
+  auto src_pixels_offset = y_offset_within_tile * m_bytes_per_line;
+  m_paint_fcn->call_x_src(this, p_scan_line, y_offset_within_tile, 0, src_pixels_offset);
 }
