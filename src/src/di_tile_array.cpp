@@ -116,15 +116,16 @@ void IRAM_ATTR DiTileArray::generate_instructions() {
   } else {
     m_paint_fcn[0].entry(REG_STACK_PTR, 32);
     m_paint_fcn[0].movi(a12, m_columns); // a12 <-- loop counter (# of columns)
-    //auto at_loop = m_paint_fcn[0].get_code_index();
-    //m_paint_fcn[0].loop(a12, 0); // loop once per column
+    auto at_loop = m_paint_fcn[0].get_code_index();
+    m_paint_fcn[0].loop(a12, 0); // loop once per column
 
     m_paint_fcn[0].l32i(a10, a5, 0); // a10 <-- points to start of pixels for 1 bitmap
     auto at_branch = m_paint_fcn[0].get_code_index();
-    m_paint_fcn[0].beqz(a10, 0); // go if the tile cell is empty (null)
+    //m_paint_fcn[0].beqz(a10, 0); // go if the tile cell is empty (null)
     m_paint_fcn[0].add(a10, a10, a6); // a10 <-- points to line of source pixels for 1 bitmap
     for (uint32_t x = 0; x < m_tile_width; x+=4) {
       m_paint_fcn[0].l32i(a11, a10, x);
+      //m_paint_fcn[0].movi(a11,0x3F);
       m_paint_fcn[0].s32i(a11, a3, x);
     }
     uint32_t x = m_tile_width;
@@ -136,13 +137,13 @@ void IRAM_ATTR DiTileArray::generate_instructions() {
       m_paint_fcn[0].addi(a3, a3, 120);
       x -= 120;
     }
-    m_paint_fcn[0].bgez_to_here(a10, at_branch);
+    //m_paint_fcn[0].bgez_to_here(a10, at_branch);
     m_paint_fcn[0].addi(a5, a5, 4);
 
-    //auto at_loop_end = m_paint_fcn[0].get_code_index();
-    //m_paint_fcn[0].set_code_index(at_loop);
-    //m_paint_fcn[0].loop(a12, at_loop_end);
-    //m_paint_fcn[0].set_code_index(at_loop_end);
+    auto at_loop_end = m_paint_fcn[0].get_code_index();
+    m_paint_fcn[0].set_code_index(at_loop);
+    m_paint_fcn[0].loop(a12, at_loop_end);
+    m_paint_fcn[0].set_code_index(at_loop_end);
 
     m_paint_fcn[0].retw();
 
@@ -190,6 +191,7 @@ void DiTileArray::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t 
 }
 
 void DiTileArray::set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id) {
+  //debug_log("set tile %hu %hu %08X\n",row,column,bm_id);
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item != m_id_to_bitmap_map.end()) {
     m_tile_pixels[row * m_columns + column] = bitmap_item->second->get_pixels();
