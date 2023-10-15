@@ -1208,6 +1208,14 @@ void EspFunction::j_to_here(uint32_t from) {
     set_code_index(save_pc);
 }
 
+void EspFunction::bgez_to_here(reg_t src, s_off_t from) {
+    auto save_pc = get_code_index();
+    set_code_index(from);
+    beqz(a10, save_pc - from - 4);
+    set_code_index(save_pc);
+}
+
+
 void EspFunction::l32r_from(reg_t reg, uint32_t from) {
     l32r(reg, from - ((get_code_index() + 3) & 0xFFFFFFFC));
 }

@@ -120,6 +120,7 @@ class EspFunction {
     void bgeu(reg_t src, reg_t dst, s_off_t offset) { write24("bgeu", isdo(0x00B007, src, dst, offset)); }
     void bgeui(reg_t src, uint32_t imm, s_off_t offset) { write24("bgeui", isieo(0x0000F6, src, imm, offset)); }
     void bgez(reg_t src, s_off_t offset) { write24("bgez", iso(0x0000D6, src, offset)); }
+    void bgez_to_here(reg_t src, s_off_t from);
     void blt(reg_t src, reg_t dst, s_off_t offset) { write24("blt", isdo(0x002007, src, dst, offset)); }
     void blti(reg_t src, uint32_t imm, s_off_t offset) { write24("blti", isieo(0x0000A6, src, imm, offset)); }
     void bltu(reg_t src, reg_t dst, s_off_t offset) { write24("bltu", isdo(0x003007, src, dst, offset)); }
