@@ -110,91 +110,354 @@ Each of these commands will be explained in detail once the code has all been wr
 
 800x600x64 On-the-Fly Command Set:
 
-VDU 23, 30, 0, id; flags: [6] Set flags for primitive
+## Set flags for primitive
+<b>VDU 23, 30, 0, id; flags;</b>
 
 This command modifies certain flag bits for a primitive. Some flag bits are fixed upon creation
 of the primitive, and cannot be changed. The following bits can be changed.
 
-VDU 23, 30, 1, id; x; y;: [9] Set primitive position
+## Set primitive position
+<b>VDU 23, 30, 1, id; x; y;</b>
 
 If a primitive is not using the "absolute position" flag, then
 this command sets the relative position of the primitive, with respect to its parent's position. If the
 parent is at (100, 100), then setting the primitive's position to (5, 5) will
 place the primitive at position (105, 105), relative to the primitive's grandparent (if any),
-or at a 5-pixel offset from its parent, in X and Y.
+or in other words, at a 5-pixel offset from its parent, in X and Y.
 
 If a primitive is using the "absolute position" flag, then this command
 sets the absolute position of the primitive, and that position is relative to the screen,
 not to the parent.
 
-VDU 23, 30, 2, id; x; y;: [9] Adjust primitive position  
+## Adjust primitive position
+<b>VDU 23, 30, 2, id; x; y;</b>
 
-This sets the relative position of a primitive by adding the given X and Y offsets to its
-current position. If the primitive is at (5, 5), and the given values are (10, 10), then
-the primitive will move to (15, 15), relative to its parent's position.
+If a primitive is not using the "absolute position" flag, then
+this command ajusts the relative position of the primitive, with respect to its parent's position. If the
+parent is at (100, 100), and the primitive is at (5, 5) then adjusting the primitive's position by (2, 2) will
+place the primitive at position (107, 107), relative to the primitive's grandparent (if any),
+or in other words, at a 7-pixel offset from its parent, in X and Y.
 
-VDU 23, 30, 3, id;: [5] Delete primitive  
-VDU 23, 30, 4, id; pid; flags, x; y; c: [13] Create primitive: Point  
-VDU 23, 30, 5, id; pid; flags, x1; y1; x2; y2; c: [17] Create primitive: Line  
-VDU 23, 30, 6, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Triangle Outline  
-VDU 23, 30, 7, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Solid Triangle  
-VDU 23, 30, 8, id; pid; flags, x; y; w; h; c: [17] Create primitive: Rectangle Outline  
-VDU 23, 30, 9, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Rectangle  
-VDU 23, 30, 10, id; pid; flags, x; y; w; h; c: [17] Create primitive: Ellipse Outline  
-VDU 23, 30, 11, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Ellipse  
-VDU 23, 30, 12, id; pid; flags, cols; rows; bitmaps, w; h;: [17] Create primitive: Tile Map  
-VDU 23, 30, 13, id; pid; flags, w; h;: [12] Create primitive: Solid Bitmap  
-VDU 23, 30, 14, id; pid; flags, w; h;: [12] Create primitive: Masked Bitmap  
-VDU 23, 30, 15, id; pid; flags, w; h; c: [13] Create primitive: Transparent Bitmap  
-VDU 23, 30, 16, id; pid; flags, x; y;: [12] Create primitive: Group  
-VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice solid bitmap: absolute  
-VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice masked bitmap: absolute  
-VDU 23, 30, 19, id; x; y; s; h;: [13] Move & slice transparent bitmap: absolute  
-VDU 23, 30, 20, id; x; y; s; h;: [13] Move & slice solid bitmap: relative  
-VDU 23, 30, 21, id; x; y; s; h;: [13] Move & slice masked bitmap: relative  
-VDU 23, 30, 22, id; x; y; s; h;: [13] Move & slice transparent bitmap: relative  
-VDU 23, 30, 23, id; x; y; c: [10] Set solid bitmap pixel  
-VDU 23, 30, 24, id; x; y; c: [10] Set masked bitmap pixel  
-VDU 23, 30, 25, id; x; y; c: [10] Set transparent bitmap pixel  
-VDU 23, 30, 26, id; x; y; n; c0, c1, c2, ...: [11+n] Set solid bitmap pixels  
-VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...: [11+n] Set masked bitmap pixels  
-VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...: [11+n] Set transparent bitmap pixels  
-VDU 23, 30, 29, id; col; row; img;: [11] Set image ID for tile in tile map  
-VDU 23, 30, 30, id; img; x; y; c: [12] Set image pixel in tile map  
-VDU 23, 30, 31, id; img; x; y; n; c0, c1, c2, ...: [13+n] Set image pixels in tile map  
+If a primitive is using the "absolute position" flag, then this command
+adjusts the absolute position of the primitive, and that position is relative to the screen,
+not to the parent.
 
-VDU 23, 30, 32, id; pid; flags, n; x1; y1; ... xn; yn; c: [11 + n*6] Create primitive: Triangle List Outline
+## Delete primitive
+<b>VDU 23, 30, 3, id;</b>
+
+This command deletes the primitive, and any children that it has. If
+the primitive, such as a tile map, holds its own bitmaps, those will be
+deleted with the primitive. Bear in mind that you can hide a
+primitive by changing its flags, while still keeping it intact.
+
+## Create primitive: Point
+VDU 23, 30, 4, id; pid; flags; x; y; c
+
+This command creates a primitive that draws a point (sets a single pixel).
+
+## Create primitive: Line
+VDU 23, 30, 5, id; pid; flags; x1; y1; x2; y2; c
+
+This commmand creates a primitive that draws a line. The endpoints
+are included (i.e., are drawn).
+
+## Create primitive: Triangle Outline
+VDU 23, 30, 6, id; pid; flags; x1; y1; x2; y2; x3; y3; c
+
+This commmand creates a primitive that draws the outline of a triangle. The triangle is not filled.
+
+## Create primitive: Solid Triangle
+VDU 23, 30, 7, id; pid; flags; x1; y1; x2; y2; x3; y3; c
+
+This commmand creates a primitive that draws a solid, filled
+traingle. The triangle does not have a distinct outline with
+a different color than the fill color.
+
+## Create primitive: Rectangle Outline
+VDU 23, 30, 8, id; pid; flags; x; y; w; h; c
+
+This commmand creates a primitive that draws the outline of a rectangle. The rectangle is not filled. Note that the width and
+height are given, not the diagonal coordinates.
+
+## Create primitive: Solid Rectangle
+VDU 23, 30, 9, id; pid; flags; x; y; w; h; c
+
+This commmand creates a primitive that draws a solid, filled rectangle.
+The rectangle does not have a distinct outline with a different
+color than the fill color.
+Note that the width and height are given, not the diagonal coordinates.
+
+## Create primitive: Ellipse Outline
+VDU 23, 30, 10, id; pid; flags; x; y; w; h; c
+
+This commmand creates a primitive that draws the outline of an ellipse. The ellipse is not filled. Note that width and height
+are given, not the diagonal coordinates.
+
+## Create primitive: Solid Ellipse
+VDU 23, 30, 11, id; pid; flags; x; y; w; h; c
+
+This commmand creates a primitive that draws a solid, filled ellipse.
+The ellipse does not have a distinct outline with a different
+color than the fill color.
+Note that width and height are given, not
+the diagonal coordinates.
+
+## Create primitive: Tile Map
+VDU 23, 30, 12, id; pid; flags; cols; rows; bitmaps, w; h;
+
+This commmand creates a primitive that draws a sparse tile map,
+as opposed to a full or mostly full tile array.
+The number of cells in the map is equal to the number of rows
+multiplied by the number of columns. The given width and height
+specify the size of a single tile. The overall width of the tile
+map is equal to the width of one tile multiplied by the number
+of columns. The overall height of the tile map is equal to the
+height of one tile multiplied by the number of rows.
+
+The given width must be a multiple of 4 pixels. The given height can be any positive number, bearing in mind the memory requirements for
+storing bitmaps.
+
+The tile map will store its own setup of bitmaps, which are distinct
+from any bitmaps created as individual primitives. If the
+tile map is deleted, its owned bitmaps are deleted with it.
+
+A sparse tile map is intended to be used when the ratio of defined
+(used) cells to undefined (unused) cells is rather low. Since it
+is implemented as a map, processing it is slower than using a
+tile array. Thus, if you want a set of tiles with a high used-to-unused ratio,
+it would be more efficient to use a tile array. Slower processing
+might cause flicker.
+
+## Create primitive: Tile Array
+VDU 23, 30, ?, id; pid; flags; cols; rows; bitmaps, w; h;
+
+This commmand creates a primitive that draws a full or mostly full tile array, as opposed to a sparse tile map.
+The number of cells in the array is equal to the number of rows
+multiplied by the number of columns. The given width and height
+specify the size of a single tile. The overall width of the tile
+array is equal to the width of one tile multiplied by the number
+of columns. The overall height of the tile array is equal to the
+height of one tile multiplied by the number of rows.
+
+The given width must be a multiple of 4 pixels. The given height can be any positive number, bearing in mind the memory requirements for
+storing bitmaps.
+
+The tile array will store its own setup of bitmaps, which are distinct
+from any bitmaps created as individual primitives. If the
+tile array is deleted, its owned bitmaps are deleted with it.
+
+A tile array is intended to be used when the ratio of defined
+(used) cells to undefined (unused) cells is rather high. Since it
+is implemented as an array, processing it is faster than using a
+tile map. Thus, if you want a set of tiles with a low used-to-unused ratio,
+consider using a tile map, to avoid wasting space for unused cells.
+
+## Create primitive: Solid Bitmap
+VDU 23, 30, 13, id; pid; flags; w; h;
+
+This commmand creates a primitive that draws a solid bitmap, meaning
+that every pixel is fully opaque (though each pixel has its own color).
+A solid bitmap may be the most efficient kind of bitmap, from a
+processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
+
+## Create primitive: Masked Bitmap
+VDU 23, 30, 14, id; pid; flags; w; h;
+
+This commmand creates a primitive that draws a masked bitmap, meaning
+that every pixel is either fully opaque (though each pixel has its own color) or fully transparent.
+A solid bitmap may be the most efficient kind of bitmap, from a
+processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
+
+## Create primitive: Transparent Bitmap
+VDU 23, 30, 15, id; pid; flags; w; h; c
+
+This commmand creates a primitive that draws a transparent bitmap, meaning
+that each pixel has either 0%, 25%, 50%, 75%, or 100% opacity.
+A transparent bitmap may be the least efficient kind of bitmap, from a
+processing speed perspective. Bitmaps with any transparency may be slower than solid bitmaps, and their overuse could cause flicker.
+
+## Create primitive: Group
+VDU 23, 30, 16, id; pid; flags; x; y;
+
+This commmand creates a primitive that groups its child primitives,
+for the purposes of motion and clipping. If a group node has
+children, and the group node is moved, and the children are positioned
+relative to their parent (i.e., do not use the "absolute position" flag),
+then the children are moved with the parent. Note that a group node
+has no visible representation (i.e., is not drawn).
+
+Changing the flags of a group node can show or hide its children.
+
+## Set position & slice solid bitmap
+VDU 23, 30, 17, id; x; y; s; h;
+
+This command sets the position of a solid bitmap, and specifies
+the starting vertical offset within the bitmap, plus the height
+to draw. It not necessary to draw the entire bitmap. This command
+may be used to select the individual frames of a sprite, or to
+scroll a bitmap vertically within a specified height.
+
+By default, when a bitmap is created, its starting vertical offset
+is zero, and its draw height is equal to its created height.
+
+## Set position & slice masked bitmap
+VDU 23, 30, 18, id; x; y; s; h;
+
+This command sets the position of a masked bitmap, and specifies
+the starting vertical offset within the bitmap, plus the height
+to draw. It not necessary to draw the entire bitmap. This command
+may be used to select the individual frames of a sprite, or to
+scroll a bitmap vertically within a specified height.
+
+By default, when a bitmap is created, its starting vertical offset
+is zero, and its draw height is equal to its created height.
+
+## Set position & slice transparent bitmap
+VDU 23, 30, 19, id; x; y; s; h;
+
+This command sets the position of a transparent bitmap, and specifies
+the starting vertical offset within the bitmap, plus the height
+to draw. It not necessary to draw the entire bitmap. This command
+may be used to select the individual frames of a sprite, or to
+scroll a bitmap vertically within a specified height.
+
+By default, when a bitmap is created, its starting vertical offset
+is zero, and its draw height is equal to its created height.
+
+## Adjust position & slice solid bitmap
+VDU 23, 30, 20, id; x; y; s; h;
+
+This command adjusts the position of a solid bitmap, and specifies
+the starting vertical offset within the bitmap, plus the height
+to draw. It not necessary to draw the entire bitmap. This command
+may be used to select the individual frames of a sprite, or to
+scroll a bitmap vertically within a specified height.
+
+By default, when a bitmap is created, its starting vertical offset
+is zero, and its draw height is equal to its created height.
+
+## Adjust position & slice masked bitmap
+VDU 23, 30, 21, id; x; y; s; h;
+
+This command adjusts the position of a masked bitmap, and specifies
+the starting vertical offset within the bitmap, plus the height
+to draw. It not necessary to draw the entire bitmap. This command
+may be used to select the individual frames of a sprite, or to
+scroll a bitmap vertically within a specified height.
+
+By default, when a bitmap is created, its starting vertical offset
+is zero, and its draw height is equal to its created height.
+
+## Adjust position & slice transparent bitmap
+VDU 23, 30, 22, id; x; y; s; h;
+
+This command adjusts the position of a transparent bitmap, and specifies
+the starting vertical offset within the bitmap, plus the height
+to draw. It not necessary to draw the entire bitmap. This command
+may be used to select the individual frames of a sprite, or to
+scroll a bitmap vertically within a specified height.
+
+By default, when a bitmap is created, its starting vertical offset
+is zero, and its draw height is equal to its created height.
+
+## Set solid bitmap pixel
+VDU 23, 30, 23, id; x; y; c
+
+This command sets the color of a single pixel within a solid bitmap.
+
+## Set masked bitmap pixel
+VDU 23, 30, 24, id; x; y; c
+
+This command sets the color of a single pixel within a masked bitmap.
+
+## Set transparent bitmap pixel
+VDU 23, 30, 25, id; x; y; c
+
+This command sets the color of a single pixel within a transparent bitmap.
+
+## Set solid bitmap pixels
+VDU 23, 30, 26, id; x; y; n; c0, c1, c2, ...
+
+This command sets the colors of multiple pixels within a solid bitmap.
+
+## Set masked bitmap pixels
+VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...
+
+This command sets the colors of multiple pixels within a masked bitmap.
+
+## Set transparent bitmap pixels
+VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...
+
+This command sets the colors of multiple pixels within a transparent bitmap.
+
+## Set image ID for tile in tile map
+VDU 23, 30, 29, id; col; row; img;
+
+This command specifies which bitmap should be draw in a specific
+cell of a tile map. The bitmap must have been created already.
+
+## Set image ID for tile in tile array
+VDU 23, 30, 29, id; col; row; img;
+
+This command specifies which bitmap should be draw in a specific
+cell of a tile array. The bitmap must have been created already.
+
+## Set image pixel in tile map
+VDU 23, 30, 30, id; img; x; y; c
+
+This command sets the color of a single pixel within a tile map.
+
+## Set image pixels in tile map
+VDU 23, 30, 31, id; img; x; y; n; c0, c1, c2, ...
+
+This command sets the colors of multiple pixels within a tile map.
+
+## Create primitive: Triangle List Outline
+VDU 23, 30, 32, id; pid; flags, n; x1; y1; ... xn; yn; c
+
+This command creates a series of triangle outlines.
 
 A triangle list is a series of triangles that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each triangle, its 3 points must be specified.
 
-VDU 23, 30, 33, id; pid; flags, n; x1; y1; ... xn; yn; c: [11 + n*6] Create primitive: Solid Triangle List
+## Create primitive: Solid Triangle List
+VDU 23, 30, 33, id; pid; flags, n; x1; y1; ... xn; yn; c
 
-VDU 23, 30, 34, id; pid; flags, n; sx0; sy0; sx1; sy1; ... xn; yn; c: [19 + n*4] Create primitive: Triangle Fan Outline
+## Create primitive: Triangle Fan Outline
+VDU 23, 30, 34, id; pid; flags, n; sx0; sy0; sx1; sy1; ... xn; yn; c
 
 A triangle fan is a series of triangles that share a common center point, and each 2 consecutive triangles share an edge point.
 
 
-VDU 23, 30, 35, id; pid; flags, n; sx0; sy0; sx1; sy1; ... xn; yn; c: [19 +n*4] Create primitive: Solid Triangle Fan
+## Create primitive: Solid Triangle Fan
+VDU 23, 30, 35, id; pid; flags, n; sx0; sy0; sx1; sy1; ... xn; yn; c
 
-VDU 23, 30, 36, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c: [19 + n*4] Create primitive: Triangle Strip Outline
+## Create primitive: Triangle Strip Outline
+VDU 23, 30, 36, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c
 
 A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points.
 
-VDU 23, 30, 37, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c: [19 + n*4] Create primitive: Solid Triangle Strip
+## Create primitive: Solid Triangle Strip
+VDU 23, 30, 37, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c
 
-VDU 23, 30, 38, id; pid; flags, x1; y1; x2; y2; x3; y3; x4; y4; c: [25] Create primitive: Quad Outline
+## Create primitive: Quad Outline
+VDU 23, 30, 38, id; pid; flags, x1; y1; x2; y2; x3; y3; x4; y4; c
 
-A quad is  4-sided, regular polygon that does not necessarily have any internal right angles, but could.
+A quad is  4-sided, convex polygon that does not necessarily have any internal right angles, but could.
 
-VDU 23, 30, 39, id; pid; flags, x1; y1; x2; y2; x3; y3; x4; y4; c: [25] Create primitive: Solid Quad
+## Create primitive: Solid Quad
+VDU 23, 30, 39, id; pid; flags, x1; y1; x2; y2; x3; y3; x4; y4; c
 
-VDU 23, 30, 40, id; pid; flags, n; x1; y1; ... xn; yn; c: [11 + n*8] Create primitive: Quad List Outline
+## Create primitive: Quad List Outline
+VDU 23, 30, 40, id; pid; flags, n; x1; y1; ... xn; yn; c
 
 A quad list is a series of quads that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each quad, its 4 points must be specified.
 
-VDU 23, 30, 41, id; pid; flags, n; x1; y1; ... xn; yn; c: [11 +n*8] Create primitive: Solid Quad List
+## Create primitive: Solid Quad List
+VDU 23, 30, 41, id; pid; flags, n; x1; y1; ... xn; yn; c
 
-VDU 23, 30, 42, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c: [19 + n*4] Create primitive: Quad Strip Outline
+## Create primitive: Quad Strip Outline
+VDU 23, 30, 42, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c
 
-VDU 23, 30, 43, id; pid; flags, n; x1; y1; ... xn; yn; c: [19 + n*4] Create primitive: Solid Quad Strip
+## Create primitive: Solid Quad Strip
+VDU 23, 30, 43, id; pid; flags, n; x1; y1; ... xn; yn; c
 
