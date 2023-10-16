@@ -66,8 +66,14 @@ class DiTileArray: public DiPrimitive {
   // Set the bitmap ID to use to draw a tile at a specific row and column.
   void set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id);
 
-  // Unset the bitmap ID to use to draw a tile at a specific row and column.
+  // Unset the bitmap ID at a specific row and column, to remove the tile.
   void unset_tile(int16_t column, int16_t row);
+
+  // Set the bitmap ID to use to fill a rectangle of tiles.
+  void set_tiles(int16_t column, int16_t row, DiTileBitmapID bm_id, int16_t columns, int16_t rows);
+
+  // Unset the bitmap IDs to remove a rectangle of tiles.
+  void unset_tiles(int16_t column, int16_t row, int16_t columns, int16_t rows);
 
   // Get the bitmap ID presently at the given row and column.
   DiTileBitmapID get_tile(int16_t column, int16_t row);

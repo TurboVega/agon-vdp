@@ -121,7 +121,7 @@ void IRAM_ATTR DiTileArray::generate_instructions() {
     //m_paint_fcn[0].s32i(a11, a3, 4);
     //m_paint_fcn[0].retw();
 
-    m_paint_fcn[0].movi(a12, m_columns); // a12 <-- loop counter (# of columns)
+    m_paint_fcn[0].movi(a12, m_visible_columns); // a12 <-- loop counter (# of visible columns)
     auto at_loop = m_paint_fcn[0].get_code_index();
     m_paint_fcn[0].loop(a12, 0); // loop once per column
 
@@ -147,11 +147,7 @@ void IRAM_ATTR DiTileArray::generate_instructions() {
     m_paint_fcn[0].bgez_to_here(a10, at_branch);
     m_paint_fcn[0].addi(a5, a5, 4);
 
-    auto at_loop_end = m_paint_fcn[0].get_code_index();
-    m_paint_fcn[0].set_code_index(at_loop);
-    m_paint_fcn[0].loop(a12, at_loop_end);
-    m_paint_fcn[0].set_code_index(at_loop_end);
-
+    m_paint_fcn[0].loop_to_here(a12, at_loop);
     m_paint_fcn[0].retw();
 
     /*
@@ -198,10 +194,33 @@ void DiTileArray::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t 
 }
 
 void DiTileArray::set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id) {
-  //debug_log("set tile %hu %hu %08X\n",row,column,bm_id);
+  debug_log("  set tile %hu %hu %08X\n",row,column,bm_id);
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item != m_id_to_bitmap_map.end()) {
     m_tile_pixels[row * m_columns + column] = bitmap_item->second->get_pixels();
+  }
+}
+
+void DiTileArray::set_tiles(int16_t column, int16_t row, DiTileBitmapID bm_id,
+                                  int16_t columns, int16_t rows) {
+  while (rows-- > 0) {
+    auto cols = columns;
+    auto col = column;
+    while (cols-- > 0) {
+      set_tile(col++, row, bm_id);
+    }
+    row++;
+  }
+}
+
+void DiTileArray::unset_tiles(int16_t column, int16_t row, int16_t columns, int16_t rows) {
+  while (rows-- > 0) {
+    auto cols = columns;
+    auto col = column;
+    while (cols-- > 0) {
+      unset_tile(col++, row);
+    }
+    row++;
   }
 }
 
@@ -223,7 +242,7 @@ DiTileBitmapID DiTileArray::get_tile(int16_t column, int16_t row) {
 
 void IRAM_ATTR DiTileArray::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
   //debug_log("NO PAINT!"); return;
-  p_scan_line[20]=0x12342618;
+  //p_scan_line[20]=0x12342618;
   auto y_offset_within_tile_array = (int32_t)line_index - m_abs_y;
   auto y_offset_within_tile = y_offset_within_tile_array % (int32_t)m_tile_height;
   auto row = y_offset_within_tile_array / (int32_t)m_tile_height;

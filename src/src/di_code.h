@@ -97,6 +97,7 @@ class EspFunction {
     void align32();
     void j_to_here(uint32_t from);
     void l32r_from(reg_t reg, uint32_t from);
+    void loop_to_here(reg_t reg, uint32_t from);
     uint16_t dup8_to_16(uint8_t value);
     uint32_t dup8_to_32(uint8_t value);
     uint32_t dup16_to_32(uint16_t value);

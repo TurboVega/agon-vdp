@@ -122,7 +122,7 @@ void DiTerminal::write_character(uint8_t character) {
 
   // Set the tile image ID using the character code.
   auto bm_id = get_bitmap_id(character);
-  //debug_log(" c %u, r %u, ch %02hX, bmid %08X ", m_current_column, m_current_row, character, bm_id);
+  debug_log("\n c %u, r %u, ch %02hX, bmid %08X\n", m_current_column, m_current_row, character, bm_id);
   set_tile(m_current_column, m_current_row, bm_id);
 
   // Advance the current position
