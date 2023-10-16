@@ -93,7 +93,8 @@ void IRAM_ATTR DiTileArray::delete_instructions() {
 }
 
 //extern void debug_log(const char* fmt, ...);
-//static bool done;
+static bool done;
+
 void IRAM_ATTR DiTileArray::generate_instructions() {
   delete_instructions();
   debug_log(" tm @%i flags=%hX w=%u h=%u\n", __LINE__, m_flags, m_width, m_height);
@@ -115,29 +116,35 @@ void IRAM_ATTR DiTileArray::generate_instructions() {
     }
   } else {
     m_paint_fcn[0].entry(REG_STACK_PTR, 32);
+
+    //m_paint_fcn[0].movi(a11, 0x3F);
+    //m_paint_fcn[0].s32i(a11, a3, 4);
+    //m_paint_fcn[0].retw();
+
     m_paint_fcn[0].movi(a12, m_columns); // a12 <-- loop counter (# of columns)
     auto at_loop = m_paint_fcn[0].get_code_index();
     m_paint_fcn[0].loop(a12, 0); // loop once per column
 
     m_paint_fcn[0].l32i(a10, a5, 0); // a10 <-- points to start of pixels for 1 bitmap
     auto at_branch = m_paint_fcn[0].get_code_index();
-    //m_paint_fcn[0].beqz(a10, 0); // go if the tile cell is empty (null)
+    m_paint_fcn[0].beqz(a10, 0); // go if the tile cell is empty (null)
     m_paint_fcn[0].add(a10, a10, a6); // a10 <-- points to line of source pixels for 1 bitmap
     for (uint32_t x = 0; x < m_tile_width; x+=4) {
       m_paint_fcn[0].l32i(a11, a10, x);
-      //m_paint_fcn[0].movi(a11,0x3F);
       m_paint_fcn[0].s32i(a11, a3, x);
+//m_paint_fcn[0].l32i(a11, a3, x);
+//m_paint_fcn[0].s32i(a6,a6,0); // <<<<<<<
     }
     uint32_t x = m_tile_width;
     while (x) {
-      if (x < 120) {
+      if (x < 124) {
         m_paint_fcn[0].addi(a3, a3, x);
         break;
       }
-      m_paint_fcn[0].addi(a3, a3, 120);
-      x -= 120;
+      m_paint_fcn[0].addi(a3, a3, 124);
+      x -= 124;
     }
-    //m_paint_fcn[0].bgez_to_here(a10, at_branch);
+    m_paint_fcn[0].bgez_to_here(a10, at_branch);
     m_paint_fcn[0].addi(a5, a5, 4);
 
     auto at_loop_end = m_paint_fcn[0].get_code_index();
@@ -213,15 +220,20 @@ DiTileBitmapID DiTileArray::get_tile(int16_t column, int16_t row) {
   }
   return (DiTileBitmapID)0;
 }
-bool done=false;
+
 void IRAM_ATTR DiTileArray::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
   //debug_log("NO PAINT!"); return;
+  p_scan_line[20]=0x12342618;
   auto y_offset_within_tile_array = (int32_t)line_index - m_abs_y;
   auto y_offset_within_tile = y_offset_within_tile_array % (int32_t)m_tile_height;
   auto row = y_offset_within_tile_array / (int32_t)m_tile_height;
   auto src_pixels_offset = y_offset_within_tile * m_bytes_per_line;
   auto row_array = (uint32_t)(m_tile_pixels + row * m_columns);
+  if (!done) debug_log("scan=%08X line=%u\n", p_scan_line, line_index);
   if (!done) debug_log("gen=%08X r=%u yo=%u spo=%u\n",m_paint_fcn[0].get_real_address(0), row,y_offset_within_tile,src_pixels_offset);
-  done=true;
+  if (!done) debug_log("srcs %08X %08X %08X\n",m_tile_pixels[0],m_tile_pixels[1],m_tile_pixels[2]);
+  if (!done) debug_log("pix %08X %08X\n",m_tile_pixels[0]?(m_tile_pixels[0][0]):0, m_tile_pixels[0]?(m_tile_pixels[0][1]):0);
+  //done=true;
   m_paint_fcn[0].call_a5_a6(this, p_scan_line, y_offset_within_tile, row_array, src_pixels_offset);
+  //m_paint_fcn[0].call(this, p_scan_line, y_offset_within_tile);
 }

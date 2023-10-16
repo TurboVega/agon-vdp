@@ -134,7 +134,7 @@ void DiTerminal::write_character(uint8_t character) {
 
 void DiTerminal::set_character(int32_t column, int32_t row, uint8_t character) {
   auto bm_id = define_character(character, m_fg_color, m_bg_color);
-  //debug_log(" c %u, r %u, ch %02hX, bmid %08X ", column, row, character, bm_id);
+  debug_log(" c %u, r %u, ch %02hX, bmid %08X ", column, row, character, bm_id);
   set_tile(column, row, bm_id);
 }
 
