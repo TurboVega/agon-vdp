@@ -194,7 +194,7 @@ void DiTileArray::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t 
 }
 
 void DiTileArray::set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id) {
-  debug_log("  set tile %hu %hu %08X\n",row,column,bm_id);
+  //debug_log("  set tile %hu %hu %08X\n",row,column,bm_id);
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item != m_id_to_bitmap_map.end()) {
     m_tile_pixels[row * m_columns + column] = bitmap_item->second->get_pixels();
