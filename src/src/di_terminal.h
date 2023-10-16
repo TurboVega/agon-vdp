@@ -102,6 +102,9 @@ class DiTerminal: public DiTileArray {
   // Get the bitmap ID for a character, based on given colors.
   DiTileBitmapID get_bitmap_id(uint8_t character, uint8_t fg_color, uint8_t bg_color);
 
+  // Bring a potentially off-screen position into view.
+  void bring_current_position_into_view();
+
   int32_t   m_current_column;
   int32_t   m_current_row;
   uint8_t   m_fg_color;

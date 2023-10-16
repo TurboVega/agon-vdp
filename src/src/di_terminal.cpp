@@ -86,7 +86,7 @@ void DiTerminal::set_character_position(int32_t column, int32_t row) {
   m_current_row = row;
 }
 
-void DiTerminal::write_character(uint8_t character) {
+void DiTerminal::bring_current_position_into_view() {
   if (m_current_column < 0) {
     // scroll text to the right (insert on the left)
     int32_t move = m_columns + m_current_column;
@@ -119,6 +119,10 @@ void DiTerminal::write_character(uint8_t character) {
     erase_text(0, move, m_columns, open);
     m_current_row = m_rows - 1;
   }
+}
+
+void DiTerminal::write_character(uint8_t character) {
+  bring_current_position_into_view();
 
   // Set the tile image ID using the character code.
   auto bm_id = get_bitmap_id(character);
@@ -192,6 +196,7 @@ void DiTerminal::clear_screen() {
 }
 
 void DiTerminal::move_cursor_left() {
+  bring_current_position_into_view();
   if (m_current_column > 0) {
     m_current_column--;
   } else if (m_current_row > 0) {
@@ -201,6 +206,7 @@ void DiTerminal::move_cursor_left() {
 }
 
 void DiTerminal::move_cursor_right() {
+  bring_current_position_into_view();
   if (m_current_column < m_columns - 1) {
     m_current_column++;
   } else if (m_current_row < m_rows - 1) {
@@ -210,25 +216,30 @@ void DiTerminal::move_cursor_right() {
 }
 
 void DiTerminal::move_cursor_down() {
+  bring_current_position_into_view();
   m_current_row++;
 }
 
 void DiTerminal::move_cursor_up() {
-   if (m_current_row > 0) {
+  bring_current_position_into_view();
+  if (m_current_row > 0) {
     m_current_row--;
   }
 }
 
 void DiTerminal::move_cursor_home() {
+  bring_current_position_into_view();
   m_current_row = 0;
   m_current_column = 0;
 }
 
 void DiTerminal::move_cursor_boln() {
+  bring_current_position_into_view();
   m_current_column = 0;
 }
 
 void DiTerminal::do_backspace() {
+  bring_current_position_into_view();
   if (m_current_column > 0) {
     m_current_column--;
     auto bm_id = get_bitmap_id(0x20);
