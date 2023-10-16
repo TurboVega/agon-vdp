@@ -152,7 +152,7 @@ void otf(void * pvParameters) {
 	di_manager = new DiManager();
 	di_manager->create_root();
 
-	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x10|PIXEL_ALPHA_100_MASK);
+	//di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x10|PIXEL_ALPHA_100_MASK);
     /*
 	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, PIXEL_COLOR_ABGR(PIXEL_ALPHA_100, 2, 0, 0));
 	di_manager->create_line(41, ROOT_PRIMITIVE_ID, 1, 180, 90, 480, 390, 0xFF); // diagonal right

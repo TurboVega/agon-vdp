@@ -229,10 +229,10 @@ void IRAM_ATTR DiTileArray::paint(volatile uint32_t* p_scan_line, uint32_t line_
   auto row = y_offset_within_tile_array / (int32_t)m_tile_height;
   auto src_pixels_offset = y_offset_within_tile * m_bytes_per_line;
   auto row_array = (uint32_t)(m_tile_pixels + row * m_columns);
-  if (!done) debug_log("scan=%08X line=%u\n", p_scan_line, line_index);
-  if (!done) debug_log("gen=%08X r=%u yo=%u spo=%u\n",m_paint_fcn[0].get_real_address(0), row,y_offset_within_tile,src_pixels_offset);
-  if (!done) debug_log("srcs %08X %08X %08X\n",m_tile_pixels[0],m_tile_pixels[1],m_tile_pixels[2]);
-  if (!done) debug_log("pix %08X %08X\n",m_tile_pixels[0]?(m_tile_pixels[0][0]):0, m_tile_pixels[0]?(m_tile_pixels[0][1]):0);
+  //if (!done) debug_log("scan=%08X line=%u\n", p_scan_line, line_index);
+  //if (!done) debug_log("gen=%08X r=%u yo=%u spo=%u\n",m_paint_fcn[0].get_real_address(0), row,y_offset_within_tile,src_pixels_offset);
+  //if (!done) debug_log("srcs %08X %08X %08X\n",m_tile_pixels[0],m_tile_pixels[1],m_tile_pixels[2]);
+  //if (!done) debug_log("pix %08X %08X\n",m_tile_pixels[0]?(m_tile_pixels[0][0]):0, m_tile_pixels[0]?(m_tile_pixels[0][1]):0);
   //done=true;
   m_paint_fcn[0].call_a5_a6(this, p_scan_line, y_offset_within_tile, row_array, src_pixels_offset);
   //m_paint_fcn[0].call(this, p_scan_line, y_offset_within_tile);
