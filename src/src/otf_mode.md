@@ -38,7 +38,9 @@ Another important aspect of how the OTF mode works is that it must keep all prim
 so that it can draw them repeatedly, without being told to do so by the BASIC (EZ80) application. Since
 the ESP32 holds the primitives in RAM, they can easily be manipulated (e.g., moved), without sending
 all of the information required to recreate them across the serial channel. VDP-GL already does something
-similar with bitmaps and sprites, but not with simpler primitives such as lines and triangles.
+similar with bitmaps and sprites, but as a Fab-GL derivative, not with simpler primitives such as lines and triangles. However,
+enhancements are in the works that allow VDP-GL to create buffered
+commands, so that it can replay them without a large data transfer.
 
 When primitives are no longer needed by the BASIC application, they may be deleted. Deleting a group
 primitive will delete its children, too, reducing the number of serial commands required to delete
@@ -69,7 +71,7 @@ each other, there may not be enough time to draw the scan line, before the next
 scan line should be drawn. If time runs out, the screen will show flashing
 (flickering) scan lines. It is unlikely that an entire object (such as a sprite)
 will flicker on and off. What is much more likely is that distinct scan lines
-within the object will flicker.<br><br>Another reason that flickering may occur, meaning that the time to draw a scan line exceeds the limit, is that CPU time can be stolen away from the OTF manager
+within the object will flicker, or be vertically out of place.<br><br>Another reason that flickering may occur, meaning that the time to draw a scan line exceeds the limit, is that CPU time can be stolen away from the OTF manager
 via interrupts and by other tasks. To help to reduce this possibility, the OTF manager runs in a high-priority task.
 
 * <b>Everything must be painted.</b> Every scan line on the screen (all 600 of them) must be drawn (painted) on every frame (i.e., 60 times per second). What
@@ -89,8 +91,8 @@ not be painted, and will be shown multiple times with the last drop of paint
 that it received (most likely from somewhere else on the screen).<br><br>
 There are 2 simple ways to be sure that every pixel is painted by at least 1
 layer of paint. The first alternative is to create a text terminal primitive, or a custom
-tile map, that covers the entire screen. The terminal implies a tile map of characters in 8x8-pixel cells, totalling 100
-columns across by 75 rows down. Every pixel on the screen is covered by a
+tile array, that covers the entire screen. The terminal, if full-screen, implies a tile array of characters in 8x8-pixel cells, totalling 100
+columns across by 75 rows down. Every pixel on the screen is covered by such a
 terminal primitive (at present there is no way to make it smaller; that is
 a future enhancement). The second alternative is to create a solid rectangle primitive with the
 X/Y coordinates at (0, 0), a width of 800 pixels, and a height of 600 pixels.
@@ -99,16 +101,34 @@ for the entire video frame. Other things could be drawn on top of it.<br><br>
 Of course, you have the option of piecing together various primitives of
 your choosing, as long as you cover the entire screen.<br><br>
 To be clear, if the EZ80 application does not define some kind of background
-(often, either a full tile map or a solid rectangle), then some part(s) of the
+(often, either a full tile array or a solid rectangle), then some part(s) of the
 screen will not be painted properly, giving undesirable effects.
+
+# OTF Dynamic Code Generation
+
+As mentioned above, the OTF mode uses some built-in ESP32 assembler functions to help with drawing primitives quickly; however, it
+goes a step further. In order to reduce the number of decisions made
+while drawing, it uses the primitive definitions to generate portions
+of ESP32 code at runtime. In some cases, instructions are generated
+that call built-in functions in whatever sequence is required.
+In other cases, instructions are generated that write to the specific
+pixel data bytes.
+<br><br>
+For example, to draw a 20 pixel long line from X position 39 to X position 58, inclusive, the OTF mode will generate instructions to
+set the single pixel at 39, set the 16 pixels from 40 to 55 (4 pixels at a time), set 2 pixels at 56 to 57, and finally, set the remaining
+single pixel at 58.
+<br><br>
+The code generation operation itself does take a small amount of time,
+and depending on how many primitives are processed to do so, there
+may be some temporary effect on painting the screen, meaning
+that it may flicker or duplicate scan lines during that time.
+
 
 # OTF Function Codes
 
-The OTF mode uses VDU 23, 0, 30 as its command signature for defining and processing drawing primitives. The following list gives an overview of the available commands in OTF mode; <b>however, not all of these commands have
+The OTF mode uses <b>VDU 23, 0, 30</b> as its command signature for defining and processing drawing primitives. The following list gives an overview of the available commands in OTF mode; <b>however, not all of these commands have
 been implemented yet, and this section is subject to change!</b>
 Each of these commands will be explained in detail once the code has all been written and tested.
-
-800x600x64 On-the-Fly Command Set:
 
 ## Set flags for primitive
 <b>VDU 23, 30, 0, id; flags;</b>
@@ -151,36 +171,36 @@ deleted with the primitive. Bear in mind that you can hide a
 primitive by changing its flags, while still keeping it intact.
 
 ## Create primitive: Point
-VDU 23, 30, 4, id; pid; flags; x; y; c
+<b>VDU 23, 30, 4, id; pid; flags; x; y; c</b>
 
 This command creates a primitive that draws a point (sets a single pixel).
 
 ## Create primitive: Line
-VDU 23, 30, 5, id; pid; flags; x1; y1; x2; y2; c
+<b>VDU 23, 30, 5, id; pid; flags; x1; y1; x2; y2; c</b>
 
 This commmand creates a primitive that draws a line. The endpoints
 are included (i.e., are drawn).
 
 ## Create primitive: Triangle Outline
-VDU 23, 30, 6, id; pid; flags; x1; y1; x2; y2; x3; y3; c
+<b>VDU 23, 30, 6, id; pid; flags; x1; y1; x2; y2; x3; y3; c</b>
 
 This commmand creates a primitive that draws the outline of a triangle. The triangle is not filled.
 
 ## Create primitive: Solid Triangle
-VDU 23, 30, 7, id; pid; flags; x1; y1; x2; y2; x3; y3; c
+<b>VDU 23, 30, 7, id; pid; flags; x1; y1; x2; y2; x3; y3; c</b>
 
 This commmand creates a primitive that draws a solid, filled
 traingle. The triangle does not have a distinct outline with
 a different color than the fill color.
 
 ## Create primitive: Rectangle Outline
-VDU 23, 30, 8, id; pid; flags; x; y; w; h; c
+<b>VDU 23, 30, 8, id; pid; flags; x; y; w; h; c</b>
 
 This commmand creates a primitive that draws the outline of a rectangle. The rectangle is not filled. Note that the width and
 height are given, not the diagonal coordinates.
 
 ## Create primitive: Solid Rectangle
-VDU 23, 30, 9, id; pid; flags; x; y; w; h; c
+<b>VDU 23, 30, 9, id; pid; flags; x; y; w; h; c</b>
 
 This commmand creates a primitive that draws a solid, filled rectangle.
 The rectangle does not have a distinct outline with a different
@@ -188,13 +208,13 @@ color than the fill color.
 Note that the width and height are given, not the diagonal coordinates.
 
 ## Create primitive: Ellipse Outline
-VDU 23, 30, 10, id; pid; flags; x; y; w; h; c
+<b>VDU 23, 30, 10, id; pid; flags; x; y; w; h; c</b>
 
 This commmand creates a primitive that draws the outline of an ellipse. The ellipse is not filled. Note that width and height
 are given, not the diagonal coordinates.
 
 ## Create primitive: Solid Ellipse
-VDU 23, 30, 11, id; pid; flags; x; y; w; h; c
+<b>VDU 23, 30, 11, id; pid; flags; x; y; w; h; c</b>
 
 This commmand creates a primitive that draws a solid, filled ellipse.
 The ellipse does not have a distinct outline with a different
@@ -203,7 +223,7 @@ Note that width and height are given, not
 the diagonal coordinates.
 
 ## Create primitive: Tile Map
-VDU 23, 30, 12, id; pid; flags; cols; rows; w; h;
+<b>VDU 23, 30, 12, id; pid; flags; cols; rows; w; h;</b>
 
 This commmand creates a primitive that draws a sparse tile map,
 as opposed to a full or mostly full tile array.
@@ -229,7 +249,7 @@ it would be more efficient to use a tile array. Slower processing
 might cause flicker.
 
 ## Create primitive: Tile Array
-VDU 23, 30, ?, id; pid; flags; cols; rows; w; h;
+<b>VDU 23, 30, 13, id; pid; flags; cols; rows; w; h;</b>
 
 This commmand creates a primitive that draws a full or mostly full tile array, as opposed to a sparse tile map.
 The number of cells in the array is equal to the number of rows
@@ -253,7 +273,7 @@ tile map. Thus, if you want a set of tiles with a low used-to-unused ratio,
 consider using a tile map, to avoid wasting space for unused cells.
 
 ## Create primitive: Solid Bitmap
-VDU 23, 30, 13, id; pid; flags; w; h;
+<b>VDU 23, 30, 14, id; pid; flags; w; h;</b>
 
 This commmand creates a primitive that draws a solid bitmap, meaning
 that every pixel is fully opaque (though each pixel has its own color).
@@ -261,7 +281,7 @@ A solid bitmap may be the most efficient kind of bitmap, from a
 processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
 
 ## Create primitive: Masked Bitmap
-VDU 23, 30, 14, id; pid; flags; w; h;
+<b>VDU 23, 30, 15, id; pid; flags; w; h;
 
 This commmand creates a primitive that draws a masked bitmap, meaning
 that every pixel is either fully opaque (though each pixel has its own color) or fully transparent.
@@ -269,7 +289,7 @@ A solid bitmap may be the most efficient kind of bitmap, from a
 processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
 
 ## Create primitive: Transparent Bitmap
-VDU 23, 30, 15, id; pid; flags; w; h; c
+<b>VDU 23, 30, 16, id; pid; flags; w; h; c</b>
 
 This commmand creates a primitive that draws a transparent bitmap, meaning
 that each pixel has either 0%, 25%, 50%, 75%, or 100% opacity.
@@ -277,7 +297,7 @@ A transparent bitmap may be the least efficient kind of bitmap, from a
 processing speed perspective. Bitmaps with any transparency may be slower than solid bitmaps, and their overuse could cause flicker.
 
 ## Create primitive: Group
-VDU 23, 30, 16, id; pid; flags; x; y;
+<b>VDU 23, 30, 17, id; pid; flags; x; y;</b>
 
 This commmand creates a primitive that groups its child primitives,
 for the purposes of motion and clipping. If a group node has
@@ -289,7 +309,7 @@ has no visible representation (i.e., is not drawn).
 Changing the flags of a group node can show or hide its children.
 
 ## Set position & slice solid bitmap
-VDU 23, 30, 17, id; x; y; s; h;
+<b>VDU 23, 30, 18, id; x; y; s; h;</b>
 
 This command sets the position of a solid bitmap, and specifies
 the starting vertical offset within the bitmap, plus the height
@@ -301,7 +321,7 @@ By default, when a bitmap is created, its starting vertical offset
 is zero, and its draw height is equal to its created height.
 
 ## Set position & slice masked bitmap
-VDU 23, 30, 18, id; x; y; s; h;
+<b>VDU 23, 30, 19, id; x; y; s; h;</b>
 
 This command sets the position of a masked bitmap, and specifies
 the starting vertical offset within the bitmap, plus the height
@@ -313,7 +333,7 @@ By default, when a bitmap is created, its starting vertical offset
 is zero, and its draw height is equal to its created height.
 
 ## Set position & slice transparent bitmap
-VDU 23, 30, 19, id; x; y; s; h;
+<b>VDU 23, 30, 20, id; x; y; s; h;</b>
 
 This command sets the position of a transparent bitmap, and specifies
 the starting vertical offset within the bitmap, plus the height
@@ -325,7 +345,7 @@ By default, when a bitmap is created, its starting vertical offset
 is zero, and its draw height is equal to its created height.
 
 ## Adjust position & slice solid bitmap
-VDU 23, 30, 20, id; x; y; s; h;
+<b>VDU 23, 30, 21, id; x; y; s; h;</b>
 
 This command adjusts the position of a solid bitmap, and specifies
 the starting vertical offset within the bitmap, plus the height
@@ -337,7 +357,7 @@ By default, when a bitmap is created, its starting vertical offset
 is zero, and its draw height is equal to its created height.
 
 ## Adjust position & slice masked bitmap
-VDU 23, 30, 21, id; x; y; s; h;
+<b>VDU 23, 30, 22, id; x; y; s; h;</b>
 
 This command adjusts the position of a masked bitmap, and specifies
 the starting vertical offset within the bitmap, plus the height
@@ -349,7 +369,7 @@ By default, when a bitmap is created, its starting vertical offset
 is zero, and its draw height is equal to its created height.
 
 ## Adjust position & slice transparent bitmap
-VDU 23, 30, 22, id; x; y; s; h;
+<b>VDU 23, 30, 23, id; x; y; s; h;</b>
 
 This command adjusts the position of a transparent bitmap, and specifies
 the starting vertical offset within the bitmap, plus the height
@@ -361,102 +381,103 @@ By default, when a bitmap is created, its starting vertical offset
 is zero, and its draw height is equal to its created height.
 
 ## Set solid bitmap pixel
-VDU 23, 30, 23, id; x; y; c
+<b>VDU 23, 30, 24, id; x; y; c</b>
 
 This command sets the color of a single pixel within a solid bitmap.
 
 ## Set masked bitmap pixel
-VDU 23, 30, 24, id; x; y; c
+<b>VDU 23, 30, 25, id; x; y; c</b>
 
 This command sets the color of a single pixel within a masked bitmap.
 
 ## Set transparent bitmap pixel
-VDU 23, 30, 25, id; x; y; c
+<b>VDU 23, 30, 26, id; x; y; c</b>
 
 This command sets the color of a single pixel within a transparent bitmap.
 
 ## Set solid bitmap pixels
-VDU 23, 30, 26, id; x; y; n; c0, c1, c2, ...
+<b>VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...</b>
 
 This command sets the colors of multiple pixels within a solid bitmap.
 
 ## Set masked bitmap pixels
-VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...
+<b>VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...</b>
 
 This command sets the colors of multiple pixels within a masked bitmap.
 
 ## Set transparent bitmap pixels
-VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...
+<b>VDU 23, 30, 29, id; x; y; n; c0, c1, c2, ...</b>
 
 This command sets the colors of multiple pixels within a transparent bitmap.
 
 ## Set image ID for tile in tile map
-VDU 23, 30, 29, id; col; row; img;
+<b>VDU 23, 30, 30, id; col; row; img;</b>
 
 This command specifies which bitmap should be draw in a specific
 cell of a tile map. The bitmap must have been created already.
 
 ## Set image ID for tile in tile array
-VDU 23, 30, 29, id; col; row; img;
+<b>VDU 23, 30, 31, id; col; row; img;</b>
 
 This command specifies which bitmap should be draw in a specific
 cell of a tile array. The bitmap must have been created already.
 
 ## Set image pixel in tile map
-VDU 23, 30, 30, id; img; x; y; c
+<b>VDU 23, 30, 32, id; img; x; y; c</b>
 
 This command sets the color of a single pixel within a tile map.
 
 ## Set image pixels in tile map
-VDU 23, 30, 31, id; img; x; y; n; c0, c1, c2, ...
+<b>VDU 23, 30, 33, id; img; x; y; n; c0, c1, c2, ...</b>
 
 This command sets the colors of multiple pixels within a tile map.
 
 ## Create primitive: Triangle List Outline
-VDU 23, 30, 32, id; pid; flags, n; c, x1; y1; ... xn; yn
+<b>VDU 23, 30, 34, id; pid; flags, n; c, x1; y1; ... xn; yn</b>
 
 This command creates a series of triangle outlines.
 
 A triangle list is a series of triangles that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each triangle, its 3 points must be specified.
 
 ## Create primitive: Solid Triangle List
-VDU 23, 30, 33, id; pid; flags, n; c, x1; y1; ... xn; yn;
+<b>VDU 23, 30, 35, id; pid; flags, n; c, x1; y1; ... xn; yn;</b>
 
 ## Create primitive: Triangle Fan Outline
-VDU 23, 30, 34, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;
+<b>VDU 23, 30, 36, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;</b>
 
 A triangle fan is a series of triangles that share a common center point, and each 2 consecutive triangles share an edge point.
 
 ## Create primitive: Solid Triangle Fan
-VDU 23, 30, 35, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;
+<b>VDU 23, 30, 37, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;</b>
 
 ## Create primitive: Triangle Strip Outline
-VDU 23, 30, 36, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;
+<b>VDU 23, 30, 38, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
 
 A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points.
 
 ## Create primitive: Solid Triangle Strip
-VDU 23, 30, 37, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;
+<b>VDU 23, 30, 39, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
 
 ## Create primitive: Quad Outline
-VDU 23, 30, 38, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;
+<b>VDU 23, 30, 40, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;</b>
 
 A quad is  4-sided, convex polygon that does not necessarily have any internal right angles, but could.
 
 ## Create primitive: Solid Quad
-VDU 23, 30, 39, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;
+<b>VDU 23, 30, 41, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;</b>
 
 ## Create primitive: Quad List Outline
-VDU 23, 30, 40, id; pid; flags, n; c, x1; y1; ... xn; yn;
+<b>VDU 23, 30, 42, id; pid; flags, n; c, x1; y1; ... xn; yn;</b>
 
 A quad list is a series of quads that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each quad, its 4 points must be specified.
 
 ## Create primitive: Solid Quad List
-VDU 23, 30, 41, id; pid; flags, n; c, x1; y1; ... xn; yn;
+<b>VDU 23, 30, 43, id; pid; flags, n; c, x1; y1; ... xn; yn;</b>
 
 ## Create primitive: Quad Strip Outline
-VDU 23, 30, 42, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;
+<b>VDU 23, 30, 44, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
 
 ## Create primitive: Solid Quad Strip
-VDU 23, 30, 43, id; pid; flags, n; c, x1; y1; ... xn; yn;
+<b>VDU 23, 30, 45, id;800x600x64 On-the-Fly Command Set:
+ pid; flags, n; c, x1; y1; ... xn; yn;</b>
 
