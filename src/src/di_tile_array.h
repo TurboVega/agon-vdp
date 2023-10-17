@@ -78,6 +78,10 @@ class DiTileArray: public DiPrimitive {
   // Get the bitmap ID presently at the given row and column.
   DiTileBitmapID get_tile(int16_t column, int16_t row);
 
+  // Get the coordinates of a specific tile position.
+  void get_tile_coordinates(int16_t column, int16_t row,
+            int16_t& x, int16_t& y, int16_t& x_extent, int16_t& y_extent);
+
   virtual void IRAM_ATTR paint(volatile uint32_t* p_scan_line, uint32_t line_index);
 
   protected:

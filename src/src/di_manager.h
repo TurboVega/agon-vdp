@@ -30,6 +30,7 @@
 #include "di_terminal.h"
 #include "di_tile_map.h"
 #include "di_bitmap.h"
+#include "di_solid_rectangle.h"
 
 typedef void (*DiVoidCallback)();
 
@@ -59,7 +60,7 @@ class DiManager {
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
                             uint8_t color);
 
-    DiPrimitive* create_solid_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
+    DiSolidRectangle* create_solid_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
                             uint8_t color);
 
@@ -170,6 +171,7 @@ class DiManager {
     uint32_t                    m_num_command_chars;
     uint32_t                    m_command_data_index;
     DiTerminal*                 m_terminal;
+    DiSolidRectangle*           m_cursor;
     uint8_t                     m_incoming_data[INCOMING_DATA_BUFFER_SIZE];
     uint8_t                     m_incoming_command[INCOMING_COMMAND_SIZE];
     DiPrimitive *               m_primitives[MAX_NUM_PRIMITIVES]; // Indexes of array are primitive IDs

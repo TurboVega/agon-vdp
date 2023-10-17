@@ -63,6 +63,7 @@ void vdu_sys_video_kblayout(byte region);
 extern bool initialised;
 extern bool logicalCoords;
 extern bool terminalMode;
+extern bool cursorEnabled;
 extern int videoMode;
 
 typedef enum {
@@ -80,6 +81,7 @@ DiManager::DiManager() {
   m_num_buffer_chars = 0;
   m_num_command_chars = 0;
   m_terminal = NULL;
+  m_cursor = NULL;
   m_on_vertical_blank_cb = &default_on_vertical_blank;
   memset(m_primitives, 0, sizeof(m_primitives));
 
@@ -500,7 +502,7 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiPrimitive* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
+DiSolidRectangle* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
                             uint8_t color) {
     if (!validate_id(id)) return NULL;
@@ -509,7 +511,8 @@ DiPrimitive* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent, uin
     auto prim = new DiSolidRectangle();
     prim->init_params(x, y, width, height, color);
 
-    return finish_create(id, flags, prim, parent_prim);
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
 }
 
 DiPrimitive* DiManager::create_triangle(uint16_t id, uint16_t parent, uint16_t flags,
@@ -580,6 +583,15 @@ DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t fl
 
     finish_create(id, flags, terminal, parent_prim);
     m_terminal = terminal;
+
+    // Create a child rectangle as a text cursor.
+    int16_t cx, cy, cx_extent, cy_extent;
+    cx = cy = cx_extent = cy_extent = 0;
+    m_terminal->get_tile_coordinates(0, 0, cx, cy, cx_extent, cy_extent);
+    auto w = cx_extent - cx;
+    auto h = cy_extent - cy;
+    m_cursor = create_solid_rectangle(id+1, id, flags & PRIM_FLAGS_DEFAULT, cx, cy, w, h, 0xFF);
+
     return terminal;
 }
 
@@ -619,11 +631,33 @@ void IRAM_ATTR DiManager::loop() {
         store_character(ESPSerial.read());
       }
     } else if (loop_state == LoopState::WritingActiveLines) {
+      // Timing just moved into the vertical blanking area.
       process_stored_characters();
       while (ESPSerial.available() > 0) {
         process_character(ESPSerial.read());
       }
       (*m_on_vertical_blank_cb)();
+
+      if (terminalMode && cursorEnabled && m_cursor) {
+        auto flags = m_cursor->get_flags();
+        if (flags & PRIM_FLAG_PAINT_THIS == 0) {
+          // turn ON cursor
+          m_terminal->bring_current_position_into_view();
+          int16_t cx, cy, cx_extent, cy_extent;
+          cx = cy = cx_extent = cy_extent = 0;
+          uint16_t col = 0;
+          uint16_t row = 0;
+          m_terminal->get_position(col, row);
+          m_terminal->get_tile_coordinates(col, row, cx, cy, cx_extent, cy_extent);
+          auto w = cx_extent - cx;
+          auto h = cy_extent - cy;
+          set_primitive_flags(m_cursor->get_id(), flags | PRIM_FLAG_PAINT_THIS);
+          move_primitive_absolute(m_cursor->get_id(), cx, cy);
+        } else {
+          // turn OFF cursor
+          set_primitive_flags(m_cursor->get_id(), flags ^ PRIM_FLAG_PAINT_THIS);
+        }
+      }
 
       loop_state = LoopState::ProcessingIncomingData;
       
@@ -905,11 +939,33 @@ VDU 23, 0, &C2, 2:	Set Tile Properties
 VDU 23, 0, &C2, 3:	Draw Layer
 VDU 23, 0, &C4, 0:	Set Border Colour
 VDU 23, 0, &C4, 1:	Draw Border
+
+From this page: https://www.bbcbasic.co.uk/bbcwin/manual/bbcwin8.html#vdu23
+VDU 23, 1, 0; 0; 0; 0;: Text Cursor Control
 */
 bool DiManager::handle_udg_sys_cmd(uint8_t character) {
   m_incoming_command[m_num_command_chars++] = character;
   if (m_num_command_chars >= 2 && get_param_8(1) == 30) {
     return handle_otf_cmd();
+  }
+  if (m_num_command_chars >= 2 && get_param_8(1) == 1) {
+    // VDU 23, 1, enable; 0; 0; 0;: Text Cursor Control
+    if (m_num_command_chars >= 10) {
+      if (m_terminal) {
+        auto flags = m_cursor->get_flags();
+        if (get_param_8(2) != 0 && cursorEnabled && (flags & PRIM_FLAG_PAINT_THIS == 0)) {
+          // turn ON cursor
+          set_primitive_flags(m_cursor->get_id(), flags | PRIM_FLAG_PAINT_THIS);
+        } else {
+          if (flags & PRIM_FLAG_PAINT_THIS != 0) {
+            // turn OFF cursor
+            set_primitive_flags(m_cursor->get_id(), flags ^ PRIM_FLAG_PAINT_THIS);
+          }
+        }
+      }
+      return true;
+    }
+    return false;
   }
   if (m_num_command_chars >= 3) {
     switch (m_incoming_command[2]) {

@@ -240,6 +240,14 @@ DiTileBitmapID DiTileArray::get_tile(int16_t column, int16_t row) {
   return (DiTileBitmapID)0;
 }
 
+void DiTileArray::get_tile_coordinates(int16_t column, int16_t row,
+          int16_t& x, int16_t& y, int16_t& x_extent, int16_t& y_extent) {
+    x = column * m_tile_width + m_abs_x;
+    x_extent = x + m_tile_width;
+    y = row * m_tile_height + m_abs_y;
+    y_extent = y + m_tile_height;
+}
+
 void IRAM_ATTR DiTileArray::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
   //debug_log("NO PAINT!"); return;
   //p_scan_line[20]=0x12342618;
