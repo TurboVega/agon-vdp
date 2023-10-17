@@ -163,13 +163,13 @@ void DiTerminal::erase_text(int32_t column, int32_t row, int32_t columns, int32_
 
 void DiTerminal::move_text(int32_t column, int32_t row, int32_t columns, int32_t rows,
                             int32_t delta_horiz, int32_t delta_vert) {
-  debug_log("move_text c%i r%i cs%i rs%i dh%i dv%i cc%i cr%i\n",
-    column, row, columns, rows, delta_horiz, delta_vert, m_current_column, m_current_row);
+  //debug_log("move_text c%i r%i cs%i rs%i dh%i dv%i cc%i cr%i\n",
+  //  column, row, columns, rows, delta_horiz, delta_vert, m_current_column, m_current_row);
   if (delta_vert > 0) {
     // moving rows down; copy bottom-up
     row += rows - 1;
     while (rows-- > 0) {
-      debug_log("-- moving %i to %i\n", row, row + delta_vert);
+      //debug_log("-- moving %i to %i\n", row, row + delta_vert);
       auto col = column;
       auto n = columns;
       while (n-- > 0) {
@@ -181,7 +181,7 @@ void DiTerminal::move_text(int32_t column, int32_t row, int32_t columns, int32_t
   } else {
     // moving rows up; copy top-down
     while (rows-- > 0) {
-      debug_log("-- moving %i to %i\n", row + delta_vert, row);
+      //debug_log("-- moving %i to %i\n", row + delta_vert, row);
       auto col = column;
       auto n = columns;
       while (n-- > 0) {

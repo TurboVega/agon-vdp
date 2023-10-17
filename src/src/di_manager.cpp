@@ -721,7 +721,7 @@ void DiManager::store_string(const uint8_t* string) {
 
 void DiManager::process_stored_characters() {
   while (m_num_buffer_chars > 0) {
-    debug_log("[%02hX]", m_incoming_data[m_next_buffer_read]);
+    //debug_log("[%02hX]", m_incoming_data[m_next_buffer_read]);
     bool rc = process_character(m_incoming_data[m_next_buffer_read++]);
     if (m_next_buffer_read >= INCOMING_DATA_BUFFER_SIZE) {
       m_next_buffer_read = 0;
