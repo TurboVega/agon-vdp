@@ -203,7 +203,7 @@ Note that width and height are given, not
 the diagonal coordinates.
 
 ## Create primitive: Tile Map
-VDU 23, 30, 12, id; pid; flags; cols; rows; bitmaps, w; h;
+VDU 23, 30, 12, id; pid; flags; cols; rows; w; h;
 
 This commmand creates a primitive that draws a sparse tile map,
 as opposed to a full or mostly full tile array.
@@ -229,7 +229,7 @@ it would be more efficient to use a tile array. Slower processing
 might cause flicker.
 
 ## Create primitive: Tile Array
-VDU 23, 30, ?, id; pid; flags; cols; rows; bitmaps, w; h;
+VDU 23, 30, ?, id; pid; flags; cols; rows; w; h;
 
 This commmand creates a primitive that draws a full or mostly full tile array, as opposed to a sparse tile map.
 The number of cells in the array is equal to the number of rows
@@ -413,51 +413,50 @@ VDU 23, 30, 31, id; img; x; y; n; c0, c1, c2, ...
 This command sets the colors of multiple pixels within a tile map.
 
 ## Create primitive: Triangle List Outline
-VDU 23, 30, 32, id; pid; flags, n; x1; y1; ... xn; yn; c
+VDU 23, 30, 32, id; pid; flags, n; c, x1; y1; ... xn; yn
 
 This command creates a series of triangle outlines.
 
 A triangle list is a series of triangles that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each triangle, its 3 points must be specified.
 
 ## Create primitive: Solid Triangle List
-VDU 23, 30, 33, id; pid; flags, n; x1; y1; ... xn; yn; c
+VDU 23, 30, 33, id; pid; flags, n; c, x1; y1; ... xn; yn;
 
 ## Create primitive: Triangle Fan Outline
-VDU 23, 30, 34, id; pid; flags, n; sx0; sy0; sx1; sy1; ... xn; yn; c
+VDU 23, 30, 34, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;
 
 A triangle fan is a series of triangles that share a common center point, and each 2 consecutive triangles share an edge point.
 
-
 ## Create primitive: Solid Triangle Fan
-VDU 23, 30, 35, id; pid; flags, n; sx0; sy0; sx1; sy1; ... xn; yn; c
+VDU 23, 30, 35, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;
 
 ## Create primitive: Triangle Strip Outline
-VDU 23, 30, 36, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c
+VDU 23, 30, 36, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;
 
 A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points.
 
 ## Create primitive: Solid Triangle Strip
-VDU 23, 30, 37, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c
+VDU 23, 30, 37, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;
 
 ## Create primitive: Quad Outline
-VDU 23, 30, 38, id; pid; flags, x1; y1; x2; y2; x3; y3; x4; y4; c
+VDU 23, 30, 38, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;
 
 A quad is  4-sided, convex polygon that does not necessarily have any internal right angles, but could.
 
 ## Create primitive: Solid Quad
-VDU 23, 30, 39, id; pid; flags, x1; y1; x2; y2; x3; y3; x4; y4; c
+VDU 23, 30, 39, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;
 
 ## Create primitive: Quad List Outline
-VDU 23, 30, 40, id; pid; flags, n; x1; y1; ... xn; yn; c
+VDU 23, 30, 40, id; pid; flags, n; c, x1; y1; ... xn; yn;
 
 A quad list is a series of quads that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each quad, its 4 points must be specified.
 
 ## Create primitive: Solid Quad List
-VDU 23, 30, 41, id; pid; flags, n; x1; y1; ... xn; yn; c
+VDU 23, 30, 41, id; pid; flags, n; c, x1; y1; ... xn; yn;
 
 ## Create primitive: Quad Strip Outline
-VDU 23, 30, 42, id; pid; flags, n; sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; c
+VDU 23, 30, 42, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;
 
 ## Create primitive: Solid Quad Strip
-VDU 23, 30, 43, id; pid; flags, n; x1; y1; ... xn; yn; c
+VDU 23, 30, 43, id; pid; flags, n; c, x1; y1; ... xn; yn;
 
