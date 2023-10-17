@@ -82,11 +82,11 @@ DiManager::DiManager() {
   m_num_command_chars = 0;
   m_terminal = NULL;
   m_cursor = NULL;
+  m_flash_count = 0;
   m_on_vertical_blank_cb = &default_on_vertical_blank;
   memset(m_primitives, 0, sizeof(m_primitives));
 
   logicalCoords = false; // this mode always uses regular coordinates
-  terminalMode = false; // this mode is not (yet) terminal mode
 }
 
 DiManager::~DiManager() {
@@ -589,8 +589,11 @@ DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t fl
     cx = cy = cx_extent = cy_extent = 0;
     m_terminal->get_tile_coordinates(0, 0, cx, cy, cx_extent, cy_extent);
     auto w = cx_extent - cx;
-    auto h = cy_extent - cy;
-    m_cursor = create_solid_rectangle(id+1, id, flags & PRIM_FLAGS_DEFAULT, cx, cy, w, h, 0xFF);
+    m_cursor = create_solid_rectangle(id+1, id,
+                (flags & PRIM_FLAGS_DEFAULT) & (~PRIM_FLAG_PAINT_THIS),
+                cx, cy_extent-2, w, 2, 0xFF);
+    cursorEnabled = true;
+    terminalMode = true;
 
     return terminal;
 }
@@ -640,22 +643,29 @@ void IRAM_ATTR DiManager::loop() {
 
       if (terminalMode && cursorEnabled && m_cursor) {
         auto flags = m_cursor->get_flags();
-        if (flags & PRIM_FLAG_PAINT_THIS == 0) {
-          // turn ON cursor
-          m_terminal->bring_current_position_into_view();
-          int16_t cx, cy, cx_extent, cy_extent;
-          cx = cy = cx_extent = cy_extent = 0;
-          uint16_t col = 0;
-          uint16_t row = 0;
-          m_terminal->get_position(col, row);
-          m_terminal->get_tile_coordinates(col, row, cx, cy, cx_extent, cy_extent);
-          auto w = cx_extent - cx;
-          auto h = cy_extent - cy;
-          set_primitive_flags(m_cursor->get_id(), flags | PRIM_FLAG_PAINT_THIS);
-          move_primitive_absolute(m_cursor->get_id(), cx, cy);
+        auto cid = m_cursor->get_id();
+        if ((flags & PRIM_FLAG_PAINT_THIS) == 0) {
+          if (++m_flash_count >= 50) {
+            // turn ON cursor
+            m_terminal->bring_current_position_into_view();
+            int16_t cx, cy, cx_extent, cy_extent;
+            cx = cy = cx_extent = cy_extent = 0;
+            uint16_t col = 0;
+            uint16_t row = 0;
+            m_terminal->get_position(col, row);
+            m_terminal->get_tile_coordinates(col, row, cx, cy, cx_extent, cy_extent);
+            auto w = cx_extent - cx;
+            //debug_log("cx%i cy%i w%i h%i cid%i\n",cx,cy,w,h,cid);
+            set_primitive_flags(cid, flags | PRIM_FLAG_PAINT_THIS);
+            move_primitive_absolute(cid, cx, cy_extent-2);
+            m_flash_count = 0;
+          }
         } else {
-          // turn OFF cursor
-          set_primitive_flags(m_cursor->get_id(), flags ^ PRIM_FLAG_PAINT_THIS);
+          if (++m_flash_count >= 10) {
+            // turn OFF cursor
+            set_primitive_flags(cid, flags ^ PRIM_FLAG_PAINT_THIS);
+            m_flash_count = 0;
+          }
         }
       }
 
