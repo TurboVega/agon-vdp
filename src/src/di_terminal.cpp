@@ -126,7 +126,7 @@ void DiTerminal::write_character(uint8_t character) {
 
   // Set the tile image ID using the character code.
   auto bm_id = get_bitmap_id(character);
-  debug_log("\n c %u, r %u, ch %02hX, bmid %08X\n", m_current_column, m_current_row, character, bm_id);
+  //debug_log("\n c %u, r %u, ch %02hX, bmid %08X\n", m_current_column, m_current_row, character, bm_id);
   set_tile(m_current_column, m_current_row, bm_id);
 
   // Advance the current position
@@ -138,7 +138,7 @@ void DiTerminal::write_character(uint8_t character) {
 
 void DiTerminal::set_character(int32_t column, int32_t row, uint8_t character) {
   auto bm_id = define_character(character, m_fg_color, m_bg_color);
-  debug_log(" c %u, r %u, ch %02hX, bmid %08X ", column, row, character, bm_id);
+  //debug_log(" c %u, r %u, ch %02hX, bmid %08X ", column, row, character, bm_id);
   set_tile(column, row, bm_id);
 }
 
@@ -169,22 +169,24 @@ void DiTerminal::move_text(int32_t column, int32_t row, int32_t columns, int32_t
     // moving rows down; copy bottom-up
     row += rows - 1;
     while (rows-- > 0) {
+      debug_log("-- moving %i to %i\n", row, row + delta_vert);
       auto col = column;
       auto n = columns;
       while (n-- > 0) {
         auto bm_id = get_tile(col, row);
-        set_tile(col++, row-1, bm_id);
+        set_tile(col++, row + delta_vert, bm_id);
       }
       row--;
     }
   } else {
     // moving rows up; copy top-down
     while (rows-- > 0) {
+      debug_log("-- moving %i to %i\n", row + delta_vert, row);
       auto col = column;
       auto n = columns;
       while (n-- > 0) {
-        auto bm_id = get_tile(col, row+1);
-        set_tile(col++, row, bm_id);
+        auto bm_id = get_tile(col, row);
+        set_tile(col++, row + delta_vert, bm_id);
       }
       row++;
     }

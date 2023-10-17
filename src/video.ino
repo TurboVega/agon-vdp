@@ -168,13 +168,15 @@ void otf(void * pvParameters) {
 	auto terminal = di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 0, 0, 100, 75, fabgl::FONT_AGON_DATA);
 	terminal->define_character_range(0x20, 0x7E, PIXEL_ALPHA_100_MASK|0x05, PIXEL_ALPHA_100_MASK|0x00);
 	terminal->clear_screen();
+	for (uint32_t row = 0; row < 75; row++) {
+		terminal->set_character(70,row,48+(uint8_t)(row%10));
+	}
 	//debug_log("@%i\n", __LINE__); delay(100);
 	boot_screen();
 	//terminal->set_character(0, 0, 0xC5C00041);
 	//debug_log("@%i\n", __LINE__); delay(100);
 	
 	di_manager->set_on_vertical_blank_cb(&on_vertical_blank_start);
-	di_manager->set_on_lines_painted_cb(&on_lines_painted);
 	
 	//di_manager->create_point(510, ROOT_PRIMITIVE_ID, 1, 400, 300, PIXEL_ALPHA_100_MASK|0x3F);
 

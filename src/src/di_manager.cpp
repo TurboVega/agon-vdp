@@ -73,7 +73,6 @@ typedef enum {
 
 // Default callback functions
 void default_on_vertical_blank() {}
-void default_on_lines_painted() {}
 
 DiManager::DiManager() {
   m_next_buffer_write = 0;
@@ -82,7 +81,6 @@ DiManager::DiManager() {
   m_num_command_chars = 0;
   m_terminal = NULL;
   m_on_vertical_blank_cb = &default_on_vertical_blank;
-  m_on_lines_painted_cb = &default_on_lines_painted;
   memset(m_primitives, 0, sizeof(m_primitives));
 
   logicalCoords = false; // this mode always uses regular coordinates
@@ -620,9 +618,6 @@ void IRAM_ATTR DiManager::loop() {
       while (ESPSerial.available() > 0) {
         store_character(ESPSerial.read());
       }
-
-      (*m_on_lines_painted_cb)();
-
     } else if (loop_state == LoopState::WritingActiveLines) {
       process_stored_characters();
       while (ESPSerial.available() > 0) {
@@ -643,7 +638,7 @@ void IRAM_ATTR DiManager::loop() {
       }
 
       loop_state = LoopState::NearNewFrameStart;
-      //current_line_index = 0;
+      current_line_index = 0;
       current_buffer_index = 0;
 
     } else if (loop_state == LoopState::ProcessingIncomingData) {
@@ -673,14 +668,6 @@ void DiManager::set_on_vertical_blank_cb(DiVoidCallback callback_fcn) {
     m_on_vertical_blank_cb = callback_fcn;
   } else {
     m_on_vertical_blank_cb = default_on_vertical_blank;
-  }
-}
-
-void DiManager::set_on_lines_painted_cb(DiVoidCallback callback_fcn) {
-  if (callback_fcn) {
-    m_on_lines_painted_cb = callback_fcn;
-  } else {
-    m_on_lines_painted_cb = default_on_lines_painted;
   }
 }
 

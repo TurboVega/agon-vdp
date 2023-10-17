@@ -97,7 +97,7 @@ static bool done;
 
 void IRAM_ATTR DiTileArray::generate_instructions() {
   delete_instructions();
-  debug_log(" tm @%i flags=%hX w=%u h=%u\n", __LINE__, m_flags, m_width, m_height);
+  //debug_log(" tm @%i flags=%hX w=%u h=%u\n", __LINE__, m_flags, m_width, m_height);
 
   // Painting is done with this parameter list:
   // a0 = return address
@@ -194,7 +194,7 @@ void DiTileArray::set_pixel(DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t 
 }
 
 void DiTileArray::set_tile(int16_t column, int16_t row, DiTileBitmapID bm_id) {
-  //debug_log("  set tile %hu %hu %08X\n",row,column,bm_id);
+  //if (bm_id != 0xC0C50020) debug_log("  set tile %hu %hu %08X (%08X)\n",row,column,bm_id, get_tile(70,0));
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item != m_id_to_bitmap_map.end()) {
     m_tile_pixels[row * m_columns + column] = bitmap_item->second->get_pixels();
@@ -248,11 +248,13 @@ void IRAM_ATTR DiTileArray::paint(volatile uint32_t* p_scan_line, uint32_t line_
   auto row = y_offset_within_tile_array / (int32_t)m_tile_height;
   auto src_pixels_offset = y_offset_within_tile * m_bytes_per_line;
   auto row_array = (uint32_t)(m_tile_pixels + row * m_columns);
-  //if (!done) debug_log("scan=%08X line=%u\n", p_scan_line, line_index);
-  //if (!done) debug_log("gen=%08X r=%u yo=%u spo=%u\n",m_paint_fcn[0].get_real_address(0), row,y_offset_within_tile,src_pixels_offset);
-  //if (!done) debug_log("srcs %08X %08X %08X\n",m_tile_pixels[0],m_tile_pixels[1],m_tile_pixels[2]);
-  //if (!done) debug_log("pix %08X %08X\n",m_tile_pixels[0]?(m_tile_pixels[0][0]):0, m_tile_pixels[0]?(m_tile_pixels[0][1]):0);
-  //done=true;
+  //bool show = (line_index < 32);
+  //if (show && !done && (line_index%8==0)) debug_log("\n");
+  //if (show && !done) debug_log("scan=%08X line=%u\n", p_scan_line, line_index);
+  //if (show && !done) debug_log("  gen=%08X r=%u yo=%u spo=%u\n",m_paint_fcn[0].get_real_address(0), row,y_offset_within_tile,src_pixels_offset);
+  //if (show && !done) debug_log("  srcs %08X %08X %08X\n",m_tile_pixels[0],m_tile_pixels[1],m_tile_pixels[2]);
+  //if (show && !done) debug_log("  pix %08X %08X\n",m_tile_pixels[0]?(m_tile_pixels[0][0]):0, m_tile_pixels[0]?(m_tile_pixels[0][1]):0);
+  //done |= (line_index >= 32);
   m_paint_fcn[0].call_a5_a6(this, p_scan_line, y_offset_within_tile, row_array, src_pixels_offset);
   //m_paint_fcn[0].call(this, p_scan_line, y_offset_within_tile);
 }
