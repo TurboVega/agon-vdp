@@ -876,8 +876,7 @@ edge color that differs from the given color.
 A quad strip is a series of quads where each 2 consecutive quads share 2 common points. The quads are not filled.
 
 ## Create primitive: Solid Quad Strip
-<b>VDU 23, 30, 55, id;800x600x64 On-the-Fly Command Set:
- pid; flags; n; c, x1; y1; ... xn; yn;</b>
+<b>VDU 23, 30, 55, id; pid; flags; n; c, x1; y1; ... xn; yn;</b>
 
 A quad strip is a series of quads where each 2 consecutive quads share 2 common points. The quads are filled, but do not have a distinct
 edge color that differs from the given color.
