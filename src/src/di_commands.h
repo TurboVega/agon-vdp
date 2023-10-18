@@ -464,32 +464,32 @@ typedef struct {
     uint8_t     m_color[1];
 } VduOtfSetTransparentBitmapPixelsInTileMap;
 
-// VDU 23, 30, 44, id; bmid; x; y; color :  Set solid bitmap pixel in Tile Map
+// VDU 23, 30, 44, id; bmid; x; y; color :  Set solid bitmap pixel in Tile Array
 typedef struct {
     VduHeader   m_header;
     uint16_t    m_id;
     uint16_t    m_bmid;
     VduCoords   m_coords;
     uint8_t     m_color;
-} VduOtfSetSolidBitmapPixelInTileMap;
+} VduOtfSetSolidBitmapPixelInTileArray;
 
-// VDU 23, 30, 45, id; bmid; x; y; color :  Set masked bitmap pixel in Tile Map
+// VDU 23, 30, 45, id; bmid; x; y; color :  Set masked bitmap pixel in Tile Array
 typedef struct {
     VduHeader   m_header;
     uint16_t    m_id;
     uint16_t    m_bmid;
     VduCoords   m_coords;
     uint8_t     m_color;
-} VduOtfSetMaskedBitmapPixelInTileMap;
+} VduOtfSetMaskedBitmapPixelInTileArray;
 
-// VDU 23, 30, 46, id; bmid; x; y; color :  Set transparent bitmap pixel in Tile Map
+// VDU 23, 30, 46, id; bmid; x; y; color :  Set transparent bitmap pixel in Tile Array
 typedef struct {
     VduHeader   m_header;
     uint16_t    m_id;
     uint16_t    m_bmid;
     VduCoords   m_coords;
     uint8_t     m_color;
-} VduOtfSetTransparentBitmapPixelInTileMap;
+} VduOtfSetTransparentBitmapPixelInTileArray;
 
 // VDU 23, 30, 47, id; bmid; x; y; n; c0, c1, c2, ... :  Set solid bitmap pixels in Tile Array
 typedef struct {
