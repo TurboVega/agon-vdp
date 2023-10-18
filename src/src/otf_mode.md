@@ -294,6 +294,64 @@ The OTF mode uses <b>VDU 23, 0, 30</b> as its command signature for defining and
 been implemented yet, and this section is subject to change!</b>
 Each of these commands will be explained in detail once the code has all been written and tested.
 
+Here is an overview of the commands:
+<br>VDU 23, 30, 0, id; flags; :  Set flags for primitive
+<br>VDU 23, 30, 1, id; x; y; :  Set primitive position
+<br>VDU 23, 30, 2, id; x; y; :  Adjust primitive position
+<br>VDU 23, 30, 3, id; :  Delete primitive
+<br>VDU 23, 30, 4, id; pid; flags; x; y; color :  Create primitive: Point
+<br>VDU 23, 30, 5, id; pid; flags; x1; y1; x2; y2; color :  Create primitive: Line
+<br>VDU 23, 30, 6, id; pid; flags; x1; y1; x2; y2; x3; y3; color :  Create primitive: Triangle Outline
+<br>VDU 23, 30, 7, id; pid; flags; x1; y1; x2; y2; x3; y3; color :  Create primitive: Solid Triangle
+<br>VDU 23, 30, 8, id; pid; flags; x; y; w; h; color :  Create primitive: Rectangle Outline
+<br>VDU 23, 30, 9, id; pid; flags; x; y; w; h; color :  Create primitive: Solid Rectangle
+<br>VDU 23, 30, 10, id; pid; flags; x; y; w; h; color :  Create primitive: Ellipse Outline
+<br>VDU 23, 30, 11, id; pid; flags; x; y; w; h; color :  Create primitive: Solid Ellipse
+<br>VDU 23, 30, 12, id; pid; flags; cols; rows; w; h; :  Create primitive: Tile Map
+<br>VDU 23, 30, 13, id; pid; flags; cols; rows; w; h; :  Create primitive: Tile Array
+<br>VDU 23, 30, 14, id; pid; flags; w; h; :  Create primitive: Solid Bitmap
+<br>VDU 23, 30, 15, id; pid; flags; w; h; color :  Create primitive: Masked Bitmap
+<br>VDU 23, 30, 16, id; pid; flags; w; h; color :  Create primitive: Transparent Bitmap
+<br>VDU 23, 30, 17, id; pid; flags; x; y; :  Create primitive: Group
+<br>VDU 23, 30, 18, id; x; y; s; h; :  Set position & slice solid bitmap
+<br>VDU 23, 30, 19, id; x; y; s; h; :  Set position & slice masked bitmap
+<br>VDU 23, 30, 20, id; x; y; s; h; :  Set position & slice transparent bitmap
+<br>VDU 23, 30, 21, id; x; y; s; h; :  Adjust position & slice solid bitmap
+<br>VDU 23, 30, 22, id; x; y; s; h; :  Adjust position & slice masked bitmap
+<br>VDU 23, 30, 23, id; x; y; s; h; :  Adjust position & slice transparent bitmap
+<br>VDU 23, 30, 24, id; x; y; color :  Set solid bitmap pixel
+<br>VDU 23, 30, 25, id; x; y; color :  Set masked bitmap pixel
+<br>VDU 23, 30, 26, id; x; y; color :  Set transparent bitmap pixel
+<br>VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ... :  Set solid bitmap pixels
+<br>VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ... :  Set masked bitmap pixels
+<br>VDU 23, 30, 29, id; x; y; n; c0, c1, c2, ... :  Set transparent bitmap pixels
+<br>VDU 23, 30, 30, id; pid; flags; w; h; :  Create Solid Bitmap for Tile Map
+<br>VDU 23, 30, 31, id; pid; flags; w; h; color :  Create Masked Bitmap for Tile Map
+<br>VDU 23, 30, 32, id; pid; flags; w; h; color :  Create Transparent Bitmap for Tile Map
+<br>VDU 23, 30, 33, id; pid; flags; w; h; :  Create Solid Bitmap for Tile Array
+<br>VDU 23, 30, 34, id; pid; flags; w; h; color :  Create Masked Bitmap for Tile Array
+<br>VDU 23, 30, 35, id; pid; flags; w; h; color :  Create Transparent Bitmap for Tile Array
+<br>VDU 23, 30, 36, id; col; row; bmid; :  Set bitmap ID for tile in tile map
+<br>VDU 23, 30, 37, id; col; row; bmid; :  Set bitmap ID for tile in tile array
+<br>VDU 23, 30, 38, id; bmid; x; y; color :  Set bitmap pixel in tile map
+<br>VDU 23, 30, 39, id; bmid; x; y; n; c0, c1, c2, ... :  Set bitmap pixels in tile map
+<br>VDU 23, 30, 40, id; pid; flags; x; y; columns; rows; :  Create primitive: Terminal
+<br>VDU 23, 30, 41, id; :  Select Active Terminal
+<br>VDU 23, 30, 42, id; char, fgcolor, bgcolor :  Define Terminal Character
+<br>VDU 23, 30, 43, id; firstchar, lastchar, fgcolor, bgcolor :  Define Terminal Character Range
+<br>VDU 23, 30, 44, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Triangle List Outline
+<br>VDU 23, 30, 45, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Solid Triangle List
+<br>VDU 23, 30, 46, id; pid; flags; n; c, sx0; sy0; sx1; sy1; ... xn; yn; :  Create primitive: Triangle Fan Outline
+<br>VDU 23, 30, 47, id; pid; flags; n; c, sx0; sy0; sx1; sy1; ... xn; yn; :  Create primitive: Solid Triangle Fan
+<br>VDU 23, 30, 48, id; pid; flags; n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; :  Create primitive: Triangle Strip Outline
+<br>VDU 23, 30, 49, id; pid; flags; n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; :  Create primitive: Solid Triangle Strip
+<br>VDU 23, 30, 50, id; pid; flags; c, x1; y1; x2; y2; x3; y3; x4; y4; :  Create primitive: Quad Outline
+<br>VDU 23, 30, 51, id; pid; flags; c, x1; y1; x2; y2; x3; y3; x4; y4; :  Create primitive: Solid Quad
+<br>VDU 23, 30, 52, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Quad List Outline
+<br>VDU 23, 30, 53, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Solid Quad List
+<br>VDU 23, 30, 54, id; pid; flags; n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; :  Create primitive: Quad Strip Outline
+<br>VDU 23, 30, 55, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Solid Quad Strip
+
 ## Set flags for primitive
 <b>VDU 23, 30, 0, id; flags;</b>
 
