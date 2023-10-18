@@ -123,6 +123,170 @@ and depending on how many primitives are processed to do so, there
 may be some temporary effect on painting the screen, meaning
 that it may flicker or duplicate scan lines during that time.
 
+# OTF Primitve Flags
+
+The OTF mode uses flags to control certain aspects of primitives.
+Here is an overview of the current set of flags (which is always
+subject to additions in the future):
+
+```
+#define PRIM_FLAG_PAINT_THIS  0x0001  // whether to paint this primitive
+#define PRIM_FLAG_PAINT_KIDS  0x0002  // whether to paint child primitives
+#define PRIM_FLAG_CLIP_THIS   0x0004  // whether to clip this primitive
+#define PRIM_FLAG_CLIP_KIDS   0x0008  // whether to clip child primitives
+#define PRIM_FLAG_H_SCROLL    0x0010  // whether to support horizontal scrolling
+#define PRIM_FLAG_ABSOLUTE    0x0040  // whether to use absolute coordinates always
+#define PRIM_FLAGS_MASKED     0x0080  // hint that pixels are fully opaque or transparent
+#define PRIM_FLAGS_BLENDED    0x0100  // hint that pixels may be blended
+#define PRIM_FLAGS_ALL_SAME   0x0200  // hint that all lines can be drawn the same way
+#define PRIM_FLAGS_CAN_DRAW   0x1000  // whether this primitive can be drawn at all
+#define PRIM_FLAGS_X          0x2000  // hint that x will be given
+#define PRIM_FLAGS_X_SRC      0x4000  // hint that x and src pixel ptr will be given
+#define PRIM_FLAGS_DEFAULT    0x000F  // flags set when a new base primitive is constructed
+#define PRIM_FLAGS_CHANGEABLE 0x000F  // flags that the app can change after primitive creation
+```
+
+The following describes the individual flags in more detail.
+
+<b>PRIM_FLAG_PAINT_THIS</b><br>
+This flag determines whether the primitive is painted (drawn).
+It is essentially a <i>visibility</i> flag, because it partially
+determines whether the primitive can be visible. Other factors,
+such as position may also affect visibility. Inverting this flag
+on a periodic basis will cause the primitive to blink. 
+
+<b>PRIM_FLAG_PAINT_KIDS</b><br>
+This flag determines whether this children of the primitive,
+if any, are painted (drawn). This flag controls whether drawing
+traverses lower levels of the primitive tree (nesting), below
+the primitive itself. Note that even if this flag is set,
+a child primitive will not be drawn if its own PRIM_FLAG_PAINT_THIS
+flag is cleared. Inverting this flag on a periodic basis will
+cause child primitives to blink.
+
+<b>PRIM_FLAG_CLIP_THIS</b><br>
+This flag determines whether this primitive is clipped by the draw
+region of its parent. If this flag is cleared, the primitive
+is clipped by the screen.
+Presently, the draw region of any primitive
+is defined when it is created, based on the designated size at
+that time. There is currently no way to resize a primitive after
+it has been created. It is possible to use a group primitive to
+define a clipping region for child primitives. The group itself
+has no visible aspect, but can affect its children. For example,
+a group of spaceships can be moved together by moving their
+parent group, if created as children of that group. It is possible
+to simulate growing or shrinking by using multiple primitives,
+and only displaying one at a time.
+
+<b>PRIM_FLAG_CLIP_KIDS</b><br>
+This flag determines whether to clip child primitives by the parent
+primitive's draw region. If this flag is clear, the children are
+clipped by their grandparent, if any, or by the screen, not by their parent.
+
+<b>PRIM_FLAG_H_SCROLL</b><br>
+This flag determines whether the primitive will need to be scrolled
+horizontally on a 1-pixel alignment. This flag does not need to be
+specified in order to scroll on a 4-pixel alignment. If this flag
+is set when creating the primitive, more RAM will be used to support the smooth horizontal motion.
+
+<b>PRIM_FLAG_ABSOLUTE</b><br>
+This flag determines whether the primitive should <i>always</i> be
+positioned relative to the screen, and not to any of its ancestors.
+If this flag is cleared, the displayed location of the primitive
+may be affected by the locations of its parent, grandparent, etc.
+
+<b>PRIM_FLAGS_MASKED</b><br>
+This flag determines whether a primitive is intended to be drawn
+in a masked manner, as opposed to a solid manner. In a solid, all
+pixels are 100% opaque. In a mask, all pixels are either 100%
+opaque or 0% opaque (100% transparent). This flag is used
+for bitmaps, and helps the OTF mode to optimize drawing speed.
+
+<b>PRIM_FLAGS_BLENDED</b><br>
+This flag determines whether a primitive is intended to be drawn
+in a blended manner, as opposed to a solid manner. In a solid, all
+pixels are 100% opaque. In a blend, all pixels are either 100%,
+75%, 50%, 25%, or 0% opaque (0%, 25%, 50%, 75%, or 100% transparent,
+respectively). This flag is used
+for bitmaps, and helps the OTF mode to optimize drawing speed. It
+may also be used for other primitives such as lines and triangles.
+
+<b>PRIM_FLAGS_ALL_SAME</b><br>
+This flag determines whether all of the scan lines in the primitive
+can be drawn using the same dynamic instructions. It is used for
+rectangles and bitmaps, and helps the OTF mode to optimize drawing
+speed, plus reduces the RAM used. It cannot be used with blending,
+unless <i>all</i> pixels in the primitive are at the same opacity
+level (e.g., all pixels are 50% opaque).
+
+<b>PRIM_FLAGS_CAN_DRAW</b><br>
+This OTF-internal flag determines whether a primitive can be
+drawn based on various factors, such as position, clipping, and
+transparency. Its value is determined dynamically by OTF.
+
+<b>PRIM_FLAGS_X</b><br>
+This OTF-internal flag determines whether the X coordinate is provided,
+as opposed to being fixed, when each scan line of a primitive
+is drawn. This flag and some related code exist for potential future use.
+
+<b>PRIM_FLAGS_X_SRC</b><br>
+This OTF-internal flag determines whether the X coordinate is provided,
+as opposed to being fixed, when each scan line of a primitive
+is drawn. An example of where this is required is when drawing
+a tile array or a tile map. OTF will set this flag automatically
+in such cases, because it affects dynamic code generation.
+
+<b>PRIM_FLAGS_DEFAULT</b><br>
+This flag illustrates which flags are typically set when
+creating a primitive. Most often, when creating a primitive,
+such as a triangle, you would pass a value of 15 (0x000F)
+as the flags parameter. You may want to use another value,
+if you intend to create, but not immediately display,
+the new primitive.
+
+<b>PRIM_FLAGS_CHANGEABLE</b><br>
+This flag illustrates which flags my be changed <i>after</i> the
+primitive is created. Setting or clearing any of these flags
+may have an affect on how or whether the primitive is drawn.
+
+# OTF Colors
+
+The OTF mode can display all 64 colors that the Agon is capable
+of showing. Since the OTF mode supports transparency, it uses
+the upper 2 bits of the color byte for that. In other words,
+it uses an AABBGGRR format, where the 8 bits of the color byte
+are concerned. The alpha (opacity) values are as follows:
+
+00BBGGRR - the pixel is 25% opaque (75% transparent)
+01BBGGRR - the pixel is 50% opaque (50% transparent)
+10BBGGRR - the pixel is 75% opaque (25% transparent)
+11BBGGRR - the pixel is 100% opaque (0% transparent)
+
+The obvious question is, how do we specify a pixel that is 0%
+opaque (100% transparent)? That is done by choosing a byte value
+that will not be used in the primitive to represent a color. If
+the primitive has a consistent opaqueness (all visible pixels are at
+the same opacity level), then the chosen byte value can be any value
+that does not specify that particular opacity level. For example,
+if all pixels are supposed to be 75% opaque (alpha 10 in binary),
+then the value 0 (0x00) works just fine as the transparent
+color, because it does not indicate 75% opacity.
+
+The potential conflict arises when the primitive, such as a
+bitmap, is intended to have variable blending, meaning that each
+pixel can have its own opacity level. In that case, one of the
+255 possible byte values must be sacrificed, and used as the
+fully transparent color. Simply put, you must choose a value
+that does not exist in the source bitmap. Bear in mind that the
+<i>whole</i> byte value is used to represent an invisible pixel,
+not just the color bits. This means that the transparent color
+can have color bits equal to an actual color in the primitive,
+but it must have different alpha bits, in that case. For example,
+if 0x7F (bright white at 50% opacity) is a color in the source
+bitmap, you cannot use 0x7F as the transparent color, but you
+could use 0xFF, if there will be no bright white pixels at
+100% opacity.
 
 # OTF Function Codes
 
@@ -134,31 +298,32 @@ Each of these commands will be explained in detail once the code has all been wr
 <b>VDU 23, 30, 0, id; flags;</b>
 
 This command modifies certain flag bits for a primitive. Some flag bits are fixed upon creation
-of the primitive, and cannot be changed. The following bits can be changed.
+of the primitive, and cannot be changed. Refer to the OTF Primitive
+Flags section, above, for more information.
 
 ## Set primitive position
 <b>VDU 23, 30, 1, id; x; y;</b>
 
-If a primitive is not using the "absolute position" flag, then
+If a primitive is not using the PRIM_FLAG_ABSOLUTE flag, then
 this command sets the relative position of the primitive, with respect to its parent's position. If the
 parent is at (100, 100), then setting the primitive's position to (5, 5) will
 place the primitive at position (105, 105), relative to the primitive's grandparent (if any),
 or in other words, at a 5-pixel offset from its parent, in X and Y.
 
-If a primitive is using the "absolute position" flag, then this command
+If a primitive is using the PRIM_FLAG_ABSOLUTE flag, then this command
 sets the absolute position of the primitive, and that position is relative to the screen,
 not to the parent.
 
 ## Adjust primitive position
 <b>VDU 23, 30, 2, id; x; y;</b>
 
-If a primitive is not using the "absolute position" flag, then
+If a primitive is not using the PRIM_FLAG_ABSOLUTE flag, then
 this command ajusts the relative position of the primitive, with respect to its parent's position. If the
 parent is at (100, 100), and the primitive is at (5, 5) then adjusting the primitive's position by (2, 2) will
 place the primitive at position (107, 107), relative to the primitive's grandparent (if any),
 or in other words, at a 7-pixel offset from its parent, in X and Y.
 
-If a primitive is using the "absolute position" flag, then this command
+If a primitive is using the PRIM_FLAG_ABSOLUTE flag, then this command
 adjusts the absolute position of the primitive, and that position is relative to the screen,
 not to the parent.
 
@@ -171,36 +336,36 @@ deleted with the primitive. Bear in mind that you can hide a
 primitive by changing its flags, while still keeping it intact.
 
 ## Create primitive: Point
-<b>VDU 23, 30, 4, id; pid; flags; x; y; c</b>
+<b>VDU 23, 30, 4, id; pid; flags; x; y; color</b>
 
 This command creates a primitive that draws a point (sets a single pixel).
 
 ## Create primitive: Line
-<b>VDU 23, 30, 5, id; pid; flags; x1; y1; x2; y2; c</b>
+<b>VDU 23, 30, 5, id; pid; flags; x1; y1; x2; y2; color</b>
 
 This commmand creates a primitive that draws a line. The endpoints
 are included (i.e., are drawn).
 
 ## Create primitive: Triangle Outline
-<b>VDU 23, 30, 6, id; pid; flags; x1; y1; x2; y2; x3; y3; c</b>
+<b>VDU 23, 30, 6, id; pid; flags; x1; y1; x2; y2; x3; y3; color</b>
 
 This commmand creates a primitive that draws the outline of a triangle. The triangle is not filled.
 
 ## Create primitive: Solid Triangle
-<b>VDU 23, 30, 7, id; pid; flags; x1; y1; x2; y2; x3; y3; c</b>
+<b>VDU 23, 30, 7, id; pid; flags; x1; y1; x2; y2; x3; y3; color</b>
 
 This commmand creates a primitive that draws a solid, filled
 traingle. The triangle does not have a distinct outline with
 a different color than the fill color.
 
 ## Create primitive: Rectangle Outline
-<b>VDU 23, 30, 8, id; pid; flags; x; y; w; h; c</b>
+<b>VDU 23, 30, 8, id; pid; flags; x; y; w; h; color</b>
 
 This commmand creates a primitive that draws the outline of a rectangle. The rectangle is not filled. Note that the width and
 height are given, not the diagonal coordinates.
 
 ## Create primitive: Solid Rectangle
-<b>VDU 23, 30, 9, id; pid; flags; x; y; w; h; c</b>
+<b>VDU 23, 30, 9, id; pid; flags; x; y; w; h; color</b>
 
 This commmand creates a primitive that draws a solid, filled rectangle.
 The rectangle does not have a distinct outline with a different
@@ -208,13 +373,13 @@ color than the fill color.
 Note that the width and height are given, not the diagonal coordinates.
 
 ## Create primitive: Ellipse Outline
-<b>VDU 23, 30, 10, id; pid; flags; x; y; w; h; c</b>
+<b>VDU 23, 30, 10, id; pid; flags; x; y; w; h; color</b>
 
 This commmand creates a primitive that draws the outline of an ellipse. The ellipse is not filled. Note that width and height
 are given, not the diagonal coordinates.
 
 ## Create primitive: Solid Ellipse
-<b>VDU 23, 30, 11, id; pid; flags; x; y; w; h; c</b>
+<b>VDU 23, 30, 11, id; pid; flags; x; y; w; h; color</b>
 
 This commmand creates a primitive that draws a solid, filled ellipse.
 The ellipse does not have a distinct outline with a different
@@ -248,6 +413,9 @@ tile array. Thus, if you want a set of tiles with a high used-to-unused ratio,
 it would be more efficient to use a tile array. Slower processing
 might cause flicker.
 
+Refer to the section on OTF Primitive Flags for information about
+certain flags that are useful for tile maps.
+
 ## Create primitive: Tile Array
 <b>VDU 23, 30, 13, id; pid; flags; cols; rows; w; h;</b>
 
@@ -269,8 +437,17 @@ tile array is deleted, its owned bitmaps are deleted with it.
 A tile array is intended to be used when the ratio of defined
 (used) cells to undefined (unused) cells is rather high. Since it
 is implemented as an array, processing it is faster than using a
-tile map. Thus, if you want a set of tiles with a low used-to-unused ratio,
+tile map. The trade-off is that the entire array is allocated
+from RAM, so it may be more expensive than a sparse tile map.
+Thus, if you want a set of tiles with a low used-to-unused ratio,
 consider using a tile map, to avoid wasting space for unused cells.
+
+Even the a tile array is fully allocated, each cell is just a pointer
+to the pixel data for some tile bitmap, and that pointer can be NULL,
+in which case, nothing is drawn for the corresponding cell. In that
+manner, you can create an array that appears to be sparse. Such is
+the case with random-length text lines in the terminal primitive,
+which is a tile array.
 
 ## Create primitive: Solid Bitmap
 <b>VDU 23, 30, 14, id; pid; flags; w; h;</b>
@@ -280,21 +457,39 @@ that every pixel is fully opaque (though each pixel has its own color).
 A solid bitmap may be the most efficient kind of bitmap, from a
 processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
 
+OTF mode will automatically set the PRIM_FLAGS_ALL_SAME flag
+when this command is used.
+
 ## Create primitive: Masked Bitmap
-<b>VDU 23, 30, 15, id; pid; flags; w; h;
+<b>VDU 23, 30, 15, id; pid; flags; w; h; color</b>
 
 This commmand creates a primitive that draws a masked bitmap, meaning
 that every pixel is either fully opaque (though each pixel has its own color) or fully transparent.
 A solid bitmap may be the most efficient kind of bitmap, from a
 processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
 
+The given color is used to represent fully transparent pixels,
+so be sure to specify a byte value that is unique from any
+visible color in the source bitmap. When setting the color of
+each pixel in the bitmap, use that given color for any pixels
+that must be invisible.
+
 ## Create primitive: Transparent Bitmap
-<b>VDU 23, 30, 16, id; pid; flags; w; h; c</b>
+<b>VDU 23, 30, 16, id; pid; flags; w; h; color</b>
 
 This commmand creates a primitive that draws a transparent bitmap, meaning
 that each pixel has either 0%, 25%, 50%, 75%, or 100% opacity.
 A transparent bitmap may be the least efficient kind of bitmap, from a
 processing speed perspective. Bitmaps with any transparency may be slower than solid bitmaps, and their overuse could cause flicker.
+
+The given color is used to represent fully transparent pixels,
+so be sure to specify a byte value that is unique from any
+visible color in the source bitmap. When setting the color of
+each pixel in the bitmap, use that given color for any pixels
+that must be invisible.
+
+OTF mode will automatically set the PRIM_FLAGS_BLENDED flag
+when this command is used.
 
 ## Create primitive: Group
 <b>VDU 23, 30, 17, id; pid; flags; x; y;</b>
@@ -302,7 +497,7 @@ processing speed perspective. Bitmaps with any transparency may be slower than s
 This commmand creates a primitive that groups its child primitives,
 for the purposes of motion and clipping. If a group node has
 children, and the group node is moved, and the children are positioned
-relative to their parent (i.e., do not use the "absolute position" flag),
+relative to their parent (i.e., do not use the PRIM_FLAG_ABSOLUTE flag),
 then the children are moved with the parent. Note that a group node
 has no visible representation (i.e., is not drawn).
 
@@ -381,90 +576,142 @@ By default, when a bitmap is created, its starting vertical offset
 is zero, and its draw height is equal to its created height.
 
 ## Set solid bitmap pixel
-<b>VDU 23, 30, 24, id; x; y; c</b>
+<b>VDU 23, 30, 24, id; x; y; color</b>
 
 This command sets the color of a single pixel within a solid bitmap.
+You must use the same alpha bits for every pixel in the bitmap;
+otherwise, undesirable results may occur.
 
 ## Set masked bitmap pixel
-<b>VDU 23, 30, 25, id; x; y; c</b>
+<b>VDU 23, 30, 25, id; x; y; color</b>
 
 This command sets the color of a single pixel within a masked bitmap.
+To specify a fully transparent pixel, use the same color that
+was used to create the bitmap. All other pixels must have equal
+alpha bits (i.e., be at the same opacity level).
 
 ## Set transparent bitmap pixel
-<b>VDU 23, 30, 26, id; x; y; c</b>
+<b>VDU 23, 30, 26, id; x; y; color</b>
 
 This command sets the color of a single pixel within a transparent bitmap.
+To specify a fully transparent pixel, use the same color that
+was used to create the bitmap.
 
 ## Set solid bitmap pixels
 <b>VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...</b>
 
 This command sets the colors of multiple pixels within a solid bitmap.
+As colors are processed, if the end of a scan line in the
+bitmap is reached, processing moves to the first pixel in
+the next scan line. Thus, it is possible to provide colors
+for every pixel in the bitmap, using a single command.
 
 ## Set masked bitmap pixels
 <b>VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...</b>
 
 This command sets the colors of multiple pixels within a masked bitmap.
+As colors are processed, if the end of a scan line in the
+bitmap is reached, processing moves to the first pixel in
+the next scan line. Thus, it is possible to provide colors
+for every pixel in the bitmap, using a single command.
+To specify a fully transparent pixel, use the same color that
+was used to create the bitmap.
 
 ## Set transparent bitmap pixels
 <b>VDU 23, 30, 29, id; x; y; n; c0, c1, c2, ...</b>
 
 This command sets the colors of multiple pixels within a transparent bitmap.
+As colors are processed, if the end of a scan line in the
+bitmap is reached, processing moves to the first pixel in
+the next scan line. Thus, it is possible to provide colors
+for every pixel in the bitmap, using a single command.
+To specify a fully transparent pixel, use the same color that
+was used to create the bitmap.
 
 ## Set image ID for tile in tile map
 <b>VDU 23, 30, 30, id; col; row; img;</b>
 
 This command specifies which bitmap should be draw in a specific
 cell of a tile map. The bitmap must have been created already.
+Passing a zero for the image ID will prevent the cell from
+being drawn, so it will appear as an empty cell.
 
 ## Set image ID for tile in tile array
 <b>VDU 23, 30, 31, id; col; row; img;</b>
 
 This command specifies which bitmap should be draw in a specific
 cell of a tile array. The bitmap must have been created already.
+Passing a zero for the image ID will prevent the cell from
+being drawn, so it will appear as an empty cell.
 
 ## Set image pixel in tile map
-<b>VDU 23, 30, 32, id; img; x; y; c</b>
+<b>VDU 23, 30, 32, id; img; x; y; color</b>
 
-This command sets the color of a single pixel within a tile map.
+This command sets the color of a single pixel within a
+bitmap that belongs to a tile map.
+To specify a fully transparent pixel, use the same color that
+was used to create the tile bitmap.
 
 ## Set image pixels in tile map
 <b>VDU 23, 30, 33, id; img; x; y; n; c0, c1, c2, ...</b>
 
 This command sets the colors of multiple pixels within a tile map.
+As colors are processed, if the end of a scan line in the
+bitmap is reached, processing moves to the first pixel in
+the next scan line. Thus, it is possible to provide colors
+for every pixel in the bitmap, using a single command.
+To specify a fully transparent pixel, use the same color that
+was used to create the bitmap.
 
 ## Create primitive: Triangle List Outline
 <b>VDU 23, 30, 34, id; pid; flags, n; c, x1; y1; ... xn; yn</b>
 
-This command creates a series of triangle outlines.
+This command creates a series of separate triangle outlines.
 
-A triangle list is a series of triangles that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each triangle, its 3 points must be specified.
+A triangle list is a series of triangles that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each triangle, its 3 points must be specified. The triangles are not filled.
 
 ## Create primitive: Solid Triangle List
 <b>VDU 23, 30, 35, id; pid; flags, n; c, x1; y1; ... xn; yn;</b>
+
+A triangle list is a series of triangles that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each triangle, its 3 points must be specified. The triangles are filled, but do not have a distinct
+edge color that differs from the given color.
 
 ## Create primitive: Triangle Fan Outline
 <b>VDU 23, 30, 36, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;</b>
 
 A triangle fan is a series of triangles that share a common center point, and each 2 consecutive triangles share an edge point.
+The triangles are not filled.
 
 ## Create primitive: Solid Triangle Fan
 <b>VDU 23, 30, 37, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;</b>
 
+A triangle fan is a series of triangles that share a common center point, and each 2 consecutive triangles share an edge point.
+The triangles are filled, but do not have a distinct
+edge color that differs from the given color.
+
 ## Create primitive: Triangle Strip Outline
 <b>VDU 23, 30, 38, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
 
-A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points.
+A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points. The triangles are not filled.
 
 ## Create primitive: Solid Triangle Strip
 <b>VDU 23, 30, 39, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
 
+A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points. The triangles filled, but do not have a distinct
+edge color that differs from the given color.
+
 ## Create primitive: Quad Outline
 <b>VDU 23, 30, 40, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;</b>
 
-A quad is  4-sided, convex polygon that does not necessarily have any internal right angles, but could.
+A quad is a 4-sided, convex polygon that does not necessarily have any internal right angles, but could.
+The quad is not filled.
 
 ## Create primitive: Solid Quad
 <b>VDU 23, 30, 41, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;</b>
+
+A quad is a 4-sided, convex polygon that does not necessarily have any internal right angles, but could.
+The quad is filled, but does not have a distinct
+edge color that differs from the given color.
 
 ## Create primitive: Quad List Outline
 <b>VDU 23, 30, 42, id; pid; flags, n; c, x1; y1; ... xn; yn;</b>
@@ -474,10 +721,19 @@ A quad list is a series of quads that do not necessarily share points, but could
 ## Create primitive: Solid Quad List
 <b>VDU 23, 30, 43, id; pid; flags, n; c, x1; y1; ... xn; yn;</b>
 
+A quad list is a series of quads that do not necessarily share points, but could, if those points are duplicated.
+The quads are filled, but do not have a distinct
+edge color that differs from the given color.
+
 ## Create primitive: Quad Strip Outline
 <b>VDU 23, 30, 44, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
+
+A quad strip is a series of quads where each 2 consecutive quads share 2 common points. The quads are not filled.
 
 ## Create primitive: Solid Quad Strip
 <b>VDU 23, 30, 45, id;800x600x64 On-the-Fly Command Set:
  pid; flags, n; c, x1; y1; ... xn; yn;</b>
+
+A quad strip is a series of quads where each 2 consecutive quads share 2 common points. The quads are filled, but do not have a distinct
+edge color that differs from the given color.
 

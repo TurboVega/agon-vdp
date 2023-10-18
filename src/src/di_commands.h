@@ -181,6 +181,7 @@ typedef struct {
     uint16_t    m_flags;
     uint16_t    m_width;
     uint16_t    m_height;
+    uint8_t     m_color;
 } VduOtfCreatePrimitiveMaskedBitmap;
 
 typedef struct {
