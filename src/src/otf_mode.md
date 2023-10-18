@@ -628,32 +628,127 @@ for every pixel in the bitmap, using a single command.
 To specify a fully transparent pixel, use the same color that
 was used to create the bitmap.
 
-## Set image ID for tile in tile map
-<b>VDU 23, 30, 30, id; col; row; img;</b>
+## Create Solid Bitmap for Tile Map
+<b>VDU 23, 30, 30, id; pid; flags; w; h;</b>
+
+This commmand creates a solid bitmap to be used within a tile map.
+Every pixel is fully opaque (though each pixel has its own color).
+A solid bitmap may be the most efficient kind of bitmap, from a
+processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
+
+OTF mode will automatically set the PRIM_FLAGS_ALL_SAME flag
+when this command is used.
+
+## Create Masked Bitmap for Tile Map
+<b>VDU 23, 30, 31, id; pid; flags; w; h; color</b>
+
+This commmand creates a masked bitmap to be used within a tile map.
+Every pixel is either fully opaque (though each pixel has its own color) or fully transparent.
+A solid bitmap may be the most efficient kind of bitmap, from a
+processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
+
+The given color is used to represent fully transparent pixels,
+so be sure to specify a byte value that is unique from any
+visible color in the source bitmap. When setting the color of
+each pixel in the bitmap, use that given color for any pixels
+that must be invisible.
+
+## Create Transparent Bitmap for Tile Map
+<b>VDU 23, 30, 32, id; pid; flags; w; h; color</b>
+
+This commmand creates a transparent bitmap to be used within a tile map.
+Each pixel has either 0%, 25%, 50%, 75%, or 100% opacity.
+A transparent bitmap may be the least efficient kind of bitmap, from a
+processing speed perspective. Bitmaps with any transparency may be slower than solid bitmaps, and their overuse could cause flicker.
+
+The given color is used to represent fully transparent pixels,
+so be sure to specify a byte value that is unique from any
+visible color in the source bitmap. When setting the color of
+each pixel in the bitmap, use that given color for any pixels
+that must be invisible.
+
+OTF mode will automatically set the PRIM_FLAGS_BLENDED flag
+when this command is used.
+
+## Create Solid Bitmap for Tile Array
+<b>VDU 23, 30, 33, id; pid; flags; w; h;</b>
+
+This commmand creates a solid bitmap to be used within a tile array.
+Every pixel is fully opaque (though each pixel has its own color).
+A solid bitmap may be the most efficient kind of bitmap, from a
+processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
+
+OTF mode will automatically set the PRIM_FLAGS_ALL_SAME flag
+when this command is used.
+
+If you create a terminal primitive, which is a tile array, and
+use the Define Terminal Character or Define Terminal Character
+Range command, then the required solid bitmap(s) is(are)
+created automatically.
+
+## Create Masked Bitmap for Tile Array
+<b>VDU 23, 30, 34, id; pid; flags; w; h; color</b>
+
+<i>This command code is reserved for potential future use.
+The command is not presently implemented.</i>
+
+This commmand creates a masked bitmap to be used within a tile array.
+Every pixel is either fully opaque (though each pixel has its own color) or fully transparent.
+A solid bitmap may be the most efficient kind of bitmap, from a
+processing speed perspective. Bitmaps with any transparency may be slower, and their overuse could cause flicker.
+
+The given color is used to represent fully transparent pixels,
+so be sure to specify a byte value that is unique from any
+visible color in the source bitmap. When setting the color of
+each pixel in the bitmap, use that given color for any pixels
+that must be invisible.
+
+## Create Transparent Bitmap for Tile Array
+<b>VDU 23, 30, 35, id; pid; flags; w; h; color</b>
+
+<i>This command code is reserved for potential future use.
+The command is not presently implemented.</i>
+
+This commmand creates a transparent bitmap to be used within a tile array.
+Each pixel has either 0%, 25%, 50%, 75%, or 100% opacity.
+A transparent bitmap may be the least efficient kind of bitmap, from a
+processing speed perspective. Bitmaps with any transparency may be slower than solid bitmaps, and their overuse could cause flicker.
+
+The given color is used to represent fully transparent pixels,
+so be sure to specify a byte value that is unique from any
+visible color in the source bitmap. When setting the color of
+each pixel in the bitmap, use that given color for any pixels
+that must be invisible.
+
+OTF mode will automatically set the PRIM_FLAGS_BLENDED flag
+when this command is used.
+
+## Set bitmap ID for tile in tile map
+<b>VDU 23, 30, 36, id; col; row; bmid;</b>
 
 This command specifies which bitmap should be draw in a specific
 cell of a tile map. The bitmap must have been created already.
-Passing a zero for the image ID will prevent the cell from
+Passing a zero for the bitmap ID will prevent the cell from
 being drawn, so it will appear as an empty cell.
 
-## Set image ID for tile in tile array
-<b>VDU 23, 30, 31, id; col; row; img;</b>
+## Set bitmap ID for tile in tile array
+<b>VDU 23, 30, 37, id; col; row; bmid;</b>
 
 This command specifies which bitmap should be draw in a specific
 cell of a tile array. The bitmap must have been created already.
-Passing a zero for the image ID will prevent the cell from
+Passing a zero for the bitmap ID will prevent the cell from
 being drawn, so it will appear as an empty cell.
 
-## Set image pixel in tile map
-<b>VDU 23, 30, 32, id; img; x; y; color</b>
+## Set bitmap pixel in tile map
+<b>VDU 23, 30, 38, id; bmid; x; y; color</b>
 
 This command sets the color of a single pixel within a
 bitmap that belongs to a tile map.
 To specify a fully transparent pixel, use the same color that
 was used to create the tile bitmap.
 
-## Set image pixels in tile map
-<b>VDU 23, 30, 33, id; img; x; y; n; c0, c1, c2, ...</b>
+## Set bitmap pixels in tile map
+<b>VDU 23, 30, 39, id; bmid; x; y; n; c0, c1, c2, ...</b>
 
 This command sets the colors of multiple pixels within a tile map.
 As colors are processed, if the end of a scan line in the
@@ -663,76 +758,126 @@ for every pixel in the bitmap, using a single command.
 To specify a fully transparent pixel, use the same color that
 was used to create the bitmap.
 
+## Create primitive: Terminal
+<b>VDU 23, 30, 40, id; pid; flags; x; y; columns; rows;</b>
+
+This command creates a terminal primitive, which is a tile array
+used to show text characters. The terminal supports a flashing
+cursor and cursor movement as characters are written, or as
+directed by certain VDU commands.
+
+You may create more than one terminal. If you have no other full
+background defined, you can use a full-screen terminal as the
+background, by creating it with 100 columns and 75 rows,
+resulting in 800x600 pixel coverage.
+
+At present, the only font available for a terminal is the
+built-in Agon system font (8x8 pixel characters), so there
+is no font specified in this command. If other fonts are used
+in the future, a new command will be added to the OTF mode.
+
+## Select Active Terminal
+<b>VDU 23, 30, 41, id;</b>
+
+This command tells the OTF manager which terminal should be the
+active terminal, when more than one terminal was created. This
+allows, for example, two separate areas of the screen to have
+independent text (and possibly in the future, independent fonts).
+
+## Define Terminal Character
+<b>VDU 23, 30, 42, id; char, fgcolor, bgcolor</b>
+
+This command defines a single character to be used within a terminal
+primitive, meaning that it both creates a bitmap and sets the
+initial pixel data of the bitmap, using the font that is
+referenced by the terminal.
+
+It is possible to use multiple different colors for the same
+character glyph, in a single terminal, simply by defining
+the character multiple times, using different colors.
+
+## Define Terminal Character Range
+<b>VDU 23, 30, 43, id; firstchar, lastchar, fgcolor, bgcolor</b>
+
+This command defines a range of characters to be used within a terminal
+primitive, meaning that it both creates the bitmaps and sets the
+initial pixel data of the bitmaps, using the font that is
+referenced by the terminal.
+
+It is possible to use multiple different colors for the same
+character glyphs, in a single terminal, simply by defining
+the characters multiple times, using different colors.
+
 ## Create primitive: Triangle List Outline
-<b>VDU 23, 30, 34, id; pid; flags, n; c, x1; y1; ... xn; yn</b>
+<b>VDU 23, 30, 44, id; pid; flags; n; c, x1; y1; ... xn; yn</b>
 
 This command creates a series of separate triangle outlines.
 
 A triangle list is a series of triangles that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each triangle, its 3 points must be specified. The triangles are not filled.
 
 ## Create primitive: Solid Triangle List
-<b>VDU 23, 30, 35, id; pid; flags, n; c, x1; y1; ... xn; yn;</b>
+<b>VDU 23, 30, 45, id; pid; flags; n; c, x1; y1; ... xn; yn;</b>
 
 A triangle list is a series of triangles that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each triangle, its 3 points must be specified. The triangles are filled, but do not have a distinct
 edge color that differs from the given color.
 
 ## Create primitive: Triangle Fan Outline
-<b>VDU 23, 30, 36, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;</b>
+<b>VDU 23, 30, 46, id; pid; flags; n; c, sx0; sy0; sx1; sy1; ... xn; yn;</b>
 
 A triangle fan is a series of triangles that share a common center point, and each 2 consecutive triangles share an edge point.
 The triangles are not filled.
 
 ## Create primitive: Solid Triangle Fan
-<b>VDU 23, 30, 37, id; pid; flags, n; c, sx0; sy0; sx1; sy1; ... xn; yn;</b>
+<b>VDU 23, 30, 47, id; pid; flags; n; c, sx0; sy0; sx1; sy1; ... xn; yn;</b>
 
 A triangle fan is a series of triangles that share a common center point, and each 2 consecutive triangles share an edge point.
 The triangles are filled, but do not have a distinct
 edge color that differs from the given color.
 
 ## Create primitive: Triangle Strip Outline
-<b>VDU 23, 30, 38, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
+<b>VDU 23, 30, 48, id; pid; flags; n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
 
 A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points. The triangles are not filled.
 
 ## Create primitive: Solid Triangle Strip
-<b>VDU 23, 30, 39, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
+<b>VDU 23, 30, 49, id; pid; flags; n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
 
 A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points. The triangles filled, but do not have a distinct
 edge color that differs from the given color.
 
 ## Create primitive: Quad Outline
-<b>VDU 23, 30, 40, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;</b>
+<b>VDU 23, 30, 50, id; pid; flags; c, x1; y1; x2; y2; x3; y3; x4; y4;</b>
 
 A quad is a 4-sided, convex polygon that does not necessarily have any internal right angles, but could.
 The quad is not filled.
 
 ## Create primitive: Solid Quad
-<b>VDU 23, 30, 41, id; pid; flags, c, x1; y1; x2; y2; x3; y3; x4; y4;</b>
+<b>VDU 23, 30, 51, id; pid; flags; c, x1; y1; x2; y2; x3; y3; x4; y4;</b>
 
 A quad is a 4-sided, convex polygon that does not necessarily have any internal right angles, but could.
 The quad is filled, but does not have a distinct
 edge color that differs from the given color.
 
 ## Create primitive: Quad List Outline
-<b>VDU 23, 30, 42, id; pid; flags, n; c, x1; y1; ... xn; yn;</b>
+<b>VDU 23, 30, 52, id; pid; flags; n; c, x1; y1; ... xn; yn;</b>
 
 A quad list is a series of quads that do not necessarily share points, but could, if those points are duplicated. They may be located together or apart. For each quad, its 4 points must be specified.
 
 ## Create primitive: Solid Quad List
-<b>VDU 23, 30, 43, id; pid; flags, n; c, x1; y1; ... xn; yn;</b>
+<b>VDU 23, 30, 53, id; pid; flags; n; c, x1; y1; ... xn; yn;</b>
 
 A quad list is a series of quads that do not necessarily share points, but could, if those points are duplicated.
 The quads are filled, but do not have a distinct
 edge color that differs from the given color.
 
 ## Create primitive: Quad Strip Outline
-<b>VDU 23, 30, 44, id; pid; flags, n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
+<b>VDU 23, 30, 54, id; pid; flags; n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn;</b>
 
 A quad strip is a series of quads where each 2 consecutive quads share 2 common points. The quads are not filled.
 
 ## Create primitive: Solid Quad Strip
-<b>VDU 23, 30, 45, id;800x600x64 On-the-Fly Command Set:
- pid; flags, n; c, x1; y1; ... xn; yn;</b>
+<b>VDU 23, 30, 55, id;800x600x64 On-the-Fly Command Set:
+ pid; flags; n; c, x1; y1; ... xn; yn;</b>
 
 A quad strip is a series of quads where each 2 consecutive quads share 2 common points. The quads are filled, but do not have a distinct
 edge color that differs from the given color.
