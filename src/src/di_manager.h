@@ -169,13 +169,12 @@ class DiManager {
     uint32_t                    m_next_buffer_write;
     uint32_t                    m_next_buffer_read;
     uint32_t                    m_num_buffer_chars;
-    uint32_t                    m_num_command_chars;
     uint32_t                    m_command_data_index;
     DiTerminal*                 m_terminal;
     DiSolidRectangle*           m_cursor;
     uint8_t                     m_flash_count;
     uint8_t                     m_incoming_data[INCOMING_DATA_BUFFER_SIZE];
-    uint8_t                     m_incoming_command[INCOMING_COMMAND_SIZE];
+    std::vector<uint8_t>        m_incoming_command;
     DiPrimitive *               m_primitives[MAX_NUM_PRIMITIVES]; // Indexes of array are primitive IDs
     std::vector<DiPrimitive*>   m_groups[ACT_LINES]; // Vertical scan groups (for optimizing paint calls)
 

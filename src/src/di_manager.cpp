@@ -79,7 +79,6 @@ DiManager::DiManager() {
   m_next_buffer_write = 0;
   m_next_buffer_read = 0;
   m_num_buffer_chars = 0;
-  m_num_command_chars = 0;
   m_terminal = NULL;
   m_cursor = NULL;
   m_flash_count = 0;
@@ -803,7 +802,7 @@ VDU 31, x, y: TAB(x, y)
 VDU 127: Backspace
 */
 bool DiManager::process_character(uint8_t character) {
-  if (m_num_command_chars) {
+  if (m_incoming_command.size()) {
     switch (m_incoming_command[0]) {
       case 0x11: return ignore_cmd(character, 2);
       case 0x17: return handle_udg_sys_cmd(character);
@@ -855,35 +854,35 @@ void DiManager::process_string(const uint8_t* string) {
 }
 
 bool DiManager::ignore_cmd(uint8_t character, uint8_t len) {
-  m_incoming_command[m_num_command_chars++] = character;
-  if (m_num_command_chars >= len) {
-    m_num_command_chars = 0;
+  m_incoming_command.push_back(character);
+  if (m_incoming_command.size() >= len) {
+    m_incoming_command.clear();
     return true;
   }
   return false;
 }
 
 bool DiManager::define_graphics_viewport(uint8_t character) {
-  m_incoming_command[m_num_command_chars++] = character;
-  if (m_num_command_chars >= 9) {
+  m_incoming_command.push_back(character);
+  if (m_incoming_command.size() >= 9) {
       int16_t left = get_param_16(1);
       int16_t bottom = get_param_16(3);
       int16_t right = get_param_16(5);
       int16_t top = get_param_16(7);
-      m_num_command_chars = 0;
+      m_incoming_command.clear();
       return true;
   }
   return false;
 }
 
 bool DiManager::define_text_viewport(uint8_t character) {
-  m_incoming_command[m_num_command_chars++] = character;
-  if (m_num_command_chars >= 5) {
+  m_incoming_command.push_back(character);
+  if (m_incoming_command.size() >= 5) {
       uint8_t left = get_param_8(1);
       uint8_t bottom = get_param_8(2);
       uint8_t right = get_param_8(3);
       uint8_t top = get_param_8(4);
-      m_num_command_chars = 0;
+      m_incoming_command.clear();
       return true;
   }
   return false;
@@ -954,13 +953,13 @@ From this page: https://www.bbcbasic.co.uk/bbcwin/manual/bbcwin8.html#vdu23
 VDU 23, 1, 0; 0; 0; 0;: Text Cursor Control
 */
 bool DiManager::handle_udg_sys_cmd(uint8_t character) {
-  m_incoming_command[m_num_command_chars++] = character;
-  if (m_num_command_chars >= 2 && get_param_8(1) == 30) {
+  m_incoming_command.push_back(character);
+  if (m_incoming_command.size() >= 2 && get_param_8(1) == 30) {
     return handle_otf_cmd();
   }
-  if (m_num_command_chars >= 2 && get_param_8(1) == 1) {
+  if (m_incoming_command.size() >= 2 && get_param_8(1) == 1) {
     // VDU 23, 1, enable; 0; 0; 0;: Text Cursor Control
-    if (m_num_command_chars >= 10) {
+    if (m_incoming_command.size() >= 10) {
       if (m_terminal) {
         auto flags = m_cursor->get_flags();
         if (get_param_8(2) != 0 && cursorEnabled && (flags & PRIM_FLAG_PAINT_THIS == 0)) {
@@ -977,114 +976,114 @@ bool DiManager::handle_udg_sys_cmd(uint8_t character) {
     }
     return false;
   }
-  if (m_num_command_chars >= 3) {
+  if (m_incoming_command.size() >= 3) {
     switch (m_incoming_command[2]) {
 
       // VDU 23, 0, &80, b: General poll
       case VDP_GP: /*0x80*/ {
-        if (m_num_command_chars == 4) {
+        if (m_incoming_command.size() == 4) {
           uint8_t echo = get_param_8(3);
           send_general_poll(echo);
-          m_num_command_chars = 0;
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &81, n: Set the keyboard locale (0=UK, 1=US, etc)
       case VDP_KEYCODE: /*0x81*/ {
-        if (m_num_command_chars == 4) {
+        if (m_incoming_command.size() == 4) {
           uint8_t region = get_param_8(3);
           vdu_sys_video_kblayout(region);
-          m_num_command_chars = 0;
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &82: Request cursor position
       case VDP_CURSOR: /*0x82*/ {
-        if (m_num_command_chars == 3) {
+        if (m_incoming_command.size() == 3) {
           send_cursor_position();
-          m_num_command_chars = 0;
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &83, x; y;: Get ASCII code of character at character position x, y
       case VDP_SCRCHAR: /*0x83*/ {
-        if (m_num_command_chars == 7) {
+        if (m_incoming_command.size() == 7) {
           int32_t x = get_param_16(3);
           int32_t y = get_param_16(5);
           send_screen_char(x, y);
-          m_num_command_chars = 0;
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &84, x; y;: Get colour of pixel at pixel position x, y
       case VDP_SCRPIXEL: /*0x84*/ {
-        if (m_num_command_chars == 7) {
+        if (m_incoming_command.size() == 7) {
           int32_t x = get_param_16(3);
           int32_t y = get_param_16(5);
           send_screen_pixel(x, y);
-          m_num_command_chars = 0;
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &85, channel, waveform, volume, freq; duration;: Send a note to the VDP audio driver
       case VDP_AUDIO: /*0x85*/ {
-        if (m_num_command_chars == 10) {
-          m_num_command_chars = 0;
+        if (m_incoming_command.size() == 10) {
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &86: Fetch the screen dimensions
       case VDP_MODE: /*0x86*/ {
-        if (m_num_command_chars == 3) {
+        if (m_incoming_command.size() == 3) {
           send_mode_information();
-          m_num_command_chars = 0;
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &87: RTC control (Requires MOS 1.03 or above)
       case VDP_RTC: /*0x87*/ {
-        if (m_num_command_chars == 3) {
-          m_num_command_chars = 0;
+        if (m_incoming_command.size() == 3) {
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &88, delay; rate; led: Keyboard Control (Requires MOS 1.03 or above)
       case VDP_KEYSTATE: /*0x88*/ {
-        if (m_num_command_chars == 8) {
+        if (m_incoming_command.size() == 8) {
           sendKeyboardState();
-          m_num_command_chars = 0;
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &C0, n: Turn logical screen scaling on and off, where 1=on and 0=off (Requires MOS 1.03 or above)
       case VDP_LOGICALCOORDS: /*0xC0*/ {
-        if (m_num_command_chars == 4) {
+        if (m_incoming_command.size() == 4) {
           // This command is ignored; this mode always uses regular coordinates.
-          m_num_command_chars = 0;
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       // VDU 23, 0, &FF: Switch to terminal mode for CP/M (This will disable keyboard entry in BBC BASIC/MOS)
       case VDP_TERMINALMODE: /*0xFF*/ {
-        if (m_num_command_chars == 3) {
+        if (m_incoming_command.size() == 3) {
           // This command is ignored; this mode is terminal mode.
-          m_num_command_chars = 0;
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
       default: {
-        m_num_command_chars = 0;
+        m_incoming_command.clear();
         return true;
       }
     }
@@ -1092,534 +1091,465 @@ bool DiManager::handle_udg_sys_cmd(uint8_t character) {
   return false;
 }
 
-/*
-800x600x64 On-the-Fly Command Set:
-VDU 23, 30, 0, id; flags;: [6] Set flags for primitive
-VDU 23, 30, 1, id; x; y;: [9] Move primitive: absolute
-VDU 23, 30, 2, id; x; y;: [9] Move primitive: relative
-VDU 23, 30, 3, id;: [5] Delete primitive
-VDU 23, 30, 4, id; pid; flags; x; y; c: [13] Create primitive: Point
-VDU 23, 30, 5, id; pid; flags; x1; y1; x2; y2; c: [17] Create primitive: Line
-VDU 23, 30, 6, id; pid; flags; x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Triangle Outline
-VDU 23, 30, 7, id; pid; flags; x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Solid Triangle
-VDU 23, 30, 8, id; pid; flags; x; y; w; h; c: [17] Create primitive: Rectangle Outline
-VDU 23, 30, 9, id; pid; flags; x; y; w; h; c: [17] Create primitive: Solid Rectangle
-VDU 23, 30, 10, id; pid; flags; x; y; w; h; c: [17] Create primitive: Ellipse Outline
-VDU 23, 30, 11, id; pid; flags; x; y; w; h; c: [17] Create primitive: Solid Ellipse
-VDU 23, 30, 12, id; pid; flags; cols; rows; bitmaps, w; h;: [17] Create primitive: Tile Map
-VDU 23, 30, 13, id; pid; flags; w; h;: [12] Create primitive: Solid Bitmap
-VDU 23, 30, 14, id; pid; flags; w; h;: [12] Create primitive: Masked Bitmap
-VDU 23, 30, 15, id; pid; flags; w; h; c: [13] Create primitive: Transparent Bitmap
-VDU 23, 30, 16, id; pid; flags; x; y;: [12] Create primitive: Group
-VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice solid bitmap: absolute
-VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice masked bitmap: absolute
-VDU 23, 30, 19, id; x; y; s; h;: [13] Move & slice transparent bitmap: absolute
-VDU 23, 30, 20, id; x; y; s; h;: [13] Move & slice solid bitmap: relative
-VDU 23, 30, 21, id; x; y; s; h;: [13] Move & slice masked bitmap: relative
-VDU 23, 30, 22, id; x; y; s; h;: [13] Move & slice transparent bitmap: relative
-VDU 23, 30, 23, id; x; y; c: [10] Set solid bitmap pixel
-VDU 23, 30, 24, id; x; y; c: [10] Set masked bitmap pixel
-VDU 23, 30, 25, id; x; y; c: [10] Set transparent bitmap pixel
-VDU 23, 30, 26, id; x; y; n; c0, c1, c2, ...: [11+n] Set solid bitmap pixels
-VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...: [11+n] Set masked bitmap pixels
-VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...: [11+n] Set transparent bitmap pixels
-VDU 23, 30, 29, id; col; row; img;: [11] Set image ID for tile in tile map
-VDU 23, 30, 30, id; bi, x; y; c: [11] Set bitmap pixel in tile map
-VDU 23, 30, 31, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map
-*/
+// Process 800x600x64 On-the-Fly Command Set
+//
 bool DiManager::handle_otf_cmd() {
-  if (m_num_command_chars >= 5) {
-    int16_t p = get_param_16(3); // get primitive index number
+  if (m_incoming_command.size() >= 5) {
+    const OtfCmdUnion* cu = (const OtfCmdUnion*)(&m_incoming_command[0]);
     switch (m_incoming_command[2]) {
 
-      // VDU 23, 30, 0, id; flags;: [6] Set flags for primitive
       case 0: {
-        if (m_num_command_chars == 6) {
-          auto id = get_param_16(3);
-          auto flags = get_param_16(5);
-          set_primitive_flags(id, flags);
-          m_num_command_chars = 0;
+        auto cmd = &cu->m_0_Set_flags_for_primitive;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          set_primitive_flags(cmd->m_id, cmd->m_flags);
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
-      // VDU 23, 30, 1, id; x; y;: [9] Move primitive: absolute
       case 1: {
-        if (m_num_command_chars == 9) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          move_primitive_absolute(id, x, y);
-          m_num_command_chars = 0;
+        auto cmd = &cu->m_1_Set_primitive_position;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          move_primitive_absolute(cmd->m_id, cmd->m_x, cmd->m_y);
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
-      // VDU 23, 30, 2, id; x; y;: [9] Move primitive: relative
       case 2: {
-        if (m_num_command_chars == 9) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          move_primitive_relative(id, x, y);
-          m_num_command_chars = 0;
+        auto cmd = &cu->m_2_Adjust_primitive_position;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          move_primitive_relative(cmd->m_id, cmd->m_x, cmd->m_y);
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
-      // VDU 23, 30, 3, id;: [5] Delete primitive
       case 3: {
-        if (m_num_command_chars == 5) {
-          auto id = get_param_16(3);
-          delete_primitive(id);
-          m_num_command_chars = 0;
+        auto cmd = &cu->m_3_Delete_primitive;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          delete_primitive(cmd->m_id);
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
-      // VDU 23, 30, 4, id; pid; flags; x; y; c: [13] Create primitive: Point
-      case 4: {
-        if (m_num_command_chars == 13) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_16(7);
-          auto x = get_param_16(8);
-          auto y = get_param_16(10);
-          auto c = get_param_8(12);
-          create_point(id, pid, flags, x, y, c);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 5, id; pid; flags, x1; y1; x2; y2; c: [17] Create primitive: Line
-      case 5: {
-        if (m_num_command_chars == 17) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto x1 = get_param_16(8);
-          auto y1 = get_param_16(10);
-          auto x2 = get_param_16(12);
-          auto y2 = get_param_16(14);
-          auto c = get_param_8(16);
-          create_line(id, pid, flags, x1, y1, x2, y2, c);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 6, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Triangle Outline
-      case 6: {
-        if (m_num_command_chars == 21) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto x1 = get_param_16(8);
-          auto y1 = get_param_16(10);
-          auto x2 = get_param_16(12);
-          auto y2 = get_param_16(14);
-          auto x3 = get_param_16(16);
-          auto y3 = get_param_16(18);
-          auto c = get_param_8(20);
-          create_triangle(id, pid, flags, x1, y1, x2, y2, x3, y3, c);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 7, id; pid; flags, x1; y1; x2; y2; x3; y3; c: [21] Create primitive: Solid Triangle
-      case 7: {
-        if (m_num_command_chars == 21) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto x1 = get_param_16(8);
-          auto y1 = get_param_16(10);
-          auto x2 = get_param_16(12);
-          auto y2 = get_param_16(14);
-          auto x3 = get_param_16(16);
-          auto y3 = get_param_16(18);
-          auto c = get_param_8(20);
-          create_solid_triangle(id, pid, flags, x1, y1, x2, y2, x3, y3, c);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 8, id; pid; flags, x; y; w; h; c: [17] Create primitive: Rectangle Outline
-      case 8: {
-        if (m_num_command_chars == 17) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto x = get_param_16(8);
-          auto y = get_param_16(10);
-          auto w = get_param_16(12);
-          auto h = get_param_16(14);
-          auto c = get_param_8(16);
-          create_rectangle(id, pid, flags, x, y, w, h, c);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 9, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Rectangle
-      case 9: {
-        if (m_num_command_chars == 17) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto x = get_param_16(8);
-          auto y = get_param_16(10);
-          auto w = get_param_16(12);
-          auto h = get_param_16(14);
-          auto c = get_param_8(16);
-          create_solid_rectangle(id, pid, flags, x, y, w, h, c);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 10, id; pid; flags, x; y; w; h; c: [17] Create primitive: Ellipse Outline
       case 10: {
-        if (m_num_command_chars == 17) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto x = get_param_16(8);
-          auto y = get_param_16(10);
-          auto w = get_param_16(12);
-          auto h = get_param_16(14);
-          auto c = get_param_8(16);
-          create_ellipse(id, pid, flags, x, y, w, h, c);
-          m_num_command_chars = 0;
+        auto cmd = &cu->m_10_Create_primitive_Point;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_point(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_color);
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
-      // VDU 23, 30, 11, id; pid; flags, x; y; w; h; c: [17] Create primitive: Solid Ellipse
-      case 11: {
-        if (m_num_command_chars == 17) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto x = get_param_16(8);
-          auto y = get_param_16(10);
-          auto w = get_param_16(12);
-          auto h = get_param_16(14);
-          auto c = get_param_8(16);
-          create_solid_ellipse(id, pid, flags, x, y, w, h, c);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 12, id; pid; flags, cols; rows; bitmaps, w; h;: [17] Create primitive: Tile Map
-      case 12: {
-        if (m_num_command_chars == 17) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto cols = get_param_16(8);
-          auto rows = get_param_16(10);
-          auto bitmaps = get_param_8(12);
-          auto w = get_param_16(13);
-          auto h = get_param_16(15);
-          create_tile_map(id, pid, flags, ACT_PIXELS, ACT_LINES, cols, rows, w, h);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 13, id; pid; flags, w; h;: [12] Create primitive: Solid Bitmap
-      case 13: {
-        if (m_num_command_chars == 12) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto w = get_param_16(8);
-          auto h = get_param_16(10);
-          create_solid_bitmap(id, pid, flags, w, h);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 14, id; pid; flags, w; h;: [12] Create primitive: Masked Bitmap
-      case 14: {
-        if (m_num_command_chars == 12) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto w = get_param_16(8);
-          auto h = get_param_16(10);
-          create_masked_bitmap(id, pid, flags, w, h);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 15, id; pid; flags, w; h; c: [13] Create primitive: Transparent Bitmap
-      case 15: {
-        if (m_num_command_chars == 13) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto w = get_param_16(8);
-          auto h = get_param_16(10);
-          auto c = get_param_8(12);
-          create_transparent_bitmap(id, pid, flags, w, h, c);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 16, id; pid; flags, x; y;: [12] Create primitive: Group
-      case 16: {
-        if (m_num_command_chars == 12) {
-          auto id = get_param_16(3);
-          auto pid = get_param_16(5);
-          auto flags = get_param_8(7);
-          auto x = get_param_16(8);
-          auto y = get_param_16(10);
-          create_primitive_group(id, pid, flags, x, y);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 17, id; x; y; s; h;: [13] Move & slice solid bitmap: absolute
-      case 17: {
-        if (m_num_command_chars == 13) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto s = get_param_16(9);
-          auto h = get_param_16(11);
-          slice_solid_bitmap_absolute(id, x, y, s, h);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 18, id; x; y; s; h;: [13] Move & slice masked bitmap: absolute
-      case 18: {
-        if (m_num_command_chars == 13) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto s = get_param_16(9);
-          auto h = get_param_16(11);
-          slice_masked_bitmap_absolute(id, x, y, s, h);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 19, id; x; y; s; h;: [13] Move & slice transparent bitmap: absolute
-      case 19: {
-        if (m_num_command_chars == 13) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto s = get_param_16(9);
-          auto h = get_param_16(11);
-          slice_transparent_bitmap_absolute(id, x, y, s, h);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 20, id; x; y; s; h;: [13] Move & slice solid bitmap: relative
       case 20: {
-        if (m_num_command_chars == 13) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto s = get_param_16(9);
-          auto h = get_param_16(11);
-          slice_solid_bitmap_relative(id, x, y, s, h);
-          m_num_command_chars = 0;
+        auto cmd = &cu->m_20_Create_primitive_Line;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_line(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_color);
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
-      // VDU 23, 30, 21, id; x; y; s; h;: [13] Move & slice masked bitmap: relative
-      case 21: {
-        if (m_num_command_chars == 13) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto s = get_param_16(9);
-          auto h = get_param_16(11);
-          slice_masked_bitmap_relative(id, x, y, s, h);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 22, id; x; y; s; h;: [13] Move & slice transparent bitmap: relative
-      case 22: {
-        if (m_num_command_chars == 13) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto s = get_param_16(9);
-          auto h = get_param_16(11);
-          slice_transparent_bitmap_relative(id, x, y, s, h);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 23, id; x; y; c: [10] Set solid bitmap pixel
-      case 23: {
-        if (m_num_command_chars == 10) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto c = get_param_8(9);
-          set_solid_bitmap_pixel(id, x, y, c, 0);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 24, id; x; y; c: [10] Set masked bitmap pixel
-      case 24: {
-        if (m_num_command_chars == 10) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto c = get_param_8(9);
-          set_masked_bitmap_pixel(id, x, y, c, 0);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 25, id; x; y; c: [10] Set transparent bitmap pixel
-      case 25: {
-        if (m_num_command_chars == 10) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto c = get_param_8(9);
-          set_transparent_bitmap_pixel(id, x, y, c, 0);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 26, id; x; y; n; c0, c1, c2, ...: [11+n] Set solid bitmap pixels
-      case 26: {
-        if (m_num_command_chars >= 12) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto n = get_param_16(9);
-          auto c = get_param_8(11);
-          set_solid_bitmap_pixel(id, x, y, c, m_command_data_index);
-          if (++m_command_data_index >= n) {
-            m_num_command_chars = 0;
-            return true;
-          } else {
-            m_num_command_chars = 11;
-          }
-        } else if (m_num_command_chars == 5) {
-          m_command_data_index = 0;
-        }
-      } break;
-
-      // VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ...: [11+n] Set masked bitmap pixels
-      case 27: {
-        if (m_num_command_chars >= 12) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto n = get_param_16(9);
-          auto c = get_param_8(11);
-          set_masked_bitmap_pixel(id, x, y, c, m_command_data_index);
-          if (++m_command_data_index >= n) {
-            m_num_command_chars = 0;
-            return true;
-          } else {
-            m_num_command_chars = 11;
-          }
-        } else if (m_num_command_chars == 5) {
-          m_command_data_index = 0;
-        }
-      } break;
-
-      // VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ...: [11+n] Set transparent bitmap pixels
-      case 28: {
-        if (m_num_command_chars >= 12) {
-          auto id = get_param_16(3);
-          auto x = get_param_16(5);
-          auto y = get_param_16(7);
-          auto n = get_param_16(9);
-          auto c = get_param_8(11);
-          set_transparent_bitmap_pixel(id, x, y, c, m_command_data_index);
-          if (++m_command_data_index >= n) {
-            m_num_command_chars = 0;
-            return true;
-          } else {
-            m_num_command_chars = 11;
-          }
-        } else if (m_num_command_chars == 5) {
-          m_command_data_index = 0;
-        }
-      } break;
-
-      // VDU 23, 30, 29, id; col; row; img: [11] Set image ID for tile in tile map
-      case 29: {
-        if (m_num_command_chars == 11) {
-          auto id = get_param_16(3);
-          auto col = get_param_16(5);
-          auto row = get_param_16(7);
-          auto img = get_param_16(9);
-          //set_tile_bitmap_index(id, col, row, img);
-          m_num_command_chars = 0;
-          return true;
-        }
-      } break;
-
-      // VDU 23, 30, 30, id; bi, x; y; c: [11] Set bitmap pixel in tile map
       case 30: {
-        if (m_num_command_chars == 11) {
-          auto id = get_param_16(3);
-          auto bi = get_param_8(5);
-          auto x = get_param_16(6);
-          auto y = get_param_16(8);
-          auto c = get_param_8(10);
-          //set_tile_bitmap_pixel(id, bi, x, y, c, 0);
-          m_num_command_chars = 0;
+        auto cmd = &cu->m_30_Create_primitive_Triangle_Outline;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_triangle(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_color);
+          m_incoming_command.clear();
           return true;
         }
       } break;
 
-      // VDU 23, 30, 31, id; bi, x; y; n; c0, c1, c2, ...: [12+n] Set bitmap pixels in tile map
       case 31: {
-        if (m_num_command_chars >= 13) {
-          auto id = get_param_16(3);
-          auto bi = get_param_8(5);
-          auto x = get_param_16(6);
-          auto y = get_param_16(8);
-          auto n = get_param_16(10);
-          auto c = get_param_8(12);
-          //set_tile_bitmap_pixel(id, bi, x, y, c, m_command_data_index);
+        auto cmd = &cu->m_31_Create_primitive_Solid_Triangle;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_solid_triangle(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 32: {
+        auto cmd = &cu->m_32_Create_primitive_Triangle_List_Outline;
+      } break;
+
+      case 33: {
+        auto cmd = &cu->m_33_Create_primitive_Solid_Triangle_List;
+      } break;
+
+      case 34: {
+        auto cmd = &cu->m_34_Create_primitive_Triangle_Fan_Outline;
+      } break;
+
+      case 35: {
+        auto cmd = &cu->m_35_Create_primitive_Solid_Triangle_Fan;
+      } break;
+
+      case 36: {
+        auto cmd = &cu->m_36_Create_primitive_Triangle_Strip_Outline;
+      } break;
+
+      case 37: {
+        auto cmd = &cu->m_37_Create_primitive_Solid_Triangle_Strip;
+      } break;
+
+      case 40: {
+        auto cmd = &cu->m_40_Create_primitive_Rectangle_Outline;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_rectangle(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 41: {
+        auto cmd = &cu->m_41_Create_primitive_Solid_Rectangle;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_solid_rectangle(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 50: {
+        auto cmd = &cu->m_50_Create_primitive_Ellipse_Outline;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_ellipse(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 51: {
+        auto cmd = &cu->m_51_Create_primitive_Solid_Ellipse;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_solid_ellipse(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 60: {
+        auto cmd = &cu->m_60_Create_primitive_Quad_Outline;
+      } break;
+
+      case 61: {
+        auto cmd = &cu->m_61_Create_primitive_Solid_Quad;
+      } break;
+
+      case 62: {
+        auto cmd = &cu->m_62_Create_primitive_Quad_List_Outline;
+      } break;
+
+      case 63: {
+        auto cmd = &cu->m_63_Create_primitive_Solid_Quad_List;
+      } break;
+
+      case 64: {
+        auto cmd = &cu->m_64_Create_primitive_Quad_Strip_Outline;
+      } break;
+
+      case 65: {
+        auto cmd = &cu->m_65_Create_primitive_Solid_Quad_Strip;
+      } break;
+
+      case 80: {
+        auto cmd = &cu->m_80_Create_primitive_Tile_Array;
+      } break;
+
+      case 81: {
+        auto cmd = &cu->m_81_Create_Solid_Bitmap_for_Tile_Array;
+      } break;
+
+      case 82: {
+        auto cmd = &cu->m_82_Create_Masked_Bitmap_for_Tile_Array;
+      } break;
+
+      case 83: {
+        auto cmd = &cu->m_83_Create_Transparent_Bitmap_for_Tile_Array;
+      } break;
+
+      case 84: {
+        auto cmd = &cu->m_84_Set_bitmap_ID_for_tile_in_Tile_Array;
+      } break;
+
+      case 85: {
+        auto cmd = &cu->m_85_Set_solid_bitmap_pixel_in_Tile_Map;
+      } break;
+
+      case 86: {
+        auto cmd = &cu->m_86_Set_masked_bitmap_pixel_in_Tile_Map;
+      } break;
+
+      case 87: {
+        auto cmd = &cu->m_87_Set_transparent_bitmap_pixel_in_Tile_Map;
+      } break;
+
+      case 88: {
+        auto cmd = &cu->m_88_Set_solid_bitmap_pixel_in_Tile_Array;
+      } break;
+
+      case 89: {
+        auto cmd = &cu->m_89_Set_masked_bitmap_pixel_in_Tile_Array;
+      } break;
+
+      case 90: {
+        auto cmd = &cu->m_90_Set_transparent_bitmap_pixel_in_Tile_Array;
+      } break;
+
+      case 100: {
+        auto cmd = &cu->m_100_Create_primitive_Tile_Map;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_tile_map(cmd->m_id, cmd->m_pid, cmd->m_flags, ACT_PIXELS, ACT_LINES, cmd->m_cols, cmd->m_rows, cmd->m_w, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 101: {
+        auto cmd = &cu->m_101_Create_Solid_Bitmap_for_Tile_Map;
+      } break;
+
+      case 102: {
+        auto cmd = &cu->m_102_Create_Masked_Bitmap_for_Tile_Map;
+      } break;
+
+      case 103: {
+        auto cmd = &cu->m_103_Create_Transparent_Bitmap_for_Tile_Map;
+      } break;
+
+      case 104: {
+        auto cmd = &cu->m_104_Set_bitmap_ID_for_tile_in_Tile_Map;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          //set_tile_bitmap_index(cmd->m_id, cmd->m_col, cmd->m_row, cmd->m_img);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 105: {
+        auto cmd = &cu->m_105_Set_solid_bitmap_pixel_in_Tile_Map;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          //set_tile_bitmap_pixel(cmd->m_id, cmd->m_bi, cmd->m_x, cmd->m_y, cmd->m_c, 0);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 106: {
+        auto cmd = &cu->m_106_Set_masked_bitmap_pixel_in_Tile_Map;
+      } break;
+
+      case 107: {
+        auto cmd = &cu->m_107_Set_transparent_bitmap_pixel_in_Tile_Map;
+      } break;
+
+      case 108: {
+        auto cmd = &cu->m_108_Set_solid_bitmap_pixels_in_Tile_Map;
+        if (m_incoming_command.size() >= sizeof(*cmd)) {
+          //set_tile_bitmap_pixel(cmd->m_id, cmd->m_bi, cmd->m_x, cmd->m_y, cmd->m_c, m_command_data_index);
           if (++m_command_data_index >= n) {
-            m_num_command_chars = 0;
+            m_incoming_command.clear();
             return true;
           } else {
             m_num_command_chars = 10;
           }
-        } else if (m_num_command_chars == 5) {
+        } else if (m_incoming_command.size() == 5) {
           m_command_data_index = 0;
         }
       } break;
 
+      case 109: {
+        auto cmd = &cu->m_109_Set_masked_bitmap_pixels_in_Tile_Map;
+      } break;
+
+      case 110: {
+        auto cmd = &cu->m_110_Set_transparent_bitmap_pixels_in_Tile_Map;
+      } break;
+
+      case 120: {
+        auto cmd = &cu->m_120_Create_primitive_Solid_Bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_solid_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 121: {
+        auto cmd = &cu->m_121_Create_primitive_Masked_Bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_masked_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 122: {
+        auto cmd = &cu->m_122_Create_primitive_Transparent_Bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_transparent_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 123: {
+        auto cmd = &cu->m_123_Set_position_and_slice_solid_bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          slice_solid_bitmap_absolute(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_s, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 124: {
+        auto cmd = &cu->m_124_Set_position_and_slice_masked_bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          slice_masked_bitmap_absolute(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_s, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 125: {
+        auto cmd = &cu->m_125_Set_position_and_slice_transparent_bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          slice_transparent_bitmap_absolute(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_s, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 126: {
+        auto cmd = &cu->m_126_Adjust_position_and_slice_solid_bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          slice_solid_bitmap_relative(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_s, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 127: {
+        auto cmd = &cu->m_127_Adjust_position_and_slice_masked_bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          slice_masked_bitmap_relative(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_s, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 128: {
+        auto cmd = &cu->m_128_Adjust_position_and_slice_transparent_bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          slice_transparent_bitmap_relative(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_s, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 129: {
+        auto cmd = &cu->m_129_Set_solid_bitmap_pixel;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          set_solid_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, 0);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 130: {
+        auto cmd = &cu->m_130_Set_masked_bitmap_pixel;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          set_masked_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, cmd->m_0);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 131: {
+        auto cmd = &cu->m_131_Set_transparent_bitmap_pixel;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          set_transparent_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, 0);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 132: {
+        auto cmd = &cu->m_132_Set_solid_bitmap_pixels;
+        if (m_incoming_command.size() >= sizeof(*cmd)) {
+          set_solid_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, m_command_data_index);
+          if (++m_command_data_index >= n) {
+            m_incoming_command.clear();
+            return true;
+          } else {
+            m_num_command_chars = 11;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
+      } break;
+
+      case 133: {
+        auto cmd = &cu->m_133_Set_masked_bitmap_pixels;
+        if (m_incoming_command.size() >= sizeof(*cmd)) {
+          set_masked_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, m_command_data_index);
+          if (++m_command_data_index >= n) {
+            m_incoming_command.clear();
+            return true;
+          } else {
+            m_num_command_chars = 11;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
+      } break;
+
+      case 134: {
+        auto cmd = &cu->m_134_Set_transparent_bitmap_pixels;
+        if (m_incoming_command.size() >= sizeof(*cmd)) {
+          set_transparent_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, m_command_data_index);
+          if (++m_command_data_index >= n) {
+            m_incoming_command.clear();
+            return true;
+          } else {
+            m_num_command_chars = 11;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
+      } break;
+
+      case 140: {
+        auto cmd = &cu->m_140_Create_primitive_Group;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_primitive_group(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 150: {
+        auto cmd = &cu->m_150_Create_primitive_Terminal;
+      } break;
+
+      case 151: {
+        auto cmd = &cu->m_151_Select_Active_Terminal;
+      } break;
+
+      case 152: {
+        auto cmd = &cu->m_152_Define_Terminal_Character;
+      } break;
+
+      case 153: {
+        auto cmd = &cu->m_153_Define_Terminal_Character_Range;
+      } break;
+
+      default: {
+        m_incoming_command.clear();
+        return true; // ignore the command
+      }
     }
   }
   return false;
@@ -1674,14 +1604,14 @@ void DiManager::do_backspace() {
 }
 
 bool DiManager::move_cursor_tab(uint8_t character) {
-  m_incoming_command[m_num_command_chars++] = character;
-  if (m_num_command_chars >= 3) {
+  m_incoming_command.push_back(character);
+  if (m_incoming_command.size() >= 3) {
     if (m_terminal) {
       uint8_t x = get_param_8(1);
       uint8_t y = get_param_8(2);
       m_terminal->move_cursor_tab(x, y);
     }
-    m_num_command_chars = 0;
+    m_incoming_command.clear();
     return true;
   }
   return false;
