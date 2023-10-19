@@ -131,11 +131,19 @@ class DiManager {
     void set_masked_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth);
     void set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth);
 
-    // Set image ID for tile in tile map.
-    void set_tile_image_id(uint16_t id, uint16_t col, uint16_t row, DiTileBitmapID bm_id);
+    // Set bitmap ID for tile in tile array.
+    void set_tile_array_bitmap_id(uint16_t id, uint16_t col, uint16_t row, DiTileBitmapID bm_id);
+
+    // Set pixel for bitmap in tile array.
+    void set_tile_array_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
+                                    int32_t x, int32_t y, uint8_t color, int16_t nth);
+
+    // Set bitmap ID for tile in tile map.
+    void set_tile_map_bitmap_id(uint16_t id, uint16_t col, uint16_t row, DiTileBitmapID bm_id);
 
     // Set pixel for bitmap in tile map.
-    void set_tile_image_pixel(uint16_t id, DiTileBitmapID bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth);
+    void set_tile_map_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
+                                    int32_t x, int32_t y, uint8_t color, int16_t nth);
 
     // Setup a callback for when the visible frame pixels have been sent to DMA,
     // and the vertical blanking time begins.

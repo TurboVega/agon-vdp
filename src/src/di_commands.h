@@ -27,15 +27,20 @@
 
 #pragma pack(push, 1)
 
+#define _bgcolor uint8_t m_bgcolor;
 #define _bmid   uint16_t m_bmid;
+#define _char   uint8_t  m_char;
 #define _color  uint8_t  m_color;
-#define _colors uint8_t  m_color[1];
+#define _colors uint8_t  m_colors[1];
 #define _column uint16_t m_column;
 #define _columns uint16_t m_columns;
 #define _coords uint16_t m_coords[1];
+#define _firstchar uint8_t m_firstchar;
+#define _fgcolor uint8_t m_fgcolor;
 #define _flags  uint16_t m_flags;
 #define _h      uint16_t m_h;
 #define _id     uint16_t m_id;
+#define _lastchar uint8_t m_lastchar;
 #define _n      uint16_t m_n;
 #define _pid    uint16_t m_pid;
 #define _row    uint16_t m_row;
@@ -131,7 +136,7 @@ OTFCMD(134,(_id _x _y _n _colors),_Set_transparent_bitmap_pixels)
 OTFCMD(140,(_id _pid _flags _x _y),_Create_primitive_Group)
 OTFCMD(150,(_id _pid _flags _x _y _columns _rows),_Create_primitive_Terminal)
 OTFCMD(151,(_id),_Select_Active_Terminal)
-OTFCMD(152,(_id _character _fgcolor _bgcolor),_Define_Terminal_Character)
+OTFCMD(152,(_id _char _fgcolor _bgcolor),_Define_Terminal_Character)
 OTFCMD(153,(_id _firstchar _lastchar _fgcolor _bgcolor),_Define_Terminal_Character_Range)
 
 typedef union {

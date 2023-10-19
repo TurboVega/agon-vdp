@@ -1146,7 +1146,8 @@ bool DiManager::handle_otf_cmd() {
       case 20: {
         auto cmd = &cu->m_20_Create_primitive_Line;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_line(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_color);
+          create_line(cmd->m_id, cmd->m_pid, cmd->m_flags,
+            cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_color);
           m_incoming_command.clear();
           return true;
         }
@@ -1155,7 +1156,8 @@ bool DiManager::handle_otf_cmd() {
       case 30: {
         auto cmd = &cu->m_30_Create_primitive_Triangle_Outline;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_triangle(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_color);
+          create_triangle(cmd->m_id, cmd->m_pid, cmd->m_flags,
+            cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_color);
           m_incoming_command.clear();
           return true;
         }
@@ -1164,7 +1166,8 @@ bool DiManager::handle_otf_cmd() {
       case 31: {
         auto cmd = &cu->m_31_Create_primitive_Solid_Triangle;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_solid_triangle(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_color);
+          create_solid_triangle(cmd->m_id, cmd->m_pid, cmd->m_flags,
+            cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_color);
           m_incoming_command.clear();
           return true;
         }
@@ -1197,7 +1200,8 @@ bool DiManager::handle_otf_cmd() {
       case 40: {
         auto cmd = &cu->m_40_Create_primitive_Rectangle_Outline;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_rectangle(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          create_rectangle(cmd->m_id, cmd->m_pid, cmd->m_flags,
+            cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
           m_incoming_command.clear();
           return true;
         }
@@ -1206,7 +1210,8 @@ bool DiManager::handle_otf_cmd() {
       case 41: {
         auto cmd = &cu->m_41_Create_primitive_Solid_Rectangle;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_solid_rectangle(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          create_solid_rectangle(cmd->m_id, cmd->m_pid, cmd->m_flags,
+            cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
           m_incoming_command.clear();
           return true;
         }
@@ -1215,7 +1220,8 @@ bool DiManager::handle_otf_cmd() {
       case 50: {
         auto cmd = &cu->m_50_Create_primitive_Ellipse_Outline;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_ellipse(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          create_ellipse(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x,
+            cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
           m_incoming_command.clear();
           return true;
         }
@@ -1224,7 +1230,8 @@ bool DiManager::handle_otf_cmd() {
       case 51: {
         auto cmd = &cu->m_51_Create_primitive_Solid_Ellipse;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_solid_ellipse(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          create_solid_ellipse(cmd->m_id, cmd->m_pid, cmd->m_flags,
+            cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
           m_incoming_command.clear();
           return true;
         }
@@ -1301,7 +1308,8 @@ bool DiManager::handle_otf_cmd() {
       case 100: {
         auto cmd = &cu->m_100_Create_primitive_Tile_Map;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_tile_map(cmd->m_id, cmd->m_pid, cmd->m_flags, ACT_PIXELS, ACT_LINES, cmd->m_cols, cmd->m_rows, cmd->m_w, cmd->m_h);
+          create_tile_map(cmd->m_id, cmd->m_pid, cmd->m_flags, ACT_PIXELS, ACT_LINES,
+            cmd->m_columns, cmd->m_rows, cmd->m_w, cmd->m_h);
           m_incoming_command.clear();
           return true;
         }
@@ -1331,7 +1339,8 @@ bool DiManager::handle_otf_cmd() {
       case 105: {
         auto cmd = &cu->m_105_Set_solid_bitmap_pixel_in_Tile_Map;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          //set_tile_bitmap_pixel(cmd->m_id, cmd->m_bi, cmd->m_x, cmd->m_y, cmd->m_c, 0);
+          set_tile_map_bitmap_pixel(cmd->m_id, cmd->m_bmid, cmd->m_x, cmd->m_y,
+            cmd->m_color, 0);
           m_incoming_command.clear();
           return true;
         }
@@ -1347,13 +1356,13 @@ bool DiManager::handle_otf_cmd() {
 
       case 108: {
         auto cmd = &cu->m_108_Set_solid_bitmap_pixels_in_Tile_Map;
-        if (m_incoming_command.size() >= sizeof(*cmd)) {
-          //set_tile_bitmap_pixel(cmd->m_id, cmd->m_bi, cmd->m_x, cmd->m_y, cmd->m_c, m_command_data_index);
-          if (++m_command_data_index >= n) {
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          set_tile_map_bitmap_pixel(cmd->m_id, cmd->m_bmid, cmd->m_x, cmd->m_y,
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index);
+          if (++m_command_data_index >= cmd->m_n) {
             m_incoming_command.clear();
             return true;
-          } else {
-            m_num_command_chars = 10;
           }
         } else if (m_incoming_command.size() == 5) {
           m_command_data_index = 0;
@@ -1452,7 +1461,7 @@ bool DiManager::handle_otf_cmd() {
       case 129: {
         auto cmd = &cu->m_129_Set_solid_bitmap_pixel;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          set_solid_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, 0);
+          set_solid_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_color, 0);
           m_incoming_command.clear();
           return true;
         }
@@ -1461,7 +1470,7 @@ bool DiManager::handle_otf_cmd() {
       case 130: {
         auto cmd = &cu->m_130_Set_masked_bitmap_pixel;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          set_masked_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, cmd->m_0);
+          set_masked_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_color, 0);
           m_incoming_command.clear();
           return true;
         }
@@ -1470,7 +1479,7 @@ bool DiManager::handle_otf_cmd() {
       case 131: {
         auto cmd = &cu->m_131_Set_transparent_bitmap_pixel;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          set_transparent_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, 0);
+          set_transparent_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_color, 0);
           m_incoming_command.clear();
           return true;
         }
@@ -1478,13 +1487,13 @@ bool DiManager::handle_otf_cmd() {
 
       case 132: {
         auto cmd = &cu->m_132_Set_solid_bitmap_pixels;
-        if (m_incoming_command.size() >= sizeof(*cmd)) {
-          set_solid_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, m_command_data_index);
-          if (++m_command_data_index >= n) {
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          set_tile_map_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y,
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index, 0);
+          if (++m_command_data_index >= cmd->m_n) {
             m_incoming_command.clear();
             return true;
-          } else {
-            m_num_command_chars = 11;
           }
         } else if (m_incoming_command.size() == 5) {
           m_command_data_index = 0;
@@ -1493,13 +1502,13 @@ bool DiManager::handle_otf_cmd() {
 
       case 133: {
         auto cmd = &cu->m_133_Set_masked_bitmap_pixels;
-        if (m_incoming_command.size() >= sizeof(*cmd)) {
-          set_masked_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, m_command_data_index);
-          if (++m_command_data_index >= n) {
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          set_tile_map_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y,
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index, 0);
+          if (++m_command_data_index >= cmd->m_n) {
             m_incoming_command.clear();
             return true;
-          } else {
-            m_num_command_chars = 11;
           }
         } else if (m_incoming_command.size() == 5) {
           m_command_data_index = 0;
@@ -1508,13 +1517,13 @@ bool DiManager::handle_otf_cmd() {
 
       case 134: {
         auto cmd = &cu->m_134_Set_transparent_bitmap_pixels;
-        if (m_incoming_command.size() >= sizeof(*cmd)) {
-          set_transparent_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_c, m_command_data_index);
-          if (++m_command_data_index >= n) {
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          set_tile_map_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y,
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index, 0);
+          if (++m_command_data_index >= cmd->m_n) {
             m_incoming_command.clear();
             return true;
-          } else {
-            m_num_command_chars = 11;
           }
         } else if (m_incoming_command.size() == 5) {
           m_command_data_index = 0;
@@ -1926,23 +1935,35 @@ void DiManager::set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, 
   }
   prim->set_transparent_pixel(px, py, color);
 }
-/*
-void DiManager::set_tile_bitmap_index(uint16_t id, uint16_t col, uint16_t row, uint8_t bitmap) {
-  DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
-  prim->set_tile(col, row, bitmap);
+
+void DiManager::set_tile_array_bitmap_id(uint16_t id, uint16_t col, uint16_t row, DiTileBitmapID bm_id) {
+  DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return;
+  prim->set_tile(col, row, bm_id);
 }
 
-void DiManager::set_tile_bitmap_pixel(uint16_t id, uint8_t bitmap, int32_t x, int32_t y, uint8_t color, int16_t nth) {
+void DiManager::set_tile_array_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
+                                int32_t x, int32_t y, uint8_t color, int16_t nth) {
+  DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return;
+  x += nth;
+  while (x >= prim->get_width()) {
+    x -= prim->get_width();
+    y++;
+  }
+  prim->set_pixel(bm_id, x, y, color);
+}
+
+void DiManager::set_tile_map_bitmap_id(uint16_t id, uint16_t col, uint16_t row, DiTileBitmapID bm_id) {
+  DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
+  prim->set_tile(col, row, bm_id);
+}
+
+void DiManager::set_tile_map_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
+                                int32_t x, int32_t y, uint8_t color, int16_t nth) {
   DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
   x += nth;
   while (x >= prim->get_width()) {
     x -= prim->get_width();
     y++;
   }
-  if (prim->get_flags() & PRIM_FLAG_H_SCROLL) {
-    prim->set_pixel_hscroll(bitmap, x, y, color);
-  } else {
-    prim->set_pixel(bitmap, x, y, color);
-  }
+  prim->set_pixel(bm_id, x, y, color);
 }
-*/
