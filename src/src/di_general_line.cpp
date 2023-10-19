@@ -46,7 +46,11 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
   m_width = MAX(x1,x2) - m_rel_x + 1;
   m_height = MAX(y1,y2) - m_rel_y + 1;
   color &= 0x3F; // remove any alpha bits
-  m_color = PIXEL_COLOR_X4(color);  
+  m_color = PIXEL_COLOR_X4(color);
+  x1 -= m_rel_x;
+  y1 -= m_rel_y;
+  x2 -= m_rel_x;
+  y2 -= m_rel_y;
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2);
 }
 
@@ -59,14 +63,25 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1,
   m_height = max3(y1,y2,y3) - m_rel_y + 1;
   color &= 0x3F; // remove any alpha bits
   m_color = PIXEL_COLOR_X4(color); 
+  x1 -= m_rel_x;
+  y1 -= m_rel_y;
+  x2 -= m_rel_x;
+  y2 -= m_rel_y;
+  x3 -= m_rel_x;
+  y3 -= m_rel_y;
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2, x3, y3);
 }
 
 void IRAM_ATTR DiGeneralLine::delete_instructions() {
   m_paint_fcn.clear();
 }
-  
+extern "C" {
+extern int64_t esp_timer_get_time();
+}
+extern void debug_log(const char* fmt, ...);
 void IRAM_ATTR DiGeneralLine::generate_instructions() {
+  auto startticks = esp_timer_get_time();
+ 
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     EspFixups fixups;
@@ -75,9 +90,16 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
       DiLinePiece* piece = &m_line_pieces.m_pieces[i];
       m_paint_fcn.align32();
       m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
-      m_paint_fcn.draw_line_as_inner_fcn(fixups, m_draw_x, piece->m_x, piece->m_width, m_flags, m_opaqueness);
+      m_paint_fcn.draw_line_as_inner_fcn(fixups, m_draw_x,
+        piece->m_x + m_abs_x,
+        piece->m_width, m_flags, m_opaqueness);
     }
     m_paint_fcn.do_fixups(fixups);
+  }
+
+  auto endticks = esp_timer_get_time();
+  if (endticks - startticks > 100) {
+    debug_log("? gen %llu\n", endticks - startticks);
   }
 }
 
