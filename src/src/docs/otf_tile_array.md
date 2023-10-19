@@ -1,5 +1,5 @@
 ## Create primitive: Tile Array
-<b>VDU 23, 30, 80, id; pid; flags; cols; rows; w; h;</b> : Create primitive: Tile Array
+<b>VDU 23, 30, 80, id; pid; flags; columns; rows; w; h;</b> : Create primitive: Tile Array
 
 This commmand creates a primitive that draws a full or mostly full tile array, as opposed to a sparse tile map.
 The number of cells in the array is equal to the number of rows
@@ -85,7 +85,7 @@ OTF mode will automatically set the PRIM_FLAGS_BLENDED flag
 when this command is used.
 
 ## Set bitmap ID for tile in tile array
-<b>VDU 23, 30, 84, id; col; row; bmid;</b> : Set bitmap ID for tile in Tile Array
+<b>VDU 23, 30, 84, id; column; row; bmid;</b> : Set bitmap ID for tile in Tile Array
 
 This command specifies which bitmap should be draw in a specific
 cell of a tile array. The bitmap must have been created already.

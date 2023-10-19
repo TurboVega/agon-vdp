@@ -1,5 +1,5 @@
 ## Create primitive: Terminal
-<b>VDU 23, 30, 150, id; pid; flags; x; y; columns; rows;</b>
+<b>VDU 23, 30, 150, id; pid; flags; x; y; columns; rows;</b> : Create primitive: Terminal
 
 This command creates a terminal primitive, which is a tile array
 used to show text characters. The terminal supports a flashing
@@ -17,7 +17,7 @@ is no font specified in this command. If other fonts are used
 in the future, a new command will be added to the OTF mode.
 
 ## Select Active Terminal
-<b>VDU 23, 30, 151, id;</b>
+<b>VDU 23, 30, 151, id;</b> : Select Active Terminal
 
 This command tells the OTF manager which terminal should be the
 active terminal, when more than one terminal was created. This
@@ -25,7 +25,7 @@ allows, for example, two separate areas of the screen to have
 independent text (and possibly in the future, independent fonts).
 
 ## Define Terminal Character
-<b>VDU 23, 30, 152, id; char, fgcolor, bgcolor</b>
+<b>VDU 23, 30, 152, id; char, fgcolor, bgcolor</b> : Define Terminal Character
 
 This command defines a single character to be used within a terminal
 primitive, meaning that it both creates a bitmap and sets the
@@ -37,7 +37,7 @@ character glyph, in a single terminal, simply by defining
 the character multiple times, using different colors.
 
 ## Define Terminal Character Range
-<b>VDU 23, 30, 153, id; firstchar, lastchar, fgcolor, bgcolor</b>
+<b>VDU 23, 30, 153, id; firstchar, lastchar, fgcolor, bgcolor</b> : Define Terminal Character Range
 
 This command defines a range of characters to be used within a terminal
 primitive, meaning that it both creates the bitmaps and sets the

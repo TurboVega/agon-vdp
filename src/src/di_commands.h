@@ -27,6 +27,73 @@
 
 #pragma pack(push, 1)
 
+OTFCMD(0,(id,flags;),Set_flags_for_primitive
+OTFCMD(1,(id,x,y;),Set_primitive_position
+OTFCMD(2,(id,x,y;),Adjust_primitive_position
+OTFCMD(3,(id;),Delete_primitive
+OTFCMD(10,(id,pid,flags,x,y,color),Create_primitive:_Point
+OTFCMD(20,(id,pid,flags,x1,y1,x2,y2,color),Create_primitive:_Line
+OTFCMD(30,(id,pid,flags,x1,y1,x2,y2,x3,y3,color),Create_primitive:_Triangle_Outline
+OTFCMD(31,(id,pid,flags,x1,y1,x2,y2,x3,y3,color),Create_primitive:_Solid_Triangle
+OTFCMD(32,(id,pid,flags,n,color,x1,y1,..._xn,yn),Create_primitive:_Triangle_List_Outline
+OTFCMD(33,(id,pid,flags,n,color,x1,y1,..._xn,yn;),Create_primitive:_Solid_Triangle_List
+OTFCMD(34,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,..._xn,yn;),Create_primitive:_Triangle_Fan_Outline
+OTFCMD(35,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,..._xn,yn;),Create_primitive:_Solid_Triangle_Fan
+OTFCMD(36,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,x1,y1,..._xn,yn;),Create_primitive:_Triangle_Strip_Outline
+OTFCMD(37,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,x1,y1,..._xn,yn;),Create_primitive:_Solid_Triangle_Strip
+OTFCMD(40,(id,pid,flags,x,y,w,h,color),Create_primitive:_Rectangle_Outline
+OTFCMD(41,(id,pid,flags,x,y,w,h,color),Create_primitive:_Solid_Rectangle
+OTFCMD(50,(id,pid,flags,x,y,w,h,color),Create_primitive:_Ellipse_Outline
+OTFCMD(51,(id,pid,flags,x,y,w,h,color),Create_primitive:_Solid_Ellipse
+OTFCMD(60,(id,pid,flags,color,x1,y1,x2,y2,x3,y3,x4,y4;),Create_primitive:_Quad_Outline
+OTFCMD(61,(id,pid,flags,color,x1,y1,x2,y2,x3,y3,x4,y4;),Create_primitive:_Solid_Quad
+OTFCMD(62,(id,pid,flags,n,color,x1,y1,..._xn,yn;),Create_primitive:_Quad_List_Outline
+OTFCMD(63,(id,pid,flags,n,color,x1,y1,..._xn,yn;),Create_primitive:_Solid_Quad_List
+OTFCMD(64,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,x1,y1,..._xn,yn;),Create_primitive:_Quad_Strip_Outline
+OTFCMD(65,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,x1,y1,..._xn,yn;),Create_primitive:_Solid_Quad_Strip
+OTFCMD(80,(id,pid,flags,columns,rows,w,h;),Create_primitive:_Tile_Array
+OTFCMD(81,(id,pid,flags,w,h;),Create_Solid_Bitmap_for_Tile_Array
+OTFCMD(82,(id,pid,flags,w,h,color),Create_Masked_Bitmap_for_Tile_Array
+OTFCMD(83,(id,pid,flags,w,h,color),Create_Transparent_Bitmap_for_Tile_Array
+OTFCMD(84,(id,column,row,bmid;),Set_bitmap_ID_for_tile_in_Tile_Array
+OTFCMD(85,(id,bmid,x,y,color),Set_solid_bitmap_pixel_in_Tile_Map
+OTFCMD(86,(id,bmid,x,y,color),Set_masked_bitmap_pixel_in_Tile_Map
+OTFCMD(87,(id,bmid,x,y,color),Set_transparent_bitmap_pixel_in_Tile_Map
+OTFCMD(88,(id,bmid,x,y,color),Set_solid_bitmap_pixel_in_Tile_Array
+OTFCMD(89,(id,bmid,x,y,color),Set_masked_bitmap_pixel_in_Tile_Array
+OTFCMD(90,(id,bmid,x,y,color),Set_transparent_bitmap_pixel_in_Tile_Array
+OTFCMD(100,(id,pid,flags,columns,rows,w,h;),Create_primitive:_Tile_Map
+OTFCMD(101,(id,pid,flags,w,h;),Create_Solid_Bitmap_for_Tile_Map
+OTFCMD(102,(id,pid,flags,w,h,color),Create_Masked_Bitmap_for_Tile_Map
+OTFCMD(103,(id,pid,flags,w,h,color),Create_Transparent_Bitmap_for_Tile_Map
+OTFCMD(104,(id,col,row,bmid;),Set_bitmap_ID_for_tile_in_Tile_Map
+OTFCMD(105,(id,bmid,x,y,color),Set_solid_bitmap_pixel_in_Tile_Map
+OTFCMD(106,(id,bmid,x,y,color),Set_masked_bitmap_pixel_in_Tile_Map
+OTFCMD(107,(id,bmid,x,y,color),Set_transparent_bitmap_pixel_in_Tile_Map
+OTFCMD(108,(id,bmid,x,y,n,c0,c1,c2,...),Set_solid_bitmap_pixels_in_Tile_Map
+OTFCMD(109,(id,bmid,x,y,n,c0,c1,c2,...),Set_masked_bitmap_pixels_in_Tile_Map
+OTFCMD(110,(id,bmid,x,y,n,c0,c1,c2,...),Set_transparent_bitmap_pixels_in_Tile_Map
+OTFCMD(120,(id,pid,flags,w,h;),Create_primitive:_Solid_Bitmap
+OTFCMD(121,(id,pid,flags,w,h,color),Create_primitive:_Masked_Bitmap
+OTFCMD(122,(id,pid,flags,w,h,color),Create_primitive:_Transparent_Bitmap
+OTFCMD(123,(id,x,y,s,h;),Set_position_&_slice_solid_bitmap
+OTFCMD(124,(id,x,y,s,h;),Set_position_&_slice_masked_bitmap
+OTFCMD(125,(id,x,y,s,h;),Set_position_&_slice_transparent_bitmap
+OTFCMD(126,(id,x,y,s,h;),Adjust_position_&_slice_solid_bitmap
+OTFCMD(127,(id,x,y,s,h;),Adjust_position_&_slice_masked_bitmap
+OTFCMD(128,(id,x,y,s,h;),Adjust_position_&_slice_transparent_bitmap
+OTFCMD(129,(id,x,y,color),Set_solid_bitmap_pixel
+OTFCMD(130,(id,x,y,color),Set_masked_bitmap_pixel
+OTFCMD(131,(id,x,y,color),Set_transparent_bitmap_pixel
+OTFCMD(132,(id,x,y,n,c0,c1,c2,...),Set_solid_bitmap_pixels
+OTFCMD(133,(id,x,y,n,c0,c1,c2,...),Set_masked_bitmap_pixels
+OTFCMD(134,(id,x,y,n,c0,c1,c2,...),Set_transparent_bitmap_pixels
+OTFCMD(140,(id,pid,flags,x,y;),Create_primitive:_Group
+OTFCMD(150,(id,pid,flags,x,y,columns,rows;),Create_primitive:_Terminal
+OTFCMD(151,(id;),Select_Active_Terminal
+OTFCMD(152,(id,character,fgcolor,bgcolor),Define_Terminal_Character
+OTFCMD(153,(id,firstchar,lastchar,fgcolor,bgcolor),Define_Terminal_Character_Range
+
 typedef struct {
     uint8_t     m_category;
     uint8_t     m_subcategory;

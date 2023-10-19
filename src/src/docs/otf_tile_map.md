@@ -1,5 +1,5 @@
 ## Create primitive: Tile Map
-<b>VDU 23, 30, 100, id; pid; flags; cols; rows; w; h;</b> : Create primitive: Tile Map
+<b>VDU 23, 30, 100, id; pid; flags; columns; rows; w; h;</b> : Create primitive: Tile Map
 
 This commmand creates a primitive that draws a sparse tile map,
 as opposed to a full or mostly full tile array.
