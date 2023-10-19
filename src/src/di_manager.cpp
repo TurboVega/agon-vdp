@@ -764,7 +764,7 @@ void DiManager::store_string(const uint8_t* string) {
 
 void DiManager::process_stored_characters() {
   while (m_num_buffer_chars > 0) {
-    //debug_log("[%02hX]", m_incoming_data[m_next_buffer_read]);
+    //debug_log(".%02hX", m_incoming_data[m_next_buffer_read]);
     bool rc = process_character(m_incoming_data[m_next_buffer_read++]);
     if (m_next_buffer_read >= INCOMING_DATA_BUFFER_SIZE) {
       m_next_buffer_read = 0;
@@ -1095,6 +1095,10 @@ bool DiManager::handle_udg_sys_cmd(uint8_t character) {
 //
 bool DiManager::handle_otf_cmd() {
   if (m_incoming_command.size() >= 5) {
+    //debug_log("\n");
+    //for (u_int32_t i = 0; i < m_incoming_command.size(); i++) {
+    //  debug_log(" %02hX ", get_param_8(i));
+    //}
     const OtfCmdUnion* cu = (const OtfCmdUnion*)(&m_incoming_command[0]);
     switch (m_incoming_command[2]) {
 
@@ -1119,7 +1123,7 @@ bool DiManager::handle_otf_cmd() {
       case 2: {
         auto cmd = &cu->m_2_Adjust_primitive_position;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          move_primitive_relative(cmd->m_id, cmd->m_x, cmd->m_y);
+          move_primitive_relative(cmd->m_id, cmd->m_ix, cmd->m_iy);
           m_incoming_command.clear();
           return true;
         }

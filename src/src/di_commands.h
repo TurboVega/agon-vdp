@@ -40,6 +40,8 @@
 #define _flags  uint16_t m_flags;
 #define _h      uint16_t m_h;
 #define _id     uint16_t m_id;
+#define _ix     int16_t  m_ix;
+#define _iy     int16_t  m_iy;
 #define _lastchar uint8_t m_lastchar;
 #define _n      uint16_t m_n;
 #define _pid    uint16_t m_pid;
@@ -74,7 +76,7 @@ typedef struct { \
 
 OTFCMD(0,(_id _flags),_Set_flags_for_primitive)
 OTFCMD(1,(_id _x _y),_Set_primitive_position)
-OTFCMD(2,(_id _x _y),_Adjust_primitive_position)
+OTFCMD(2,(_id _ix _iy),_Adjust_primitive_position)
 OTFCMD(3,(_id),_Delete_primitive)
 OTFCMD(10,(_id _pid _flags _x _y _color),_Create_primitive_Point)
 OTFCMD(20,(_id _pid _flags _x1 _y1 _x2 _y2 _color),_Create_primitive_Line)
