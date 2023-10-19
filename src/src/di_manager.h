@@ -31,6 +31,7 @@
 #include "di_tile_map.h"
 #include "di_bitmap.h"
 #include "di_solid_rectangle.h"
+#include "di_commands.h"
 
 typedef void (*DiVoidCallback)();
 

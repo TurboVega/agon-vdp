@@ -27,737 +27,171 @@
 
 #pragma pack(push, 1)
 
-OTFCMD(0,(id,flags;),Set_flags_for_primitive
-OTFCMD(1,(id,x,y;),Set_primitive_position
-OTFCMD(2,(id,x,y;),Adjust_primitive_position
-OTFCMD(3,(id;),Delete_primitive
-OTFCMD(10,(id,pid,flags,x,y,color),Create_primitive:_Point
-OTFCMD(20,(id,pid,flags,x1,y1,x2,y2,color),Create_primitive:_Line
-OTFCMD(30,(id,pid,flags,x1,y1,x2,y2,x3,y3,color),Create_primitive:_Triangle_Outline
-OTFCMD(31,(id,pid,flags,x1,y1,x2,y2,x3,y3,color),Create_primitive:_Solid_Triangle
-OTFCMD(32,(id,pid,flags,n,color,x1,y1,..._xn,yn),Create_primitive:_Triangle_List_Outline
-OTFCMD(33,(id,pid,flags,n,color,x1,y1,..._xn,yn;),Create_primitive:_Solid_Triangle_List
-OTFCMD(34,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,..._xn,yn;),Create_primitive:_Triangle_Fan_Outline
-OTFCMD(35,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,..._xn,yn;),Create_primitive:_Solid_Triangle_Fan
-OTFCMD(36,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,x1,y1,..._xn,yn;),Create_primitive:_Triangle_Strip_Outline
-OTFCMD(37,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,x1,y1,..._xn,yn;),Create_primitive:_Solid_Triangle_Strip
-OTFCMD(40,(id,pid,flags,x,y,w,h,color),Create_primitive:_Rectangle_Outline
-OTFCMD(41,(id,pid,flags,x,y,w,h,color),Create_primitive:_Solid_Rectangle
-OTFCMD(50,(id,pid,flags,x,y,w,h,color),Create_primitive:_Ellipse_Outline
-OTFCMD(51,(id,pid,flags,x,y,w,h,color),Create_primitive:_Solid_Ellipse
-OTFCMD(60,(id,pid,flags,color,x1,y1,x2,y2,x3,y3,x4,y4;),Create_primitive:_Quad_Outline
-OTFCMD(61,(id,pid,flags,color,x1,y1,x2,y2,x3,y3,x4,y4;),Create_primitive:_Solid_Quad
-OTFCMD(62,(id,pid,flags,n,color,x1,y1,..._xn,yn;),Create_primitive:_Quad_List_Outline
-OTFCMD(63,(id,pid,flags,n,color,x1,y1,..._xn,yn;),Create_primitive:_Solid_Quad_List
-OTFCMD(64,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,x1,y1,..._xn,yn;),Create_primitive:_Quad_Strip_Outline
-OTFCMD(65,(id,pid,flags,n,color,sx0,sy0,sx1,sy1,x1,y1,..._xn,yn;),Create_primitive:_Solid_Quad_Strip
-OTFCMD(80,(id,pid,flags,columns,rows,w,h;),Create_primitive:_Tile_Array
-OTFCMD(81,(id,pid,flags,w,h;),Create_Solid_Bitmap_for_Tile_Array
-OTFCMD(82,(id,pid,flags,w,h,color),Create_Masked_Bitmap_for_Tile_Array
-OTFCMD(83,(id,pid,flags,w,h,color),Create_Transparent_Bitmap_for_Tile_Array
-OTFCMD(84,(id,column,row,bmid;),Set_bitmap_ID_for_tile_in_Tile_Array
-OTFCMD(85,(id,bmid,x,y,color),Set_solid_bitmap_pixel_in_Tile_Map
-OTFCMD(86,(id,bmid,x,y,color),Set_masked_bitmap_pixel_in_Tile_Map
-OTFCMD(87,(id,bmid,x,y,color),Set_transparent_bitmap_pixel_in_Tile_Map
-OTFCMD(88,(id,bmid,x,y,color),Set_solid_bitmap_pixel_in_Tile_Array
-OTFCMD(89,(id,bmid,x,y,color),Set_masked_bitmap_pixel_in_Tile_Array
-OTFCMD(90,(id,bmid,x,y,color),Set_transparent_bitmap_pixel_in_Tile_Array
-OTFCMD(100,(id,pid,flags,columns,rows,w,h;),Create_primitive:_Tile_Map
-OTFCMD(101,(id,pid,flags,w,h;),Create_Solid_Bitmap_for_Tile_Map
-OTFCMD(102,(id,pid,flags,w,h,color),Create_Masked_Bitmap_for_Tile_Map
-OTFCMD(103,(id,pid,flags,w,h,color),Create_Transparent_Bitmap_for_Tile_Map
-OTFCMD(104,(id,col,row,bmid;),Set_bitmap_ID_for_tile_in_Tile_Map
-OTFCMD(105,(id,bmid,x,y,color),Set_solid_bitmap_pixel_in_Tile_Map
-OTFCMD(106,(id,bmid,x,y,color),Set_masked_bitmap_pixel_in_Tile_Map
-OTFCMD(107,(id,bmid,x,y,color),Set_transparent_bitmap_pixel_in_Tile_Map
-OTFCMD(108,(id,bmid,x,y,n,c0,c1,c2,...),Set_solid_bitmap_pixels_in_Tile_Map
-OTFCMD(109,(id,bmid,x,y,n,c0,c1,c2,...),Set_masked_bitmap_pixels_in_Tile_Map
-OTFCMD(110,(id,bmid,x,y,n,c0,c1,c2,...),Set_transparent_bitmap_pixels_in_Tile_Map
-OTFCMD(120,(id,pid,flags,w,h;),Create_primitive:_Solid_Bitmap
-OTFCMD(121,(id,pid,flags,w,h,color),Create_primitive:_Masked_Bitmap
-OTFCMD(122,(id,pid,flags,w,h,color),Create_primitive:_Transparent_Bitmap
-OTFCMD(123,(id,x,y,s,h;),Set_position_&_slice_solid_bitmap
-OTFCMD(124,(id,x,y,s,h;),Set_position_&_slice_masked_bitmap
-OTFCMD(125,(id,x,y,s,h;),Set_position_&_slice_transparent_bitmap
-OTFCMD(126,(id,x,y,s,h;),Adjust_position_&_slice_solid_bitmap
-OTFCMD(127,(id,x,y,s,h;),Adjust_position_&_slice_masked_bitmap
-OTFCMD(128,(id,x,y,s,h;),Adjust_position_&_slice_transparent_bitmap
-OTFCMD(129,(id,x,y,color),Set_solid_bitmap_pixel
-OTFCMD(130,(id,x,y,color),Set_masked_bitmap_pixel
-OTFCMD(131,(id,x,y,color),Set_transparent_bitmap_pixel
-OTFCMD(132,(id,x,y,n,c0,c1,c2,...),Set_solid_bitmap_pixels
-OTFCMD(133,(id,x,y,n,c0,c1,c2,...),Set_masked_bitmap_pixels
-OTFCMD(134,(id,x,y,n,c0,c1,c2,...),Set_transparent_bitmap_pixels
-OTFCMD(140,(id,pid,flags,x,y;),Create_primitive:_Group
-OTFCMD(150,(id,pid,flags,x,y,columns,rows;),Create_primitive:_Terminal
-OTFCMD(151,(id;),Select_Active_Terminal
-OTFCMD(152,(id,character,fgcolor,bgcolor),Define_Terminal_Character
-OTFCMD(153,(id,firstchar,lastchar,fgcolor,bgcolor),Define_Terminal_Character_Range
-
-typedef struct {
-    uint8_t     m_category;
-    uint8_t     m_subcategory;
-    uint8_t     m_command;
-} VduHeader;
-
-typedef struct {
-    uint16_t    m_x;
-    uint16_t    m_y;
-} VduCoords;
-
-// VDU 23, 30, 0, id; flags; :  Set flags for primitive
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_flags;
-} VduOtfSetFlagsForPrimitive;
-
-// VDU 23, 30, 1, id; x; y; :  Set primitive position
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-} VduOtfSetPrimitivePosition;
-
-// VDU 23, 30, 2, id; x; y; :  Adjust primitive position
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-} VduOtfAdjustPrimitivePosition;
-
-// VDU 23, 30, 3, id; :  Delete primitive
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-} VduOtfDeletePrimitive;
-
-// VDU 23, 30, 4, id; pid; flags; x; y; color :  Create primitive: Point
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfCreatePrimitivePoint;
-
-// VDU 23, 30, 5, id; pid; flags; x1; y1; x2; y2; color :  Create primitive: Line
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords[2];
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveLine;
-
-// VDU 23, 30, 6, id; pid; flags; x1; y1; x2; y2; x3; y3; color :  Create primitive: Triangle Outline
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords[3];
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveTriangleOutline;
-
-// VDU 23, 30, 7, id; pid; flags; x1; y1; x2; y2; x3; y3; color :  Create primitive: Solid Triangle
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords[3];
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveSolidTriangle;
-
-// VDU 23, 30, 8, id; pid; flags; x; y; w; h; color :  Create primitive: Rectangle Outline
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveRectangleOutline;
-
-// VDU 23, 30, 9, id; pid; flags; x; y; w; h; color :  Create primitive: Solid Rectangle
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveSolidRectangle;
-
-// VDU 23, 30, 10, id; pid; flags; x; y; w; h; color :  Create primitive: Ellipse Outline
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveEllipseOutline;
-
-// VDU 23, 30, 11, id; pid; flags; x; y; w; h; color :  Create primitive: Solid Ellipse
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveSolidEllipse;
-
-// VDU 23, 30, 12, id; pid; flags; cols; rows; w; h; :  Create primitive: Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_columns;
-    uint16_t    m_rows;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveTileMap;
-
-// VDU 23, 30, 13, id; pid; flags; cols; rows; w; h; :  Create primitive: Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_columns;
-    uint16_t    m_rows;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveTileArray;
-
-// VDU 23, 30, 14, id; pid; flags; w; h; :  Create primitive: Solid Bitmap
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_width;
-    uint16_t    m_height;
-} VduOtfCreatePrimitiveSolidBitmap;
-
-// VDU 23, 30, 15, id; pid; flags; w; h; color :  Create primitive: Masked Bitmap
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveMaskedBitmap;
-
-// VDU 23, 30, 16, id; pid; flags; w; h; color :  Create primitive: Transparent Bitmap
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreatePrimitiveTransparentBitmap;
-
-// VDU 23, 30, 17, id; pid; flags; x; y; :  Create primitive: Group
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords;
-} VduOtfCreatePrimitiveGroup;
-
-// VDU 23, 30, 18, id; x; y; s; h; :  Set position & slice solid bitmap
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint16_t    m_s;
-    uint16_t    m_h;
-} VduOtfSetPositionAndSliceSolidBitmap;
-
-// VDU 23, 30, 19, id; x; y; s; h; :  Set position & slice masked bitmap
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint16_t    m_s;
-    uint16_t    m_h;
-} VduOtfSetPositionAndSliceMaskedBitmap;
-
-// VDU 23, 30, 20, id; x; y; s; h; :  Set position & slice transparent bitmap
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint16_t    m_s;
-    uint16_t    m_h;
-} VduOtfSetPositionAndSliceTransparentBitmap;
-
-// VDU 23, 30, 21, id; x; y; s; h; :  Adjust position & slice solid bitmap
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint16_t    m_s;
-    uint16_t    m_h;
-} VduOtfAdjustPositionAndSliceSolidBitmap;
-
-// VDU 23, 30, 22, id; x; y; s; h; :  Adjust position & slice masked bitmap
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint16_t    m_s;
-    uint16_t    m_h;
-} VduOtfAdjustPositionAndSliceMaskedBitmap;
-
-// VDU 23, 30, 23, id; x; y; s; h; :  Adjust position & slice transparent bitmap
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint16_t    m_s;
-    uint16_t    m_h;
-} VduOtfAdjustPositionAndSliceTransparentBitmap;
-
-// VDU 23, 30, 24, id; x; y; color :  Set solid bitmap pixel
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfSetSolidBitmapPixel;
-
-// VDU 23, 30, 25, id; x; y; color :  Set masked bitmap pixel
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfSetMaskedBitmapPixel;
-
-// VDU 23, 30, 26, id; x; y; color :  Set transparent bitmap pixel
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfSetTransparentBitmapPixel;
-
-// VDU 23, 30, 27, id; x; y; n; c0, c1, c2, ... :  Set solid bitmap pixels
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint16_t    m_n;
-    uint8_t     m_color[1];
-} VduOtfSetSolidBitmapPixels;
-
-// VDU 23, 30, 28, id; x; y; n; c0, c1, c2, ... :  Set masked bitmap pixels
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint16_t    m_n;
-    uint8_t     m_color[1];
-} VduOtfSetMaskedBitmapPixels;
-
-// VDU 23, 30, 29, id; x; y; n; c0, c1, c2, ... :  Set transparent bitmap pixels
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    VduCoords   m_coords;
-    uint16_t    m_n;
-    uint8_t     m_color[1];
-} VduOtfSetTransparentBitmapPixels;
-
-// VDU 23, 30, 30, id; pid; flags; w; h; :  Create Solid Bitmap for Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_width;
-    uint16_t    m_height;
-} VduOtfCreateSolidBitmapForTileMap;
-
-// VDU 23, 30, 31, id; pid; flags; w; h; color :  Create Masked Bitmap for Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreateMaskedBitmapForTileMap;
-
-// VDU 23, 30, 32, id; pid; flags; w; h; color :  Create Transparent Bitmap for Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreateTransparentBitmapForTileMap;
-
-// VDU 23, 30, 33, id; pid; flags; w; h; :  Create Solid Bitmap for Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_width;
-    uint16_t    m_height;
-} VduOtfCreateSolidBitmapForTileArray;
-
-// VDU 23, 30, 34, id; pid; flags; w; h; color :  Create Masked Bitmap for Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreateMaskedBitmapForTileArray;
-
-// VDU 23, 30, 35, id; pid; flags; w; h; color :  Create Transparent Bitmap for Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_width;
-    uint16_t    m_height;
-    uint8_t     m_color;
-} VduOtfCreateTransparentBitmapForTileArray;
-
-// VDU 23, 30, 36, id; col; row; bmid; :  Set bitmap ID for tile in Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_col;
-    uint16_t    m_row;
-    uint16_t    m_bmid;
-} VduOtfSetBitmapIdForTileInTileMap;
-
-// VDU 23, 30, 37, id; col; row; bmid; :  Set bitmap ID for tile in Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_col;
-    uint16_t    m_row;
-    uint16_t    m_bmid;
-} VduOtfSetBitmapIdForTileInTileArray;
-
-// VDU 23, 30, 38, id; bmid; x; y; color :  Set solid bitmap pixel in Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfSetSolidBitmapPixelInTileMap;
-
-// VDU 23, 30, 39, id; bmid; x; y; color :  Set masked bitmap pixel in Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfSetMaskedBitmapPixelInTileMap;
-
-// VDU 23, 30, 40, id; bmid; x; y; color :  Set transparent bitmap pixel in Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfSetTransparentBitmapPixelInTileMap;
-
-// VDU 23, 30, 41, id; bmid; x; y; n; c0, c1, c2, ... :  Set solid bitmap pixels in Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint16_t    m_n;
-    uint8_t     m_color[1];
-} VduOtfSetSolidBitmapPixelsInTileMap;
-
-// VDU 23, 30, 42, id; bmid; x; y; n; c0, c1, c2, ... :  Set masked bitmap pixels in Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint16_t    m_n;
-    uint8_t     m_color[1];
-} VduOtfSetMaskedBitmapPixelsInTileMap;
-
-// VDU 23, 30, 43, id; bmid; x; y; n; c0, c1, c2, ... :  Set transparent bitmap pixels in Tile Map
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint16_t    m_n;
-    uint8_t     m_color[1];
-} VduOtfSetTransparentBitmapPixelsInTileMap;
-
-// VDU 23, 30, 44, id; bmid; x; y; color :  Set solid bitmap pixel in Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfSetSolidBitmapPixelInTileArray;
-
-// VDU 23, 30, 45, id; bmid; x; y; color :  Set masked bitmap pixel in Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfSetMaskedBitmapPixelInTileArray;
-
-// VDU 23, 30, 46, id; bmid; x; y; color :  Set transparent bitmap pixel in Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint8_t     m_color;
-} VduOtfSetTransparentBitmapPixelInTileArray;
-
-// VDU 23, 30, 47, id; bmid; x; y; n; c0, c1, c2, ... :  Set solid bitmap pixels in Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint16_t    m_n;
-    uint8_t     m_color[1];
-} VduOtfSetSolidBitmapPixelsInTileArray;
-
-// VDU 23, 30, 48, id; bmid; x; y; n; c0, c1, c2, ... :  Set masked bitmap pixels in Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint16_t    m_n;
-    uint8_t     m_color[1];
-} VduOtfSetMaskedBitmapPixelsInTileArray;
-
-// VDU 23, 30, 49, id; bmid; x; y; n; c0, c1, c2, ... :  Set transparent bitmap pixels in Tile Array
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_bmid;
-    VduCoords   m_coords;
-    uint16_t    m_n;
-    uint8_t     m_color[1];
-} VduOtfSetTransparentBitmapPixelsInTileArray;
-
-// VDU 23, 30, 50, id; pid; flags; x; y; columns; rows; :  Create primitive: Terminal
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    VduCoords   m_coords;
-    uint16_t    m_columns;
-    uint16_t    m_rows;
- } VduOtfCreatePrimitiveTerminal;
-
-// VDU 23, 30, 51, id; :  Select Active Terminal
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
- } VduOtfSetActiveTerminal;
-
-// VDU 23, 30, 52, id; char, fgcolor, bgcolor :  Define Terminal Character
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint8_t     m_char;
-    uint8_t     m_fgcolor;
-    uint8_t     m_bgcolor;
- } VduOtfDefineTerminalCharacter;
-
-// VDU 23, 30, 53, id; firstchar, lastchar, fgcolor, bgcolor :  Define Terminal Character Range
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint8_t     m_firstchar;
-    uint8_t     m_lastchar;
-    uint8_t     m_fgcolor;
-    uint8_t     m_bgcolor;
- } VduOtfDefineTerminalCharacters;
-
-// VDU 23, 30, 54, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Triangle List Outline
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveTriangleListOutline;
-
-// VDU 23, 30, 55, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Solid Triangle List
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveSolidTriangleList;
-
-// VDU 23, 30, 56, id; pid; flags; n; c, sx0; sy0; sx1; sy1; ... xn; yn; :  Create primitive: Triangle Fan Outline
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_start[2];
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveTrianglFanOutline;
-
-// VDU 23, 30, 57, id; pid; flags; n; c, sx0; sy0; sx1; sy1; ... xn; yn; :  Create primitive: Solid Triangle Fan
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_start[2];
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveSolidTrianglFan;
-
-// VDU 23, 30, 58, id; pid; flags; n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; :  Create primitive: Triangle Strip Outline
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_start[2];
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveTrianglStripOutline;
-
-// VDU 23, 30, 59, id; pid; flags; n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; :  Create primitive: Solid Triangle Strip
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_start[2];
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveSolidTrianglStrip;
-
-// VDU 23, 30, 60, id; pid; flags; c, x1; y1; x2; y2; x3; y3; x4; y4; :  Create primitive: Quad Outline
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint8_t     m_color;
-    VduCoords   m_coords[4];
-} VduOtfCreatePrimitiveQuadOutline;
-
-// VDU 23, 30, 61, id; pid; flags; c, x1; y1; x2; y2; x3; y3; x4; y4; :  Create primitive: Solid Quad
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint8_t     m_color;
-    VduCoords   m_coords[4];
-} VduOtfCreatePrimitiveSolidQuad;
-
-// VDU 23, 30, 62, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Quad List Outline
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveQuadListOutline;
-
-// VDU 23, 30, 63, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Solid Quad List
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveSolidQuadList;
-
-// VDU 23, 30, 64, id; pid; flags; n; c, sx0; sy0; sx1; sy1; x1; y1; ... xn; yn; :  Create primitive: Quad Strip Outline
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_start[2];
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveQuadStripOutline;
-
-// VDU 23, 30, 65, id; pid; flags; n; c, x1; y1; ... xn; yn; :  Create primitive: Solid Quad Strip
-typedef struct {
-    VduHeader   m_header;
-    uint16_t    m_id;
-    uint16_t    m_pid;
-    uint16_t    m_flags;
-    uint16_t    m_n;
-    uint8_t     m_color;
-    VduCoords   m_start[2];
-    VduCoords   m_coords[1];
-} VduOtfCreatePrimitiveSolidQuadStrip;
+#define _color  uint8_t  m_color;
+#define _colors uint8_t  m_color[1];
+#define _coords uint16_t m_coords[1];
+#define _flags  uint16_t m_flags;
+#define _h      uint16_t m_h;
+#define _id     uint16_t m_id;
+#define _n      uint16_t m_n;
+#define _pid    uint16_t m_pid;
+#define _s      uint16_t m_s;
+#define _sx0    uint16_t m_sx0;
+#define _sx1    uint16_t m_sx1;
+#define _sy0    uint16_t m_sy0;
+#define _sy1    uint16_t m_sy1;
+#define _x      uint16_t m_x;
+#define _x1     uint16_t m_x;
+#define _x2     uint16_t m_x;
+#define _x3     uint16_t m_x;
+#define _x4     uint16_t m_x;
+#define _y      uint16_t m_y;
+#define _y1     uint16_t m_y;
+#define _y2     uint16_t m_y;
+#define _y3     uint16_t m_y;
+#define _y4     uint16_t m_y;
+
+#define OTFCMD(cmd, params, name) \
+typedef struct { \
+    uint8_t     m_category; \
+    uint8_t     m_subcategory; \
+    uint8_t     m_command; \
+} OtfCmd_##cmd##name;
+
+OTFCMD(0,(_id,_flags),_Set_flags_for_primitive)
+OTFCMD(1,(_id,_x,_y),_Set_primitive_position)
+OTFCMD(2,(_id,_x,_y),_Adjust_primitive_position)
+OTFCMD(3,(_id),_Delete_primitive)
+OTFCMD(10,(_id,_pid,_flags,_x,_y,_color),_Create_primitive_Point)
+OTFCMD(20,(_id,_pid,_flags,_x1,_y1,_x2,_y2,_color),_Create_primitive_Line)
+OTFCMD(30,(_id,_pid,_flags,_x1,_y1,_x2,_y2,_x3,_y3,_color),_Create_primitive_Triangle_Outline)
+OTFCMD(31,(_id,_pid,_flags,_x1,_y1,_x2,_y2,_x3,_y3,_color),_Create_primitive_Solid_Triangle)
+OTFCMD(32,(_id,_pid,_flags,_n,_color,_coords),_Create_primitive_Triangle_List_Outline)
+OTFCMD(33,(_id,_pid,_flags,_n,_color,_coords),_Create_primitive_Solid_Triangle_List)
+OTFCMD(34,(_id,_pid,_flags,_n,_color,_sx0,_sy0,_sx1,_sy1,_coords),_Create_primitive_Triangle_Fan_Outline)
+OTFCMD(35,(_id,_pid,_flags,_n,_color,_sx0,_sy0,_sx1,_sy1,_coords),_Create_primitive_Solid_Triangle_Fan)
+OTFCMD(36,(_id,_pid,_flags,_n,_color,_sx0,_sy0,_sx1,_sy1,_coords),_Create_primitive_Triangle_Strip_Outline)
+OTFCMD(37,(_id,_pid,_flags,_n,_color,_sx0,_sy0,_sx1,_sy1,_coords),_Create_primitive_Solid_Triangle_Strip)
+OTFCMD(40,(_id,_pid,_flags,_x,_y,_w,_h,_color),_Create_primitive_Rectangle_Outline)
+OTFCMD(41,(_id,_pid,_flags,_x,_y,_w,_h,_color),_Create_primitive_Solid_Rectangle)
+OTFCMD(50,(_id,_pid,_flags,_x,_y,_w,_h,_color),_Create_primitive_Ellipse_Outline)
+OTFCMD(51,(_id,_pid,_flags,_x,_y,_w,_h,_color),_Create_primitive_Solid_Ellipse)
+OTFCMD(60,(_id,_pid,_flags,_color,_x1,_y1,_x2,_y2,_x3,_y3,_x4,_y4),_Create_primitive_Quad_Outline)
+OTFCMD(61,(_id,_pid,_flags,_color,_x1,_y1,_x2,_y2,_x3,_y3,_x4,_y4),_Create_primitive_Solid_Quad)
+OTFCMD(62,(_id,_pid,_flags,_n,_color,_coords),_Create_primitive_Quad_List_Outline)
+OTFCMD(63,(_id,_pid,_flags,_n,_color,_coords),_Create_primitive_Solid_Quad_List)
+OTFCMD(64,(_id,_pid,_flags,_n,_color,_sx0,_sy0,_sx1,_sy1,_coords),_Create_primitive_Quad_Strip_Outline)
+OTFCMD(65,(_id,_pid,_flags,_n,_color,_sx0,_sy0,_sx1,_sy1,_coords),_Create_primitive_Solid_Quad_Strip)
+OTFCMD(80,(_id,_pid,_flags,_columns,_rows,_w,_h),_Create_primitive_Tile_Array)
+OTFCMD(81,(_id,_pid,_flags,_w,_h),_Create_Solid_Bitmap_for_Tile_Array)
+OTFCMD(82,(_id,_pid,_flags,_w,_h,_color),_Create_Masked_Bitmap_for_Tile_Array)
+OTFCMD(83,(_id,_pid,_flags,_w,_h,_color),_Create_Transparent_Bitmap_for_Tile_Array)
+OTFCMD(84,(_id,_column,_row,_bmid),_Set_bitmap_ID_for_tile_in_Tile_Array)
+OTFCMD(85,(_id,_bmid,_x,_y,_color),_Set_solid_bitmap_pixel_in_Tile_Map)
+OTFCMD(86,(_id,_bmid,_x,_y,_color),_Set_masked_bitmap_pixel_in_Tile_Map)
+OTFCMD(87,(_id,_bmid,_x,_y,_color),_Set_transparent_bitmap_pixel_in_Tile_Map)
+OTFCMD(88,(_id,_bmid,_x,_y,_color),_Set_solid_bitmap_pixel_in_Tile_Array)
+OTFCMD(89,(_id,_bmid,_x,_y,_color),_Set_masked_bitmap_pixel_in_Tile_Array)
+OTFCMD(90,(_id,_bmid,_x,_y,_color),_Set_transparent_bitmap_pixel_in_Tile_Array)
+OTFCMD(100,(_id,_pid,_flags,_columns,_rows,_w,_h),_Create_primitive_Tile_Map)
+OTFCMD(101,(_id,_pid,_flags,_w,_h),_Create_Solid_Bitmap_for_Tile_Map)
+OTFCMD(102,(_id,_pid,_flags,_w,_h,_color),_Create_Masked_Bitmap_for_Tile_Map)
+OTFCMD(103,(_id,_pid,_flags,_w,_h,_color),_Create_Transparent_Bitmap_for_Tile_Map)
+OTFCMD(104,(_id,_column,_row,_bmid),_Set_bitmap_ID_for_tile_in_Tile_Map)
+OTFCMD(105,(_id,_bmid,_x,_y,_color),_Set_solid_bitmap_pixel_in_Tile_Map)
+OTFCMD(106,(_id,_bmid,_x,_y,_color),_Set_masked_bitmap_pixel_in_Tile_Map)
+OTFCMD(107,(_id,_bmid,_x,_y,_color),_Set_transparent_bitmap_pixel_in_Tile_Map)
+OTFCMD(108,(_id,_bmid,_x,_y,_n,_colors),_Set_solid_bitmap_pixels_in_Tile_Map)
+OTFCMD(109,(_id,_bmid,_x,_y,_n,_colors),_Set_masked_bitmap_pixels_in_Tile_Map)
+OTFCMD(110,(_id,_bmid,_x,_y,_n,_colors),_Set_transparent_bitmap_pixels_in_Tile_Map)
+OTFCMD(120,(_id,_pid,_flags,_w,_h),_Create_primitive_Solid_Bitmap)
+OTFCMD(121,(_id,_pid,_flags,_w,_h,_color),_Create_primitive_Masked_Bitmap)
+OTFCMD(122,(_id,_pid,_flags,_w,_h,_color),_Create_primitive_Transparent_Bitmap)
+OTFCMD(123,(_id,_x,_y,_s,_h),_Set_position_and_slice_solid_bitmap)
+OTFCMD(124,(_id,_x,_y,_s,_h),_Set_position_and_slice_masked_bitmap)
+OTFCMD(125,(_id,_x,_y,_s,_h),_Set_position_and_slice_transparent_bitmap)
+OTFCMD(126,(_id,_x,_y,_s,_h),_Adjust_position_and_slice_solid_bitmap)
+OTFCMD(127,(_id,_x,_y,_s,_h),_Adjust_position_and_slice_masked_bitmap)
+OTFCMD(128,(_id,_x,_y,_s,_h),_Adjust_position_and_slice_transparent_bitmap)
+OTFCMD(129,(_id,_x,_y,_color),_Set_solid_bitmap_pixel)
+OTFCMD(130,(_id,_x,_y,_color),_Set_masked_bitmap_pixel)
+OTFCMD(131,(_id,_x,_y,_color),_Set_transparent_bitmap_pixel)
+OTFCMD(132,(_id,_x,_y,_n,_colors),_Set_solid_bitmap_pixels)
+OTFCMD(133,(_id,_x,_y,_n,_colors),_Set_masked_bitmap_pixels)
+OTFCMD(134,(_id,_x,_y,_n,_colors),_Set_transparent_bitmap_pixels)
+OTFCMD(140,(_id,_pid,_flags,_x,_y),_Create_primitive_Group)
+OTFCMD(150,(_id,_pid,_flags,_x,_y,_columns,_rows),_Create_primitive_Terminal)
+OTFCMD(151,(_id),_Select_Active_Terminal)
+OTFCMD(152,(_id,_character,_fgcolor,_bgcolor),_Define_Terminal_Character)
+OTFCMD(153,(_id,_firstchar,_lastchar,_fgcolor,_bgcolor),_Define_Terminal_Character_Range)
+
+typedef union {
+    OtfCmd_0_Set_flags_for_primitive m_0_Set_flags_for_primitive;
+    OtfCmd_1_Set_primitive_position m_1_Set_primitive_position;
+    OtfCmd_2_Adjust_primitive_position m_2_Adjust_primitive_position;
+    OtfCmd_3_Delete_primitive m_3_Delete_primitive;
+    OtfCmd_10_Create_primitive_Point m_10_Create_primitive_Point;
+    OtfCmd_20_Create_primitive_Line m_20_Create_primitive_Line;
+    OtfCmd_30_Create_primitive_Triangle_Outline m_30_Create_primitive_Triangle_Outline;
+    OtfCmd_31_Create_primitive_Solid_Triangle m_31_Create_primitive_Solid_Triangle;
+    OtfCmd_32_Create_primitive_Triangle_List_Outline m_32_Create_primitive_Triangle_List_Outline;
+    OtfCmd_33_Create_primitive_Solid_Triangle_List m_33_Create_primitive_Solid_Triangle_List;
+    OtfCmd_34_Create_primitive_Triangle_Fan_Outline m_34_Create_primitive_Triangle_Fan_Outline;
+    OtfCmd_35_Create_primitive_Solid_Triangle_Fan m_35_Create_primitive_Solid_Triangle_Fan;
+    OtfCmd_36_Create_primitive_Triangle_Strip_Outline m_36_Create_primitive_Triangle_Strip_Outline;
+    OtfCmd_37_Create_primitive_Solid_Triangle_Strip m_37_Create_primitive_Solid_Triangle_Strip;
+    OtfCmd_40_Create_primitive_Rectangle_Outline m_40_Create_primitive_Rectangle_Outline;
+    OtfCmd_41_Create_primitive_Solid_Rectangle m_41_Create_primitive_Solid_Rectangle;
+    OtfCmd_50_Create_primitive_Ellipse_Outline m_50_Create_primitive_Ellipse_Outline;
+    OtfCmd_51_Create_primitive_Solid_Ellipse m_51_Create_primitive_Solid_Ellipse;
+    OtfCmd_60_Create_primitive_Quad_Outline m_60_Create_primitive_Quad_Outline;
+    OtfCmd_61_Create_primitive_Solid_Quad m_61_Create_primitive_Solid_Quad;
+    OtfCmd_62_Create_primitive_Quad_List_Outline m_62_Create_primitive_Quad_List_Outline;
+    OtfCmd_63_Create_primitive_Solid_Quad_List m_63_Create_primitive_Solid_Quad_List;
+    OtfCmd_64_Create_primitive_Quad_Strip_Outline m_64_Create_primitive_Quad_Strip_Outline;
+    OtfCmd_65_Create_primitive_Solid_Quad_Strip m_65_Create_primitive_Solid_Quad_Strip;
+    OtfCmd_80_Create_primitive_Tile_Array m_80_Create_primitive_Tile_Array;
+    OtfCmd_81_Create_Solid_Bitmap_for_Tile_Array m_81_Create_Solid_Bitmap_for_Tile_Array;
+    OtfCmd_82_Create_Masked_Bitmap_for_Tile_Array m_82_Create_Masked_Bitmap_for_Tile_Array;
+    OtfCmd_83_Create_Transparent_Bitmap_for_Tile_Array m_83_Create_Transparent_Bitmap_for_Tile_Array;
+    OtfCmd_84_Set_bitmap_ID_for_tile_in_Tile_Array m_84_Set_bitmap_ID_for_tile_in_Tile_Array;
+    OtfCmd_85_Set_solid_bitmap_pixel_in_Tile_Map m_85_Set_solid_bitmap_pixel_in_Tile_Map;
+    OtfCmd_86_Set_masked_bitmap_pixel_in_Tile_Map m_86_Set_masked_bitmap_pixel_in_Tile_Map;
+    OtfCmd_87_Set_transparent_bitmap_pixel_in_Tile_Map m_87_Set_transparent_bitmap_pixel_in_Tile_Map;
+    OtfCmd_88_Set_solid_bitmap_pixel_in_Tile_Array m_88_Set_solid_bitmap_pixel_in_Tile_Array;
+    OtfCmd_89_Set_masked_bitmap_pixel_in_Tile_Array m_89_Set_masked_bitmap_pixel_in_Tile_Array;
+    OtfCmd_90_Set_transparent_bitmap_pixel_in_Tile_Array m_90_Set_transparent_bitmap_pixel_in_Tile_Array;
+    OtfCmd_100_Create_primitive_Tile_Map m_100_Create_primitive_Tile_Map;
+    OtfCmd_101_Create_Solid_Bitmap_for_Tile_Map m_101_Create_Solid_Bitmap_for_Tile_Map;
+    OtfCmd_102_Create_Masked_Bitmap_for_Tile_Map m_102_Create_Masked_Bitmap_for_Tile_Map;
+    OtfCmd_103_Create_Transparent_Bitmap_for_Tile_Map m_103_Create_Transparent_Bitmap_for_Tile_Map;
+    OtfCmd_104_Set_bitmap_ID_for_tile_in_Tile_Map m_104_Set_bitmap_ID_for_tile_in_Tile_Map;
+    OtfCmd_105_Set_solid_bitmap_pixel_in_Tile_Map m_105_Set_solid_bitmap_pixel_in_Tile_Map;
+    OtfCmd_106_Set_masked_bitmap_pixel_in_Tile_Map m_106_Set_masked_bitmap_pixel_in_Tile_Map;
+    OtfCmd_107_Set_transparent_bitmap_pixel_in_Tile_Map m_107_Set_transparent_bitmap_pixel_in_Tile_Map;
+    OtfCmd_108_Set_solid_bitmap_pixels_in_Tile_Map m_108_Set_solid_bitmap_pixels_in_Tile_Map;
+    OtfCmd_109_Set_masked_bitmap_pixels_in_Tile_Map m_109_Set_masked_bitmap_pixels_in_Tile_Map;
+    OtfCmd_110_Set_transparent_bitmap_pixels_in_Tile_Map m_110_Set_transparent_bitmap_pixels_in_Tile_Map;
+    OtfCmd_120_Create_primitive_Solid_Bitmap m_120_Create_primitive_Solid_Bitmap;
+    OtfCmd_121_Create_primitive_Masked_Bitmap m_121_Create_primitive_Masked_Bitmap;
+    OtfCmd_122_Create_primitive_Transparent_Bitmap m_122_Create_primitive_Transparent_Bitmap;
+    OtfCmd_123_Set_position_and_slice_solid_bitmap m_123_Set_position_and_slice_solid_bitmap;
+    OtfCmd_124_Set_position_and_slice_masked_bitmap m_124_Set_position_and_slice_masked_bitmap;
+    OtfCmd_125_Set_position_and_slice_transparent_bitmap m_125_Set_position_and_slice_transparent_bitmap;
+    OtfCmd_126_Adjust_position_and_slice_solid_bitmap m_126_Adjust_position_and_slice_solid_bitmap;
+    OtfCmd_127_Adjust_position_and_slice_masked_bitmap m_127_Adjust_position_and_slice_masked_bitmap;
+    OtfCmd_128_Adjust_position_and_slice_transparent_bitmap m_128_Adjust_position_and_slice_transparent_bitmap;
+    OtfCmd_129_Set_solid_bitmap_pixel m_129_Set_solid_bitmap_pixel;
+    OtfCmd_130_Set_masked_bitmap_pixel m_130_Set_masked_bitmap_pixel;
+    OtfCmd_131_Set_transparent_bitmap_pixel m_131_Set_transparent_bitmap_pixel;
+    OtfCmd_132_Set_solid_bitmap_pixels m_132_Set_solid_bitmap_pixels;
+    OtfCmd_133_Set_masked_bitmap_pixels m_133_Set_masked_bitmap_pixels;
+    OtfCmd_134_Set_transparent_bitmap_pixels m_134_Set_transparent_bitmap_pixels;
+    OtfCmd_140_Create_primitive_Group m_140_Create_primitive_Group;
+    OtfCmd_150_Create_primitive_Terminal m_150_Create_primitive_Terminal;
+    OtfCmd_151_Select_Active_Terminal m_151_Select_Active_Terminal;
+    OtfCmd_152_Define_Terminal_Character m_152_Define_Terminal_Character;
+    OtfCmd_153_Define_Terminal_Character_Range m_153_Define_Terminal_Character_Range;
+} OtfCmdUnion;
 
 #pragma pack(pop)
