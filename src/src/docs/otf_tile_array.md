@@ -145,4 +145,8 @@ for every pixel in the bitmap, using a single command.
 To specify a fully transparent pixel, use the same color that
 was used to create the bitmap.
 
+The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
+
+![Tile Array](tile_array.png)
+
 [Home](otf_mode.md)

@@ -34,4 +34,9 @@ A quad strip is a series of quads where each 2 consecutive quads share 2 common 
 A quad strip is a series of quads where each 2 consecutive quads share 2 common points. The quads are filled, but do not have a distinct
 edge color that differs from the given color.
 
+The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
+
+![Quad](quad.png)
+
+
 [Home](otf_mode.md)

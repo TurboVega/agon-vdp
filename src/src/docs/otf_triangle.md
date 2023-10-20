@@ -47,4 +47,8 @@ A triangle strip is a series of triangles where each 2 consecutive triangles sha
 A triangle strip is a series of triangles where each 2 consecutive triangles share 2 common points. The triangles filled, but do not have a distinct
 edge color that differs from the given color.
 
+The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
+
+![Triangle](triangle.png)
+
 [Home](otf_mode.md)

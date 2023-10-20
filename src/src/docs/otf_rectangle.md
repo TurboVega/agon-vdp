@@ -12,4 +12,8 @@ The rectangle does not have a distinct outline with a different
 color than the fill color.
 Note that the width and height are given, not the diagonal coordinates.
 
+The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
+
+![Rectangle](rectangle.png)
+
 [Home](otf_mode.md)

@@ -4,4 +4,8 @@
 This commmand creates a primitive that draws a line. The endpoints
 are included (i.e., are drawn).
 
+The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
+
+![Line](line.png)
+
 [Home](otf_mode.md)
