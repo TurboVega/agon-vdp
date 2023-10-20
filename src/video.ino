@@ -421,7 +421,7 @@ void setup() {
 	//boot_screen();
 
 	TaskHandle_t xHandle = NULL;
-	xTaskCreatePinnedToCore(otf, "OTF-MODE", 2500, NULL,
+	xTaskCreatePinnedToCore(otf, "OTF-MODE", 4096, NULL,
 							OTF_MANAGER_PRIORITY, &xHandle, 1); // Core #1
 }
 
