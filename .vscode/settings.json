@@ -48,6 +48,11 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "sprite.h": "c",
+        "scene.h": "c",
+        "renderable.h": "c",
+        "object.h": "c",
+        "rasterizer.h": "c"
     }
 }

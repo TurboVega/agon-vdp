@@ -29,7 +29,7 @@
 #include "di_video_buffer.h"
 #include "di_terminal.h"
 #include "di_tile_map.h"
-#include "di_bitmap.h"
+#include "di_render.h"
 #include "di_solid_rectangle.h"
 #include "di_commands.h"
 
@@ -99,6 +99,15 @@ class DiManager {
                             uint32_t width, uint32_t height);
 
     DiBitmap* create_transparent_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
+                            uint32_t width, uint32_t height, uint8_t color);
+
+    DiRender* create_solid_render(uint16_t id, uint16_t parent, uint16_t flags,
+                            uint32_t width, uint32_t height);
+
+    DiRender* create_masked_render(uint16_t id, uint16_t parent, uint16_t flags,
+                            uint32_t width, uint32_t height);
+
+    DiRender* create_transparent_render(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t width, uint32_t height, uint8_t color);
 
     DiPrimitive* create_primitive_group(uint16_t id, uint16_t parent, uint16_t flags,

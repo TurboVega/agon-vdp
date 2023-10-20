@@ -1795,7 +1795,7 @@ DiBitmap* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint16_t 
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
-    DiBitmap* prim = new DiBitmap(width, height, flags);
+    auto prim = new DiBitmap(width, height, flags);
 
     finish_create(id, flags, prim, parent_prim);
     return prim;
@@ -1806,7 +1806,7 @@ DiBitmap* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint16_t
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
-    DiBitmap* prim = new DiBitmap(width, height, flags);
+    auto prim = new DiBitmap(width, height, flags);
 
     finish_create(id, flags, prim, parent_prim);
     return prim;
@@ -1817,7 +1817,41 @@ DiBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uin
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
-    DiBitmap* prim = new DiBitmap(width, height, flags);
+    auto prim = new DiBitmap(width, height, flags);
+    prim->set_transparent_color(color);
+
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
+}
+
+DiRender* DiManager::create_solid_render(uint16_t id, uint16_t parent, uint16_t flags,
+                        uint32_t width, uint32_t height) {
+    if (!validate_id(id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+
+    auto prim = new DiRender(width, height, flags);
+
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
+}
+
+DiRender* DiManager::create_masked_render(uint16_t id, uint16_t parent, uint16_t flags,
+                        uint32_t width, uint32_t height) {
+    if (!validate_id(id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+
+    auto prim = new DiRender(width, height, flags);
+
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
+}
+
+DiRender* DiManager::create_transparent_render(uint16_t id, uint16_t parent, uint16_t flags,
+                        uint32_t width, uint32_t height, uint8_t color) {
+    if (!validate_id(id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+
+    auto prim = new DiRender(width, height, flags);
     prim->set_transparent_color(color);
 
     finish_create(id, flags, prim, parent_prim);

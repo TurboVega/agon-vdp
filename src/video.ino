@@ -275,11 +275,11 @@ void otf(void * pvParameters) {
 	//auto prim2 = di_manager->create_transparent_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS|PRIM_FLAG_H_SCROLL, BM_WIDTH, BM_HEIGHT, 0x40);
 	//auto prim3 = di_manager->create_transparent_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS|PRIM_FLAG_H_SCROLL, BM_WIDTH, BM_HEIGHT, 0x40);
 
-#define BM_WIDTH 128
-#define BM_HEIGHT 90
-
 #define DRAW_SEVERAL_BITMAPS 0
 #if DRAW_SEVERAL_BITMAPS
+	#define BM_WIDTH 128
+	#define BM_HEIGHT 90
+
 	auto prim0 = di_manager->create_transparent_bitmap(100, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
 	auto prim1 = di_manager->create_transparent_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
 	auto prim2 = di_manager->create_transparent_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
@@ -317,6 +317,27 @@ void otf(void * pvParameters) {
 	//prim1->generate_instructions();
 	//prim2->generate_instructions();
 	//prim3->generate_instructions();
+#endif
+
+#define DRAW_SEVERAL_RENDERS 1
+#if DRAW_SEVERAL_RENDERS
+	#define BM_WIDTH 160
+	#define BM_HEIGHT 120
+
+	auto prim0 = di_manager->create_solid_render(100, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT);
+	auto prim1 = di_manager->create_solid_render(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT);
+	auto prim2 = di_manager->create_solid_render(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT);
+	auto prim3 = di_manager->create_solid_render(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT);
+
+    prim0->render();
+    prim1->render();
+    prim2->render();
+    prim3->render();
+
+	di_manager->move_primitive_absolute(100, 100, 120);
+	di_manager->move_primitive_absolute(101, 500, 130);
+	di_manager->move_primitive_absolute(102, 300, 180);
+	di_manager->move_primitive_absolute(103, 340, 360);
 #endif
 
 #define DRAW_TILE_MAP 0
