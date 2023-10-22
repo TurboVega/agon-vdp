@@ -26,7 +26,8 @@
 
 #include "di_terminal.h"
 #include <cstring>
-void debug_log(const char* fmt, ...);
+//void debug_log(const char* fmt, ...);
+
 DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint8_t flags,
                         uint32_t columns, uint32_t rows, const uint8_t* font) :
   DiTileArray(ACT_PIXELS, ACT_LINES, columns, rows, 8, 8, flags) {
