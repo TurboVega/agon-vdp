@@ -3464,8 +3464,21 @@ uint16_t indexes[teapot_vertices] = {
     1727
 };
 
+Vec2f tex_coords = { 0.5, 0.5 };
+uint16_t tex_indexes[1728] = { 0 };
+
 Mesh mesh_teapot = {
     .indexes_count = teapot_vertices,
-    .positions = &positions[0],
-    .pos_indices = &indexes[0]
+    .positions = positions,
+    .pos_indices = indexes,
+    .tex_indices = tex_indexes,
+    .textCoord = &tex_coords
 };
+
+/*
+    int indexes_count;
+    uint16_t * pos_indices;
+    uint16_t * tex_indices;
+    Vec3f * positions;
+    Vec2f * textCoord;
+*/
