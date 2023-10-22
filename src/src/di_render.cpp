@@ -140,6 +140,7 @@ void do_render(int width, int height) {
   Material m;
   debug_log("@%i\n", __LINE__);
   Texture tex;
+  tex.size = Vec2i{2,2};
   debug_log("@%i\n", __LINE__);
   Pixel solid[4];
   debug_log("@%i\n", __LINE__);
