@@ -28,7 +28,7 @@ In this document, it refers to a render primitive, which is an enhanced bitmap p
 This number is divided by 32767 to yield a floating point number in the range -1.0 to +1.0, for 3D computations.
 <br><br>i0: A zero-based index into a list of coordinates (mesh or texture).
 <br><br>u0, v0: A texture coordinate ranging from 0 to the width or height of the texture.
-This value is divided by the texture width to yield a floating point number, for 3D computations.
+This value is divided by the texture width or height to yield a floating point number, for 3D computations.
 <br><br>scalex, scaley, scalez: A prescaled 3D X, Y, or Z scale value in the range 0 to 65535.
 This number is divided by 256 to yield a floating point number in the approximate range 0.0 to 256.0, for 3D computations.
 <br><br>anglex, angley, anglez: A prescaled 3D X, Y, or Z rotation angle value in the range -32767 to +32767.
