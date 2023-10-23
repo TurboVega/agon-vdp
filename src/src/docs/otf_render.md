@@ -32,11 +32,11 @@ This value is divided by the texture width to yield a floating point number, for
 This number is divided by 256 to yield a floating point number in the approximate range 0.0 to 256.0, for 3D computations.
 <br><br>anglex, angley, anglez: A prescaled 3D X, Y, or Z rotation angle value in the range -32767 to +32767.
 This number is divided by 32767 to yield a floating point number in the range -1.0 to +1.0, for 3D computations.
-The resulting number if multiplied by 2*PI, to yield an angle in radians.
+The resulting number is multiplied by 2*PI, to yield an angle in radians.
 Thus, the passed value of -32767 means -2*PI, and +32767 means +2*PI.
 <br><br>distx, disty, distz: A prescaled 3D X, Y, or Z translation distance in the range -32767 to +32767.
 This number is divided by 32767 to yield a floating point number in the range -1.0 to +1.0, for 3D computations.
-The resulting number if multiplied by 256.0.
+The resulting number is multiplied by 256.0.
 Thus, the passed value of -32767 means -256.0, and +32767 means +256.0.
 
 ## Create primitive: Render 3D Scene
