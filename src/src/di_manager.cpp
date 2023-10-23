@@ -1559,6 +1559,82 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_153_Define_Terminal_Character_Range;
       } break;
 
+      case 200: {
+        auto cmd = &cu->m_200_Create_primitive_Render_3D_Scene;
+      } break;
+
+      case 201: {
+        auto cmd = &cu->m_201_Define_Mesh_Vertices;
+      } break;
+
+      case 202: {
+        auto cmd = &cu->m_202_Set_Mesh_Vertex_Indices;
+      } break;
+
+      case 203: {
+        auto cmd = &cu->m_203_Define_Texture_Coordinates;
+      } break;
+
+      case 204: {
+        auto cmd = &cu->m_204_Set_Texture_Coordinate_Indices;
+      } break;
+
+      case 205: {
+        auto cmd = &cu->m_205_Create_Object;
+      } break;
+
+      case 206: {
+        auto cmd = &cu->m_206_Set_Object_X_Scale_Factor;
+      } break;
+
+      case 207: {
+        auto cmd = &cu->m_207_Set_Object_Y_Scale_Factor;
+      } break;
+
+      case 208: {
+        auto cmd = &cu->m_208_Set_Object_Z_Scale_Factor;
+      } break;
+
+      case 209: {
+        auto cmd = &cu->m_209_Set_Object_XYZ_Scale_Factors;
+      } break;
+
+      case 210: {
+        auto cmd = &cu->m_210_Set_Object_X_Rotation_Angle;
+      } break;
+
+      case 211: {
+        auto cmd = &cu->m_211_Set_Object_Y_Rotation_Angle;
+      } break;
+
+      case 212: {
+        auto cmd = &cu->m_212_Set_Object_Z_Rotation_Angle;
+      } break;
+
+      case 213: {
+        auto cmd = &cu->m_213_Set_Object_XYZ_Rotation_Angles;
+      } break;
+
+      case 214: {
+        auto cmd = &cu->m_214_Set_Object_X_Translation_Distance;
+      } break;
+
+      case 215: {
+        auto cmd = &cu->m_215_Set_Object_Y_Translation_Distance;
+      } break;
+
+      case 216: {
+        auto cmd = &cu->m_216_Set_Object_Z_Translation_Distance;
+      } break;
+
+      case 217: {
+        auto cmd = &cu->m_217_Set_Object_XYZ_Translation_Distances;
+      } break;
+
+      case 218: {
+        auto cmd = &cu->m_218_Render_To_Bitmap;
+      } break;
+
       default: {
         m_incoming_command.clear();
         return true; // ignore the command

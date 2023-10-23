@@ -27,6 +27,9 @@
 
 #pragma pack(push, 1)
 
+#define _anglex int16_t  m_anglex;
+#define _angley int16_t  m_angley;
+#define _anglez int16_t  m_anglez;
 #define _bgcolor uint8_t m_bgcolor;
 #define _bmid   uint16_t m_bmid;
 #define _char   uint8_t  m_char;
@@ -35,34 +38,48 @@
 #define _column uint16_t m_column;
 #define _columns uint16_t m_columns;
 #define _coords uint16_t m_coords[1];
+#define _distx  int16_t  m_distx;
+#define _disty  int16_t  m_disty;
+#define _distz  int16_t  m_distz;
 #define _firstchar uint8_t m_firstchar;
 #define _fgcolor uint8_t m_fgcolor;
 #define _flags  uint16_t m_flags;
 #define _h      uint16_t m_h;
+#define _i0     uint16_t m_i0;
 #define _id     uint16_t m_id;
 #define _ix     int16_t  m_ix;
 #define _iy     int16_t  m_iy;
 #define _lastchar uint8_t m_lastchar;
+#define _mid    uint16_t m_mid;
 #define _n      uint16_t m_n;
+#define _oid    uint16_t m_oid;
 #define _pid    uint16_t m_pid;
 #define _row    uint16_t m_row;
 #define _rows   uint16_t m_rows;
 #define _s      uint16_t m_s;
+#define _scalex uint16_t m_scalex;
+#define _scaley uint16_t m_scaley;
+#define _scalez uint16_t m_scalez;
 #define _sx0    uint16_t m_sx0;
 #define _sx1    uint16_t m_sx1;
 #define _sy0    uint16_t m_sy0;
 #define _sy1    uint16_t m_sy1;
+#define _u0     uint16_t m_u0;
+#define _v0     uint16_t m_v0;
 #define _w      uint16_t m_w;
 #define _x      uint16_t m_x;
+#define _x0     int16_t  m_x0;
 #define _x1     uint16_t m_x1;
 #define _x2     uint16_t m_x2;
 #define _x3     uint16_t m_x3;
 #define _x4     uint16_t m_x4;
 #define _y      uint16_t m_y;
+#define _y0     int16_t  m_y0;
 #define _y1     uint16_t m_y1;
 #define _y2     uint16_t m_y2;
 #define _y3     uint16_t m_y3;
 #define _y4     uint16_t m_y4;
+#define _z0     int16_t  m_z0;
 
 #define ARGS(...)   __VA_ARGS__
 
@@ -140,6 +157,25 @@ OTFCMD(150,(_id _pid _flags _x _y _columns _rows),_Create_primitive_Terminal)
 OTFCMD(151,(_id),_Select_Active_Terminal)
 OTFCMD(152,(_id _char _fgcolor _bgcolor),_Define_Terminal_Character)
 OTFCMD(153,(_id _firstchar _lastchar _fgcolor _bgcolor),_Define_Terminal_Character_Range)
+OTFCMD(200,(_id _pid _flags _x _y _w _h),_Create_primitive_Render_3D_Scene)
+OTFCMD(201,(_id _mid _n _x0 _y0 _z0),_Define_Mesh_Vertices)
+OTFCMD(202,(_id _mid _n _i0),_Set_Mesh_Vertex_Indices)
+OTFCMD(203,(_id _mid _n _u0 _v0),_Define_Texture_Coordinates)
+OTFCMD(204,(_id _mid _n _i0),_Set_Texture_Coordinate_Indices)
+OTFCMD(205,(_id _oid _mid _bmid),_Create_Object)
+OTFCMD(206,(_id _oid _scalex),_Set_Object_X_Scale_Factor)
+OTFCMD(207,(_id _oid _scaley),_Set_Object_Y_Scale_Factor)
+OTFCMD(208,(_id _oid _scalez),_Set_Object_Z_Scale_Factor)
+OTFCMD(209,(_id _oid _scalex _scaley _scalez),_Set_Object_XYZ_Scale_Factors)
+OTFCMD(210,(_id _oid _anglex),_Set_Object_X_Rotation_Angle)
+OTFCMD(211,(_id _oid _angley),_Set_Object_Y_Rotation_Angle)
+OTFCMD(212,(_id _oid _anglez),_Set_Object_Z_Rotation_Angle)
+OTFCMD(213,(_id _oid _anglex _angley _anglez),_Set_Object_XYZ_Rotation_Angles)
+OTFCMD(214,(_id _oid _distx),_Set_Object_X_Translation_Distance)
+OTFCMD(215,(_id _oid _disty),_Set_Object_Y_Translation_Distance)
+OTFCMD(216,(_id _oid _distz),_Set_Object_Z_Translation_Distance)
+OTFCMD(217,(_id _oid _distx _disty _distz),_Set_Object_XYZ_Translation_Distances)
+OTFCMD(218,(_id),_Render_To_Bitmap)
 
 typedef union {
     OtfCmd_0_Set_flags_for_primitive m_0_Set_flags_for_primitive;
@@ -208,6 +244,25 @@ typedef union {
     OtfCmd_151_Select_Active_Terminal m_151_Select_Active_Terminal;
     OtfCmd_152_Define_Terminal_Character m_152_Define_Terminal_Character;
     OtfCmd_153_Define_Terminal_Character_Range m_153_Define_Terminal_Character_Range;
+    OtfCmd_200_Create_primitive_Render_3D_Scene m_200_Create_primitive_Render_3D_Scene;
+    OtfCmd_201_Define_Mesh_Vertices m_201_Define_Mesh_Vertices;
+    OtfCmd_202_Set_Mesh_Vertex_Indices m_202_Set_Mesh_Vertex_Indices;
+    OtfCmd_203_Define_Texture_Coordinates m_203_Define_Texture_Coordinates;
+    OtfCmd_204_Set_Texture_Coordinate_Indices m_204_Set_Texture_Coordinate_Indices;
+    OtfCmd_205_Create_Object m_205_Create_Object;
+    OtfCmd_206_Set_Object_X_Scale_Factor m_206_Set_Object_X_Scale_Factor;
+    OtfCmd_207_Set_Object_Y_Scale_Factor m_207_Set_Object_Y_Scale_Factor;
+    OtfCmd_208_Set_Object_Z_Scale_Factor m_208_Set_Object_Z_Scale_Factor;
+    OtfCmd_209_Set_Object_XYZ_Scale_Factors m_209_Set_Object_XYZ_Scale_Factors;
+    OtfCmd_210_Set_Object_X_Rotation_Angle m_210_Set_Object_X_Rotation_Angle;
+    OtfCmd_211_Set_Object_Y_Rotation_Angle m_211_Set_Object_Y_Rotation_Angle;
+    OtfCmd_212_Set_Object_Z_Rotation_Angle m_212_Set_Object_Z_Rotation_Angle;
+    OtfCmd_213_Set_Object_XYZ_Rotation_Angles m_213_Set_Object_XYZ_Rotation_Angles;
+    OtfCmd_214_Set_Object_X_Translation_Distance m_214_Set_Object_X_Translation_Distance;
+    OtfCmd_215_Set_Object_Y_Translation_Distance m_215_Set_Object_Y_Translation_Distance;
+    OtfCmd_216_Set_Object_Z_Translation_Distance m_216_Set_Object_Z_Translation_Distance;
+    OtfCmd_217_Set_Object_XYZ_Translation_Distances m_217_Set_Object_XYZ_Translation_Distances;
+    OtfCmd_218_Render_To_Bitmap m_218_Render_To_Bitmap;
 } OtfCmdUnion;
 
 #pragma pack(pop)

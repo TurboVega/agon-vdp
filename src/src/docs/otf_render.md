@@ -14,6 +14,7 @@ values passed to the render commands are scaled values.
 The commands below use numbers with the following meaning and ranges:
 
 <br><br>id: A specific primitive ID in the range 0 to 65535, where 0 is the root primitve.
+In this document, it refers to a render primitive, which is an enhanced bitmap primitive.
 <br><br>pid: A parent primitive ID in the range 0 to 65535, where 0 is the root primitve.
 <br><br>mid: A specific mesh ID in the range 0 to 65535. This is not a primitive ID.
 <br><br>oid: A specific object ID in the range 0 to 65535. This is not a primitive ID.
@@ -33,7 +34,7 @@ This number is divided by 256 to yield a floating point number in the approximat
 <br><br>anglex, angley, anglez: A prescaled 3D X, Y, or Z rotation angle value in the range -32767 to +32767.
 This number is divided by 32767 to yield a floating point number in the range -1.0 to +1.0, for 3D computations.
 The resulting number is multiplied by 2PI, to yield an angle in radians.
-Thus, the passed value of -32767 means -2PI, and +32767 means +2PI.
+Thus, the passed value of -32767 means -2PI, and +32767 means +2aPI.
 <br><br>distx, disty, distz: A prescaled 3D X, Y, or Z translation distance in the range -32767 to +32767.
 This number is divided by 32767 to yield a floating point number in the range -1.0 to +1.0, for 3D computations.
 The resulting number is multiplied by 256.0.
@@ -43,8 +44,8 @@ Thus, the passed value of -32767 means -256.0, and +32767 means +256.0.
 <b>VDU 23, 30, 200, id; pid; flags; x; y; w; h;</b> :  Create primitive: Render 3D Scene
 
 This command creates a primitive that renders a 3D scene to a bitmap. The bitmap can be
-manipulated or altered using the bitmap related commands, after the scene image
-has been rendered. A scene may contain multiple objects. This primitive must be
+manipulated or altered using the bitmap primitive commands, after the scene image
+has been rendered. A scene may contain multiple objects. This render primitive must be
 created prior to using other 3D related commands, below.
 
 ## Define Mesh Vertices
