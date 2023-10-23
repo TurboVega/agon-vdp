@@ -336,7 +336,7 @@ void otf(void * pvParameters) {
 
 	di_manager->move_primitive_absolute(100, 100, 120);
 	di_manager->move_primitive_absolute(101, 500, 130);
-	di_manager->move_primitive_absolute(102, 300, 180);
+	di_manager->move_primitive_absolute(102, 300, 20);
 	di_manager->move_primitive_absolute(103, 340, 360);
 #endif
 
