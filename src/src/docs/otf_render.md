@@ -161,7 +161,7 @@ onto the bitmap belonging to the render primitive. This command must be used in
 order to perform the render operation; it does <i>not</i> happen automatically, when other
 commands change some of the render parameters.
 
-The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
+The following image illustrates the concept.
 
 ![Render](render.png)
 
