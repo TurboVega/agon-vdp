@@ -12,33 +12,77 @@ only supports passing 1-byte and 2-byte values. For that reason, many of the
 values passed to the render commands are scaled values.
 
 The commands below use numbers with the following meaning and ranges:
-
-<br><br>id: A specific primitive ID in the range 0 to 65535, where 0 is the root primitve.
+<br><br><b>id</b>: A specific primitive ID in the range 0 to 65535, where 0 is the root primitve.
 In this document, it refers to a render primitive, which is an enhanced bitmap primitive.
-<br><br>pid: A parent primitive ID in the range 0 to 65535, where 0 is the root primitve.
-<br><br>mid: A specific mesh ID in the range 0 to 65535. This is not a primitive ID.
-<br><br>oid: A specific object ID in the range 0 to 65535. This is not a primitive ID.
-<br><br>flags: Refer to the Primitive Flags section of this document.
-<br><br>n: A positive number (count) of things that follow within the same command.
-<br><br>x: A 2D X coordinate in the range -32768 to +32767. Often, the value is in or near the range of 0 to 800.
-<br><br>y: A 2D Y coordinate in the range -32768 to +32767. Often, the value is in or near the range of 0 to 600.
-<br><br>w: A positive width that typically ranges from 1 to 800.
-<br><br>h: A positive height that typically ranges from 1 to 600.
-<br><br>x0, y0, z0: A prescaled 3D X, Y, or Z coordinate in the range -32767 to +32767.
+<br><br><b>pid</b>: A parent primitive ID in the range 0 to 65535, where 0 is the root primitve.
+<br><br><b>mid</b>: A specific mesh ID in the range 0 to 65535. This is not a primitive ID.
+<br><br><b>oid</b>: A specific object ID in the range 0 to 65535. This is not a primitive ID.
+<br><br><b>flags</b>: Refer to the Primitive Flags section of this document.
+<br><br><b>n</b>: A positive number (count) of things that follow within the same command.
+<br><br><b>x</b>: A 2D X coordinate in the range -32768 to +32767. Often, the value is in or near the range of 0 to 800.
+<br><br><b>y</b>: A 2D Y coordinate in the range -32768 to +32767. Often, the value is in or near the range of 0 to 600.
+<br><br><b>w</b>: A positive width that typically ranges from 1 to 800.
+<br><br><b>h</b>: A positive height that typically ranges from 1 to 600.
+<br><br><b>x0, y0, z0</b>: A prescaled 3D X, Y, or Z coordinate in the range -32767 to +32767.
 This number is divided by 32767 to yield a floating point number in the range -1.0 to +1.0, for 3D computations.
-<br><br>i0: A zero-based index into a list of coordinates (mesh or texture).
-<br><br>u0, v0: A texture coordinate ranging from 0 to the width or height of the texture.
+To prescale a set of coordinates for use in a VDU command, scale them all to fit within the range -1.0 to +1.0,
+then multiply the original floating point values by 32767.
+```
+F = FACTOR * 32767
+PX = X * F
+PY = Y * F
+PZ = Z * F
+VDU ... PX; PY; PZ; ...
+```
+<br><br><b>i0</b>: A zero-based index into a list of coordinates (mesh or texture).
+<br><br><b>u0, v0</b>: A texture coordinate ranging from 0 to the width or height of the texture.
 This value is divided by the texture width or height to yield a floating point number, for 3D computations.
-<br><br>scalex, scaley, scalez: A prescaled 3D X, Y, or Z scale value in the range 0 to 65535.
+To prescale a set of coordinates for use in a VDU command, scale them all to fit within the range 0.0 to +1.0,
+then multiply the original floating point values by the texture width or height, as appropriate.
+```
+PU = U * FACTOR * TEXWIDTH
+PV = V * FACTOR * TEXHEIGHT
+VDU ... PU; PV; ...
+```
+<br><br><b>scalex, scaley, scalez</b>: A prescaled 3D X, Y, or Z scale value in the range 0 to 65535.
 This number is divided by 256 to yield a floating point number in the approximate range 0.0 to 256.0, for 3D computations.
-<br><br>anglex, angley, anglez: A prescaled 3D X, Y, or Z rotation angle value in the range -32767 to +32767.
+To prescale a set of scale factors for use in a VDU command, multiply them by 256.
+```
+F = 256
+PSX = SX * F
+PSY = SY * F
+PSZ = SZ * F
+VDU ... PSX; PSY; PSZ; ...
+```
+<br><br><b>anglex, angley, anglez</b>: A prescaled 3D X, Y, or Z rotation angle value in the range -32767 to +32767.
 This number is divided by 32767 to yield a floating point number in the range -1.0 to +1.0, for 3D computations.
 The resulting number is multiplied by 2PI, to yield an angle in radians.
 Thus, the passed value of -32767 means -2PI, and +32767 means +2PI.
-<br><br>distx, disty, distz: A prescaled 3D X, Y, or Z translation distance in the range -32767 to +32767.
+To prescale a set of angles in radians for use in a VDU command, divide the angles by 2PI, which will
+scale them all to fit within the range -1.0 to +1.0,
+then multiply the original floating point values by 32767.
+```
+F = 32767 / TWOPI
+PAX = AX * F
+PAY = AY * F
+PAZ = AZ * F
+VDU ... PAX; PAY; PAZ; ...
+```
+<br><br><b>distx, disty, distz</b>: A prescaled 3D X, Y, or Z translation distance in the range -32767 to +32767.
 This number is divided by 32767 to yield a floating point number in the range -1.0 to +1.0, for 3D computations.
 The resulting number is multiplied by 256.0.
 Thus, the passed value of -32767 means -256.0, and +32767 means +256.0.
+To prescale a set of distances for use in a VDU command, divide the distances by 256,
+scale them all to fit within the range -1.0 to +1.0,
+then multiply the original floating point values by 32767.
+```
+F = 256
+PDX = DX * F
+PDY = DY * F
+PDZ = DZ * F
+VDU ... PDX; PDY; PDZ; ...
+```
+<br>
 
 ## Create primitive: Render 3D Scene
 <b>VDU 23, 30, 200, id; pid; flags; x; y; w; h;</b> :  Create primitive: Render 3D Scene
