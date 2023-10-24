@@ -152,7 +152,7 @@ void otf(void * pvParameters) {
 	di_manager = new DiManager();
 	di_manager->create_root();
 
-	//di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x10|PIXEL_ALPHA_100_MASK);
+	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, 0x15|PIXEL_ALPHA_100_MASK);
     /*
 	di_manager->create_solid_rectangle(40, ROOT_PRIMITIVE_ID, 1, 0, 0, 800, 600, PIXEL_COLOR_ABGR(PIXEL_ALPHA_100, 2, 0, 0));
 	di_manager->create_line(41, ROOT_PRIMITIVE_ID, 1, 180, 90, 480, 390, 0xFF); // diagonal right
@@ -165,14 +165,14 @@ void otf(void * pvParameters) {
 
 	//di_manager->create_line(9, ROOT_PRIMITIVE_ID, 1, 27, 520, 281, 21, 0x0D); // general
 
-	auto terminal = di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 0, 0, 100, 75, fabgl::FONT_AGON_DATA);
-	terminal->define_character_range(0x20, 0x7E, PIXEL_ALPHA_100_MASK|0x05, PIXEL_ALPHA_100_MASK|0x00);
-	terminal->clear_screen();
+	//auto terminal = di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 0, 0, 100, 75, fabgl::FONT_AGON_DATA);
+	//terminal->define_character_range(0x20, 0x7E, PIXEL_ALPHA_100_MASK|0x05, PIXEL_ALPHA_100_MASK|0x00);
+	//terminal->clear_screen();
 	//for (uint32_t row = 0; row < 75; row++) {
 	//	terminal->set_character(70,row,48+(uint8_t)(row%10));
 	//}
 	//debug_log("@%i\n", __LINE__); delay(100);
-	boot_screen();
+	//boot_screen();
 	//terminal->set_character(0, 0, 0xC5C00041);
 	//debug_log("@%i\n", __LINE__); delay(100);
 	
@@ -275,7 +275,7 @@ void otf(void * pvParameters) {
 	//auto prim2 = di_manager->create_transparent_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS|PRIM_FLAG_H_SCROLL, BM_WIDTH, BM_HEIGHT, 0x40);
 	//auto prim3 = di_manager->create_transparent_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS|PRIM_FLAG_H_SCROLL, BM_WIDTH, BM_HEIGHT, 0x40);
 
-#define DRAW_SEVERAL_BITMAPS 0
+#define DRAW_SEVERAL_BITMAPS 1
 #if DRAW_SEVERAL_BITMAPS
 	#define BM_WIDTH 128
 	#define BM_HEIGHT 90
@@ -319,7 +319,7 @@ void otf(void * pvParameters) {
 	//prim3->generate_instructions();
 #endif
 
-#define DRAW_SEVERAL_RENDERS 1
+#define DRAW_SEVERAL_RENDERS 0
 #if DRAW_SEVERAL_RENDERS
 	#define BM_WIDTH 160
 	#define BM_HEIGHT 120

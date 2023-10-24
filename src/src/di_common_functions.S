@@ -56,6 +56,13 @@
   .global   fcn_copy_8_pixels
   .global   fcn_copy_8_pixels_last
 
+  .global   fcn_skip_256_pixels_in_loop
+  .global   fcn_skip_128_pixels
+  .global   fcn_skip_64_pixels
+  .global   fcn_skip_32_pixels
+  .global   fcn_skip_16_pixels
+  .global   fcn_skip_8_pixels
+
   .global   fcn_color_blend_25_for_256_pixels_in_loop
   .global   fcn_color_blend_25_for_128_pixels
   .global   fcn_color_blend_25_for_128_pixels_last
@@ -1089,6 +1096,55 @@ fcn_copy_8_pixels:
 fcn_copy_8_pixels_last:
   copy_4_pixels_at_offset 0
   copy_4_pixels_at_offset 4
+  ret
+
+  .align 4
+fcn_skip_256_pixels_in_loop:
+begin_skip_loop:
+  addi   REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 120
+  addi   REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 120
+  addi   REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 16
+
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 120
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 120
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16
+
+  addi   REG_LOOP_INDEX, REG_LOOP_INDEX, -1
+  beqz   REG_LOOP_INDEX, end_skip_loop
+  j      begin_skip_loop
+end_skip_loop:
+  ret
+
+  .align 4
+fcn_skip_128_pixels:
+  addi   REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 64
+  addi   REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 64
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64
+  ret
+
+  .align 4
+fcn_skip_64_pixels:
+  addi   REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 64
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 64
+  ret
+
+  .align 4
+fcn_skip_32_pixels:
+  addi   REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 32
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 32
+  ret
+
+  .align 4
+fcn_skip_16_pixels:
+  addi   REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 16
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 16
+  ret
+
+  .align 4
+fcn_skip_8_pixels:
+  addi   REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 8
+  addi   REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 8
   ret
 
   .align 4
