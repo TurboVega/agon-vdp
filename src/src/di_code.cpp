@@ -710,7 +710,7 @@ void EspFunction::copy_line_as_outer_fcn(EspFixups& fixups, uint32_t draw_x, uin
 
 void EspFunction::copy_line_as_inner_fcn(EspFixups& fixups, uint32_t draw_x, uint32_t x, uint32_t width,
         uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels) {
-    //debug_log(" copy_line x=%i w=%i tc=%02X src=%08X\n", x, width, transparent_color, src_pixels);
+    debug_log(" copy_line x=%i w=%i tc=%02X src=%08X\n", x, width, transparent_color, src_pixels);
     auto at_jump = enter_inner_function();
     auto at_data = begin_data();
 
@@ -748,6 +748,7 @@ void EspFunction::copy_line_as_inner_fcn(EspFixups& fixups, uint32_t draw_x, uin
 void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x, uint32_t width,
         uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels) {
 
+    debug_log("** copy_line_loop dx %u x %u w %u\n", draw_x, x, width);
     auto x_offset = x & 3;
 
     if (!(flags & PRIM_FLAGS_X_SRC)) {
@@ -759,7 +760,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
     uint8_t* p_src_bytes = (uint8_t*) src_pixels;
 
     while (rem_width) {
-        //debug_log("src=%08X, xo=%u, rw=%u, ", src_pixels, x_offset, rem_width);
+        debug_log("src=%08X, xo=%u, rw=%u, ", src_pixels, x_offset, rem_width);
 
         uint8_t opaqueness = 100;
         if (!(flags & PRIM_FLAGS_BLENDED)) {
@@ -782,7 +783,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                     break;
                 }
             }
-            //debug_log("w=%u, fa=%02X, ", width, first_alpha);
+            debug_log("w=%u, fa=%02X, ", width, first_alpha);
 
             // This tests using inverted alpha masks.
             switch (first_alpha) {
@@ -792,10 +793,10 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                 case PIXEL_ALPHA_INV_100_MASK: opaqueness = 100; break;
                 default: opaqueness = 0; break;
             }
-            //debug_log("op=%hu, ", opaqueness);
+            debug_log("op=%hu, ", opaqueness);
         }
         rem_width -= width;
-        //debug_log("rw=%u\n", rem_width);
+        debug_log("rw=%u\n", rem_width);
 
         // Use the series of pixels, rather than the rest of the line, if necessary.
         while (width) {
@@ -832,7 +833,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_128_pixels_last; break;
                                     case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_128_pixels_last; break;
                                     case 100: p_fcn = (uint32_t) &fcn_copy_128_pixels_last; break;
-                                    //default: p_fcn = (uint32_t) &fcn_skip_128_pixels; break;
+                                    default: p_fcn = (uint32_t) &fcn_skip_128_pixels; break;
                                 }
                             }
                             sub = 128;
@@ -852,7 +853,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_64_pixels_last; break;
                                     case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_64_pixels_last; break;
                                     case 100: p_fcn = (uint32_t) &fcn_copy_64_pixels_last; break;
-                                    //default: p_fcn = (uint32_t) &fcn_skip_64_pixels; break;
+                                    default: p_fcn = (uint32_t) &fcn_skip_64_pixels; break;
                                 }
                             }
                             sub = 64;
@@ -872,7 +873,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_32_pixels_last; break;
                                     case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_32_pixels_last; break;
                                     case 100: p_fcn = (uint32_t) &fcn_copy_32_pixels_last; break;
-                                    //default: p_fcn = (uint32_t) &fcn_skip_32_pixels; break;
+                                    default: p_fcn = (uint32_t) &fcn_skip_32_pixels; break;
                                 }
                             }
                             sub = 32;
@@ -892,7 +893,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_16_pixels_last; break;
                                     case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_16_pixels_last; break;
                                     case 100: p_fcn = (uint32_t) &fcn_copy_16_pixels_last; break;
-                                    //default: p_fcn = (uint32_t) &fcn_skip_16_pixels; break;
+                                    default: p_fcn = (uint32_t) &fcn_skip_16_pixels; break;
                                 }
                             }
                             sub = 16;
@@ -912,7 +913,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_8_pixels_last; break;
                                     case 75: p_fcn = (uint32_t) &fcn_src_blend_75_for_8_pixels_last; break;
                                     case 100: p_fcn = (uint32_t) &fcn_copy_8_pixels_last; break;
-                                    //default: p_fcn = (uint32_t) &fcn_skip_8_pixels; break;
+                                    default: p_fcn = (uint32_t) &fcn_skip_8_pixels; break;
                                 }
                             }
                             sub = 8;
@@ -938,6 +939,8 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     case 100:
                                         l32i(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, 0);
                                         s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
+                                        addi(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 4);
+                                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                                         break;
                                 }
                             }
@@ -981,7 +984,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
 
                 case 1:
                     if (width >= 3) {
-                        if (width > 3) {
+                        if (width > 3 || rem_width) {
                             switch (opaqueness) {
                                 case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_3_pixels_at_offset_1; break;
                                 case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_3_pixels_at_offset_1; break;
@@ -1034,7 +1037,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
 
                 case 2:
                     if (width >= 2) {
-                        if (width > 2) {
+                        if (width > 2 || rem_width) {
                             switch (opaqueness) {
                                 case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_2_pixels_at_offset_2; break;
                                 case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_2_pixels_at_offset_2; break;
@@ -1054,6 +1057,8 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                 case 100:
                                     l16ui(REG_PIXEL_COLOR, REG_SRC_PIXEL_PTR, FIX_OFFSET(2));
                                     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
+                                    addi(REG_SRC_PIXEL_PTR, REG_SRC_PIXEL_PTR, 4);
+                                    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                                     break;
                             }
                         }
@@ -1072,7 +1077,7 @@ void EspFunction::copy_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                     break;
                 
                 case 3:
-                    if (width > 1) {
+                    if (width > 1 || rem_width) {
                         switch (opaqueness) {
                             case 25: p_fcn = (uint32_t) &fcn_src_blend_25_for_1_pixel_at_offset_3; break;
                             case 50: p_fcn = (uint32_t) &fcn_src_blend_50_for_1_pixel_at_offset_3; break;

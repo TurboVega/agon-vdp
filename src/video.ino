@@ -280,10 +280,10 @@ void otf(void * pvParameters) {
 	#define BM_WIDTH 128
 	#define BM_HEIGHT 90
 
-	auto prim0 = di_manager->create_transparent_bitmap(100, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
-	auto prim1 = di_manager->create_transparent_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
-	auto prim2 = di_manager->create_transparent_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
-	auto prim3 = di_manager->create_transparent_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0x40);
+	auto prim0 = di_manager->create_transparent_bitmap(100, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS|PRIM_FLAGS_BLENDED, BM_WIDTH, BM_HEIGHT, 0xC0);
+	auto prim1 = di_manager->create_transparent_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0xC0);
+	//auto prim2 = di_manager->create_transparent_bitmap(102, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0xC0);
+	//auto prim3 = di_manager->create_transparent_bitmap(103, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT, 0xC0);
 
 	//auto prim0 = di_manager->create_solid_bitmap(100, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT);
 	//auto prim1 = di_manager->create_solid_bitmap(101, ROOT_PRIMITIVE_ID, PRIM_FLAG_PAINT_THIS, BM_WIDTH, BM_HEIGHT);
@@ -295,23 +295,23 @@ void otf(void * pvParameters) {
 		for (int x = 0; x < BM_WIDTH; x++) {
 			uint8_t c = ((g_00187SCx128X4Data[i]>>6)<<4) | ((g_00187SCx128X4Data[i+1]>>6)<<2) | ((g_00187SCx128X4Data[i+2]>>6));
 			i += 3;
+			//prim0->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
+			//prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_50_MASK);
+			//prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_25_MASK);
+			//prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_75_MASK);
+			if (x == 17 || x>=33 && x<=41 || y==27 || y==40 || x==125) c=0x00;
 			prim0->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 			prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
-			prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_25_MASK);
-			prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_75_MASK);
-
-			//prim0->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
-			//prim1->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 			//prim2->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 			//prim3->set_transparent_pixel(x, y, c|PIXEL_ALPHA_100_MASK);
 		}
 		//i += 3 * (128 - BM_WIDTH);
 	}
 
-	di_manager->move_primitive_absolute(100, 100, 120);
-	di_manager->move_primitive_absolute(101, 240, 130);
-	di_manager->move_primitive_absolute(102, 200, 180);
-	di_manager->move_primitive_absolute(103, 340, 360);
+	di_manager->move_primitive_absolute(100, 100, 100);
+	di_manager->move_primitive_absolute(101, 100, 190);
+	//di_manager->move_primitive_absolute(102, 200, 180);
+	//di_manager->move_primitive_absolute(103, 340, 360);
 
 	//prim0->generate_instructions();
 	//prim1->generate_instructions();
