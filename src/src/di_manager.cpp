@@ -1260,6 +1260,13 @@ bool DiManager::handle_otf_cmd() {
 
       case 80: {
         auto cmd = &cu->m_80_Create_primitive_Tile_Array;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_tile_array(cmd->m_id, cmd->m_pid, cmd->m_flags,
+            ACT_PIXELS, ACT_LINES,
+            cmd->m_columns, cmd->m_rows, cmd->m_w, cmd->m_h);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 81: {
