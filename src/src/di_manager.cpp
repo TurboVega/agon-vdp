@@ -1271,14 +1271,29 @@ bool DiManager::handle_otf_cmd() {
 
       case 81: {
         auto cmd = &cu->m_81_Create_Solid_Bitmap_for_Tile_Array;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_solid_bitmap_for_tile_array(cmd->m_id, cmd->m_bmid);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 82: {
         auto cmd = &cu->m_82_Create_Masked_Bitmap_for_Tile_Array;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_masked_bitmap_for_tile_array(cmd->m_id, cmd->m_bmid, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 83: {
         auto cmd = &cu->m_83_Create_Transparent_Bitmap_for_Tile_Array;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_masked_bitmap_for_tile_array(cmd->m_id, cmd->m_bmid, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 84: {
@@ -2050,13 +2065,7 @@ void DiManager::set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, 
   prim->set_transparent_pixel(px, py, color);
 }
 
-void DiManager::set_tile_array_bitmap_id(uint16_t id, uint16_t col, uint16_t row, DiTileBitmapID bm_id) {
-  DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return;
-  prim->set_tile(col, row, bm_id);
-}
-
-void DiManager::set_tile_array_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
-                                int32_t x, int32_t y, uint8_t color, int16_t nth) {
+void DiManager::set_solid_bitmap_pixel_for_tile_array(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
   DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return;
   x += nth;
   while (x >= prim->get_width()) {
@@ -2066,13 +2075,27 @@ void DiManager::set_tile_array_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
   prim->set_pixel(bm_id, x, y, color);
 }
 
-void DiManager::set_tile_map_bitmap_id(uint16_t id, uint16_t col, uint16_t row, DiTileBitmapID bm_id) {
-  DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
-  prim->set_tile(col, row, bm_id);
+void DiManager::set_masked_bitmap_pixel_for_tile_array(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
+  DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return;
+  x += nth;
+  while (x >= prim->get_width()) {
+    x -= prim->get_width();
+    y++;
+  }
+  prim->set_pixel(bm_id, x, y, color);
 }
 
-void DiManager::set_tile_map_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
-                                int32_t x, int32_t y, uint8_t color, int16_t nth) {
+void DiManager::set_transparent_bitmap_pixel_for_tile_array(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
+  DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return;
+  x += nth;
+  while (x >= prim->get_width()) {
+    x -= prim->get_width();
+    y++;
+  }
+  prim->set_pixel(bm_id, x, y, color);
+}
+
+void DiManager::set_solid_bitmap_pixel_for_tile_map(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
   DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
   x += nth;
   while (x >= prim->get_width()) {
@@ -2080,4 +2103,34 @@ void DiManager::set_tile_map_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
     y++;
   }
   prim->set_pixel(bm_id, x, y, color);
+}
+
+void DiManager::set_masked_bitmap_pixel_for_tile_map(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
+  DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
+  x += nth;
+  while (x >= prim->get_width()) {
+    x -= prim->get_width();
+    y++;
+  }
+  prim->set_pixel(bm_id, x, y, color);
+}
+
+void DiManager::set_transparent_bitmap_pixel_for_tile_map(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth) {
+  DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
+  x += nth;
+  while (x >= prim->get_width()) {
+    x -= prim->get_width();
+    y++;
+  }
+  prim->set_pixel(bm_id, x, y, color);
+}
+
+void DiManager::set_tile_array_bitmap_id(uint16_t id, uint16_t col, uint16_t row, uint16_t bm_id) {
+  DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return;
+  prim->set_tile(col, row, bm_id);
+}
+
+void DiManager::set_tile_map_bitmap_id(uint16_t id, uint16_t col, uint16_t row, uint16_t bm_id) {
+  DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return;
+  prim->set_tile(col, row, bm_id);
 }

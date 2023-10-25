@@ -28,7 +28,7 @@ Refer to the section on OTF Primitive Flags for information about
 certain flags that are useful for tile maps.
 
 ## Create Solid Bitmap for Tile Map
-<b>VDU 23, 30, 101, id; pid; flags; w; h;</b> : Create Solid Bitmap for Tile Map
+<b>VDU 23, 30, 101, id; bmid;</b> : Create Solid Bitmap for Tile Map
 
 This commmand creates a solid bitmap to be used within a tile map.
 Every pixel is fully opaque (though each pixel has its own color).
@@ -39,7 +39,7 @@ OTF mode will automatically set the PRIM_FLAGS_ALL_SAME flag
 when this command is used.
 
 ## Create Masked Bitmap for Tile Map
-<b>VDU 23, 30, 102, id; pid; flags; w; h; color</b> : Create Masked Bitmap for Tile Map
+<b>VDU 23, 30, 102, id; bmid; color</b> : Create Masked Bitmap for Tile Map
 
 This commmand creates a masked bitmap to be used within a tile map.
 Every pixel is either fully opaque (though each pixel has its own color) or fully transparent.
@@ -53,7 +53,7 @@ each pixel in the bitmap, use that given color for any pixels
 that must be invisible.
 
 ## Create Transparent Bitmap for Tile Map
-<b>VDU 23, 30, 103, id; pid; flags; w; h; color</b> : Create Transparent Bitmap for Tile Map
+<b>VDU 23, 30, 103, id; bmid; color</b> : Create Transparent Bitmap for Tile Map
 
 This commmand creates a transparent bitmap to be used within a tile map.
 Each pixel has either 0%, 25%, 50%, 75%, or 100% opacity.

@@ -101,17 +101,17 @@ class DiManager {
     DiBitmap* create_transparent_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t width, uint32_t height, uint8_t color);
 
-    DiBitmap* create_solid_bitmap_for_tile_array(uint16_t id, DiTileBitmapID bm_id);
+    DiBitmap* create_solid_bitmap_for_tile_array(uint16_t id, uint16_t bm_id);
 
-    DiBitmap* create_masked_bitmap_for_tile_array(uint16_t id, DiTileBitmapID bm_id);
+    DiBitmap* create_masked_bitmap_for_tile_array(uint16_t id, uint16_t bm_id, uint8_t color);
 
-    DiBitmap* create_transparent_bitmap_for_tile_array(uint16_t id, DiTileBitmapID bm_id, uint8_t color);
+    DiBitmap* create_transparent_bitmap_for_tile_array(uint16_t id, uint16_t bm_id, uint8_t color);
 
-    DiBitmap* create_solid_bitmap_for_tile_map(uint16_t id, DiTileBitmapID bm_id);
+    DiBitmap* create_solid_bitmap_for_tile_map(uint16_t id, uint16_t bm_id);
 
-    DiBitmap* create_masked_bitmap_for_tile_map(uint16_t id, DiTileBitmapID bm_id);
+    DiBitmap* create_masked_bitmap_for_tile_map(uint16_t id, uint16_t bm_id, uint8_t color);
 
-    DiBitmap* create_transparent_bitmap_for_tile_map(uint16_t id, DiTileBitmapID bm_id, uint8_t color);
+    DiBitmap* create_transparent_bitmap_for_tile_map(uint16_t id, uint16_t bm_id, uint8_t color);
 
     DiRender* create_solid_render(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t width, uint32_t height);
@@ -151,23 +151,18 @@ class DiManager {
     void set_solid_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth);
     void set_masked_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth);
     void set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth);
-    void set_solid_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth);
-    void set_masked_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth);
-    void set_transparent_bitmap_pixel(uint16_t id, int32_t x, int32_t y, uint8_t color, int16_t nth);
+    void set_solid_bitmap_pixel_for_tile_array(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth);
+    void set_masked_bitmap_pixel_for_tile_array(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth);
+    void set_transparent_bitmap_pixel_for_tile_array(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth);
+    void set_solid_bitmap_pixel_for_tile_map(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth);
+    void set_masked_bitmap_pixel_for_tile_map(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth);
+    void set_transparent_bitmap_pixel_for_tile_map(uint16_t id, uint16_t bm_id, int32_t x, int32_t y, uint8_t color, int16_t nth);
 
     // Set bitmap ID for tile in tile array.
-    void set_tile_array_bitmap_id(uint16_t id, uint16_t col, uint16_t row, DiTileBitmapID bm_id);
-
-    // Set pixel for bitmap in tile array.
-    void set_tile_array_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
-                                    int32_t x, int32_t y, uint8_t color, int16_t nth);
+    void set_tile_array_bitmap_id(uint16_t id, uint16_t col, uint16_t row, uint16_t bm_id);
 
     // Set bitmap ID for tile in tile map.
-    void set_tile_map_bitmap_id(uint16_t id, uint16_t col, uint16_t row, DiTileBitmapID bm_id);
-
-    // Set pixel for bitmap in tile map.
-    void set_tile_map_bitmap_pixel(uint16_t id, DiTileBitmapID bm_id,
-                                    int32_t x, int32_t y, uint8_t color, int16_t nth);
+    void set_tile_map_bitmap_id(uint16_t id, uint16_t col, uint16_t row, uint16_t bm_id);
 
     // Setup a callback for when the visible frame pixels have been sent to DMA,
     // and the vertical blanking time begins.
