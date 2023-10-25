@@ -123,9 +123,9 @@ OTFCMD(84,(_id _column _row _bmid),_Set_bitmap_ID_for_tile_in_Tile_Array)
 OTFCMD(85,(_id _bmid _x _y _color),_Set_solid_bitmap_pixel_in_Tile_Array)
 OTFCMD(86,(_id _bmid _x _y _color),_Set_masked_bitmap_pixel_in_Tile_Array)
 OTFCMD(87,(_id _bmid _x _y _color),_Set_transparent_bitmap_pixel_in_Tile_Array)
-OTFCMD(88,(_id _bmid _x _y _color),_Set_solid_bitmap_pixel_in_Tile_Array)
-OTFCMD(89,(_id _bmid _x _y _color),_Set_masked_bitmap_pixel_in_Tile_Array)
-OTFCMD(90,(_id _bmid _x _y _color),_Set_transparent_bitmap_pixel_in_Tile_Array)
+OTFCMD(88,(_id _bmid _x _y _n _colors),_Set_solid_bitmap_pixels_in_Tile_Array)
+OTFCMD(89,(_id _bmid _x _y _n _colors),_Set_masked_bitmap_pixels_in_Tile_Array)
+OTFCMD(90,(_id _bmid _x _y _n _colors),_Set_transparent_bitmap_pixels_in_Tile_Array)
 OTFCMD(100,(_id _pid _flags _columns _rows _w _h),_Create_primitive_Tile_Map)
 OTFCMD(101,(_id _bmid),_Create_Solid_Bitmap_for_Tile_Map)
 OTFCMD(102,(_id _bmid _color),_Create_Masked_Bitmap_for_Tile_Map)
@@ -209,10 +209,10 @@ typedef union {
     OtfCmd_84_Set_bitmap_ID_for_tile_in_Tile_Array m_84_Set_bitmap_ID_for_tile_in_Tile_Array;
     OtfCmd_85_Set_solid_bitmap_pixel_in_Tile_Array m_85_Set_solid_bitmap_pixel_in_Tile_Array;
     OtfCmd_86_Set_masked_bitmap_pixel_in_Tile_Array m_86_Set_masked_bitmap_pixel_in_Tile_Array;
-    OtfCmd_87_Set_transparent_bitmap_pixel_in_Tile_Map m_87_Set_transparent_bitmap_pixel_in_Tile_Map;
-    OtfCmd_88_Set_solid_bitmap_pixel_in_Tile_Array m_88_Set_solid_bitmap_pixel_in_Tile_Array;
-    OtfCmd_89_Set_masked_bitmap_pixel_in_Tile_Array m_89_Set_masked_bitmap_pixel_in_Tile_Array;
-    OtfCmd_90_Set_transparent_bitmap_pixel_in_Tile_Array m_90_Set_transparent_bitmap_pixel_in_Tile_Array;
+    OtfCmd_87_Set_transparent_bitmap_pixel_in_Tile_Array m_87_Set_transparent_bitmap_pixel_in_Tile_Array;
+    OtfCmd_88_Set_solid_bitmap_pixels_in_Tile_Array m_88_Set_solid_bitmap_pixels_in_Tile_Array;
+    OtfCmd_89_Set_masked_bitmap_pixels_in_Tile_Array m_89_Set_masked_bitmap_pixels_in_Tile_Array;
+    OtfCmd_90_Set_transparent_bitmap_pixels_in_Tile_Array m_90_Set_transparent_bitmap_pixels_in_Tile_Array;
     OtfCmd_100_Create_primitive_Tile_Map m_100_Create_primitive_Tile_Map;
     OtfCmd_101_Create_Solid_Bitmap_for_Tile_Map m_101_Create_Solid_Bitmap_for_Tile_Map;
     OtfCmd_102_Create_Masked_Bitmap_for_Tile_Map m_102_Create_Masked_Bitmap_for_Tile_Map;

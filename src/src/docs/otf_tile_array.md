@@ -115,7 +115,7 @@ To specify a fully transparent pixel, use the same color that
 was used to create the tile bitmap.
 
 ## Set solid bitmap pixels in tile array
-<b>VDU 23, 30, 88, id; bmid; x; y; color</b> : Set solid bitmap pixel in Tile Array
+<b>VDU 23, 30, 88, id; bmid; x; y; n; c0, c1, c2, ...</b> : Set solid bitmap pixels in Tile Array
 
 This command sets the colors of multiple pixels within a tile array.
 As colors are processed, if the end of a scan line in the
@@ -124,7 +124,7 @@ the next scan line. Thus, it is possible to provide colors
 for every pixel in the bitmap, using a single command.
 
 ## Set masked bitmap pixels in tile array
-<b>VDU 23, 30, 89, id; bmid; x; y; color</b> : Set masked bitmap pixel in Tile Array
+<b>VDU 23, 30, 89, id; bmid; x; y; n; c0, c1, c2, ...</b> : Set masked bitmap pixels in Tile Array
 
 This command sets the colors of multiple pixels within a tile array.
 As colors are processed, if the end of a scan line in the
@@ -135,7 +135,7 @@ To specify a fully transparent pixel, use the same color that
 was used to create the bitmap.
 
 ## Set transparent bitmap pixels in tile array
-<b>VDU 23, 30, 90, id; bmid; x; y; color</b> : Set transparent bitmap pixel in Tile Array
+<b>VDU 23, 30, 90, id; bmid; x; y; n; c0, c1, c2, ...</b> : Set transparent bitmap pixels in Tile Array
 
 This command sets the colors of multiple pixels within a tile array.
 As colors are processed, if the end of a scan line in the

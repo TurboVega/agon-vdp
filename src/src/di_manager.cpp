@@ -1306,27 +1306,78 @@ bool DiManager::handle_otf_cmd() {
       } break;
 
       case 85: {
-        auto cmd = &cu->m_85_Set_solid_bitmap_pixel_in_Tile_Map;
+        auto cmd = &cu->m_85_Set_solid_bitmap_pixel_in_Tile_Array;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          set_solid_bitmap_pixel_for_tile_array(cmd->m_id, cmd->m_bmid, cmd->m_x, cmd->m_y,
+            cmd->m_color, 0);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 86: {
-        auto cmd = &cu->m_86_Set_masked_bitmap_pixel_in_Tile_Map;
+        auto cmd = &cu->m_86_Set_masked_bitmap_pixel_in_Tile_Array;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          set_masked_bitmap_pixel_for_tile_array(cmd->m_id, cmd->m_bmid, cmd->m_x, cmd->m_y,
+            cmd->m_color, 0);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 87: {
-        auto cmd = &cu->m_87_Set_transparent_bitmap_pixel_in_Tile_Map;
+        auto cmd = &cu->m_87_Set_transparent_bitmap_pixel_in_Tile_Array;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          set_transparent_bitmap_pixel_for_tile_array(cmd->m_id, cmd->m_bmid, cmd->m_x, cmd->m_y,
+            cmd->m_color, 0);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 88: {
-        auto cmd = &cu->m_88_Set_solid_bitmap_pixel_in_Tile_Array;
+        auto cmd = &cu->m_88_Set_solid_bitmap_pixels_in_Tile_Array;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          set_solid_bitmap_pixel_for_tile_array(cmd->m_id, cmd->m_bmid, cmd->m_x, cmd->m_y,
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index);
+          if (++m_command_data_index >= cmd->m_n) {
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 89: {
-        auto cmd = &cu->m_89_Set_masked_bitmap_pixel_in_Tile_Array;
+        auto cmd = &cu->m_89_Set_masked_bitmap_pixels_in_Tile_Array;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          set_masked_bitmap_pixel_for_tile_array(cmd->m_id, cmd->m_bmid, cmd->m_x, cmd->m_y,
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index);
+          if (++m_command_data_index >= cmd->m_n) {
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 90: {
-        auto cmd = &cu->m_90_Set_transparent_bitmap_pixel_in_Tile_Array;
+        auto cmd = &cu->m_90_Set_transparent_bitmap_pixels_in_Tile_Array;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          set_transparent_bitmap_pixel_for_tile_array(cmd->m_id, cmd->m_bmid, cmd->m_x, cmd->m_y,
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index);
+          if (++m_command_data_index >= cmd->m_n) {
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 100: {
@@ -1341,14 +1392,29 @@ bool DiManager::handle_otf_cmd() {
 
       case 101: {
         auto cmd = &cu->m_101_Create_Solid_Bitmap_for_Tile_Map;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_solid_bitmap_for_tile_map(cmd->m_id, cmd->m_bmid);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 102: {
         auto cmd = &cu->m_102_Create_Masked_Bitmap_for_Tile_Map;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_masked_bitmap_for_tile_map(cmd->m_id, cmd->m_bmid, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 103: {
         auto cmd = &cu->m_103_Create_Transparent_Bitmap_for_Tile_Map;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_transparent_bitmap_for_tile_map(cmd->m_id, cmd->m_bmid, cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 104: {
@@ -1548,7 +1614,7 @@ bool DiManager::handle_otf_cmd() {
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
           set_solid_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y,
-            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index, 0);
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index);
           if (++m_command_data_index >= cmd->m_n) {
             m_incoming_command.clear();
             return true;
@@ -1562,8 +1628,8 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_133_Set_masked_bitmap_pixels;
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
-          set_tile_map_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y,
-            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index, 0);
+          set_masked_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y,
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index);
           if (++m_command_data_index >= cmd->m_n) {
             m_incoming_command.clear();
             return true;
@@ -1577,8 +1643,8 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_134_Set_transparent_bitmap_pixels;
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
-          set_tile_map_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y,
-            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index, 0);
+          set_transparent_bitmap_pixel(cmd->m_id, cmd->m_x, cmd->m_y,
+            cmd->m_colors[len-sizeof(*cmd)], m_command_data_index);
           if (++m_command_data_index >= cmd->m_n) {
             m_incoming_command.clear();
             return true;
@@ -1952,6 +2018,46 @@ DiBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uin
 
     finish_create(id, flags, prim, parent_prim);
     return prim;
+}
+
+DiTileBitmap* DiManager::create_solid_bitmap_for_tile_array(uint16_t id, uint16_t bm_id) {
+    DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return NULL;
+    auto bitmap = prim->create_bitmap(bm_id);
+    return bitmap;
+}
+
+DiTileBitmap* DiManager::create_masked_bitmap_for_tile_array(uint16_t id, uint16_t bm_id, uint8_t color) {
+    DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return NULL;
+    auto bitmap = prim->create_bitmap(bm_id);
+    bitmap->set_transparent_color(color);
+    return bitmap;
+}
+
+DiTileBitmap* DiManager::create_transparent_bitmap_for_tile_array(uint16_t id, uint16_t bm_id, uint8_t color) {
+    DiTileArray* prim; if (!(prim = (DiTileArray*)get_safe_primitive(id))) return NULL;
+    auto bitmap = prim->create_bitmap(bm_id);
+    bitmap->set_transparent_color(color);
+    return bitmap;
+}
+
+DiTileBitmap* DiManager::create_solid_bitmap_for_tile_map(uint16_t id, uint16_t bm_id) {
+    DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return NULL;
+    auto bitmap = prim->create_bitmap(bm_id);
+    return bitmap;
+}
+
+DiTileBitmap* DiManager::create_masked_bitmap_for_tile_map(uint16_t id, uint16_t bm_id, uint8_t color) {
+    DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return NULL;
+    auto bitmap = prim->create_bitmap(bm_id);
+    bitmap->set_transparent_color(color);
+    return bitmap;
+}
+
+DiTileBitmap* DiManager::create_transparent_bitmap_for_tile_map(uint16_t id, uint16_t bm_id, uint8_t color) {
+    DiTileMap* prim; if (!(prim = (DiTileMap*)get_safe_primitive(id))) return NULL;
+    auto bitmap = prim->create_bitmap(bm_id);
+    bitmap->set_transparent_color(color);
+    return bitmap;
 }
 
 DiRender* DiManager::create_solid_render(uint16_t id, uint16_t parent, uint16_t flags,

@@ -57,7 +57,7 @@ class DiTileArray: public DiPrimitive {
   virtual void IRAM_ATTR generate_instructions();
 
   // Create the array of pixels for the tile bitmap.
-  void create_bitmap(DiTileBitmapID bm_id);
+  DiTileBitmap* create_bitmap(DiTileBitmapID bm_id);
 
   // Save the pixel value of a particular pixel in a specific tile bitmap. A tile bitmap
   // may appear many times on the screen, based on the use of the bitmap ID.

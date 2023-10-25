@@ -165,16 +165,14 @@ void IRAM_ATTR DiTileArray::generate_instructions() {
   }
 }
 
-extern void delay(uint32_t);
-void DiTileArray::create_bitmap(DiTileBitmapID bm_id) {
+DiTileBitmap* DiTileArray::create_bitmap(DiTileBitmapID bm_id) {
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item == m_id_to_bitmap_map.end()) {
     auto bitmap = new DiTileBitmap(bm_id, m_tile_width, m_tile_height, m_flags);
-    if (bitmap) {
-    } else {
-      while(true) delay(10);
-    }
     m_id_to_bitmap_map[bm_id] = bitmap;
+    return bitmap;
+  } else {
+    return bitmap_item->second;
   }
 }
 

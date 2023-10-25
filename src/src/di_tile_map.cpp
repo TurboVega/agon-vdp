@@ -83,12 +83,15 @@ void IRAM_ATTR DiTileMap::generate_instructions() {
     bitmap->second->generate_instructions(m_draw_x, 0, m_tile_width);
   }
 }
-extern void delay(uint32_t);
-void DiTileMap::create_bitmap(DiTileBitmapID bm_id) {
+
+DiTileBitmap* DiTileMap::create_bitmap(DiTileBitmapID bm_id) {
   auto bitmap_item = m_id_to_bitmap_map.find(bm_id);
   if (bitmap_item == m_id_to_bitmap_map.end()) {
     auto bitmap = new DiPaintableTileBitmap(bm_id, m_tile_width, m_tile_height, m_flags);
     m_id_to_bitmap_map[bm_id] = bitmap;
+    return bitmap;
+  } else {
+    return bitmap_item->second;
   }
 }
 
