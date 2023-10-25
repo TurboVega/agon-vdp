@@ -253,17 +253,6 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
     while (parent != m_primitives[ROOT_PRIMITIVE_ID] && !(parent->get_flags() & PRIM_FLAG_CLIP_KIDS)) {
       parent = parent->get_parent();
     }
-//    prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
-//      parent->get_view_x_extent(), parent->get_view_y_extent());
-
-/*    if (prim->get_flags() & PRIM_FLAG_PAINT_THIS) {
-      int32_t min_group, max_group;
-      if (prim->get_vertical_group_range(min_group, max_group)) {
-        for (int32_t g = min_group; g <= max_group; g++) {
-            m_groups[g].push_back(prim);
-        }
-      }
-    }*/
 
     m_primitives[prim->get_id()] = prim;
     recompute_primitive(prim, 0, -1, -1);
