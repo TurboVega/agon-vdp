@@ -32,7 +32,6 @@
 #include "di_bitmap.h"
 #include "esp_heap_caps.h"
 #include <cstring>
-//extern void debug_log(const char* fmt, ...);
 
 DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint16_t flags) {
   m_width = width;
@@ -76,7 +75,6 @@ void DiBitmap::set_slice_position(int32_t x, int32_t y, uint32_t start_line, uin
 
 void DiBitmap::set_transparent_pixel(int32_t x, int32_t y, uint8_t color) {
   // Invert the meaning of the alpha bits.
-  //debug_log("x=%u y=%u c=%02hX i=%02hX, ", x, y, color, PIXEL_ALPHA_INV_MASK(color));
   set_pixel(x, y, PIXEL_ALPHA_INV_MASK(color));
 }
 
@@ -96,7 +94,6 @@ void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
     }
   } else {
     p = m_pixels + y * m_words_per_line + (FIX_INDEX(x) / 4);
-    //debug_log("  p=%08X\n", p);
     index = FIX_INDEX(x&3);
     pixels(p)[index] = color;
   }
@@ -126,7 +123,6 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
           for (uint32_t line = 0; line < m_save_height; line++) {
             paint_fcn->align32();
             paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
-            //debug_log("line=%u, ", line);
             paint_fcn->copy_line_as_inner_fcn(fixups, m_draw_x, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
             src_pixels += m_words_per_line;
           }
@@ -147,7 +143,6 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
         for (uint32_t line = 0; line < m_save_height; line++) {
           paint_fcn->align32();
           paint_fcn->j_to_here(at_jump_table + line * sizeof(uint32_t));
-          //debug_log("line=%u, ", line);
           paint_fcn->copy_line_as_inner_fcn(fixups, m_draw_x, m_draw_x, draw_width, m_flags, m_transparent_color, src_pixels);
           src_pixels += m_words_per_line;
         }

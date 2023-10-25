@@ -75,13 +75,8 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1,
 void IRAM_ATTR DiGeneralLine::delete_instructions() {
   m_paint_fcn.clear();
 }
-extern "C" {
-extern int64_t esp_timer_get_time();
-}
-extern void debug_log(const char* fmt, ...);
+
 void IRAM_ATTR DiGeneralLine::generate_instructions() {
-  auto startticks = esp_timer_get_time();
- 
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     EspFixups fixups;
@@ -95,11 +90,6 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
         piece->m_width, m_flags, m_opaqueness);
     }
     m_paint_fcn.do_fixups(fixups);
-  }
-
-  auto endticks = esp_timer_get_time();
-  if (endticks - startticks > 100) {
-    debug_log("? gen %llu\n", endticks - startticks);
   }
 }
 

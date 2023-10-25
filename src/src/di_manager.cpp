@@ -654,7 +654,6 @@ void IRAM_ATTR DiManager::loop() {
             m_terminal->get_position(col, row);
             m_terminal->get_tile_coordinates(col, row, cx, cy, cx_extent, cy_extent);
             auto w = cx_extent - cx;
-            //debug_log("cx%i cy%i w%i h%i cid%i\n",cx,cy,w,h,cid);
             set_primitive_flags(cid, flags | PRIM_FLAG_PAINT_THIS);
             move_primitive_absolute(cid, cx, cy_extent-2);
             m_flash_count = 0;
@@ -697,11 +696,10 @@ void IRAM_ATTR DiManager::loop() {
     }
   }
 }
-//extern void debug_log(const char* fmt, ...);
+
 void IRAM_ATTR DiManager::draw_primitives(volatile uint32_t* p_scan_line, uint32_t line_index) {
   std::vector<DiPrimitive*> * vp = &m_groups[line_index];
   for (auto prim = vp->begin(); prim != vp->end(); ++prim) {
-      //debug_log("paint id %u\n",(*prim)->get_id()); delay(100);
       (*prim)->paint(p_scan_line, line_index);
   }
 }
@@ -764,7 +762,6 @@ void DiManager::store_string(const uint8_t* string) {
 
 void DiManager::process_stored_characters() {
   while (m_num_buffer_chars > 0) {
-    //debug_log(".%02hX", m_incoming_data[m_next_buffer_read]);
     bool rc = process_character(m_incoming_data[m_next_buffer_read++]);
     if (m_next_buffer_read >= INCOMING_DATA_BUFFER_SIZE) {
       m_next_buffer_read = 0;
@@ -1095,10 +1092,6 @@ bool DiManager::handle_udg_sys_cmd(uint8_t character) {
 //
 bool DiManager::handle_otf_cmd() {
   if (m_incoming_command.size() >= 5) {
-    //debug_log("\n");
-    //for (u_int32_t i = 0; i < m_incoming_command.size(); i++) {
-    //  debug_log(" %02hX ", get_param_8(i));
-    //}
     const OtfCmdUnion* cu = (const OtfCmdUnion*)(&m_incoming_command[0]);
     switch (m_incoming_command[2]) {
 
