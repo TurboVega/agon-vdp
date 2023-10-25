@@ -120,9 +120,9 @@ OTFCMD(81,(_id _bmid),_Create_Solid_Bitmap_for_Tile_Array)
 OTFCMD(82,(_id _bmid _color),_Create_Masked_Bitmap_for_Tile_Array)
 OTFCMD(83,(_id _bmid _color),_Create_Transparent_Bitmap_for_Tile_Array)
 OTFCMD(84,(_id _column _row _bmid),_Set_bitmap_ID_for_tile_in_Tile_Array)
-OTFCMD(85,(_id _bmid _x _y _color),_Set_solid_bitmap_pixel_in_Tile_Map)
-OTFCMD(86,(_id _bmid _x _y _color),_Set_masked_bitmap_pixel_in_Tile_Map)
-OTFCMD(87,(_id _bmid _x _y _color),_Set_transparent_bitmap_pixel_in_Tile_Map)
+OTFCMD(85,(_id _bmid _x _y _color),_Set_solid_bitmap_pixel_in_Tile_Array)
+OTFCMD(86,(_id _bmid _x _y _color),_Set_masked_bitmap_pixel_in_Tile_Array)
+OTFCMD(87,(_id _bmid _x _y _color),_Set_transparent_bitmap_pixel_in_Tile_Array)
 OTFCMD(88,(_id _bmid _x _y _color),_Set_solid_bitmap_pixel_in_Tile_Array)
 OTFCMD(89,(_id _bmid _x _y _color),_Set_masked_bitmap_pixel_in_Tile_Array)
 OTFCMD(90,(_id _bmid _x _y _color),_Set_transparent_bitmap_pixel_in_Tile_Array)
@@ -207,8 +207,8 @@ typedef union {
     OtfCmd_82_Create_Masked_Bitmap_for_Tile_Array m_82_Create_Masked_Bitmap_for_Tile_Array;
     OtfCmd_83_Create_Transparent_Bitmap_for_Tile_Array m_83_Create_Transparent_Bitmap_for_Tile_Array;
     OtfCmd_84_Set_bitmap_ID_for_tile_in_Tile_Array m_84_Set_bitmap_ID_for_tile_in_Tile_Array;
-    OtfCmd_85_Set_solid_bitmap_pixel_in_Tile_Map m_85_Set_solid_bitmap_pixel_in_Tile_Map;
-    OtfCmd_86_Set_masked_bitmap_pixel_in_Tile_Map m_86_Set_masked_bitmap_pixel_in_Tile_Map;
+    OtfCmd_85_Set_solid_bitmap_pixel_in_Tile_Array m_85_Set_solid_bitmap_pixel_in_Tile_Array;
+    OtfCmd_86_Set_masked_bitmap_pixel_in_Tile_Array m_86_Set_masked_bitmap_pixel_in_Tile_Array;
     OtfCmd_87_Set_transparent_bitmap_pixel_in_Tile_Map m_87_Set_transparent_bitmap_pixel_in_Tile_Map;
     OtfCmd_88_Set_solid_bitmap_pixel_in_Tile_Array m_88_Set_solid_bitmap_pixel_in_Tile_Array;
     OtfCmd_89_Set_masked_bitmap_pixel_in_Tile_Array m_89_Set_masked_bitmap_pixel_in_Tile_Array;

@@ -93,13 +93,13 @@ Passing a zero for the bitmap ID will prevent the cell from
 being drawn, so it will appear as an empty cell.
 
 ## Set solid bitmap pixel in tile array
-<b>VDU 23, 30, 85, id; bmid; x; y; color</b> : Set solid bitmap pixel in Tile Map
+<b>VDU 23, 30, 85, id; bmid; x; y; color</b> : Set solid bitmap pixel in Tile Array
 
 This command sets the color of a single pixel within a solid
 bitmap that belongs to a tile array.
 
 ## Set masked bitmap pixel in tile array
-<b>VDU 23, 30, 86, id; bmid; x; y; color</b> : Set masked bitmap pixel in Tile Map
+<b>VDU 23, 30, 86, id; bmid; x; y; color</b> : Set masked bitmap pixel in Tile Array
 
 This command sets the color of a single pixel within a masked
 bitmap that belongs to a tile array.
@@ -107,7 +107,7 @@ To specify a fully transparent pixel, use the same color that
 was used to create the tile bitmap.
 
 ## Set transparent bitmap pixel in tile array
-<b>VDU 23, 30, 87, id; bmid; x; y; color</b> : Set transparent bitmap pixel in Tile Map
+<b>VDU 23, 30, 87, id; bmid; x; y; color</b> : Set transparent bitmap pixel in Tile Array
 
 This command sets the color of a single pixel within a transparent
 bitmap that belongs to a tile array.
