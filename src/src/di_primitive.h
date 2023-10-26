@@ -29,6 +29,7 @@
 #include <stddef.h>
 #include "driver/gpio.h"
 #include "di_constants.h"
+#include "di_code.h"
 
 #pragma pack(push,1)
 
@@ -127,6 +128,9 @@ class DiPrimitive {
   void recompute_primitive(DiPrimitive* prim, uint16_t old_flags,
                             int32_t old_min_group, int32_t old_max_group);
 
+  // Allocate a set of dynamic functions.
+  void allocate_functions(uint)
+
   int32_t   m_view_x;       // upper-left x coordinate of the enclosing viewport, relative to the screen
   int32_t   m_view_y;       // upper-left y coordinate of the enclosing viewport, relative to the screen
   int32_t   m_view_x_extent; // lower-right x coordinate plus 1, of the enclosing viewport
@@ -153,10 +157,12 @@ class DiPrimitive {
   DiPrimitive* m_last_child;   // id of last child primitive
   DiPrimitive* m_prev_sibling; // id of previous sibling primitive
   DiPrimitive* m_next_sibling; // id of next sibling primitive
+  EspFunction** m_functions;   // points to set of dynamic instructions
   int16_t   m_first_group;  // lowest index of drawing group in which it is a member
   int16_t   m_last_group;   // highest index of drawing group in which it is a member
   int16_t   m_id;           // id of this primitive
   uint16_t  m_flags;        // flag bits to control painting, etc.
+  uint16_t  m_num_fcns;     // number of dynamic function objects
 };
 
 #pragma pack(pop)

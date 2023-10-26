@@ -9,7 +9,8 @@ subject to additions in the future):
 #define PRIM_FLAG_PAINT_KIDS  0x0002  // whether to paint child primitives
 #define PRIM_FLAG_CLIP_THIS   0x0004  // whether to clip this primitive
 #define PRIM_FLAG_CLIP_KIDS   0x0008  // whether to clip child primitives
-#define PRIM_FLAG_H_SCROLL    0x0010  // whether to support horizontal scrolling
+#define PRIM_FLAG_H_SCROLL_1  0x0010  // whether to support horizontal scrolling on 1-pixel boundary
+#define PRIM_FLAG_H_SCROLL_4  0x0020  // whether to support horizontal scrolling on 4-pixel boundary
 #define PRIM_FLAG_ABSOLUTE    0x0040  // whether to use absolute coordinates always
 #define PRIM_FLAGS_MASKED     0x0080  // hint that pixels are fully opaque or transparent
 #define PRIM_FLAGS_BLENDED    0x0100  // hint that pixels may be blended
@@ -60,11 +61,24 @@ This flag determines whether to clip child primitives by the parent
 primitive's draw region. If this flag is clear, the children are
 clipped by their grandparent, if any, or by the screen, not by their parent.
 
-<b>PRIM_FLAG_H_SCROLL</b><br>
+<b>PRIM_FLAG_H_SCROLL_1</b><br>
 This flag determines whether the primitive will need to be scrolled
-horizontally on a 1-pixel alignment. This flag does not need to be
-specified in order to scroll on a 4-pixel alignment. If this flag
-is set when creating the primitive, more RAM will be used to support the smooth horizontal motion.
+horizontally on a 1-pixel boundary. This flag does not need to be
+specified in order to scroll on a 4-pixel boundary (that flag is below).
+If this flag is set when creating the primitive, more RAM will be used to
+support the smooth horizontal motion. Using this flag implies being
+able to scroll on a 1-, 2-, 3-, or 4-pixel boundary.
+If no motion is necessary (i.e., the
+primitive has just one location on the screen), then do not set
+the PRIM_FLAG_H_SCROLL_1 flag or the PRIM_FLAG_H_SCROLL_4 flag.
+
+<b>PRIM_FLAG_H_SCROLL_4</b><br>
+This flag determines whether the primitive will need to be scrolled
+horizontally on a 4-pixel boundary. If this flag
+is set when creating the primitive, more RAM will be used to support
+the rough horizontal motion. If no motion is necessary (i.e., the
+primitive has just one location on the screen), then do not set
+the PRIM_FLAG_H_SCROLL_1 flag or the PRIM_FLAG_H_SCROLL_4 flag.
 
 <b>PRIM_FLAG_ABSOLUTE</b><br>
 This flag determines whether the primitive should <i>always</i> be

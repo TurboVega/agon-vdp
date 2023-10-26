@@ -31,7 +31,11 @@ DiPrimitive::DiPrimitive() {
   m_flags = PRIM_FLAGS_DEFAULT;
 }
 
-DiPrimitive::~DiPrimitive() {}
+DiPrimitive::~DiPrimitive() {
+  for (uint16_t i = 0; i < m_num_fcns; i++) {
+    delete m_functions[i];
+  }
+}
 
 void DiPrimitive::init_root() {
   // The root primitive covers the entire screen, and is not drawn.

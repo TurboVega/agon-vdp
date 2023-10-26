@@ -143,7 +143,8 @@
 #define PRIM_FLAG_PAINT_KIDS  0x0002  // whether to paint child primitives
 #define PRIM_FLAG_CLIP_THIS   0x0004  // whether to clip this primitive
 #define PRIM_FLAG_CLIP_KIDS   0x0008  // whether to clip child primitives
-#define PRIM_FLAG_H_SCROLL    0x0010  // whether to support horizontal scrolling
+#define PRIM_FLAG_H_SCROLL_1  0x0010  // whether to support horizontal scrolling on 1-pixel boundary
+#define PRIM_FLAG_H_SCROLL_4  0x0020  // whether to support horizontal scrolling on 4-pixel boundary
 #define PRIM_FLAG_ABSOLUTE    0x0040  // whether to use absolute coordinates always
 #define PRIM_FLAGS_MASKED     0x0080  // hint that pixels are fully opaque or transparent
 #define PRIM_FLAGS_BLENDED    0x0100  // hint that pixels may be blended

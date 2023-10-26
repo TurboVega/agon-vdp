@@ -55,10 +55,12 @@
 #define FLD_last_child  96       // id of last child primitive
 #define FLD_prev_sibling  100    // id of previous sibling primitive
 #define FLD_next_sibling  104    // id of next sibling primitive
+#define FLD_functions  108       // points to set of dynamic instructions
 
-#define FLD_first_group  108     // lowest index of drawing group in which it is a member
-#define FLD_last_group  110      // highest index of drawing group in which it is a member
-#define FLD_id  112              // id of this primitive
+#define FLD_first_group  112     // lowest index of drawing group in which it is a member
+#define FLD_last_group  114      // highest index of drawing group in which it is a member
+#define FLD_id  116              // id of this primitive
 
-#define FLD_flags  114           // flag bits to control painting, etc.
-#define sizeof_DiPrimitive  116 // total size of the base class structure
+#define FLD_flags  118           // flag bits to control painting, etc.
+#define FLD_num_fcns  120        // number of dynamic function objects
+#define sizeof_DiPrimitive  122  // total size of the base class structure
