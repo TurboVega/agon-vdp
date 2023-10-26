@@ -96,10 +96,16 @@ class DiManager {
                             uint32_t width, uint32_t height);
 
     DiBitmap* create_masked_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
-                            uint32_t width, uint32_t height);
+                            uint32_t width, uint32_t height, uint8_t color);
 
     DiBitmap* create_transparent_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
                             uint32_t width, uint32_t height, uint8_t color);
+
+    DiBitmap* create_reference_solid_bitmap(uint16_t id, uint16_t parent, uint16_t flags, uint16_t bmid);
+
+    DiBitmap* create_reference_masked_bitmap(uint16_t id, uint16_t parent, uint16_t flags, uint16_t bmid);
+
+    DiBitmap* create_reference_transparent_bitmap(uint16_t id, uint16_t parent, uint16_t flags, uint16_t bmid);
 
     DiTileBitmap* create_solid_bitmap_for_tile_array(uint16_t id, uint16_t bm_id);
 

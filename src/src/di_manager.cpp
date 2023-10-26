@@ -1502,7 +1502,7 @@ bool DiManager::handle_otf_cmd() {
       case 121: {
         auto cmd = &cu->m_121_Create_primitive_Masked_Bitmap;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_masked_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h);
+          create_masked_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h, cmd->m_color);
           m_incoming_command.clear();
           return true;
         }
@@ -1640,6 +1640,33 @@ bool DiManager::handle_otf_cmd() {
           }
         } else if (m_incoming_command.size() == 5) {
           m_command_data_index = 0;
+        }
+      } break;
+
+      case 135: {
+        auto cmd = &cu->m_135_Create_primitive_Reference_Solid_Bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_reference_solid_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_bmid);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 136: {
+        auto cmd = &cu->m_136_Create_primitive_Reference_Masked_Bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_reference_masked_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_bmid);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 137: {
+        auto cmd = &cu->m_137_Create_primitive_Reference_Transparent_Bitmap;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_reference_transparent_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_bmid);
+          m_incoming_command.clear();
+          return true;
         }
       } break;
 
@@ -1987,11 +2014,12 @@ DiBitmap* DiManager::create_solid_bitmap(uint16_t id, uint16_t parent, uint16_t 
 }
 
 DiBitmap* DiManager::create_masked_bitmap(uint16_t id, uint16_t parent, uint16_t flags,
-                        uint32_t width, uint32_t height) {
+                        uint32_t width, uint32_t height, uint8_t color) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
     auto prim = new DiBitmap(width, height, flags);
+    prim->set_transparent_color(color);
 
     finish_create(id, flags, prim, parent_prim);
     return prim;
@@ -2004,6 +2032,39 @@ DiBitmap* DiManager::create_transparent_bitmap(uint16_t id, uint16_t parent, uin
 
     auto prim = new DiBitmap(width, height, flags);
     prim->set_transparent_color(color);
+
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
+}
+
+DiBitmap* DiManager::create_reference_solid_bitmap(uint16_t id, uint16_t parent, uint16_t flags, uint16_t bmid) {
+    if (!validate_id(id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+    DiBitmap* ref_prim; if (!(ref_prim = (DiBitmap*) get_safe_primitive(bmid))) return NULL;
+
+    auto prim = new DiBitmap(flags, ref_prim);
+
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
+}
+
+DiBitmap* DiManager::create_reference_masked_bitmap(uint16_t id, uint16_t parent, uint16_t flags, uint16_t bmid) {
+    if (!validate_id(id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+    DiBitmap* ref_prim; if (!(ref_prim = (DiBitmap*) get_safe_primitive(bmid))) return NULL;
+
+    auto prim = new DiBitmap(flags, ref_prim);
+
+    finish_create(id, flags, prim, parent_prim);
+    return prim;
+}
+
+DiBitmap* DiManager::create_reference_transparent_bitmap(uint16_t id, uint16_t parent, uint16_t flags, uint16_t bmid) {
+    if (!validate_id(id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+    DiBitmap* ref_prim; if (!(ref_prim = (DiBitmap*) get_safe_primitive(bmid))) return NULL;
+
+    auto prim = new DiBitmap(flags, ref_prim);
 
     finish_create(id, flags, prim, parent_prim);
     return prim;

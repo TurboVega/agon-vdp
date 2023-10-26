@@ -17,6 +17,7 @@ subject to additions in the future):
 #define PRIM_FLAGS_CAN_DRAW   0x1000  // whether this primitive can be drawn at all
 #define PRIM_FLAGS_X          0x2000  // hint that x will be given
 #define PRIM_FLAGS_X_SRC      0x4000  // hint that x and src pixel ptr will be given
+#define PRIM_FLAGS_REF_DATA   0x8000  // whether this primitive references (vs owns) data
 #define PRIM_FLAGS_DEFAULT    0x000F  // flags set when a new base primitive is constructed
 #define PRIM_FLAGS_CHANGEABLE 0x000F  // flags that the app can change after primitive creation
 ```
@@ -111,6 +112,12 @@ as opposed to being fixed, when each scan line of a primitive
 is drawn. An example of where this is required is when drawing
 a tile array or a tile map. OTF will set this flag automatically
 in such cases, because it affects dynamic code generation.
+
+<b>PRIM_FLAGS_REF_DATA</b><br>
+This flag indicates that the primitive references underlying data
+rather than owning the data. For example, the reference bitmap
+primitives borrow pixel data from other bitmap primitives, but
+do not own the bitmap data themselves.
 
 <b>PRIM_FLAGS_DEFAULT</b><br>
 This flag illustrates which flags are typically set when

@@ -165,6 +165,39 @@ for every pixel in the bitmap, using a single command.
 To specify a fully transparent pixel, use the same color that
 was used to create the bitmap.
 
+## Create primitive: Reference Solid Bitmap
+<b>VDU 23, 30, 135, id; pid; flags; bmid;</b> : Create primitive: Reference Solid Bitmap
+
+This commmand creates a primitive that references a solid bitmap.
+The new primitive has its own position and slicing information, but has no
+pixel data. It borrows (shares) the pixel data from the
+referenced bitmap. This makes it possible to display multiple
+similar bitmaps, using only one set of pixel data.
+
+This command sets the PRIM_FLAGS_REF_DATA flag for the new primitive automatically.
+
+## Create primitive: Reference Masked Bitmap
+<b>VDU 23, 30, 136, id; pid; flags; bmid;</b> : Create primitive: Reference Masked Bitmap
+
+This commmand creates a primitive that references a solid bitmap.
+The new primitive has its own position and slicing information, but has no
+pixel data. It borrows (shares) the pixel data from the
+referenced bitmap. This makes it possible to display multiple
+similar bitmaps, using only one set of pixel data.
+
+This command sets the PRIM_FLAGS_REF_DATA flag for the new primitive automatically.
+
+## Create primitive: Reference Transparent Bitmap
+<b>VDU 23, 30, 137, id; pid; flags; bmid;</b> : Create primitive: Reference Transparent Bitmap
+
+This commmand creates a primitive that references a solid bitmap.
+The new primitive has its own position and slicing information, but has no
+pixel data. It borrows (shares) the pixel data from the
+referenced bitmap. This makes it possible to display multiple
+similar bitmaps, using only one set of pixel data.
+
+This command sets the PRIM_FLAGS_REF_DATA flag for the new primitive automatically.
+
 The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
 
 ![Bitmap](bitmap.png)

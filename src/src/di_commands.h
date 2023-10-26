@@ -152,6 +152,9 @@ OTFCMD(131,(_id _x _y _color),_Set_transparent_bitmap_pixel)
 OTFCMD(132,(_id _x _y _n _colors),_Set_solid_bitmap_pixels)
 OTFCMD(133,(_id _x _y _n _colors),_Set_masked_bitmap_pixels)
 OTFCMD(134,(_id _x _y _n _colors),_Set_transparent_bitmap_pixels)
+OTFCMD(135,(_id _pid _flags _bmid),_Create_primitive_Reference_Solid_Bitmap)
+OTFCMD(136,(_id _pid _flags _bmid),_Create_primitive_Reference_Masked_Bitmap)
+OTFCMD(137,(_id _pid _flags _bmid),_Create_primitive_Reference_Transparent_Bitmap)
 OTFCMD(140,(_id _pid _flags _x _y),_Create_primitive_Group)
 OTFCMD(150,(_id _pid _flags _x _y _columns _rows),_Create_primitive_Terminal)
 OTFCMD(151,(_id),_Select_Active_Terminal)
@@ -239,6 +242,9 @@ typedef union {
     OtfCmd_132_Set_solid_bitmap_pixels m_132_Set_solid_bitmap_pixels;
     OtfCmd_133_Set_masked_bitmap_pixels m_133_Set_masked_bitmap_pixels;
     OtfCmd_134_Set_transparent_bitmap_pixels m_134_Set_transparent_bitmap_pixels;
+    OtfCmd_135_Create_primitive_Reference_Solid_Bitmap m_135_Create_primitive_Reference_Solid_Bitmap;
+    OtfCmd_136_Create_primitive_Reference_Masked_Bitmap m_136_Create_primitive_Reference_Masked_Bitmap;
+    OtfCmd_137_Create_primitive_Reference_Transparent_Bitmap m_137_Create_primitive_Reference_Transparent_Bitmap;
     OtfCmd_140_Create_primitive_Group m_140_Create_primitive_Group;
     OtfCmd_150_Create_primitive_Terminal m_150_Create_primitive_Terminal;
     OtfCmd_151_Select_Active_Terminal m_151_Select_Active_Terminal;

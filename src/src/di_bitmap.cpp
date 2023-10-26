@@ -58,8 +58,25 @@ DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint16_t flags) {
   m_visible_start = m_pixels;
 }
 
+DiBitmap::DiBitmap(uint16_t flags, DiBitmap* ref_bitmap) {
+  m_width = ref_bitmap->m_width;
+  m_height = ref_bitmap->m_height;
+  m_save_height = ref_bitmap->m_save_height;
+  m_flags = flags | (ref_bitmap->m_flags & (PRIM_FLAG_H_SCROLL|PRIM_FLAGS_BLENDED)) | PRIM_FLAGS_REF_DATA;
+  m_transparent_color = ref_bitmap->m_transparent_color;
+  m_words_per_line = ref_bitmap->m_words_per_line;
+  m_bytes_per_line = ref_bitmap->m_bytes_per_line;
+  m_words_per_position = ref_bitmap->m_words_per_position;
+  m_bytes_per_position = ref_bitmap->m_bytes_per_position;
+  m_pixels = ref_bitmap->m_pixels;
+  m_visible_start = m_pixels;
+}
+
+
 DiBitmap::~DiBitmap() {
-  delete [] m_pixels;
+  if (!(m_flags & PRIM_FLAGS_REF_DATA)) {
+    delete [] m_pixels;
+  }
 }
 
 void DiBitmap::set_relative_position(int32_t x, int32_t y) {

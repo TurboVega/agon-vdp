@@ -35,8 +35,11 @@
 
 class DiBitmap : public DiPrimitive {
   public:
-  // Construct a bitmap.
+  // Construct a bitmap that owns its pixel data.
   DiBitmap(uint32_t width, uint32_t height, uint16_t flags);
+
+  // Construct a bitmap that references (borrows) its pixel data.
+  DiBitmap(uint16_t flags, DiBitmap* ref_bitmap);
 
   // Destroy a bitmap.
   ~DiBitmap();

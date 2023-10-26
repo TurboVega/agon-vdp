@@ -151,6 +151,7 @@
 #define PRIM_FLAGS_CAN_DRAW   0x1000  // whether this primitive can be drawn at all
 #define PRIM_FLAGS_X          0x2000  // hint that x will be given
 #define PRIM_FLAGS_X_SRC      0x4000  // hint that x and src pixel ptr will be given
+#define PRIM_FLAGS_REF_DATA   0x8000  // whether this primitive references (vs owns) data
 #define PRIM_FLAGS_DEFAULT    0x000F  // flags set when a new base primitive is constructed
 #define PRIM_FLAGS_CHANGEABLE 0x000F  // flags that the app can change after primitive creation
 
