@@ -81,7 +81,7 @@ void DiPrimitive::deallocate_functions() {
     [                                          ]
     +==========================================+
 */
-void DiPrimitive::set_current_function(int32_t width, int32_t x, int32_t view_x_extent) {
+int32_t DiPrimitive::get_function_index(int32_t width, int32_t x, int32_t view_x_extent) {
   if (m_num_fcns) {
     if (m_flags & PRIM_FLAG_H_SCROLL_1) {
       // scroll on 1-pixel boundary
@@ -96,6 +96,7 @@ void DiPrimitive::set_current_function(int32_t width, int32_t x, int32_t view_x_
         // Case R
       } else {
         // Case M
+        return 0;
       }
     } else if (m_flags & PRIM_FLAG_H_SCROLL_4) {
       // scroll on 4-pixel boundary
@@ -105,16 +106,24 @@ void DiPrimitive::set_current_function(int32_t width, int32_t x, int32_t view_x_
       // m_num_fcns = ((width + 3) / 4) * 2 + 1;    
       if (x < 0) {
         // Case L
+        return -x;
       } else if (x + width > view_x_extent) {
         // Case R
+        return 
       } else {
         // Case M
+        return 0;
       }
     } else {
       // stationary primitive
-      m_cur_fcn = m_functions;
+      return 0;
     }
   }
+}
+
+void DiPrimitive::set_current_function(int32_t width, int32_t x, int32_t view_x_extent) {
+  auto index = get_function_index(width, x, view_x_extent);
+  m_cur_fcn = &m_functions[index];
 }
 
 void DiPrimitive::init_root() {

@@ -134,8 +134,11 @@ class DiPrimitive {
   // Deallocate a set of dynamic functions;
   void deallocate_functions();
 
+  // Get an index to one of the dynamic functions, based on an X coordinate.
+  int32_t get_function_index(int32_t width, int32_t x, int32_t view_x_extent);
+
   // Set a pointer to one of the dynamic functions, based on an X coordinate.
-  void set_current_function(int32_t width, int32_t x);
+  void set_current_function(int32_t width, int32_t x, int32_t view_x_extent);
 
   int32_t   m_view_x;       // upper-left x coordinate of the enclosing viewport, relative to the screen
   int32_t   m_view_y;       // upper-left y coordinate of the enclosing viewport, relative to the screen
