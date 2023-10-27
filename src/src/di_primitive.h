@@ -129,7 +129,13 @@ class DiPrimitive {
                             int32_t old_min_group, int32_t old_max_group);
 
   // Allocate a set of dynamic functions.
-  void allocate_functions(uint)
+  void allocate_functions(uint32_t width);
+
+  // Deallocate a set of dynamic functions;
+  void deallocate_functions();
+
+  // Set a pointer to one of the dynamic functions, based on an X coordinate.
+  void set_current_function(int32_t width, int32_t x);
 
   int32_t   m_view_x;       // upper-left x coordinate of the enclosing viewport, relative to the screen
   int32_t   m_view_y;       // upper-left y coordinate of the enclosing viewport, relative to the screen
@@ -157,8 +163,9 @@ class DiPrimitive {
   DiPrimitive* m_last_child;   // id of last child primitive
   DiPrimitive* m_prev_sibling; // id of previous sibling primitive
   DiPrimitive* m_next_sibling; // id of next sibling primitive
-  EspFunction** m_functions;   // points to set of dynamic instructions
+  EspFunction* m_functions; // points to set of dynamic instructions
   int16_t   m_first_group;  // lowest index of drawing group in which it is a member
+  EspFunction* m_cur_fcn;   // points to the current function to execute
   int16_t   m_last_group;   // highest index of drawing group in which it is a member
   int16_t   m_id;           // id of this primitive
   uint16_t  m_flags;        // flag bits to control painting, etc.
