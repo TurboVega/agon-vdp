@@ -32,10 +32,10 @@ DiPrimitive::DiPrimitive() {
 }
 
 DiPrimitive::~DiPrimitive() {
-  deallocate_functions();
+//  deallocate_functions();
 }
 
-void DiPrimitive::allocate_functions(uint32_t width) {
+/*void DiPrimitive::allocate_functions(uint32_t width) {
   if (m_flags & PRIM_FLAG_H_SCROLL_1) {
     // scroll on 1-pixel boundary
     // width-1 functions for left side
@@ -69,18 +69,17 @@ void DiPrimitive::deallocate_functions() {
   }
 }
 
-/*
-    +==========================================+
-    [                                          ]
-    [                                          ]
-  +-----+             +-----+               +-----+
-  |     |             |     |               |     |
-  |  L  |             |  M  |               |  R  |
-  +-----+             +-----+               +-----+
-    [                                          ]
-    [                                          ]
-    +==========================================+
-*/
+//   +==========================================+
+//   [                                          ]
+//   [                                          ]
+// +-----+             +-----+               +-----+
+// |     |             |     |               |     |
+// |  L  |             |  M  |               |  R  |
+// +-----+             +-----+               +-----+
+//   [                                          ]
+//   [                                          ]
+//   +==========================================+
+
 int32_t DiPrimitive::get_function_index(int32_t width, int32_t x, int32_t view_x_extent) {
   if (m_num_fcns) {
     if (m_flags & PRIM_FLAG_H_SCROLL_1) {
@@ -124,7 +123,7 @@ int32_t DiPrimitive::get_function_index(int32_t width, int32_t x, int32_t view_x
 void DiPrimitive::set_current_function(int32_t width, int32_t x, int32_t view_x_extent) {
   auto index = get_function_index(width, x, view_x_extent);
   m_cur_fcn = &m_functions[index];
-}
+}*/
 
 void DiPrimitive::init_root() {
   // The root primitive covers the entire screen, and is not drawn.

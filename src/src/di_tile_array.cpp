@@ -41,7 +41,7 @@ DiTileArray::DiTileArray(uint32_t screen_width, uint32_t screen_height,
   uint32_t draw_words_per_line = (tile_width + sizeof(uint32_t) - 1) / sizeof(uint32_t);
   uint32_t words_per_line = draw_words_per_line;
 
-  if (flags & PRIM_FLAG_H_SCROLL) {
+  if (flags & PRIM_FLAG_H_SCROLL_1) {
     draw_words_per_line += 2;
   }
 
@@ -79,7 +79,7 @@ DiTileArray::~DiTileArray() {
 }
 
 void IRAM_ATTR DiTileArray::delete_instructions() {
-  if (m_flags & PRIM_FLAG_H_SCROLL) {
+  if (m_flags & PRIM_FLAG_H_SCROLL_1) {
     for (uint32_t pos = 0; pos < 4; pos++) {
       m_paint_fcn[pos].clear();
     }
@@ -101,7 +101,7 @@ void IRAM_ATTR DiTileArray::generate_instructions() {
   // a6 = a6_value (src_pixels_offset)
   // m_paint_fcn->call_a5_a6(this, p_scan_line, y_offset_within_tile, row_array, src_pixels_offset);
 
-  if (m_flags & PRIM_FLAG_H_SCROLL) {
+  if (m_flags & PRIM_FLAG_H_SCROLL_1) {
     for (uint32_t pos = 0; pos < 4; pos++) {
       m_paint_fcn[pos].entry(REG_STACK_PTR, 32);
       m_paint_fcn[pos].retw();

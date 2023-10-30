@@ -66,6 +66,10 @@ extern bool terminalMode;
 extern bool cursorEnabled;
 extern int videoMode;
 
+extern "C" {
+extern void fcn_copy_words_in_loop(void* dst, void* src, uint32_t num_words);
+}
+
 typedef enum {
   WritingActiveLines,
   ProcessingIncomingData,
@@ -596,6 +600,18 @@ void IRAM_ATTR DiManager::loop() {
   uint32_t current_line_index = 0;//NUM_ACTIVE_BUFFERS * NUM_LINES_PER_BUFFER;
   uint32_t current_buffer_index = 0;
   LoopState loop_state = LoopState::NearNewFrameStart;
+  uint32_t* frameBuffer = (uint32_t*) heap_caps_malloc(ACT_LINES * ACT_PIXELS, MALLOC_CAP_32BIT | MALLOC_CAP_SPIRAM);
+  debug_log("frameBuffer = %08X\n", frameBuffer);
+  auto ppix = (uint8_t*) frameBuffer;
+  for (uint32_t y = 0; y < ACT_LINES; y++) {
+    if (!(y%24)) {
+      memset(ppix, y/24, ACT_PIXELS);
+      ppix += ACT_PIXELS;
+    }
+    for (uint32_t x = 0; x < ACT_PIXELS; x++) {
+      *ppix++ = (uint8_t)((x + y) & 0x3F);
+    }
+  }
 
   while (true) {
     uint32_t descr_addr = (uint32_t) I2S1.out_link_dscr;
@@ -607,8 +623,16 @@ void IRAM_ATTR DiManager::loop() {
       // Draw enough lines to stay ahead of DMA.
       while (current_line_index < ACT_LINES && current_buffer_index != dma_buffer_index) {
         volatile DiVideoBuffer* vbuf = &m_video_buffer[current_buffer_index];
-        draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
-        draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
+        //draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
+        //draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
+        auto pline = (void*) vbuf->get_buffer_ptr_0();
+        //memcpy(pline, frameBuffer + current_line_index * (ACT_PIXELS/sizeof(uint32_t)), ACT_PIXELS);
+        fcn_copy_words_in_loop(pline, (void*)(frameBuffer + current_line_index * (ACT_PIXELS/sizeof(uint32_t))),
+                                ACT_PIXELS/sizeof(uint32_t));
+        pline = (void*) vbuf->get_buffer_ptr_1();
+        //memcpy(pline, frameBuffer + ++current_line_index * (ACT_PIXELS/sizeof(uint32_t)), ACT_PIXELS);
+        fcn_copy_words_in_loop(pline, (void*)(frameBuffer + ++current_line_index * (ACT_PIXELS/sizeof(uint32_t))),
+                                ACT_PIXELS/sizeof(uint32_t));
 
         ++current_line_index;
         if (++current_buffer_index >= NUM_ACTIVE_BUFFERS) {
@@ -664,8 +688,16 @@ void IRAM_ATTR DiManager::loop() {
             current_buffer_index < NUM_ACTIVE_BUFFERS;
             current_line_index++, current_buffer_index++) {
         volatile DiVideoBuffer* vbuf = &m_video_buffer[current_buffer_index];
-        draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
-        draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
+        //draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
+        //draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
+        auto pline = (void*) vbuf->get_buffer_ptr_0();
+        //memcpy(pline, frameBuffer + current_line_index * (ACT_PIXELS/sizeof(uint32_t)), ACT_PIXELS);
+        fcn_copy_words_in_loop(pline, (void*)(frameBuffer + current_line_index * (ACT_PIXELS/sizeof(uint32_t))),
+                                ACT_PIXELS/sizeof(uint32_t));
+        pline = (void*) vbuf->get_buffer_ptr_1();
+        //memcpy(pline, frameBuffer + ++current_line_index * (ACT_PIXELS/sizeof(uint32_t)), ACT_PIXELS);
+        fcn_copy_words_in_loop(pline, (void*)(frameBuffer + ++current_line_index * (ACT_PIXELS/sizeof(uint32_t))),
+                                ACT_PIXELS/sizeof(uint32_t));
       }
 
       loop_state = LoopState::NearNewFrameStart;

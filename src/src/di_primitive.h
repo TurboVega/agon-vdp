@@ -166,7 +166,7 @@ class DiPrimitive {
   DiPrimitive* m_last_child;   // id of last child primitive
   DiPrimitive* m_prev_sibling; // id of previous sibling primitive
   DiPrimitive* m_next_sibling; // id of next sibling primitive
-  EspFunction* m_functions; // points to set of dynamic instructions
+//  EspFunction* m_functions; // points to set of dynamic instructions
   int16_t   m_first_group;  // lowest index of drawing group in which it is a member
   EspFunction* m_cur_fcn;   // points to the current function to execute
   int16_t   m_last_group;   // highest index of drawing group in which it is a member

@@ -44,6 +44,8 @@
   .global   fcn_get_blend_75_for_4_pixels
   .global   fcn_dummy
 
+  .global   fcn_copy_words_in_loop
+
   .global   fcn_copy_256_pixels_in_loop
   .global   fcn_copy_128_pixels
   .global   fcn_copy_128_pixels_last
@@ -827,6 +829,22 @@ fcn_get_blend_75_for_4_pixels:
   .align 4
 fcn_dummy:
   ret
+
+// a0: return address
+// a1: stack pointer
+// a2: destination pointer
+// a3: source pointer
+// a4: number of words
+  .align 4
+fcn_copy_words_in_loop:
+  entry sp,32
+  loop  a4,end_loop_words
+  l32i  a5,a3,0
+  s32i  a5,a2,0
+  addi  a3,a3,4
+  addi  a2,a2,4
+end_loop_words:
+  retw
 
   .align 4
 fcn_copy_256_pixels_in_loop:

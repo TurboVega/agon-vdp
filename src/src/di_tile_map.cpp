@@ -41,7 +41,7 @@ DiTileMap::DiTileMap(uint32_t screen_width, uint32_t screen_height,
   uint32_t draw_words_per_line = (tile_width + sizeof(uint32_t) - 1) / sizeof(uint32_t);
   uint32_t words_per_line = draw_words_per_line;
 
-  if (flags & PRIM_FLAG_H_SCROLL) {
+  if (flags & PRIM_FLAG_H_SCROLL_1) {
     draw_words_per_line += 2;
   }
 

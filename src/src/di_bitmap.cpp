@@ -40,7 +40,7 @@ DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint16_t flags) {
   m_flags = flags;
   m_transparent_color = 0;
 
-  if (flags & PRIM_FLAG_H_SCROLL) {
+  if (flags & PRIM_FLAG_H_SCROLL_1) {
       m_words_per_line = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t) + 2);
       m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
       m_words_per_position = m_words_per_line * height;
@@ -62,7 +62,7 @@ DiBitmap::DiBitmap(uint16_t flags, DiBitmap* ref_bitmap) {
   m_width = ref_bitmap->m_width;
   m_height = ref_bitmap->m_height;
   m_save_height = ref_bitmap->m_save_height;
-  m_flags = flags | (ref_bitmap->m_flags & (PRIM_FLAG_H_SCROLL|PRIM_FLAGS_BLENDED)) | PRIM_FLAGS_REF_DATA;
+  m_flags = flags | (ref_bitmap->m_flags & (PRIM_FLAG_H_SCROLL_1|PRIM_FLAGS_BLENDED)) | PRIM_FLAGS_REF_DATA;
   m_transparent_color = ref_bitmap->m_transparent_color;
   m_words_per_line = ref_bitmap->m_words_per_line;
   m_bytes_per_line = ref_bitmap->m_bytes_per_line;
@@ -103,7 +103,7 @@ void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
   uint32_t* p;
   int32_t index;
 
-  if (m_flags & PRIM_FLAG_H_SCROLL) {
+  if (m_flags & PRIM_FLAG_H_SCROLL_1) {
     for (uint32_t pos = 0; pos < 4; pos++) {
       p = m_pixels + pos * m_words_per_position + y * m_words_per_line + (FIX_INDEX(pos+x) / 4);
       index = FIX_INDEX((pos+x)&3);
@@ -125,7 +125,7 @@ void IRAM_ATTR DiBitmap::delete_instructions() {
 void IRAM_ATTR DiBitmap::generate_instructions() {
   delete_instructions();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
-    if (m_flags & PRIM_FLAG_H_SCROLL) {
+    if (m_flags & PRIM_FLAG_H_SCROLL_1) {
       // Bitmap can be positioned on any horizontal byte boundary (pixel offsets 0..3).
       for (uint32_t pos = 0; pos < 4; pos++) {
         EspFixups fixups;
