@@ -32,98 +32,7 @@ DiPrimitive::DiPrimitive() {
 }
 
 DiPrimitive::~DiPrimitive() {
-//  deallocate_functions();
 }
-
-/*void DiPrimitive::allocate_functions(uint32_t width) {
-  if (m_flags & PRIM_FLAG_H_SCROLL_1) {
-    // scroll on 1-pixel boundary
-    // width-1 functions for left side
-    // 1 function for middle
-    // width-1 functions for right side
-    // 4 copies for 1-pixel boundaries
-    m_num_fcns = ((width - 1) * 2 + 1) * 4;
-  } else if (m_flags & PRIM_FLAG_H_SCROLL_4) {
-    // scroll on 4-pixel boundary
-    // width-1 functions for left side
-    // 1 function for middle
-    // width-1 functions for right side
-    m_num_fcns = ((width + 3) / 4) * 2 + 1;    
-  } else {
-    // stationary primitive
-    m_num_fcns = 1;
-  }
-
-  m_functions = new EspFunction[m_num_fcns];
-  if (!m_functions) {
-    m_num_fcns = 0;
-  }
-}
-
-void DiPrimitive::deallocate_functions() {
-  if (m_num_fcns) {
-    delete [] m_functions;
-    m_num_fcns = 0;
-    m_functions = 0;
-    m_cur_fcn = 0;
-  }
-}
-
-//   +==========================================+
-//   [                                          ]
-//   [                                          ]
-// +-----+             +-----+               +-----+
-// |     |             |     |               |     |
-// |  L  |             |  M  |               |  R  |
-// +-----+             +-----+               +-----+
-//   [                                          ]
-//   [                                          ]
-//   +==========================================+
-
-int32_t DiPrimitive::get_function_index(int32_t width, int32_t x, int32_t view_x_extent) {
-  if (m_num_fcns) {
-    if (m_flags & PRIM_FLAG_H_SCROLL_1) {
-      // scroll on 1-pixel boundary
-      // width-1 functions for left side
-      // 1 function for middle
-      // width-1 functions for right side
-      // 4 copies for 1-pixel boundaries
-      // m_num_fcns = ((width - 1) * 2 + 1) * 4;
-      if (x < 0) {
-        // Case L
-      } else if (x + width > view_x_extent) {
-        // Case R
-      } else {
-        // Case M
-        return 0;
-      }
-    } else if (m_flags & PRIM_FLAG_H_SCROLL_4) {
-      // scroll on 4-pixel boundary
-      // width-1 functions for left side
-      // 1 function for middle
-      // width-1 functions for right side
-      // m_num_fcns = ((width + 3) / 4) * 2 + 1;    
-      if (x < 0) {
-        // Case L
-        return -x;
-      } else if (x + width > view_x_extent) {
-        // Case R
-        return 
-      } else {
-        // Case M
-        return 0;
-      }
-    } else {
-      // stationary primitive
-      return 0;
-    }
-  }
-}
-
-void DiPrimitive::set_current_function(int32_t width, int32_t x, int32_t view_x_extent) {
-  auto index = get_function_index(width, x, view_x_extent);
-  m_cur_fcn = &m_functions[index];
-}*/
 
 void DiPrimitive::init_root() {
   // The root primitive covers the entire screen, and is not drawn.
@@ -224,6 +133,12 @@ void IRAM_ATTR DiPrimitive::compute_absolute_geometry(
   m_draw_y = MAX(m_abs_y, m_view_y);
   m_draw_x_extent = MIN(m_x_extent, m_view_x_extent);
   m_draw_y_extent = MIN(m_y_extent, m_view_y_extent);
+
+  m_abs_x_word = m_abs_x & 0xFFFFFFFC;
+  m_draw_x_offset = m_draw_x - m_abs_x;
+  m_draw_y_offset = m_draw_y - m_abs_y;
+  m_draw_x_word = m_draw_x & 0xFFFFFFFC;
+  m_draw_x_word_offset = m_draw_x_word - m_abs_x_word;
 
   DiPrimitive* child = m_first_child;
   while (child) {

@@ -623,17 +623,8 @@ void IRAM_ATTR DiManager::loop() {
       // Draw enough lines to stay ahead of DMA.
       while (current_line_index < ACT_LINES && current_buffer_index != dma_buffer_index) {
         volatile DiVideoBuffer* vbuf = &m_video_buffer[current_buffer_index];
-        //draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
-        //draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
-        auto pline = (void*) vbuf->get_buffer_ptr_0();
-        //memcpy(pline, frameBuffer + current_line_index * (ACT_PIXELS/sizeof(uint32_t)), ACT_PIXELS);
-        fcn_copy_words_in_loop(pline, (void*)(frameBuffer + current_line_index * (ACT_PIXELS/sizeof(uint32_t))),
-                                ACT_PIXELS/sizeof(uint32_t));
-        pline = (void*) vbuf->get_buffer_ptr_1();
-        //memcpy(pline, frameBuffer + ++current_line_index * (ACT_PIXELS/sizeof(uint32_t)), ACT_PIXELS);
-        fcn_copy_words_in_loop(pline, (void*)(frameBuffer + ++current_line_index * (ACT_PIXELS/sizeof(uint32_t))),
-                                ACT_PIXELS/sizeof(uint32_t));
-
+        draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
+        draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
         ++current_line_index;
         if (++current_buffer_index >= NUM_ACTIVE_BUFFERS) {
           current_buffer_index = 0;
@@ -688,16 +679,8 @@ void IRAM_ATTR DiManager::loop() {
             current_buffer_index < NUM_ACTIVE_BUFFERS;
             current_line_index++, current_buffer_index++) {
         volatile DiVideoBuffer* vbuf = &m_video_buffer[current_buffer_index];
-        //draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
-        //draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
-        auto pline = (void*) vbuf->get_buffer_ptr_0();
-        //memcpy(pline, frameBuffer + current_line_index * (ACT_PIXELS/sizeof(uint32_t)), ACT_PIXELS);
-        fcn_copy_words_in_loop(pline, (void*)(frameBuffer + current_line_index * (ACT_PIXELS/sizeof(uint32_t))),
-                                ACT_PIXELS/sizeof(uint32_t));
-        pline = (void*) vbuf->get_buffer_ptr_1();
-        //memcpy(pline, frameBuffer + ++current_line_index * (ACT_PIXELS/sizeof(uint32_t)), ACT_PIXELS);
-        fcn_copy_words_in_loop(pline, (void*)(frameBuffer + ++current_line_index * (ACT_PIXELS/sizeof(uint32_t))),
-                                ACT_PIXELS/sizeof(uint32_t));
+        draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
+        draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
       }
 
       loop_state = LoopState::NearNewFrameStart;

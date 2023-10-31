@@ -150,6 +150,7 @@ class DiPrimitive {
   int32_t   m_rel_dy;       // auto-delta-y as a 16-bit fraction, relative to the parent
   int32_t   m_auto_moves;   // number of times to move this primitive automatically
   int32_t   m_abs_x;        // upper-left x coordinate, relative to the screen
+  int32_t   m_abs_x_word;   // m_abs_x & 0xFFFFFFFC (word boundary)
   int32_t   m_abs_y;        // upper-left y coordinate, relative to the screen
   int32_t   m_width;        // coverage width in pixels
   int32_t   m_height;       // coverage height in pixels
@@ -159,6 +160,10 @@ class DiPrimitive {
   int32_t   m_draw_y;       // max of m_abs_y and m_view_y
   int32_t   m_draw_x_extent; // min of m_x_extent and m_view_x_extent
   int32_t   m_draw_y_extent; // min of m_y_extent and m_view_y_extent
+  int32_t   m_draw_x_offset; // difference of m_draw_x - m_abs_x
+  int32_t   m_draw_y_offset; // difference of m_draw_y - m_abs_y
+  int32_t   m_draw_x_word;  // m_draw_x & 0xFFFFFFFC (word boundary)
+  int32_t   m_draw_x_word_offset; // difference of m_draw_x_word - m_abs_x_word
   uint32_t  m_color;        // applies to some primitives, but not to others
   uint32_t  m_future32;     // for potential future use
   DiPrimitive* m_parent;       // id of parent primitive
@@ -166,13 +171,10 @@ class DiPrimitive {
   DiPrimitive* m_last_child;   // id of last child primitive
   DiPrimitive* m_prev_sibling; // id of previous sibling primitive
   DiPrimitive* m_next_sibling; // id of next sibling primitive
-//  EspFunction* m_functions; // points to set of dynamic instructions
   int16_t   m_first_group;  // lowest index of drawing group in which it is a member
-  EspFunction* m_cur_fcn;   // points to the current function to execute
   int16_t   m_last_group;   // highest index of drawing group in which it is a member
   int16_t   m_id;           // id of this primitive
   uint16_t  m_flags;        // flag bits to control painting, etc.
-  uint16_t  m_num_fcns;     // number of dynamic function objects
 };
 
 #pragma pack(pop)
