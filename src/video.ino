@@ -149,6 +149,8 @@ void otf(void * pvParameters) {
 	terminal->clear_screen();
 	boot_screen();
 
+	di_manager->create_point(2, 0, 1, 400, 300, 0xFF);
+
 	debug_log("Running OTF manager...\r\n");
 	di_manager->run();
 }
