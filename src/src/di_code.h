@@ -61,7 +61,7 @@ class EspFunction {
 
     void draw_line_as_inner_fcn(EspFixups& fixups, uint32_t draw_x, uint32_t x, uint32_t width, uint16_t flags, uint8_t opaqueness);
 
-    void draw_line_loop(EspFixups& fixups, uint32_t x, uint32_t draw_x, uint32_t width, uint8_t opaqueness);
+    void draw_line_loop(EspFixups& fixups, uint32_t x, uint32_t draw_x, uint32_t width, uint16_t flags, uint8_t opaqueness);
 
     void copy_line_as_outer_fcn(EspFixups& fixups, uint32_t draw_x, uint32_t x, uint32_t width,
         uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels);

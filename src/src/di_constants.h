@@ -149,12 +149,14 @@
 #define PRIM_FLAGS_MASKED     0x0080  // hint that pixels are fully opaque or transparent
 #define PRIM_FLAGS_BLENDED    0x0100  // hint that pixels may be blended
 #define PRIM_FLAGS_ALL_SAME   0x0200  // hint that all lines can be drawn the same way
+#define PRIM_FLAGS_LEFT_EDGE  0x0400  // hint that left edge of primitive may be cut off
+#define PRIM_FLAGS_RIGHT_EDGE 0x0800  // hint that right edge of primitive may be cut off
 #define PRIM_FLAGS_CAN_DRAW   0x1000  // whether this primitive can be drawn at all
 #define PRIM_FLAGS_X          0x2000  // hint that x will be given
 #define PRIM_FLAGS_X_SRC      0x4000  // hint that x and src pixel ptr will be given
 #define PRIM_FLAGS_REF_DATA   0x8000  // whether this primitive references (vs owns) data
 #define PRIM_FLAGS_DEFAULT    0x000F  // flags set when a new base primitive is constructed
-#define PRIM_FLAGS_CHANGEABLE 0x000F  // flags that the app can change after primitive creation
+#define PRIM_FLAGS_CHANGEABLE 0x0003  // flags that the app can change after primitive creation
 
 // Input registers:
 #define REG_RETURN_ADDR     a0

@@ -15,6 +15,8 @@ subject to additions in the future):
 #define PRIM_FLAGS_MASKED     0x0080  // hint that pixels are fully opaque or transparent
 #define PRIM_FLAGS_BLENDED    0x0100  // hint that pixels may be blended
 #define PRIM_FLAGS_ALL_SAME   0x0200  // hint that all lines can be drawn the same way
+#define PRIM_FLAGS_LEFT_EDGE  0x0400  // hint that left edge of primitive may be cut off
+#define PRIM_FLAGS_RIGHT_EDGE 0x0800  // hint that right edge of primitive may be cut off
 #define PRIM_FLAGS_CAN_DRAW   0x1000  // whether this primitive can be drawn at all
 #define PRIM_FLAGS_X          0x2000  // hint that x will be given
 #define PRIM_FLAGS_X_SRC      0x4000  // hint that x and src pixel ptr will be given
@@ -109,6 +111,24 @@ rectangles and bitmaps, and helps the OTF mode to optimize drawing
 speed, plus reduces the RAM used. It cannot be used with blending,
 unless <i>all</i> pixels in the primitive are at the same opacity
 level (e.g., all pixels are 50% opaque).
+
+<b>PRIM_FLAGS_LEFT_EDGE</b><br>
+This flag determines whether to generate code that can draw the
+primitive with part of its left edge missing, such as hidden off
+of the left side of the screen. This flag must be set for any
+primitive that will be positioned such that its left edge is
+hidden, either by being off-screen or clipped by some ancestor.
+This flag is not required when part of the primitive is hidden
+only by virtue of being underneath some other primitive.
+
+<b>PRIM_FLAGS_RIGHT_EDGE</b><br>
+This flag determines whether to generate code that can draw the
+primitive with part of its right edge missing, such as hidden off
+of the right side of the screen. This flag must be set for any
+primitive that will be positioned such that its right edge is
+hidden, either by being off-screen or clipped by some ancestor.
+This flag is not required when part of the primitive is hidden
+only by virtue of being underneath some other primitive.
 
 <b>PRIM_FLAGS_CAN_DRAW</b><br>
 This OTF-internal flag determines whether a primitive can be

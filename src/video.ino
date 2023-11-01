@@ -150,7 +150,7 @@ void otf(void * pvParameters) {
 	boot_screen();
 
 	//di_manager->create_point(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 300, 0xFF);
-	//di_manager->create_line(4, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 50, 10, 50, 100, 0xE0);
+	//di_manager->create_line(4, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 50, 10, 500, 300, 0xE0);
 
 	debug_log("Running OTF manager...\r\n");
 	di_manager->run();
