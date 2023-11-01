@@ -70,30 +70,66 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1,
   x3 -= m_rel_x;
   y3 -= m_rel_y;
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2, x3, y3);
-  m_paint_fcn.enter_and_leave_outer_function();
-}
 
-void IRAM_ATTR DiGeneralLine::delete_instructions() {
-  m_paint_fcn.clear();
-}
-
-void IRAM_ATTR DiGeneralLine::generate_instructions() {
-  m_paint_fcn.clear();
-  if (m_flags & PRIM_FLAGS_CAN_DRAW) {
-    EspFixups fixups;
-    uint32_t at_jump_table = m_paint_fcn.init_jump_table(m_line_pieces.m_num_pieces);
-    for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
-      DiLinePiece* piece = &m_line_pieces.m_pieces[i];
-      m_paint_fcn.align32();
-      m_paint_fcn.j_to_here(at_jump_table + i * sizeof(uint32_t));
-      m_paint_fcn.draw_line_as_inner_fcn(fixups, m_draw_x,
-        piece->m_x + m_abs_x,
-        piece->m_width, m_flags, m_opaqueness);
+  if (m_flags & PRIM_FLAG_H_SCROLL_1) {
+    m_paint_fcn = new EspFunction[4];
+    for (uint32_t pos = 0; pos < 4; pos++) {
+      m_paint_fcn[pos].enter_and_leave_outer_function();
     }
-    m_paint_fcn.do_fixups(fixups);
+  } else {
+    m_paint_fcn = new EspFunction;
+    m_paint_fcn[0].enter_and_leave_outer_function();
   }
 }
 
+void IRAM_ATTR DiGeneralLine::delete_instructions() {
+  if (m_flags & PRIM_FLAG_H_SCROLL_1) {
+    for (uint32_t pos = 0; pos < 4; pos++) {
+      m_paint_fcn[pos].clear();
+    }
+  } else {
+    m_paint_fcn[0].clear();
+  }
+}
+
+void IRAM_ATTR DiGeneralLine::generate_instructions() {
+  delete_instructions();
+  m_flags |= PRIM_FLAGS_X;
+  if (m_flags & PRIM_FLAGS_CAN_DRAW) {
+    if (m_flags & PRIM_FLAG_H_SCROLL_1) {
+      for (uint32_t pos = 0; pos < 4; pos++) {
+        EspFixups fixups;
+        uint32_t at_jump_table = m_paint_fcn[pos].init_jump_table(m_line_pieces.m_num_pieces);
+        for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
+          DiLinePiece* piece = &m_line_pieces.m_pieces[i];
+          m_paint_fcn[pos].align32();
+          m_paint_fcn[pos].j_to_here(at_jump_table + i * sizeof(uint32_t));
+          m_paint_fcn[pos].draw_line_as_inner_fcn(fixups, m_draw_x + pos,
+            piece->m_x + m_abs_x + pos,
+            piece->m_width, m_flags, m_opaqueness);
+        }
+        m_paint_fcn[pos].do_fixups(fixups);
+      }
+    } else {
+        EspFixups fixups;
+        uint32_t at_jump_table = m_paint_fcn[0].init_jump_table(m_line_pieces.m_num_pieces);
+        for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
+          DiLinePiece* piece = &m_line_pieces.m_pieces[i];
+          m_paint_fcn[0].align32();
+          m_paint_fcn[0].j_to_here(at_jump_table + i * sizeof(uint32_t));
+          m_paint_fcn[0].draw_line_as_inner_fcn(fixups, m_draw_x,
+            piece->m_x + m_abs_x,
+            piece->m_width, m_flags, m_opaqueness);
+        }
+        m_paint_fcn[0].do_fixups(fixups);
+      }
+    }
+}
+
 void IRAM_ATTR DiGeneralLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
-  m_paint_fcn.call_x(this, p_scan_line, line_index, m_draw_x);
+  if (m_flags & PRIM_FLAG_H_SCROLL_1) {
+    m_paint_fcn[m_draw_x & 3].call_x(this, p_scan_line, line_index, m_draw_x);
+  } else {
+    m_paint_fcn[0].call_x(this, p_scan_line, line_index, m_draw_x);
+  }
 }
