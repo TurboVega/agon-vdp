@@ -95,6 +95,7 @@ OTFCMD(0,(_id _flags),_Set_flags_for_primitive)
 OTFCMD(1,(_id _x _y),_Set_primitive_position)
 OTFCMD(2,(_id _ix _iy),_Adjust_primitive_position)
 OTFCMD(3,(_id),_Delete_primitive)
+OTFCMD(4,(_id),_Generate_code_for_primitive)
 OTFCMD(10,(_id _pid _flags _x _y _color),_Create_primitive_Point)
 OTFCMD(20,(_id _pid _flags _x1 _y1 _x2 _y2 _color),_Create_primitive_Line)
 OTFCMD(30,(_id _pid _flags _x1 _y1 _x2 _y2 _x3 _y3 _color),_Create_primitive_Triangle_Outline)
@@ -185,6 +186,7 @@ typedef union {
     OtfCmd_1_Set_primitive_position m_1_Set_primitive_position;
     OtfCmd_2_Adjust_primitive_position m_2_Adjust_primitive_position;
     OtfCmd_3_Delete_primitive m_3_Delete_primitive;
+    OtfCmd_4_Generate_code_for_primitive m_4_Generate_code_for_primitive;
     OtfCmd_10_Create_primitive_Point m_10_Create_primitive_Point;
     OtfCmd_20_Create_primitive_Line m_20_Create_primitive_Line;
     OtfCmd_30_Create_primitive_Triangle_Outline m_30_Create_primitive_Triangle_Outline;

@@ -41,6 +41,12 @@ class DiTerminal: public DiTileArray {
   // Destroy a terminal, including its allocated data.
   virtual ~DiTerminal();
 
+  // Clear the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR delete_instructions();
+   
+  // Reassemble the custom instructions needed to draw the primitive.
+  virtual void IRAM_ATTR generate_instructions();
+
   // Define a range of characters using given colors and 8x8 font.
   void define_character_range(uint8_t first_char, uint8_t last_char,
                               uint8_t fg_color, uint8_t bg_color);

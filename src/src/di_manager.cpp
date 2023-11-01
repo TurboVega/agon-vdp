@@ -250,7 +250,7 @@ void DiManager::clear() {
 void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
     auto old_prim = m_primitives[prim->get_id()];
     if (old_prim) {
-      delete_primitive(old_prim);
+      remove_primitive(old_prim);
     }
 
     parent->attach_child(prim);
@@ -262,7 +262,7 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
     recompute_primitive(prim, 0, -1, -1);
 }
 
-void DiManager::delete_primitive(DiPrimitive* prim) {
+void DiManager::remove_primitive(DiPrimitive* prim) {
   if (prim) {
     if (prim->get_flags() & PRIM_FLAGS_CAN_DRAW) {
       int32_t min_group, max_group;
@@ -281,7 +281,7 @@ void DiManager::delete_primitive(DiPrimitive* prim) {
     DiPrimitive* child = prim->get_first_child();
     while (child) {
       DiPrimitive* next = child->get_next_sibling();
-      delete_primitive(child);
+      remove_primitive(child);
       child = next;
     }
 
@@ -359,7 +359,7 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint16_t old_flags,
       }
 
       prim->add_flags(PRIM_FLAGS_CAN_DRAW);
-      prim->generate_instructions();
+      //prim->generate_instructions();
     } else {
       // Just remove primitive from old groups
       for (int32_t g = old_min_group; g <= old_max_group; g++) {
@@ -370,7 +370,7 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint16_t old_flags,
         }
       }
       prim->remove_flags(PRIM_FLAGS_CAN_DRAW);
-      prim->delete_instructions();
+      //prim->delete_instructions();
     }
   } else {
     if (new_use_groups) {
@@ -380,10 +380,10 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint16_t old_flags,
         vp->push_back(prim);
       }
       prim->add_flags(PRIM_FLAGS_CAN_DRAW);
-      prim->generate_instructions();
+      //prim->generate_instructions();
     } else {
       prim->remove_flags(PRIM_FLAGS_CAN_DRAW);
-      prim->delete_instructions();
+      //prim->delete_instructions();
     }
   }
 }
@@ -582,7 +582,7 @@ DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t fl
     m_terminal->get_tile_coordinates(0, 0, cx, cy, cx_extent, cy_extent);
     auto w = cx_extent - cx;
     m_cursor = create_solid_rectangle(id+1, id,
-                (flags & PRIM_FLAGS_DEFAULT) & (~PRIM_FLAG_PAINT_THIS),
+                (flags & PRIM_FLAGS_DEFAULT),
                 cx, cy_extent-2, w, 2, 0xFF);
     cursorEnabled = true;
     terminalMode = true;
@@ -1118,6 +1118,15 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_3_Delete_primitive;
         if (m_incoming_command.size() == sizeof(*cmd)) {
           delete_primitive(cmd->m_id);
+          m_incoming_command.clear();
+          return true;
+        }
+      } break;
+
+      case 4: {
+        auto cmd = &cu->m_4_Generate_code_for_primitive;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          generate_code_for_primitive(cmd->m_id);
           m_incoming_command.clear();
           return true;
         }
@@ -1969,7 +1978,13 @@ void DiManager::move_primitive_relative(uint16_t id, int32_t x, int32_t y) {
 
 void DiManager::delete_primitive(uint16_t id) {
   DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
-  delete_primitive(prim);  
+  remove_primitive(prim);  
+}
+
+void DiManager::generate_code_for_primitive(uint16_t id) {
+  DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
+  prim->delete_instructions();
+  prim->generate_instructions();
 }
 
 DiPrimitive* DiManager::create_rectangle(uint16_t id, uint16_t parent, uint16_t flags,

@@ -35,12 +35,13 @@ void DiSolidRectangle::init_params(int32_t x, int32_t y, uint32_t width, uint32_
   m_width = width;
   m_height = height;
   m_color = PIXEL_COLOR_X4(color);
+  m_paint_fcn.enter_and_leave_outer_function();
 }
 
 void IRAM_ATTR DiSolidRectangle::delete_instructions() {
   m_paint_fcn.clear();
 }
-  
+
 void IRAM_ATTR DiSolidRectangle::generate_instructions() {
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {

@@ -40,6 +40,23 @@ DiTerminal::DiTerminal(uint32_t x, uint32_t y, uint8_t flags,
 DiTerminal::~DiTerminal() {
 }
 
+void IRAM_ATTR DiTerminal::delete_instructions() {
+  DiTileArray::delete_instructions();
+  auto prim = get_first_child();
+  if (prim) {
+    prim->delete_instructions();
+  }
+}
+  
+void IRAM_ATTR DiTerminal::generate_instructions() {
+  delete_instructions();
+  DiTileArray::generate_instructions();
+  auto prim = get_first_child();
+  if (prim) {
+    prim->generate_instructions();
+  }
+}
+
 void DiTerminal::define_character_range(uint8_t first_char, uint8_t last_char,
                             uint8_t fg_color, uint8_t bg_color) {
   auto ch = (uint16_t) first_char;
@@ -47,7 +64,6 @@ void DiTerminal::define_character_range(uint8_t first_char, uint8_t last_char,
   while (ch <= last) {
     define_character((uint8_t)ch++, fg_color, bg_color);
   }
-  generate_instructions();
 }
 
 DiTileBitmapID DiTerminal::get_bitmap_id(uint8_t character) {

@@ -1111,6 +1111,11 @@ void EspFunction::do_fixups(EspFixups& fixups) {
     set_code_index(save_pc);
 }
 
+void EspFunction::enter_and_leave_outer_function() {
+    entry(REG_STACK_PTR, 32);
+    retw();
+}
+
 uint32_t EspFunction::enter_outer_function() {
     entry(REG_STACK_PTR, 32);
     auto at_jump = get_code_index();

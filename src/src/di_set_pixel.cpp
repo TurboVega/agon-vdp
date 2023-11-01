@@ -32,6 +32,7 @@ DiSetPixel::DiSetPixel(int32_t x, int32_t y, uint8_t color) {
   m_width = 1;
   m_height = 1;
   m_color = PIXEL_COLOR_X4(color);
+  m_paint_fcn.enter_and_leave_outer_function();
 }
 
 void IRAM_ATTR DiSetPixel::delete_instructions() {

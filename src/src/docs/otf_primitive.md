@@ -39,4 +39,12 @@ the primitive, such as a tile map, holds its own bitmaps, those will be
 deleted with the primitive. Bear in mind that you can hide a
 primitive by changing its flags, while still keeping it intact.
 
+## Generate code for primitive
+<b>VDU 23, 30, 4, id;</b> :  Generate code for primitive
+
+This command generates dynamic code for the primitive, and any children that it has.
+This command must be used after creating the primitive, and if needed, configuring
+it, before the primitive will be drawn. For example, after creating a tile map and
+its child bitmaps, use this command to generate code that can draw the tile map.
+
 [Home](otf_mode.md)

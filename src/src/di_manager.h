@@ -143,6 +143,9 @@ class DiManager {
     // Delete an existing primitive.
     void delete_primitive(uint16_t id);
 
+    // Generate code for an existing primitive.
+    void generate_code_for_primitive(uint16_t id);
+
     // Move an existing bitmap to an absolute position and slice it.
     void slice_solid_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height);
     void slice_masked_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height);
@@ -224,7 +227,7 @@ class DiManager {
     void add_primitive(DiPrimitive* prim, DiPrimitive* parent);
 
     // Delete a primitive from the manager.
-    void delete_primitive(DiPrimitive* prim);
+    void remove_primitive(DiPrimitive* prim);
 
     // Recompute the geometry and paint list membership for a primitive.
     void recompute_primitive(DiPrimitive* prim, uint16_t old_flags,

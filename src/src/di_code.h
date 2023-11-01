@@ -75,6 +75,7 @@ class EspFunction {
     // Common operations in functions:
 
     void do_fixups(EspFixups& fixups);
+    void enter_and_leave_outer_function();
     uint32_t enter_outer_function();
     uint32_t enter_inner_function();
     uint32_t begin_data();

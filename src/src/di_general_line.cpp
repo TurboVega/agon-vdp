@@ -70,6 +70,7 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1,
   x3 -= m_rel_x;
   y3 -= m_rel_y;
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2, x3, y3);
+  m_paint_fcn.enter_and_leave_outer_function();
 }
 
 void IRAM_ATTR DiGeneralLine::delete_instructions() {

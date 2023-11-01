@@ -36,6 +36,7 @@ void DiDiagonalLeftLine::init_params(int32_t x, int32_t y, int32_t length, uint8
   m_width = length;
   m_height = length;
   m_color = PIXEL_COLOR_X4(color);
+  m_paint_fcn.enter_and_leave_outer_function();
 }
 
 void IRAM_ATTR DiDiagonalLeftLine::delete_instructions() {

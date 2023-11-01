@@ -35,6 +35,7 @@ void DiVerticalLine::init_params(int32_t x, int32_t y, uint32_t height, uint8_t 
   m_width = 1;
   m_height = height;
   m_color = PIXEL_COLOR_X4(color);
+  m_paint_fcn.enter_and_leave_outer_function();
 }
 
 void IRAM_ATTR DiVerticalLine::delete_instructions() {
