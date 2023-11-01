@@ -600,18 +600,6 @@ void IRAM_ATTR DiManager::loop() {
   uint32_t current_line_index = 0;//NUM_ACTIVE_BUFFERS * NUM_LINES_PER_BUFFER;
   uint32_t current_buffer_index = 0;
   LoopState loop_state = LoopState::NearNewFrameStart;
-  uint32_t* frameBuffer = (uint32_t*) heap_caps_malloc(ACT_LINES * ACT_PIXELS, MALLOC_CAP_32BIT | MALLOC_CAP_SPIRAM);
-  debug_log("frameBuffer = %08X\n", frameBuffer);
-  auto ppix = (uint8_t*) frameBuffer;
-  for (uint32_t y = 0; y < ACT_LINES; y++) {
-    if (!(y%24)) {
-      memset(ppix, y/24, ACT_PIXELS);
-      ppix += ACT_PIXELS;
-    }
-    for (uint32_t x = 0; x < ACT_PIXELS; x++) {
-      *ppix++ = (uint8_t)((x + y) & 0x3F);
-    }
-  }
 
   while (true) {
     uint32_t descr_addr = (uint32_t) I2S1.out_link_dscr;
