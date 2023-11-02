@@ -35,7 +35,7 @@ class DiDiagonalRightLine: public DiPrimitive {
   
   // The line starts at its upper-left and goes diagonally down and to the right,
   // covering the given number of pixels.
-  void init_params(int32_t x, int32_t y, int32_t length, uint8_t color);
+  void init_params(uint16_t flags, int32_t x, int32_t y, int32_t length, uint8_t color);
 
   // Clear the custom instructions needed to draw the primitive.
   virtual void IRAM_ATTR delete_instructions();

@@ -147,11 +147,13 @@ void otf(void * pvParameters) {
 	auto terminal = di_manager->create_terminal(1, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 0, 0, 100, 75, fabgl::FONT_AGON_DATA);
 	terminal->define_character_range(0x20, 0x7E, PIXEL_ALPHA_100_MASK|0x05, PIXEL_ALPHA_100_MASK|0x00);
 	terminal->clear_screen();
-	terminal->generate_instructions();
+	di_manager->generate_code_for_primitive(1);
 	boot_screen();
 
 	//di_manager->create_point(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 300, 0xFF);
-	//di_manager->create_line(4, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 50, 10, 500, 300, 0xE0);
+	//di_manager->generate_code_for_primitive(3);
+	//di_manager->create_line(4, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 50, 10, 50, 300, 0xE0);
+	//di_manager->generate_code_for_primitive(4);
 
 	debug_log("Running OTF manager...\r\n");
 	di_manager->run();

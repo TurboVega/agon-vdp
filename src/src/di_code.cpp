@@ -1184,7 +1184,6 @@ void EspFunction::call_inner_fcn(uint32_t real_address) {
 }
 
 void EspFunction::store(uint8_t instr_byte) {
-    debug_log(" store %X[%u]", m_code, m_code_index);
     auto i = m_code_index >> 2;
     switch (m_code_index & 3) {
         case 0:
@@ -1262,7 +1261,7 @@ void EspFunction::allocate(uint32_t size) {
         if (m_alloc_size - m_code_index < size) {
             size_t new_size = (size_t)(m_alloc_size + size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
             void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-            debug_log(" p=%X", p); while(!p);
+            //debug_log(" p=%X", p); while(!p);
             memcpy(p, m_code, (m_code_size + 3) &0xFFFFFFFC);
             heap_caps_free(m_code);
             m_alloc_size = (uint32_t)new_size;
@@ -1271,14 +1270,14 @@ void EspFunction::allocate(uint32_t size) {
     } else {
         size_t new_size = (size_t)(size + EXTRA_CODE_SIZE + 3) &0xFFFFFFFC;
         void* p = heap_caps_malloc(new_size, MALLOC_CAP_32BIT|MALLOC_CAP_EXEC);
-        debug_log(" p=%X", p); while(!p);
+        //debug_log(" p=%X", p); while(!p);
         m_alloc_size = (uint32_t)new_size;
         m_code = (uint32_t*)p;
     }
 }
 
 uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
-    debug_log(" %s", mnemonic);
+    //debug_log(" %s", mnemonic);
     allocate(1);
     auto at_data = get_code_index();
     store((uint8_t)(data & 0xFF));
@@ -1286,7 +1285,7 @@ uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
 }
 
 uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
-    debug_log(" %s", mnemonic);
+    //debug_log(" %s", mnemonic);
     allocate(2);
     auto at_data = get_code_index();
     store((uint8_t)(data & 0xFF));
@@ -1295,7 +1294,7 @@ uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
 }
 
 uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
-    debug_log(" %s", mnemonic);
+    //debug_log(" %s", mnemonic);
     allocate(3);
     auto at_data = get_code_index();
     store((uint8_t)(data & 0xFF));
@@ -1305,7 +1304,7 @@ uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
 }
 
 uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
-    debug_log(" %s", mnemonic);
+    //debug_log(" %s", mnemonic);
     allocate(4);
     auto at_data = get_code_index();
     store((uint8_t)(data & 0xFF));

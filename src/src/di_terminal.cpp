@@ -42,18 +42,18 @@ DiTerminal::~DiTerminal() {
 
 void IRAM_ATTR DiTerminal::delete_instructions() {
   DiTileArray::delete_instructions();
-  auto prim = get_first_child();
-  if (prim) {
-    prim->delete_instructions();
+  auto cursor = get_first_child();
+  if (cursor) {
+    cursor->delete_instructions();
   }
 }
   
 void IRAM_ATTR DiTerminal::generate_instructions() {
   delete_instructions();
   DiTileArray::generate_instructions();
-  auto prim = get_first_child();
-  if (prim) {
-    prim->generate_instructions();
+  auto cursor = get_first_child();
+  if (cursor) {
+    cursor->generate_instructions();
   }
 }
 

@@ -35,7 +35,7 @@ class DiSolidRectangle: public DiPrimitive {
   DiSolidRectangle();
   
   // Draws a solid (filled) rectangle on the screen.
-  void init_params(int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color);
+  void init_params(uint16_t flags, int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color);
 
   // Clear the custom instructions needed to draw the primitive.
   virtual void IRAM_ATTR delete_instructions();

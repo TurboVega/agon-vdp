@@ -39,7 +39,8 @@ static int32_t max3(int32_t a, int32_t b, int32_t c) {
 
 DiGeneralLine::DiGeneralLine() {}
 
-void DiGeneralLine::init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t opaqueness) {
+void DiGeneralLine::init_params(uint16_t flags, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t opaqueness) {
+  m_flags = flags;
   m_opaqueness = opaqueness;
   m_rel_x = MIN(x1,x2);
   m_rel_y = MIN(y1,y2);
@@ -52,10 +53,12 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
   x2 -= m_rel_x;
   y2 -= m_rel_y;
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2);
+  create_functions();
 }
 
-void DiGeneralLine::init_params(int32_t x1, int32_t y1,
+void DiGeneralLine::init_params(uint16_t flags, int32_t x1, int32_t y1,
   int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color, uint8_t opaqueness) {
+  m_flags = flags;
   m_opaqueness = opaqueness;
   m_rel_x = min3(x1,x2,x3);
   m_rel_y = min3(y1,y2,y3);
@@ -70,16 +73,7 @@ void DiGeneralLine::init_params(int32_t x1, int32_t y1,
   x3 -= m_rel_x;
   y3 -= m_rel_y;
   m_line_pieces.generate_line_pieces(x1, y1, x2, y2, x3, y3);
-
-  if (m_flags & PRIM_FLAG_H_SCROLL_1) {
-    m_paint_fcn = new EspFunction[4];
-    for (uint32_t pos = 0; pos < 4; pos++) {
-      m_paint_fcn[pos].enter_and_leave_outer_function();
-    }
-  } else {
-    m_paint_fcn = new EspFunction;
-    m_paint_fcn[0].enter_and_leave_outer_function();
-  }
+  create_functions();
 }
 
 void IRAM_ATTR DiGeneralLine::delete_instructions() {
@@ -91,13 +85,14 @@ void IRAM_ATTR DiGeneralLine::delete_instructions() {
     m_paint_fcn[0].clear();
   }
 }
-
+extern void debug_log(const char* fmt, ...);
 void IRAM_ATTR DiGeneralLine::generate_instructions() {
   delete_instructions();
   m_flags |= PRIM_FLAGS_X;
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     if (m_flags & PRIM_FLAG_H_SCROLL_1) {
       for (uint32_t pos = 0; pos < 4; pos++) {
+        debug_log("\nid=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
         EspFixups fixups;
         uint32_t at_jump_table = m_paint_fcn[pos].init_jump_table(m_line_pieces.m_num_pieces);
         for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
@@ -109,8 +104,10 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
             piece->m_width, m_flags, m_opaqueness);
         }
         m_paint_fcn[pos].do_fixups(fixups);
+        debug_log("id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
       }
     } else {
+        debug_log("\nid=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
         EspFixups fixups;
         uint32_t at_jump_table = m_paint_fcn[0].init_jump_table(m_line_pieces.m_num_pieces);
         for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
@@ -122,6 +119,7 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
             piece->m_width, m_flags, m_opaqueness);
         }
         m_paint_fcn[0].do_fixups(fixups);
+        debug_log("id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
       }
     }
 }
@@ -131,5 +129,19 @@ void IRAM_ATTR DiGeneralLine::paint(volatile uint32_t* p_scan_line, uint32_t lin
     m_paint_fcn[m_draw_x & 3].call_x(this, p_scan_line, line_index, m_draw_x);
   } else {
     m_paint_fcn[0].call_x(this, p_scan_line, line_index, m_draw_x);
+  }
+}
+
+void DiGeneralLine::create_functions() {
+  if (m_flags & PRIM_FLAG_H_SCROLL_1) {
+    m_paint_fcn = new EspFunction[4];
+    for (uint32_t pos = 0; pos < 4; pos++) {
+      m_paint_fcn[pos].enter_and_leave_outer_function();
+      debug_log("CF id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
+    }
+  } else {
+    m_paint_fcn = new EspFunction;
+    m_paint_fcn[0].enter_and_leave_outer_function();
+    debug_log("CF id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
   }
 }

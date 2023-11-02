@@ -16,6 +16,13 @@ built-in Agon system font (8x8 pixel characters), so there
 is no font specified in this command. If other fonts are used
 in the future, a new command will be added to the OTF mode.
 
+When a terminal is created, the OTF manager also creates a cursor
+for it, which is a child primitive to the terminal, with an ID
+equal to the terminal's ID plus one. Be sure not to use the ID
+of the cursor for some other new primitive, or the cursor will
+not function properly, and your new primitive may get moved
+as terminal characters are displayed.
+
 ## Select Active Terminal
 <b>VDU 23, 30, 151, id;</b> : Select Active Terminal
 

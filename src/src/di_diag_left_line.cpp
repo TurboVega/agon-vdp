@@ -29,7 +29,8 @@
 DiDiagonalLeftLine::DiDiagonalLeftLine() {
 }
 
-void DiDiagonalLeftLine::init_params(int32_t x, int32_t y, int32_t length, uint8_t color) {
+void DiDiagonalLeftLine::init_params(uint16_t flags, int32_t x, int32_t y, int32_t length, uint8_t color) {
+  m_flags = flags;
   m_opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
   m_rel_x = x - length + 1;
   m_rel_y = y;
