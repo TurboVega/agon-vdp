@@ -85,48 +85,48 @@ void IRAM_ATTR DiGeneralLine::delete_instructions() {
     m_paint_fcn[0].clear();
   }
 }
-extern void debug_log(const char* fmt, ...);
+//extern void debug_log(const char* fmt, ...);
 void IRAM_ATTR DiGeneralLine::generate_instructions() {
   delete_instructions();
   m_flags |= PRIM_FLAGS_X;
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     if (m_flags & PRIM_FLAG_H_SCROLL_1) {
       for (uint32_t pos = 0; pos < 4; pos++) {
-        debug_log("\nid=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
+        //debug_log("\nid=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
         EspFixups fixups;
         uint32_t at_jump_table = m_paint_fcn[pos].init_jump_table(m_line_pieces.m_num_pieces);
         for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
           DiLinePiece* piece = &m_line_pieces.m_pieces[i];
+          //debug_log(" [%i] x%hi w%hi", i, piece->m_x, piece->m_width);
           m_paint_fcn[pos].align32();
           m_paint_fcn[pos].j_to_here(at_jump_table + i * sizeof(uint32_t));
-          m_paint_fcn[pos].draw_line_as_inner_fcn(fixups, m_draw_x + pos,
-            piece->m_x + m_abs_x + pos,
-            piece->m_width, m_flags, m_opaqueness);
+          m_paint_fcn[pos].draw_line_as_inner_fcn(fixups, pos,
+            piece->m_x + pos, piece->m_width, m_flags, m_opaqueness);
         }
         m_paint_fcn[pos].do_fixups(fixups);
-        debug_log("id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
+        //debug_log("id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
       }
     } else {
-        debug_log("\nid=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
+        //debug_log("\nid=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
         EspFixups fixups;
         uint32_t at_jump_table = m_paint_fcn[0].init_jump_table(m_line_pieces.m_num_pieces);
         for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
           DiLinePiece* piece = &m_line_pieces.m_pieces[i];
+          //debug_log(" [%i] x%hi w%hi", i, piece->m_x, piece->m_width);
           m_paint_fcn[0].align32();
           m_paint_fcn[0].j_to_here(at_jump_table + i * sizeof(uint32_t));
-          m_paint_fcn[0].draw_line_as_inner_fcn(fixups, m_draw_x,
-            piece->m_x + m_abs_x,
-            piece->m_width, m_flags, m_opaqueness);
+          m_paint_fcn[0].draw_line_as_inner_fcn(fixups, 0,
+            piece->m_x, piece->m_width, m_flags, m_opaqueness);
         }
         m_paint_fcn[0].do_fixups(fixups);
-        debug_log("id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
+        //debug_log("id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
       }
     }
 }
 
 void IRAM_ATTR DiGeneralLine::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
   if (m_flags & PRIM_FLAG_H_SCROLL_1) {
-    m_paint_fcn[m_draw_x & 3].call_x(this, p_scan_line, line_index, m_draw_x);
+    m_paint_fcn[m_abs_x & 3].call_x(this, p_scan_line, line_index, m_draw_x);
   } else {
     m_paint_fcn[0].call_x(this, p_scan_line, line_index, m_draw_x);
   }
@@ -137,11 +137,11 @@ void DiGeneralLine::create_functions() {
     m_paint_fcn = new EspFunction[4];
     for (uint32_t pos = 0; pos < 4; pos++) {
       m_paint_fcn[pos].enter_and_leave_outer_function();
-      debug_log("CF id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
+      //debug_log("CF id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
     }
   } else {
     m_paint_fcn = new EspFunction;
     m_paint_fcn[0].enter_and_leave_outer_function();
-    debug_log("CF id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
+    //debug_log("CF id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
   }
 }

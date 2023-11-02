@@ -102,7 +102,7 @@ void IRAM_ATTR DiPrimitive::set_relative_deltas(int32_t rel_dx, int32_t rel_dy, 
   m_rel_dy = rel_dy;
   m_auto_moves = auto_moves;
 }
-
+//extern void debug_log(const char* fmt, ...);
 void IRAM_ATTR DiPrimitive::compute_absolute_geometry(
   int32_t view_x, int32_t view_y, int32_t view_x_extent, int32_t view_y_extent) {
   
@@ -140,6 +140,9 @@ void IRAM_ATTR DiPrimitive::compute_absolute_geometry(
   m_draw_x_word = m_draw_x & 0xFFFFFFFC;
   m_draw_x_word_offset = m_draw_x_word - m_abs_x_word;
 
+  //if (m_id>2) debug_log("d(%i,%i), de(%i,%i), aw=%i, dxo=%i, dyo=%i, dxw=%i, dxwo=%o\n",
+  //  m_draw_x, m_draw_y, m_draw_x_extent, m_draw_y_extent,
+  //  m_abs_x_word, m_draw_x_offset, m_draw_y_offset, m_draw_x_word, m_draw_x_word_offset);
   DiPrimitive* child = m_first_child;
   while (child) {
     if (m_flags & PRIM_FLAG_CLIP_KIDS) {
