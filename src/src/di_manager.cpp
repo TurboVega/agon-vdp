@@ -1206,8 +1206,7 @@ bool DiManager::handle_otf_cmd() {
       case 30: {
         auto cmd = &cu->m_30_Create_primitive_Triangle_Outline;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_triangle(cmd->m_id, cmd->m_pid, cmd->m_flags,
-            cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_color);
+          create_triangle_outline(cmd);
           m_incoming_command.clear();
           return true;
         }
@@ -1216,8 +1215,7 @@ bool DiManager::handle_otf_cmd() {
       case 31: {
         auto cmd = &cu->m_31_Create_primitive_Solid_Triangle;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_solid_triangle(cmd->m_id, cmd->m_pid, cmd->m_flags,
-            cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_color);
+          create_solid_triangle(cmd);
           m_incoming_command.clear();
           return true;
         }
