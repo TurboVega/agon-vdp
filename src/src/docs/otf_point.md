@@ -3,7 +3,7 @@
 
 This command creates a primitive that draws a point (sets a single pixel).
 
-The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
+The following image illustrates the concepts, but the actual appearances will differ on the Agon, because this image was created on a PC.
 
 ![Point](point.png)
 

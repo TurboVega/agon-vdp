@@ -98,6 +98,8 @@ created prior to using other 3D related commands, below.
 This command establishes the list of mesh coordinates to be used to define
 a surface structure. The mesh may be referenced by multiple objects.
 
+The "n" parameter is the number of vertices, so the total number of coordinates specified equals n*3.
+
 ## Set Mesh Vertex Indices
 <b>VDU 23, 30, 202, id; mid; n; i0; ...</b> :  Set Mesh Vertex Indices
 
@@ -106,11 +108,15 @@ vertices are often referenced multiple times within a mesh, because they are
 often part of multiple surface triangles. Each index value ranges from 0 to
 the number of defined mesh vertices.
 
+The "n" parameter is the number of indices.
+
 ## Define Texture Coordinates
 <b>VDU 23, 30, 203, id; mid; n; u0; v0; ...</b> :  Define Texture Coordinates
 
 This command establishes the list of U/V texture coordinates that define texturing
 for a mesh.
+
+The "n" parameter is the number of coordinate pairs, so the total number of coordinates specified equals n*2.
 
 ## Set Texture Coordinate Indices
 <b>VDU 23, 30, 204, id; mid; n; i0; ...</b> :  Set Texture Coordinate Indices
@@ -120,6 +126,8 @@ Individual coordinates may be referenced multiple times within a texture,
 but that is not required. The number of indices passed in this command must match
 the number of mesh indices defining the mesh. Thus, each mesh vertex has texture
 coordinates associated with it.
+
+The "n" parameter is the number of indices.
 
 ## Define Object
 <b>VDU 23, 30, 205, id; oid; mid; bmid;</b> :  Create Object

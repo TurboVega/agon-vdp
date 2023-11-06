@@ -143,6 +143,8 @@ bitmap is reached, processing moves to the first pixel in
 the next scan line. Thus, it is possible to provide colors
 for every pixel in the bitmap, using a single command.
 
+The "n" parameter is the number of pixels.
+
 ## Set masked bitmap pixels
 <b>VDU 23, 30, 133, id; x; y; n; c0, c1, c2, ...</b> : Set masked bitmap pixels
 
@@ -154,6 +156,8 @@ for every pixel in the bitmap, using a single command.
 To specify a fully transparent pixel, use the same color that
 was used to create the bitmap.
 
+The "n" parameter is the number of pixels.
+
 ## Set transparent bitmap pixels
 <b>VDU 23, 30, 134, id; x; y; n; c0, c1, c2, ...</b> : Set transparent bitmap pixels
 
@@ -164,6 +168,8 @@ the next scan line. Thus, it is possible to provide colors
 for every pixel in the bitmap, using a single command.
 To specify a fully transparent pixel, use the same color that
 was used to create the bitmap.
+
+The "n" parameter is the number of pixels.
 
 ## Create primitive: Reference Solid Bitmap
 <b>VDU 23, 30, 135, id; pid; flags; bmid;</b> : Create primitive: Reference Solid Bitmap
@@ -198,7 +204,7 @@ similar bitmaps, using only one set of pixel data.
 
 This command sets the PRIM_FLAGS_REF_DATA flag for the new primitive automatically.
 
-The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
+The following image illustrates the concepts, but the actual appearances will differ on the Agon, because this image was created on a PC.
 
 ![Bitmap](bitmap.png)
 

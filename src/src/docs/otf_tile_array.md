@@ -123,6 +123,8 @@ bitmap is reached, processing moves to the first pixel in
 the next scan line. Thus, it is possible to provide colors
 for every pixel in the bitmap, using a single command.
 
+The "n" parameter is the number of pixels.
+
 ## Set masked bitmap pixels in tile array
 <b>VDU 23, 30, 89, id; bmid; x; y; n; c0, c1, c2, ...</b> : Set masked bitmap pixels in Tile Array
 
@@ -133,6 +135,8 @@ the next scan line. Thus, it is possible to provide colors
 for every pixel in the bitmap, using a single command.
 To specify a fully transparent pixel, use the same color that
 was used to create the bitmap.
+
+The "n" parameter is the number of pixels.
 
 ## Set transparent bitmap pixels in tile array
 <b>VDU 23, 30, 90, id; bmid; x; y; n; c0, c1, c2, ...</b> : Set transparent bitmap pixels in Tile Array
@@ -145,7 +149,9 @@ for every pixel in the bitmap, using a single command.
 To specify a fully transparent pixel, use the same color that
 was used to create the bitmap.
 
-The following image illustrates the concept, but the actual appearance will differ on the Agon, because this image was created on a PC.
+The "n" parameter is the number of pixels.
+
+The following image illustrates the concepts, but the actual appearances will differ on the Agon, because this image was created on a PC.
 
 ![Tile Array](tile_array.png)
 
