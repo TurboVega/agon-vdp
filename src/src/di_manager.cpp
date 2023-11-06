@@ -507,32 +507,84 @@ DiSolidRectangle* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent
     return prim;
 }
 
-DiPrimitive* DiManager::create_triangle(uint16_t id, uint16_t parent, uint16_t flags,
-                            int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                            int32_t x3, int32_t y3,
-                            uint8_t color) {
-    if (!validate_id(id)) return NULL;
-    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+DiPrimitive* DiManager::create_triangle_outline(const OtfCmd_30_Create_primitive_Triangle_Outline* cmd) {
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
 
     auto prim = new DiGeneralLine();
+    auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->init_params(flags, x1, y1, x2, y2, x3, y3, color, opaqueness);
+    prim->init_params(cmd->m_flags, cmd->m_x1, cmd->m_y1,
+        cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, color, opaqueness);
 
-    return finish_create(id, flags, prim, parent_prim);
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
 
-DiPrimitive* DiManager::create_solid_triangle(uint16_t id, uint16_t parent, uint16_t flags,
-                            int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                            int32_t x3, int32_t y3,
-                            uint8_t color) {
-    if (!validate_id(id)) return NULL;
-    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+DiPrimitive* DiManager::create_solid_triangle(const OtfCmd_31_Create_primitive_Solid_Triangle* cmd) {
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
 
     auto prim = new DiGeneralLine();
+    auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->init_params(flags, x1, y1, x2, y2, x3, y3, color, opaqueness);
+    prim->init_params(cmd->m_flags, cmd->m_x1, cmd->m_y1,
+        cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, color, opaqueness);
 
-    return finish_create(id, flags, prim, parent_prim);
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
+}
+
+DiPrimitive* DiManager::create_triangle_list_outline(const OtfCmd_32_Create_primitive_Triangle_List_Outline* cmd) {
+
+}
+
+DiPrimitive* DiManager::create_solid_triangle_list(const OtfCmd_33_Create_primitive_Solid_Triangle_List* cmd) {
+  
+}
+
+DiPrimitive* DiManager::create_triangle_fan_outline(const OtfCmd_34_Create_primitive_Triangle_Fan_Outline* cmd) {
+  
+}
+
+DiPrimitive* DiManager::create_solid_triangle_fan(const OtfCmd_35_Create_primitive_Solid_Triangle_Fan* cmd) {
+  
+}
+
+DiPrimitive* DiManager::create_triangle_strip_outline(const OtfCmd_36_Create_primitive_Triangle_Strip_Outline* cmd) {
+  
+}
+
+DiPrimitive* DiManager::create_solid_triangle_strip(const OtfCmd_37_Create_primitive_Solid_Triangle_Strip* cmd) {
+  
+}
+
+DiPrimitive* DiManager::create_quad(uint16_t id, uint16_t parent, uint16_t flags,
+                        int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                        int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+                        uint8_t color) {
+  
+}
+
+DiPrimitive* DiManager::create_solid_quad(uint16_t id, uint16_t parent, uint16_t flags,
+                        int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                        int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+                        uint8_t color) {
+  
+}
+
+DiPrimitive* DiManager::create_quad_list_outline(const OtfCmd_62_Create_primitive_Quad_List_Outline* cmd) {
+  
+}
+
+DiPrimitive* DiManager::create_solid_quad_list(const OtfCmd_63_Create_primitive_Solid_Quad_List* cmd) {
+  
+}
+
+DiPrimitive* DiManager::create_quad_strip_outline(const OtfCmd_64_Create_primitive_Quad_Strip_Outline* cmd) {
+  
+}
+
+DiPrimitive* DiManager::create_solid_quad_strip(const OtfCmd_65_Create_primitive_Solid_Quad_Strip* cmd) {
+  
 }
 
 DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint16_t flags,
@@ -1173,26 +1225,92 @@ bool DiManager::handle_otf_cmd() {
 
       case 32: {
         auto cmd = &cu->m_32_Create_primitive_Triangle_List_Outline;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 3 * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_triangle_list_outline(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 33: {
         auto cmd = &cu->m_33_Create_primitive_Solid_Triangle_List;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 3 * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_solid_triangle_list(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 34: {
         auto cmd = &cu->m_34_Create_primitive_Triangle_Fan_Outline;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n + 2) * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_triangle_fan_outline(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 35: {
         auto cmd = &cu->m_35_Create_primitive_Solid_Triangle_Fan;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n + 2) * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_solid_triangle_fan(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 36: {
         auto cmd = &cu->m_36_Create_primitive_Triangle_Strip_Outline;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n + 2) * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_triangle_strip_outline(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 37: {
         auto cmd = &cu->m_37_Create_primitive_Solid_Triangle_Strip;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n + 2) * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_solid_triangle_strip(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 40: {
@@ -1237,26 +1355,86 @@ bool DiManager::handle_otf_cmd() {
 
       case 60: {
         auto cmd = &cu->m_60_Create_primitive_Quad_Outline;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_quad(cmd->m_id, cmd->m_pid, cmd->m_flags,
+            cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2,
+            cmd->m_x3, cmd->m_y3, cmd->m_x4, cmd->m_y4,
+            cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 61: {
         auto cmd = &cu->m_61_Create_primitive_Solid_Quad;
+        if (m_incoming_command.size() == sizeof(*cmd)) {
+          create_solid_quad(cmd->m_id, cmd->m_pid, cmd->m_flags,
+            cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2,
+            cmd->m_x3, cmd->m_y3, cmd->m_x4, cmd->m_y4,
+            cmd->m_color);
+          m_incoming_command.clear();
+          return true;
+        }
       } break;
 
       case 62: {
         auto cmd = &cu->m_62_Create_primitive_Quad_List_Outline;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 4 * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_quad_list_outline(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 63: {
         auto cmd = &cu->m_63_Create_primitive_Solid_Quad_List;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 4 * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_solid_quad_list(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 64: {
         auto cmd = &cu->m_64_Create_primitive_Quad_Strip_Outline;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n * 2 + 2) * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_quad_strip_outline(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 65: {
         auto cmd = &cu->m_65_Create_primitive_Solid_Quad_Strip;
+        auto len = m_incoming_command.size();
+        if (len >= sizeof(*cmd)) {
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n * 2 + 2) * sizeof(uint16_t));
+          if (len >= total_size) {
+            create_solid_quad_strip(cmd);
+            m_incoming_command.clear();
+            return true;
+          }
+        } else if (m_incoming_command.size() == 5) {
+          m_command_data_index = 0;
+        }
       } break;
 
       case 80: {
