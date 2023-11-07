@@ -181,7 +181,7 @@ void otf(void * pvParameters) {
 		di_manager->create_solid_triangle(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
 	}
-
+/*
 	{
 		OtfCmd_40_Create_primitive_Rectangle_Outline cmd;
 		cmd.m_id = 7;
@@ -205,7 +205,7 @@ void otf(void * pvParameters) {
 		di_manager->create_solid_rectangle(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
 	}
-
+*/
 	debug_log("Running OTF manager...\r\n");
 	di_manager->run();
 }

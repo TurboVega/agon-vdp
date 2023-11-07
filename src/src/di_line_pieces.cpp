@@ -104,7 +104,7 @@ void DiLinePieces::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
       ny.value32.low = 0;
     }
 
-    if (nx.value32.high != first_x || ny.value32.high != first_y) {
+    if (/*nx.value32.high != first_x ||*/ ny.value32.high != first_y) {
       m_pieces[i].m_x = (int16_t)first_x;
       m_pieces[i].m_y = (int16_t)first_y;
       uint16_t width = (uint16_t)(ABS(nx.value32.high - first_x));
@@ -156,6 +156,87 @@ void DiLinePieces::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
       pj->m_width = pt->m_width;
       pt->m_width = w;
     }
+  }
+}
+extern void debug_log(const char* fmt, ...);
+void DiLinePieces::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
+  DiLinePieces lp[3];
+  lp[0].make_line(x1, y1, x2, y2);
+  lp[1].make_line(x2, y2, x3, y3);
+  lp[2].make_line(x3, y3, x1, y1);
+
+  auto min_x = MIN(x1, x2);
+  auto max_x = MAX(x1, x2);
+  auto min_y = MIN(y1, y2);
+  auto max_y = MAX(y1, y2);
+  m_min_x = MIN(min_x, x3);
+  m_max_x = MAX(max_x, x3);
+  m_min_y = MIN(min_y, y3);
+  m_max_y = MAX(max_y, y3);
+
+  // An outline has separate pieces for left and right lines.
+  auto num_pieces = m_max_y - m_min_y + 1;
+  m_num_pieces = num_pieces * 2;
+  m_pieces = new DiLinePiece[num_pieces];
+  debug_log("np %u, mnp %u\n", num_pieces, m_num_pieces);
+
+  uint16_t imp = 0;
+  for (uint16_t i = 0; i < num_pieces; i++) {
+    auto merge_piece = &m_pieces[imp++];
+    merge_piece->m_y = m_min_y + i;
+    merge_piece->m_flags = 0;
+    merge_piece = &m_pieces[imp++];
+    merge_piece->m_y = m_min_y + i;
+    merge_piece->m_flags = 0;
+  }
+
+  for (uint16_t line = 0; line < 3; line++) {
+    auto lpn = &lp[line];
+
+    debug_log("\n");
+    for (uint16_t i = 0; i < lpn->m_num_pieces; i++) {
+      auto piece = &lpn->m_pieces[i];
+      debug_log("lp[%hu] i %hu, y %hu x %hu w %hu\n", line, i, piece->m_y, piece->m_x, piece->m_width);
+    }
+    debug_log("\n");
+
+    for (uint16_t i = 0; i < lpn->m_num_pieces; i++) {
+      auto line_piece = &lpn->m_pieces[i];
+      auto merge_index = (line_piece->m_y - m_min_y) * 2;
+      auto merge_piece = &m_pieces[merge_index];
+      if (merge_piece->m_flags) {
+        // This is the second piece at this Y position.
+        // We must order them for left vs right.
+        if (merge_piece->m_x < line_piece->m_x ||
+            (merge_piece->m_x == line_piece->m_x &&
+             merge_piece->m_width < line_piece->m_width)) {
+          // Already in good order. Set the second piece in the pair.
+          merge_piece++;
+          merge_piece->m_x = line_piece->m_x;
+          merge_piece->m_width = line_piece->m_width;
+        } else {
+          // Order needs to be reversed, so move the first piece.
+          auto second_piece = merge_piece + 1;
+          second_piece->m_x = merge_piece->m_x;
+          second_piece->m_width = merge_piece->m_width;
+          // Set the first piece.
+          merge_piece->m_x = line_piece->m_x;
+          merge_piece->m_width = line_piece->m_width;
+        }
+      } else {
+        // Both pieces in the pair are empty, so set one of them.
+        merge_piece->m_x = line_piece->m_x;
+        merge_piece->m_width = line_piece->m_width;
+        merge_piece->m_flags = 1;
+      }
+    }
+  }
+
+  for (uint16_t i = 0; i < m_num_pieces; i++) {
+    auto piece = &m_pieces[i];
+    debug_log("i %hu, left x %hu w %hu", i, piece->m_x, piece->m_width);
+    piece = &m_pieces[++i];
+    debug_log(", right x %hu w %hu\n", piece->m_x, piece->m_width);
   }
 }
 
