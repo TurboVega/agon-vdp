@@ -101,7 +101,7 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
           m_paint_fcn[pos].align32();
           m_paint_fcn[pos].j_to_here(at_jump_table + i * sizeof(uint32_t));
           m_paint_fcn[pos].draw_line_as_inner_fcn(fixups, pos,
-            piece->m_x + pos, piece->m_width, m_flags, m_opaqueness);
+            piece->m_x + pos, &piece->m_width, 1, m_flags, m_opaqueness);
         }
         m_paint_fcn[pos].do_fixups(fixups);
         //debug_log("id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
@@ -116,7 +116,7 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
           m_paint_fcn[0].align32();
           m_paint_fcn[0].j_to_here(at_jump_table + i * sizeof(uint32_t));
           m_paint_fcn[0].draw_line_as_inner_fcn(fixups, 0,
-            piece->m_x, piece->m_width, m_flags, m_opaqueness);
+            piece->m_x, &piece->m_width, 1, m_flags, m_opaqueness);
         }
         m_paint_fcn[0].do_fixups(fixups);
         //debug_log("id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));

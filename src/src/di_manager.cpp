@@ -534,57 +534,51 @@ DiPrimitive* DiManager::create_solid_triangle(const OtfCmd_31_Create_primitive_S
 }
 
 DiPrimitive* DiManager::create_triangle_list_outline(const OtfCmd_32_Create_primitive_Triangle_List_Outline* cmd) {
-
+  return NULL;
 }
 
 DiPrimitive* DiManager::create_solid_triangle_list(const OtfCmd_33_Create_primitive_Solid_Triangle_List* cmd) {
-  
+  return NULL;  
 }
 
 DiPrimitive* DiManager::create_triangle_fan_outline(const OtfCmd_34_Create_primitive_Triangle_Fan_Outline* cmd) {
-  
+  return NULL;  
 }
 
 DiPrimitive* DiManager::create_solid_triangle_fan(const OtfCmd_35_Create_primitive_Solid_Triangle_Fan* cmd) {
-  
+  return NULL;
 }
 
 DiPrimitive* DiManager::create_triangle_strip_outline(const OtfCmd_36_Create_primitive_Triangle_Strip_Outline* cmd) {
-  
+  return NULL;
 }
 
 DiPrimitive* DiManager::create_solid_triangle_strip(const OtfCmd_37_Create_primitive_Solid_Triangle_Strip* cmd) {
-  
+  return NULL;
 }
 
-DiPrimitive* DiManager::create_quad(uint16_t id, uint16_t parent, uint16_t flags,
-                        int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                        int32_t x3, int32_t y3, int32_t x4, int32_t y4,
-                        uint8_t color) {
-  
+DiPrimitive* DiManager::create_quad_outline(const OtfCmd_60_Create_primitive_Quad_Outline* cmd) {
+  return NULL;
 }
 
-DiPrimitive* DiManager::create_solid_quad(uint16_t id, uint16_t parent, uint16_t flags,
-                        int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                        int32_t x3, int32_t y3, int32_t x4, int32_t y4,
-                        uint8_t color) {
-  
+DiPrimitive* DiManager::create_solid_quad(const OtfCmd_61_Create_primitive_Solid_Quad* cmd) {
+  return NULL;
 }
 
 DiPrimitive* DiManager::create_quad_list_outline(const OtfCmd_62_Create_primitive_Quad_List_Outline* cmd) {
-  
+  return NULL;
 }
 
 DiPrimitive* DiManager::create_solid_quad_list(const OtfCmd_63_Create_primitive_Solid_Quad_List* cmd) {
-  
+  return NULL;  
 }
 
 DiPrimitive* DiManager::create_quad_strip_outline(const OtfCmd_64_Create_primitive_Quad_Strip_Outline* cmd) {
-  
+  return NULL;
 }
 
 DiPrimitive* DiManager::create_solid_quad_strip(const OtfCmd_65_Create_primitive_Solid_Quad_Strip* cmd) {
-  
+  return NULL;
 }
 
 DiTileMap* DiManager::create_tile_map(uint16_t id, uint16_t parent, uint16_t flags,
@@ -1354,10 +1348,7 @@ bool DiManager::handle_otf_cmd() {
       case 60: {
         auto cmd = &cu->m_60_Create_primitive_Quad_Outline;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_quad(cmd->m_id, cmd->m_pid, cmd->m_flags,
-            cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2,
-            cmd->m_x3, cmd->m_y3, cmd->m_x4, cmd->m_y4,
-            cmd->m_color);
+          create_quad_outline(cmd);
           m_incoming_command.clear();
           return true;
         }
@@ -1366,10 +1357,7 @@ bool DiManager::handle_otf_cmd() {
       case 61: {
         auto cmd = &cu->m_61_Create_primitive_Solid_Quad;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_solid_quad(cmd->m_id, cmd->m_pid, cmd->m_flags,
-            cmd->m_x1, cmd->m_y1, cmd->m_x2, cmd->m_y2,
-            cmd->m_x3, cmd->m_y3, cmd->m_x4, cmd->m_y4,
-            cmd->m_color);
+          create_solid_quad(cmd);
           m_incoming_command.clear();
           return true;
         }

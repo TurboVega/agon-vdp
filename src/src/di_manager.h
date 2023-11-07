@@ -89,15 +89,9 @@ class DiManager {
 
     DiPrimitive* create_solid_triangle_strip(const OtfCmd_37_Create_primitive_Solid_Triangle_Strip* cmd);
 
-    DiPrimitive* create_quad(uint16_t id, uint16_t parent, uint16_t flags,
-                            int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                            int32_t x3, int32_t y3, int32_t x4, int32_t y4,
-                            uint8_t color);
+    DiPrimitive* create_quad_outline(const OtfCmd_60_Create_primitive_Quad_Outline* cmd);
 
-    DiPrimitive* create_solid_quad(uint16_t id, uint16_t parent, uint16_t flags,
-                            int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                            int32_t x3, int32_t y3, int32_t x4, int32_t y4,
-                            uint8_t color);
+    DiPrimitive* create_solid_quad(const OtfCmd_61_Create_primitive_Solid_Quad* cmd);
 
     DiPrimitive* create_quad_list_outline(const OtfCmd_62_Create_primitive_Quad_List_Outline* cmd);
     
