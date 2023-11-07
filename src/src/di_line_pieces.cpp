@@ -33,18 +33,46 @@ typedef union {
   } value32;
 } Overlay;
 
-DiLinePieces::DiLinePieces() {
-  m_num_pieces = 0;
-  m_pieces = NULL;
+void DiLineSections::add_piece(int16_t x, uint16_t width) {
+
 }
 
-DiLinePieces::~DiLinePieces() {
-  if (m_pieces) {
-    delete [] m_pieces;
-  }
+void DiLineSections::insert_spaces() {
+
 }
 
-void DiLinePieces::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
+
+DiLineDetails::DiLineDetails() {
+
+}
+
+DiLineDetails::~DiLineDetails() {
+
+}
+
+void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
+
+}
+
+void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
+
+}
+
+void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
+
+}
+
+void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width) {
+
+}
+
+void DiLineDetails::insert_spaces() {
+  
+}
+
+
+/*
+void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
   m_min_x = MIN(x1, x2);
   m_max_x = MAX(x1, x2);
   m_min_y = MIN(y1, y2);
@@ -55,11 +83,11 @@ void DiLinePieces::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
   int16_t delta = MAX(dx, dy);
 
   if (!delta) {
-    m_pieces = new DiLinePiece[1];
-    m_pieces->m_x = x1;
-    m_pieces->m_y = y1;
-    m_pieces->m_width = 1;
-    m_num_pieces = 1;
+    DiLinePiece piece;
+    piece.m_x = x1;
+    piece.m_y = y1;
+    piece.m_width = 1;
+    m_sections.push_back(piece);
     return;
   }
   
@@ -104,7 +132,7 @@ void DiLinePieces::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
       ny.value32.low = 0;
     }
 
-    if (/*nx.value32.high != first_x ||*/ ny.value32.high != first_y) {
+    if (/ *nx.value32.high != first_x ||* / ny.value32.high != first_y) {
       m_pieces[i].m_x = (int16_t)first_x;
       m_pieces[i].m_y = (int16_t)first_y;
       uint16_t width = (uint16_t)(ABS(nx.value32.high - first_x));
@@ -159,8 +187,8 @@ void DiLinePieces::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
   }
 }
 extern void debug_log(const char* fmt, ...);
-void DiLinePieces::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
-  DiLinePieces lp[3];
+void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
+  DiLineDetails lp[3];
   lp[0].make_line(x1, y1, x2, y2);
   lp[1].make_line(x2, y2, x3, y3);
   lp[2].make_line(x3, y3, x1, y1);
@@ -240,8 +268,8 @@ void DiLinePieces::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int
   }
 }
 
-void DiLinePieces::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
-  DiLinePieces lp[3];
+void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
+  DiLineDetails lp[3];
   lp[0].make_line(x1, y1, x2, y2);
   lp[1].make_line(x2, y2, x3, y3);
   lp[2].make_line(x3, y3, x1, y1);
@@ -265,7 +293,7 @@ void DiLinePieces::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16
   }
 
   for (uint16_t line = 0; line < 3; line++) {
-    DiLinePieces* lpn = &lp[line];
+    DiLineDetails* lpn = &lp[line];
     for (uint16_t i = 0; i < lpn->m_num_pieces; i++) {
       DiLinePiece* line_piece = &lpn->m_pieces[i];
       uint16_t merge_index = line_piece->m_y - m_min_y;
@@ -285,3 +313,4 @@ void DiLinePieces::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16
     }
   }
 }
+*/

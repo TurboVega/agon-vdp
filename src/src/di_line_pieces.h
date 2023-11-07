@@ -23,37 +23,56 @@
 
 #pragma once
 #include <stdint.h>
+#include <vector>
 #include "di_constants.h"
 
 #pragma pack(push,2)
 
-// This structure tells how to draw on a single scan line,
+// This structure tells how to draw a section of a line,
+// on a single scan line that intersects with that line,
 // and represents a (possibly) short section of a larger line.
 typedef struct {
-  int16_t m_x;
-  int16_t m_y;
-  uint16_t m_width;
-  uint16_t m_flags;
+  int16_t   m_x;
+  uint16_t  m_width;
 } DiLinePiece;
 
 #pragma pack(pop)
 
-class DiLinePieces {
+// This structure tells how to sections of one or more lines,
+// on a single scan line that intersects with those lines,
+// and represents (possibly) short sections of larger lines.
+class DiLineSections {
   public:
-  DiLinePiece*  m_pieces;
-  int16_t       m_min_x;
-  int16_t       m_min_y;
-  int16_t       m_max_x;
-  int16_t       m_max_y;
-  uint16_t      m_num_pieces;
+  int16_t   m_y;
+  std::vector<DiLinePiece> m_pieces;
 
-  // Constructs an empty object. You must call a function below to create the line pieces.
-  DiLinePieces();
+  // Each added piece represents colored pixels, meaning
+  // pixels that are drawn.
+  void add_piece(int16_t x, uint16_t width);
 
-  // Destroys the line pieces.
-  ~DiLinePieces();
+  // Each inserted blank piece represents transparent pixels,
+  // meaning pixels that are skipped, not drawn.
+  void insert_spaces();
+};
 
-  // This function creates line pieces for a line from two points.
+// This class represents enough details to draw a set of lines,
+// based on sections of them, arranged by scan lines.
+//
+class DiLineDetails {
+  public:
+  int16_t   m_min_x;
+  int16_t   m_min_y;
+  int16_t   m_max_x;
+  int16_t   m_max_y;
+  std::vector<DiLineSections> m_sections;
+
+  // Constructs an empty object. You must call a function below to create the line sections.
+  DiLineDetails();
+
+  // Destroys the line sections.
+  ~DiLineDetails();
+
+  // This function creates line sections for a line from two points.
   void make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
 
   // This function creates a triangle outline from three points.
@@ -61,4 +80,13 @@ class DiLinePieces {
 
   // This function creates a solid (filled) triangle from three points.
   void make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3);
+
+  // Each added piece represents colored pixels, meaning
+  // pixels that are drawn.
+  void add_piece(int16_t x, int16_t y, uint16_t width);
+
+  // This function should be called after all pieces are added.
+  // Each inserted blank piece represents transparent pixels,
+  // meaning pixels that are skipped, not drawn.
+  void insert_spaces();
 };
