@@ -149,6 +149,7 @@ void otf(void * pvParameters) {
 	terminal->clear_screen();
 	di_manager->generate_code_for_primitive(1);
 	boot_screen();
+	print("** Test of OTF 800x600x64 mode **\r\n");
 
 	//di_manager->create_point(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 300, 0xFF);
 	//di_manager->generate_code_for_primitive(3);

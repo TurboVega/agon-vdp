@@ -47,7 +47,8 @@ void IRAM_ATTR DiVerticalLine::generate_instructions() {
   m_paint_fcn.clear();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     EspFixups fixups;
-    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, 1, m_flags, m_opaqueness);
+    uint16_t width = 1;
+    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, &width, 1, m_flags, m_opaqueness);
     m_paint_fcn.do_fixups(fixups);
   }
 }
