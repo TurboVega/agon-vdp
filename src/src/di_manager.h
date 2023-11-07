@@ -57,13 +57,9 @@ class DiManager {
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             uint8_t color);
 
-    DiPrimitive* create_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
-                            int32_t x, int32_t y, uint32_t width, uint32_t height,
-                            uint8_t color);
+    DiPrimitive* create_rectangle_outline(const OtfCmd_40_Create_primitive_Rectangle_Outline* cmd);
 
-    DiSolidRectangle* create_solid_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
-                            int32_t x, int32_t y, uint32_t width, uint32_t height,
-                            uint8_t color);
+    DiSolidRectangle* create_solid_rectangle(const OtfCmd_41_Create_primitive_Solid_Rectangle* cmd);
 
     DiPrimitive* create_ellipse(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height,

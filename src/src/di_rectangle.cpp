@@ -28,7 +28,7 @@
 DiRectangle::DiRectangle() {
 }
 
-void DiRectangle::init_params(uint16_t flags, int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
+void DiRectangle::make_rectangle_outline(uint16_t flags, int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
   m_flags = flags;
   m_rel_x = x;
   m_rel_y = y;

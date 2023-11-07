@@ -28,7 +28,7 @@
 DiVerticalLine::DiVerticalLine() {
 }
 
-void DiVerticalLine::init_params(uint16_t flags, int32_t x, int32_t y, uint32_t height, uint8_t color) {
+void DiVerticalLine::make_line(uint16_t flags, int32_t x, int32_t y, uint32_t height, uint8_t color) {
   m_flags = flags;
   m_opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
   m_rel_x = x;

@@ -40,11 +40,17 @@ class DiGeneralLine: public DiPrimitive {
 
   // This function constructs a line from two points. The upper 2 bits of
   // the color must be zeros.
-  void init_params(uint16_t flags, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t opaqueness);
+  void make_line(uint16_t flags, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t opaqueness);
+
+  // This function constructs a triangle outline from three points. The
+  // upper 2 bits of the color must be zeros.
+  void make_triangle_outline(uint16_t flags, int32_t x1, int32_t y1, int32_t x2,
+            int32_t y2, int32_t x3, int32_t y3, uint8_t color, uint8_t opaqueness);
 
   // This function constructs a solid (filled) triangle from three points. The
   // upper 2 bits of the color must be zeros.
-  void init_params(uint16_t flags, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color, uint8_t opaqueness);
+  void make_solid_triangle(uint16_t flags, int32_t x1, int32_t y1, int32_t x2,
+            int32_t y2, int32_t x3, int32_t y3, uint8_t color, uint8_t opaqueness);
 
   // Clear the custom instructions needed to draw the primitive.
   virtual void IRAM_ATTR delete_instructions();

@@ -156,6 +156,56 @@ void otf(void * pvParameters) {
 	//di_manager->create_line(4, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 50, 10, 50, 300, 0xE0);
 	//di_manager->generate_code_for_primitive(4);
 
+	{
+		OtfCmd_30_Create_primitive_Triangle_Outline cmd;
+		cmd.m_id = 5;
+		cmd.m_pid = ROOT_PRIMITIVE_ID;
+		cmd.m_flags = PRIM_FLAGS_DEFAULT;
+		cmd.m_x1 = 150; cmd.m_y1 = 150;
+		cmd.m_x2 = 190; cmd.m_y2 = 180;
+		cmd.m_x3 = 120; cmd.m_y3 = 170;
+		cmd.m_color = 0xE0;
+		di_manager->create_triangle_outline(&cmd);
+		di_manager->generate_code_for_primitive(cmd.m_id);
+	}
+
+	{
+		OtfCmd_31_Create_primitive_Solid_Triangle cmd;
+		cmd.m_id = 6;
+		cmd.m_pid = ROOT_PRIMITIVE_ID;
+		cmd.m_flags = PRIM_FLAGS_DEFAULT;
+		cmd.m_x1 = 250; cmd.m_y1 = 150;
+		cmd.m_x2 = 290; cmd.m_y2 = 180;
+		cmd.m_x3 = 220; cmd.m_y3 = 170;
+		cmd.m_color = 0xE0;
+		di_manager->create_solid_triangle(&cmd);
+		di_manager->generate_code_for_primitive(cmd.m_id);
+	}
+
+	{
+		OtfCmd_40_Create_primitive_Rectangle_Outline cmd;
+		cmd.m_id = 7;
+		cmd.m_pid = ROOT_PRIMITIVE_ID;
+		cmd.m_flags = PRIM_FLAGS_DEFAULT;
+		cmd.m_x = 350; cmd.m_y = 150;
+		cmd.m_w = 85; cmd.m_h = 77;
+		cmd.m_color = 0xC4;
+		di_manager->create_rectangle_outline(&cmd);
+		di_manager->generate_code_for_primitive(cmd.m_id);
+	}
+
+	{
+		OtfCmd_41_Create_primitive_Solid_Rectangle cmd;
+		cmd.m_id = 8;
+		cmd.m_pid = ROOT_PRIMITIVE_ID;
+		cmd.m_flags = PRIM_FLAGS_DEFAULT;
+		cmd.m_x = 450; cmd.m_y = 150;
+		cmd.m_w = 85; cmd.m_h = 77;
+		cmd.m_color = 0xC4;
+		di_manager->create_solid_rectangle(&cmd);
+		di_manager->generate_code_for_primitive(cmd.m_id);
+	}
+
 	debug_log("Running OTF manager...\r\n");
 	di_manager->run();
 }

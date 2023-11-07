@@ -44,7 +44,7 @@ DiLinePieces::~DiLinePieces() {
   }
 }
 
-void DiLinePieces::generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
+void DiLinePieces::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
   m_min_x = MIN(x1, x2);
   m_max_x = MAX(x1, x2);
   m_min_y = MIN(y1, y2);
@@ -159,11 +159,11 @@ void DiLinePieces::generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int1
   }
 }
 
-void DiLinePieces::generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
+void DiLinePieces::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
   DiLinePieces lp[3];
-  lp[0].generate_line_pieces(x1, y1, x2, y2);
-  lp[1].generate_line_pieces(x2, y2, x3, y3);
-  lp[2].generate_line_pieces(x3, y3, x1, y1);
+  lp[0].make_line(x1, y1, x2, y2);
+  lp[1].make_line(x2, y2, x3, y3);
+  lp[2].make_line(x3, y3, x1, y1);
 
   int16_t min_x = MIN(x1, x2);
   int16_t max_x = MAX(x1, x2);

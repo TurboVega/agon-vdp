@@ -39,7 +39,8 @@ static int32_t max3(int32_t a, int32_t b, int32_t c) {
 
 DiGeneralLine::DiGeneralLine() {}
 
-void DiGeneralLine::init_params(uint16_t flags, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint8_t color, uint8_t opaqueness) {
+void DiGeneralLine::make_line(uint16_t flags, int32_t x1, int32_t y1,
+          int32_t x2, int32_t y2, uint8_t color, uint8_t opaqueness) {
   m_flags = flags;
   m_opaqueness = opaqueness;
   m_rel_x = MIN(x1,x2);
@@ -52,11 +53,11 @@ void DiGeneralLine::init_params(uint16_t flags, int32_t x1, int32_t y1, int32_t 
   y1 -= m_rel_y;
   x2 -= m_rel_x;
   y2 -= m_rel_y;
-  m_line_pieces.generate_line_pieces(x1, y1, x2, y2);
+  m_line_pieces.make_line(x1, y1, x2, y2);
   create_functions();
 }
 
-void DiGeneralLine::init_params(uint16_t flags, int32_t x1, int32_t y1,
+void DiGeneralLine::make_triangle_outline(uint16_t flags, int32_t x1, int32_t y1,
   int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color, uint8_t opaqueness) {
   m_flags = flags;
   m_opaqueness = opaqueness;
@@ -72,7 +73,27 @@ void DiGeneralLine::init_params(uint16_t flags, int32_t x1, int32_t y1,
   y2 -= m_rel_y;
   x3 -= m_rel_x;
   y3 -= m_rel_y;
-  m_line_pieces.generate_line_pieces(x1, y1, x2, y2, x3, y3);
+  m_line_pieces.make_solid_triangle(x1, y1, x2, y2, x3, y3);
+  create_functions();
+}
+
+void DiGeneralLine::make_solid_triangle(uint16_t flags, int32_t x1, int32_t y1,
+  int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color, uint8_t opaqueness) {
+  m_flags = flags;
+  m_opaqueness = opaqueness;
+  m_rel_x = min3(x1,x2,x3);
+  m_rel_y = min3(y1,y2,y3);
+  m_width = max3(x1,x2,x3) - m_rel_x + 1;
+  m_height = max3(y1,y2,y3) - m_rel_y + 1;
+  color &= 0x3F; // remove any alpha bits
+  m_color = PIXEL_COLOR_X4(color); 
+  x1 -= m_rel_x;
+  y1 -= m_rel_y;
+  x2 -= m_rel_x;
+  y2 -= m_rel_y;
+  x3 -= m_rel_x;
+  y3 -= m_rel_y;
+  m_line_pieces.make_solid_triangle(x1, y1, x2, y2, x3, y3);
   create_functions();
 }
 

@@ -54,8 +54,8 @@ class DiLinePieces {
   ~DiLinePieces();
 
   // This function creates line pieces for a line from two points.
-  void generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
+  void make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
 
   // This function creates a solid (filled) triangle from three points.
-  void generate_line_pieces(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3);
+  void make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3);
 };

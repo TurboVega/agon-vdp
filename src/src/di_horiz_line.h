@@ -33,7 +33,7 @@ class DiHorizontalLine: public DiPrimitive {
   DiHorizontalLine();
   
   // The line is horizontal, covering the given number of pixels.
-  void init_params(uint16_t flags, int32_t x, int32_t y, uint32_t width, uint8_t color);
+  void make_line(uint16_t flags, int32_t x, int32_t y, uint32_t width, uint8_t color);
 
   // Clear the custom instructions needed to draw the primitive.
   virtual void IRAM_ATTR delete_instructions();

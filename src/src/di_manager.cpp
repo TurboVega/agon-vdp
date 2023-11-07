@@ -418,74 +418,74 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
             prim = new DiSetPixel(x1, y1, color);
         } else if (y1 < y2) {
             auto line = new DiVerticalLine();
-            line->init_params(flags, x1, y1, y2 - y1 + 1, color);
+            line->make_line(flags, x1, y1, y2 - y1 + 1, color);
             prim = line;
         } else {
             auto line = new DiVerticalLine();
-            line->init_params(flags, x1, y2, y1 - y2 + 1, color);
+            line->make_line(flags, x1, y2, y1 - y2 + 1, color);
             prim = line;
         }
     } else if (x1 < x2) {
         if (y1 == y2) {
             auto line = new DiHorizontalLine();
-            line->init_params(flags, x1, y1, x2 - x1 + 1, color);
+            line->make_line(flags, x1, y1, x2 - x1 + 1, color);
             prim = line;
         } else if (y1 < y2) {
             if (y2 - y1 == x2 - x1) {
                 //auto line = new DiDiagonalRightLine();
-                //line->init_params(flags, x1, y1, x2 - x1 + 1, color);
+                //line->make_line(flags, x1, y1, x2 - x1 + 1, color);
                 //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
-                line->init_params(flags, x1, y1, x2, y2, sep_color, opaqueness);
+                line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
-                line->init_params(flags, x1, y1, x2, y2, sep_color, opaqueness);
+                line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             }
         } else {
             if (y2 - y1 == x2 - x1) {
                 //auto line = new DiDiagonalLeftLine();
-                //line->init_params(flags, x2, y1, x2 - x1 + 1, color);
+                //line->make_line(flags, x2, y1, x2 - x1 + 1, color);
                 //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
-                line->init_params(flags, x1, y1, x2, y2, sep_color, opaqueness);
+                line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
-                line->init_params(flags, x1, y1, x2, y2, sep_color, opaqueness);
+                line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             }
         }
     } else {
         if (y1 == y2) {
             auto line = new DiHorizontalLine();
-            line->init_params(flags, x2, y1, x1 - x2 + 1, color);
+            line->make_line(flags, x2, y1, x1 - x2 + 1, color);
             prim = line;
         } else if (y1 < y2) {
             if (y2 - y1 == x1 - x2) {
                 //auto line = new DiDiagonalLeftLine();
-                //line->init_params(flags, x1, y1, x1 - x2 + 1, color);
+                //line->make_line(flags, x1, y1, x1 - x2 + 1, color);
                 //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
-                line->init_params(flags, x1, y1, x2, y2, sep_color, opaqueness);
+                line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
-                line->init_params(flags, x1, y1, x2, y2, sep_color, opaqueness);
+                line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             }
         } else {
             if (y2 - y1 == x1 - x2) {
                 //auto line = new DiDiagonalRightLine();
-                //line->init_params(flags, x2, y1, x1 - x2 + 1, color);
+                //line->make_line(flags, x2, y1, x1 - x2 + 1, color);
                 //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
-                line->init_params(flags, x1, y1, x2, y2, sep_color, opaqueness);
+                line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             } else {
                 auto line = new DiGeneralLine();
-                line->init_params(flags, x1, y1, x2, y2, sep_color, opaqueness);
+                line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
             }
         }
@@ -494,16 +494,14 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
     return finish_create(id, flags, prim, parent_prim);
 }
 
-DiSolidRectangle* DiManager::create_solid_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
-                            int32_t x, int32_t y, uint32_t width, uint32_t height,
-                            uint8_t color) {
-    if (!validate_id(id)) return NULL;
-    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+DiSolidRectangle* DiManager::create_solid_rectangle(const OtfCmd_41_Create_primitive_Solid_Rectangle* cmd) {
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
 
     auto prim = new DiSolidRectangle();
-    prim->init_params(flags, x, y, width, height, color);
+    prim->make_rectangle(cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
 
-    finish_create(id, flags, prim, parent_prim);
+    finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
     return prim;
 }
 
@@ -514,7 +512,7 @@ DiPrimitive* DiManager::create_triangle_outline(const OtfCmd_30_Create_primitive
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->init_params(cmd->m_flags, cmd->m_x1, cmd->m_y1,
+    prim->make_triangle_outline(cmd->m_flags, cmd->m_x1, cmd->m_y1,
         cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
@@ -527,7 +525,7 @@ DiPrimitive* DiManager::create_solid_triangle(const OtfCmd_31_Create_primitive_S
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->init_params(cmd->m_flags, cmd->m_x1, cmd->m_y1,
+    prim->make_solid_triangle(cmd->m_flags, cmd->m_x1, cmd->m_y1,
         cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
@@ -627,9 +625,17 @@ DiTerminal* DiManager::create_terminal(uint16_t id, uint16_t parent, uint16_t fl
     cx = cy = cx_extent = cy_extent = 0;
     m_terminal->get_tile_coordinates(0, 0, cx, cy, cx_extent, cy_extent);
     auto w = cx_extent - cx;
-    m_cursor = create_solid_rectangle(id+1, id,
-                (flags & PRIM_FLAGS_DEFAULT),
-                cx, cy_extent-2, w, 2, 0xFF);
+
+    OtfCmd_41_Create_primitive_Solid_Rectangle cmd;
+    cmd.m_id = id + 1;
+    cmd.m_pid = id;
+    cmd.m_flags = flags & PRIM_FLAGS_DEFAULT;
+    cmd.m_x = cx;
+    cmd.m_y = cy_extent - 2;
+    cmd.m_w = w;
+    cmd.m_h = 2;
+    cmd.m_color = 0xFF;
+    m_cursor = create_solid_rectangle(&cmd);
     cursorEnabled = true;
     terminalMode = true;
 
@@ -1308,8 +1314,7 @@ bool DiManager::handle_otf_cmd() {
       case 40: {
         auto cmd = &cu->m_40_Create_primitive_Rectangle_Outline;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_rectangle(cmd->m_id, cmd->m_pid, cmd->m_flags,
-            cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          create_rectangle_outline(cmd);
           m_incoming_command.clear();
           return true;
         }
@@ -1318,8 +1323,7 @@ bool DiManager::handle_otf_cmd() {
       case 41: {
         auto cmd = &cu->m_41_Create_primitive_Solid_Rectangle;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_solid_rectangle(cmd->m_id, cmd->m_pid, cmd->m_flags,
-            cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
+          create_solid_rectangle(cmd);
           m_incoming_command.clear();
           return true;
         }
@@ -2151,15 +2155,14 @@ void DiManager::generate_code_for_primitive(uint16_t id) {
   prim->generate_instructions();
 }
 
-DiPrimitive* DiManager::create_rectangle(uint16_t id, uint16_t parent, uint16_t flags,
-                        int32_t x, int32_t y, uint32_t width, uint32_t height, uint8_t color) {
-    if (!validate_id(id)) return NULL;
-    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+DiPrimitive* DiManager::create_rectangle_outline(const OtfCmd_40_Create_primitive_Rectangle_Outline* cmd) {
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
 
     auto prim = new DiRectangle();
-    prim->init_params(flags, x, y, width, height, color);
+    prim->make_rectangle_outline(cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
 
-    return finish_create(id, flags, prim, parent_prim);
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_ellipse(uint16_t id, uint16_t parent, uint16_t flags,
