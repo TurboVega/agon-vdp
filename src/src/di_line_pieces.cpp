@@ -99,7 +99,7 @@ void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int1
   make_line(x3, y3, x1, y1, true);
 }
 
-void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width) {
+void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) {
   if (m_sections.size()) {
     // determine whether to add a new section
     if (y < m_min_y) {
@@ -107,21 +107,21 @@ void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width) {
       auto new_count = m_min_y - y;
       DiLineSections new_sections;
       m_sections.insert(m_sections.begin(), new_count, new_sections);
-      m_sections[0].add_piece(x, width);
+      m_sections[0].add_piece(x, width, solid);
     } else if (y > m_max_y) {
       // insert one or more new sections at higher Y values
       auto new_count = y - m_max_y;
       DiLineSections new_sections;
       m_sections.resize(m_sections.size() + new_count);
-      m_sections[m_sections.size() - 1].add_piece(x, width);
+      m_sections[m_sections.size() - 1].add_piece(x, width, solid);
     } else {
       // reuse an existing section with the same Y value
-      m_sections[y - m_min_y].add_piece(x, width);
+      m_sections[y - m_min_y].add_piece(x, width, solid);
     }
   } else {
     // add the first section
     DiLineSections new_section;
-    new_section.add_piece(x, width);
+    new_section.add_piece(x, width, solid);
     m_min_x = x;
     m_min_y = y;
     m_max_x = x;

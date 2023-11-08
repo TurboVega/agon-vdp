@@ -79,5 +79,5 @@ class DiLineDetails {
 
   // Each added piece represents colored pixels, meaning
   // pixels that are drawn.
-  void add_piece(int16_t x, int16_t y, uint16_t width);
+  void add_piece(int16_t x, int16_t y, uint16_t width, bool solid);
 };
