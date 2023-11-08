@@ -34,7 +34,42 @@ typedef union {
 } Overlay;
 
 void DiLineSections::add_piece(int16_t x, uint16_t width) {
-
+  auto x_extent = x + width;
+  for (auto piece = m_pieces.begin(); piece != m_pieces.end(); piece++) {
+    auto piece_extent = piece->m_x + piece->m_width;
+    // (a)  px----------pe
+    //            x-----------xe
+    //
+    // (b)        px----------pe
+    //       x-----------xe
+    //
+    // (c)       x-------xe
+    //              px--------pe
+    // (d)   x-------xe
+    //     px--------pe
+    if (x >= piece->m_x && x <= piece_extent || // case (a)
+        x_extent >= piece->m_x && x_extent <= piece_extent || // case (b)
+        piece->m_x >= x && piece->m_x <= x_extent || // case (c)
+        piece_extent >= x && piece_extent <= x_extent) { // case (d)
+      // merge the new piece with the old piece
+      piece->m_x = MIN(piece->m_x, x);
+      auto extent = MAX(x_extent, piece_extent);
+      piece->m_width = extent - piece->m_x;
+      return;
+    } else if (x_extent < piece->m_x) {
+      // insert a new piece before the old piece
+      DiLinePiece new_piece;
+      new_piece.m_x = x;
+      new_piece.m_width = width;
+      m_pieces.insert(piece, new_piece);
+      return;
+    }
+  }
+  // insert a new piece after the old piece
+  DiLinePiece new_piece;
+  new_piece.m_x = x;
+  new_piece.m_width = width;
+  m_pieces.push_back(new_piece);
 }
 
 void DiLineSections::insert_spaces() {
@@ -43,11 +78,13 @@ void DiLineSections::insert_spaces() {
 
 
 DiLineDetails::DiLineDetails() {
-
+  m_min_x = 0;
+  m_min_y = 0;
+  m_max_x = 0;
+  m_max_y = 0;
 }
 
 DiLineDetails::~DiLineDetails() {
-
 }
 
 void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
@@ -63,7 +100,33 @@ void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int1
 }
 
 void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width) {
-
+  if (m_sections.size()) {
+    // determine whether to add a new section
+    if (y < m_min_y) {
+      // insert one or more new sections at lower Y values
+      auto new_count = m_min_y - y;
+      DiLineSections new_sections;
+      m_sections.insert(m_sections.begin(), new_count, new_sections);
+      m_sections[0].add_piece(x, width);
+    } else if (y > m_max_y) {
+      // insert one or more new sections at higher Y values
+      auto new_count = y - m_max_y;
+      DiLineSections new_sections;
+      m_sections.resize(m_sections.size() + new_count);
+      m_sections[m_sections.size() - 1].add_piece(x, width);
+    } else {
+      // reuse an existing section with the same Y value
+      m_sections[y - m_min_y].add_piece(x, width);
+    }
+  } else {
+    // add the first section
+    DiLineSections new_section;
+    new_section.add_piece(x, width);
+    m_min_x = x;
+    m_min_y = y;
+    m_max_x = x;
+    m_max_y = y;
+  }
 }
 
 void DiLineDetails::insert_spaces() {
