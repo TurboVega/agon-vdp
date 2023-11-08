@@ -48,7 +48,9 @@ void IRAM_ATTR DiSolidRectangle::generate_instructions() {
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     EspFixups fixups;
     auto width = (uint16_t)m_width;
-    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, &width, 1, m_flags, m_opaqueness);
+    DiLineSections sections;
+    sections.add_piece(m_draw_x, width, false);
+    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, &sections, m_flags, m_opaqueness);
     m_paint_fcn.do_fixups(fixups);
   }
 }

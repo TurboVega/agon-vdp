@@ -32,7 +32,7 @@
 
 class DiGeneralLine: public DiPrimitive {
   public:
-  DiLinePieces  m_line_pieces; // determines how pixels on each scan line are written
+  DiLineDetails m_line_details; // determines how pixels on each scan line are written
   uint8_t       m_opaqueness;
 
   // Construct a general line. This requires calling init_params() afterward.

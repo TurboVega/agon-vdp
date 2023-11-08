@@ -49,7 +49,9 @@ void IRAM_ATTR DiDiagonalRightLine::generate_instructions() {
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     EspFixups fixups;
     uint16_t width = 1;
-    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, &width, 1, m_flags, m_opaqueness);
+    DiLineSections sections;
+    sections.add_piece(m_draw_x, 1, (m_opaqueness == 100));
+    m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, &sections, m_flags, m_opaqueness);
     m_paint_fcn.do_fixups(fixups);
   }
 }

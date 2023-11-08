@@ -25,6 +25,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include "di_line_pieces.h"
 
 typedef enum {
     a0 = 0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15,
@@ -58,14 +59,13 @@ class EspFunction {
     // Pixel-level operations:
 
     void draw_line_as_outer_fcn(EspFixups& fixups, uint32_t draw_x, uint32_t x,
-                        uint16_t* widths, uint16_t num_widths, uint16_t flags, uint8_t opaqueness);
+                        const DiLineSections* sections, uint16_t flags, uint8_t opaqueness);
 
     void draw_line_as_inner_fcn(EspFixups& fixups, uint32_t draw_x, uint32_t x,
-                        uint16_t* widths, uint16_t num_widths, uint16_t flags, uint8_t opaqueness);
+                        const DiLineSections* sections, uint16_t flags, uint8_t opaqueness);
 
-    void draw_line_loop(EspFixups& fixups, uint32_t x, uint32_t draw_x,
-                        uint16_t* widths, uint16_t num_widths,
-                        uint16_t flags, uint8_t opaqueness);
+    void draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
+                        const DiLineSections* sections, uint16_t flags, uint8_t opaqueness);
 
     void copy_line_as_outer_fcn(EspFixups& fixups, uint32_t draw_x, uint32_t x, uint32_t width,
         uint16_t flags, uint8_t transparent_color, uint32_t* src_pixels);

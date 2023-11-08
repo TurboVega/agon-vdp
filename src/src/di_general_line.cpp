@@ -53,7 +53,7 @@ void DiGeneralLine::make_line(uint16_t flags, int32_t x1, int32_t y1,
   y1 -= m_rel_y;
   x2 -= m_rel_x;
   y2 -= m_rel_y;
-  m_line_pieces.make_line(x1, y1, x2, y2);
+  m_line_details.make_line(x1, y1, x2, y2, true);
   create_functions();
 }
 
@@ -73,7 +73,7 @@ void DiGeneralLine::make_triangle_outline(uint16_t flags, int32_t x1, int32_t y1
   y2 -= m_rel_y;
   x3 -= m_rel_x;
   y3 -= m_rel_y;
-  m_line_pieces.make_solid_triangle(x1, y1, x2, y2, x3, y3);
+  m_line_details.make_triangle_outline(x1, y1, x2, y2, x3, y3);
   create_functions();
 }
 
@@ -93,7 +93,7 @@ void DiGeneralLine::make_solid_triangle(uint16_t flags, int32_t x1, int32_t y1,
   y2 -= m_rel_y;
   x3 -= m_rel_x;
   y3 -= m_rel_y;
-  m_line_pieces.make_solid_triangle(x1, y1, x2, y2, x3, y3);
+  m_line_details.make_solid_triangle(x1, y1, x2, y2, x3, y3);
   create_functions();
 }
 
@@ -115,14 +115,15 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
       for (uint32_t pos = 0; pos < 4; pos++) {
         //debug_log("\nid=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
         EspFixups fixups;
-        uint32_t at_jump_table = m_paint_fcn[pos].init_jump_table(m_line_pieces.m_num_pieces);
-        for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
-          DiLinePiece* piece = &m_line_pieces.m_pieces[i];
+        auto num_sections = (uint32_t)m_line_details.m_sections.size();
+        uint32_t at_jump_table = m_paint_fcn[pos].init_jump_table(num_sections);
+        for (uint32_t i = 0; i < num_sections; i++) {
+          auto sections = &m_line_details.m_sections[i];
           //debug_log(" [%i] x%hi w%hi", i, piece->m_x, piece->m_width);
           m_paint_fcn[pos].align32();
           m_paint_fcn[pos].j_to_here(at_jump_table + i * sizeof(uint32_t));
-          m_paint_fcn[pos].draw_line_as_inner_fcn(fixups, pos,
-            piece->m_x + pos, &piece->m_width, 1, m_flags, m_opaqueness);
+          m_paint_fcn[pos].draw_line_as_inner_fcn(fixups, pos, pos,
+            sections, m_flags, m_opaqueness);
         }
         m_paint_fcn[pos].do_fixups(fixups);
         //debug_log("id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
@@ -130,14 +131,15 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
     } else {
         //debug_log("\nid=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
         EspFixups fixups;
-        uint32_t at_jump_table = m_paint_fcn[0].init_jump_table(m_line_pieces.m_num_pieces);
-        for (uint32_t i = 0; i < m_line_pieces.m_num_pieces; i++) {
-          DiLinePiece* piece = &m_line_pieces.m_pieces[i];
+        auto num_sections = (uint32_t)m_line_details.m_sections.size();
+        uint32_t at_jump_table = m_paint_fcn[0].init_jump_table(num_sections);
+        for (uint32_t i = 0; i < num_sections; i++) {
+          auto sections = &m_line_details.m_sections[i];
           //debug_log(" [%i] x%hi w%hi", i, piece->m_x, piece->m_width);
           m_paint_fcn[0].align32();
           m_paint_fcn[0].j_to_here(at_jump_table + i * sizeof(uint32_t));
-          m_paint_fcn[0].draw_line_as_inner_fcn(fixups, 0,
-            piece->m_x, &piece->m_width, 1, m_flags, m_opaqueness);
+          m_paint_fcn[0].draw_line_as_inner_fcn(fixups, 0, 0,
+            sections, m_flags, m_opaqueness);
         }
         m_paint_fcn[0].do_fixups(fixups);
         //debug_log("id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));

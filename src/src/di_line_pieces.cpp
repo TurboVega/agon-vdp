@@ -96,7 +96,7 @@ void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bo
   int16_t delta = MAX(dx, dy);
 
   if (!delta) {
-    add_piece(x1, 1, solid);
+    add_piece(x1, y1, 1, solid);
     return;
   }
   

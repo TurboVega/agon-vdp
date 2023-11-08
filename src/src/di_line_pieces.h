@@ -62,7 +62,7 @@ class DiLineDetails {
   std::vector<DiLineSections> m_sections;
 
   // Constructs an empty object. You must call a function below to create the line sections.
-  DiLineDetails(bool solid);
+  DiLineDetails();
 
   // Destroys the line sections.
   ~DiLineDetails();

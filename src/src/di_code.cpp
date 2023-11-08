@@ -285,7 +285,7 @@ void EspFunction::init_members() {
 }
 
 void EspFunction::draw_line_as_outer_fcn(EspFixups& fixups, uint32_t draw_x, uint32_t x,
-                            uint16_t* widths, uint16_t num_widths,
+                            const DiLineSections* sections,
                             uint16_t flags, uint8_t opaqueness) {
     auto at_jump = enter_outer_function();
     auto at_data = begin_data();
@@ -312,14 +312,14 @@ void EspFunction::draw_line_as_outer_fcn(EspFixups& fixups, uint32_t draw_x, uin
         mov(REG_SAVE_COLOR, REG_PIXEL_COLOR);
     }
 
-    draw_line_loop(fixups, draw_x, x, widths, num_widths, flags, opaqueness);
+    draw_line_loop(fixups, draw_x, x, sections, flags, opaqueness);
 
     l32i(REG_RETURN_ADDR, REG_STACK_PTR, OUTER_RET_ADDR_IN_STACK);
     retw();
 }
 
 void EspFunction::draw_line_as_inner_fcn(EspFixups& fixups, uint32_t draw_x, uint32_t x,
-                uint16_t* widths, uint16_t num_widths,
+                const DiLineSections* sections,
                 uint16_t flags, uint8_t opaqueness) {
     auto at_jump = enter_inner_function();
     auto at_data = begin_data();
@@ -345,7 +345,7 @@ void EspFunction::draw_line_as_inner_fcn(EspFixups& fixups, uint32_t draw_x, uin
         mov(REG_SAVE_COLOR, REG_PIXEL_COLOR);
     }
 
-    draw_line_loop(fixups, draw_x, x, widths, num_widths, flags, opaqueness);
+    draw_line_loop(fixups, draw_x, x, sections, flags, opaqueness);
 
     l32i(REG_RETURN_ADDR, REG_STACK_PTR, INNER_RET_ADDR_IN_STACK);
     ret();
@@ -382,7 +382,7 @@ void EspFunction::adjust_dst_pixel_ptr(uint32_t draw_x, uint32_t x) {
 }
 
 void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
-    uint16_t* widths, uint16_t num_widths, uint16_t flags, uint8_t opaqueness) {
+    const DiLineSections* sections, uint16_t flags, uint8_t opaqueness) {
     uint32_t p_fcn = 0;
     auto x_offset = x & 3;
 
@@ -391,11 +391,12 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
     }
 
     auto given_opaqueness = opaqueness;
+    auto num_sections = (uint32_t)sections->m_pieces.size();
 
-    for (uint16_t wi = 0; wi < num_widths; wi++) {
+    for (uint16_t wi = 0; wi < num_sections; wi++) {
         opaqueness = (wi & 1) ? 0 : given_opaqueness;
-        auto more = wi + 1 < num_widths;
-        uint32_t width = widths[wi];
+        auto more = wi + 1 < num_sections;
+        uint32_t width = sections->m_pieces[wi].m_width;
         while (width) {
             auto offset = x_offset & 3;
             uint32_t sub = 1;
