@@ -43,7 +43,6 @@ typedef struct {
 // and represents (possibly) short sections of larger lines.
 class DiLineSections {
   public:
-  int16_t   m_y;
   std::vector<DiLinePiece> m_pieces;
 
   // Each added piece represents colored pixels, meaning

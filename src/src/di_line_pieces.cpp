@@ -84,7 +84,112 @@ DiLineDetails::~DiLineDetails() {
 }
 
 void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool solid) {
+  auto min_x = MIN(x1, x2);
+  auto max_x = MAX(x1, x2);
+  auto min_y = MIN(y1, y2);
+  auto max_y = MAX(y1, y2);
+  auto flip_vertically = (x1<x2 && y1>y2);
+  auto flip_horizontally = (x1>x2 && y1<y2);
 
+  int16_t dx = max_x - min_x;
+  int16_t dy = max_y - min_y;
+  int16_t delta = MAX(dx, dy);
+
+  if (!delta) {
+    add_piece(x1, 1, solid);
+    return;
+  }
+  
+  Overlay x;
+  x.value32.low = 0;
+  x.value32.high = min_x;
+  int64_t delta_x = (((int64_t)dx) << 32) / delta + 1;
+
+  Overlay y;
+  y.value32.low = 0;
+  y.value32.high = min_y;
+  int64_t delta_y = (((int64_t)dy) << 32) / delta + 1;
+
+  int32_t first_x = x.value32.high;
+  int32_t first_y = y.value32.high;
+  uint16_t i = 0;
+
+  bool x_at_end = (x1 == x2);
+  bool y_at_end = (y1 == y2);
+
+  while (i < delta) {
+    Overlay nx;
+    Overlay ny;
+    if (!x_at_end) {
+      nx.value64 = x.value64 + delta_x;
+      if (nx.value32.high == max_x) {
+        x_at_end = true;
+      }
+    } else {
+      nx.value32.high = first_x;
+      nx.value32.low = 0;
+    }
+    
+    if (!y_at_end) {
+      ny.value64 = y.value64 + delta_y;
+      if (ny.value32.high == max_y) {
+        y_at_end = true;
+      }
+    } else {
+      ny.value32.high = first_y;
+      ny.value32.low = 0;
+    }
+
+    if (/*nx.value32.high != first_x ||*/ ny.value32.high != first_y) {
+      uint16_t width = (uint16_t)(ABS(nx.value32.high - first_x));
+      if (width == 0) {
+          width = 1;
+      }
+      if (flip_vertically) {
+        first_y = min_y + (dy - (first_y - min_y));
+      } else if (flip_horizontally) {
+        // 0123456789
+        //       --
+        //   --
+        // first_x is 6
+        // width is 2
+        // dx is 9
+        // min_x is 0
+        // new first_x is 0 + (9 - (6 - 0)) - 2 + 1 = 2
+        //
+        // old first_x is 0 + (9 - (2 - 0)) - 2 + 1 = 6
+        //
+        first_x = min_x + (dx - (first_x - min_x)) - width + 1;
+      }
+      add_piece((int16_t)first_x, (int16_t)first_y, width, solid);
+      
+      first_x = nx.value32.high;
+      first_y = ny.value32.high;
+    }
+
+    if (x_at_end && y_at_end) {
+      break;
+    }
+
+    x.value64 += delta_x;
+    y.value64 += delta_y;
+  }
+
+  uint16_t width = (int16_t)(ABS(max_x - first_x + 1));
+  if (width == 0) {
+      width = 1;
+  }
+  if (flip_vertically) {
+    first_y = min_y + (dy - (first_y - min_y));
+  } else if (flip_horizontally) {
+    first_x = min_x + (dx - (first_x - min_x)) - width + 1;    
+  }
+  add_piece((int16_t)first_x, (int16_t)first_y, width, solid);
+
+  m_min_x = MIN(m_min_x, min_x);  
+  m_min_y = MIN(m_min_y, min_y);  
+  m_max_x = MIN(m_max_x, max_x);  
+  m_max_y = MIN(m_max_y, max_y);  
 }
 
 void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
@@ -130,120 +235,6 @@ void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) 
 }
 
 /*
-void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
-  m_min_x = MIN(x1, x2);
-  m_max_x = MAX(x1, x2);
-  m_min_y = MIN(y1, y2);
-  m_max_y = MAX(y1, y2);
-
-  int16_t dx = m_max_x - m_min_x;
-  int16_t dy = m_max_y - m_min_y;
-  int16_t delta = MAX(dx, dy);
-
-  if (!delta) {
-    DiLinePiece piece;
-    piece.m_x = x1;
-    piece.m_y = y1;
-    piece.m_width = 1;
-    m_sections.push_back(piece);
-    return;
-  }
-  
-  Overlay x;
-  x.value32.low = 0;
-  x.value32.high = m_min_x;
-  int64_t delta_x = (((int64_t)dx) << 32) / delta + 1;
-
-  Overlay y;
-  y.value32.low = 0;
-  y.value32.high = m_min_y;
-  int64_t delta_y = (((int64_t)dy) << 32) / delta + 1;
-
-  m_pieces = new DiLinePiece[delta+1];
-  int32_t first_x = x.value32.high;
-  int32_t first_y = y.value32.high;
-  uint16_t i = 0;
-
-  bool x_at_end = (x1 == x2);
-  bool y_at_end = (y1 == y2);
-
-  while (i < delta) {
-    Overlay nx;
-    Overlay ny;
-    if (!x_at_end) {
-      nx.value64 = x.value64 + delta_x;
-      if (nx.value32.high == m_max_x) {
-        x_at_end = true;
-      }
-    } else {
-      nx.value32.high = first_x;
-      nx.value32.low = 0;
-    }
-    
-    if (!y_at_end) {
-      ny.value64 = y.value64 + delta_y;
-      if (ny.value32.high == m_max_y) {
-        y_at_end = true;
-      }
-    } else {
-      ny.value32.high = first_y;
-      ny.value32.low = 0;
-    }
-
-    if (/ *nx.value32.high != first_x ||* / ny.value32.high != first_y) {
-      m_pieces[i].m_x = (int16_t)first_x;
-      m_pieces[i].m_y = (int16_t)first_y;
-      uint16_t width = (uint16_t)(ABS(nx.value32.high - first_x));
-      if (width == 0) {
-          width = 1;
-      }
-      m_pieces[i++].m_width = width;
-      
-      first_x = nx.value32.high;
-      first_y = ny.value32.high;
-    }
-
-    if (x_at_end && y_at_end) {
-      break;
-    }
-
-    x.value64 += delta_x;
-    y.value64 += delta_y;
-  }
-
-  uint16_t width = (int16_t)(ABS(m_max_x - first_x + 1));
-  m_pieces[i].m_x = (int16_t)first_x;
-  m_pieces[i].m_y = (int16_t)first_y;
-  if (width == 0) {
-      width = 1;
-  }
-  m_pieces[i++].m_width = width;
-  m_num_pieces = i;
-  
-  if (x1<x2 && y1>y2) {
-    // Flip the line vertically
-    uint16_t mid = i/2;
-    for (uint16_t j = 0; j < mid; j++) {
-      DiLinePiece* pj = &m_pieces[j];
-      DiLinePiece* pt = &m_pieces[i - 1 - j];
-      uint16_t y = pj->m_y;
-      pj->m_y = pt->m_y;
-      pt->m_y = y;
-    }
-  } else if (x1>x2 && y1<y2) {
-    uint16_t mid = i/2;
-    for (uint16_t j = 0; j < mid; j++) {
-      DiLinePiece* pj = &m_pieces[j];
-      DiLinePiece* pt = &m_pieces[i - 1 - j];
-      uint16_t x = pj->m_x;
-      pj->m_x = pt->m_x;
-      pt->m_x = x;
-      uint16_t w = pj->m_width;
-      pj->m_width = pt->m_width;
-      pt->m_width = w;
-    }
-  }
-}
 extern void debug_log(const char* fmt, ...);
 void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
   DiLineDetails lp[3];
