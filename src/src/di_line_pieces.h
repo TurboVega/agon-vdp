@@ -49,10 +49,6 @@ class DiLineSections {
   // Each added piece represents colored pixels, meaning
   // pixels that are drawn.
   void add_piece(int16_t x, uint16_t width);
-
-  // Each inserted blank piece represents transparent pixels,
-  // meaning pixels that are skipped, not drawn.
-  void insert_spaces();
 };
 
 // This class represents enough details to draw a set of lines,
@@ -84,9 +80,4 @@ class DiLineDetails {
   // Each added piece represents colored pixels, meaning
   // pixels that are drawn.
   void add_piece(int16_t x, int16_t y, uint16_t width);
-
-  // This function should be called after all pieces are added.
-  // Each inserted blank piece represents transparent pixels,
-  // meaning pixels that are skipped, not drawn.
-  void insert_spaces();
 };

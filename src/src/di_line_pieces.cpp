@@ -72,11 +72,6 @@ void DiLineSections::add_piece(int16_t x, uint16_t width) {
   m_pieces.push_back(new_piece);
 }
 
-void DiLineSections::insert_spaces() {
-
-}
-
-
 DiLineDetails::DiLineDetails() {
   m_min_x = 0;
   m_min_y = 0;
@@ -128,11 +123,6 @@ void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width) {
     m_max_y = y;
   }
 }
-
-void DiLineDetails::insert_spaces() {
-  
-}
-
 
 /*
 void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
