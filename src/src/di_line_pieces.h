@@ -48,7 +48,7 @@ class DiLineSections {
 
   // Each added piece represents colored pixels, meaning
   // pixels that are drawn.
-  void add_piece(int16_t x, uint16_t width);
+  void add_piece(int16_t x, uint16_t width, bool solid);
 };
 
 // This class represents enough details to draw a set of lines,
@@ -63,13 +63,13 @@ class DiLineDetails {
   std::vector<DiLineSections> m_sections;
 
   // Constructs an empty object. You must call a function below to create the line sections.
-  DiLineDetails();
+  DiLineDetails(bool solid);
 
   // Destroys the line sections.
   ~DiLineDetails();
 
   // This function creates line sections for a line from two points.
-  void make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
+  void make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool solid);
 
   // This function creates a triangle outline from three points.
   void make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3);

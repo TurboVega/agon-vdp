@@ -33,7 +33,7 @@ typedef union {
   } value32;
 } Overlay;
 
-void DiLineSections::add_piece(int16_t x, uint16_t width) {
+void DiLineSections::add_piece(int16_t x, uint16_t width, bool solid) {
   auto x_extent = x + width;
   for (auto piece = m_pieces.begin(); piece != m_pieces.end(); piece++) {
     auto piece_extent = piece->m_x + piece->m_width;
@@ -47,7 +47,8 @@ void DiLineSections::add_piece(int16_t x, uint16_t width) {
     //              px--------pe
     // (d)   x-------xe
     //     px--------pe
-    if (x >= piece->m_x && x <= piece_extent || // case (a)
+    if (solid ||
+        x >= piece->m_x && x <= piece_extent || // case (a)
         x_extent >= piece->m_x && x_extent <= piece_extent || // case (b)
         piece->m_x >= x && piece->m_x <= x_extent || // case (c)
         piece_extent >= x && piece_extent <= x_extent) { // case (d)
@@ -82,16 +83,20 @@ DiLineDetails::DiLineDetails() {
 DiLineDetails::~DiLineDetails() {
 }
 
-void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
+void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool solid) {
 
 }
 
 void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
-
+  make_line(x1, y1, x2, y2, false);
+  make_line(x2, y2, x3, y3, false);
+  make_line(x3, y3, x1, y1, false);
 }
 
 void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
-
+  make_line(x1, y1, x2, y2, true);
+  make_line(x2, y2, x3, y3, true);
+  make_line(x3, y3, x1, y1, true);
 }
 
 void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width) {
