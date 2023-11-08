@@ -206,6 +206,22 @@ void otf(void * pvParameters) {
 		di_manager->generate_code_for_primitive(cmd.m_id);
 	}
 */
+    for (uint16_t group = 0; group < 3; group++) {
+		auto base_bmid = group * 12 + 10;
+		for (uint16_t i = 0; i < 12; i++) {
+			auto bmid = base_bmid + i;
+			auto bitmap = di_manager->create_solid_bitmap(bmid, ROOT_PRIMITIVE_ID,
+				PRIM_FLAGS_DEFAULT|PRIM_FLAG_H_SCROLL_1|PRIM_FLAGS_ALL_SAME, 64, 96);
+			for (uint32_t y = 0; y < 96; y++) {
+				for (uint32_t x = 0; x < 64; x++) {
+					bitmap->set_transparent_pixel(x, y, (uint8_t)(0xCC+bmid));
+				}
+			}
+			di_manager->move_primitive_absolute(bmid, group*100+i*33, i*21+150);
+			di_manager->generate_code_for_primitive(bmid);
+		}
+	}
+
 	debug_log("Running OTF manager...\r\n");
 	di_manager->run();
 }
