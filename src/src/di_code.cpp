@@ -392,11 +392,25 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
 
     auto given_opaqueness = opaqueness;
     auto num_sections = (uint32_t)sections->m_pieces.size();
+    bool insert_space = false;
 
-    for (uint16_t wi = 0; wi < num_sections; wi++) {
-        opaqueness = (wi & 1) ? 0 : given_opaqueness;
-        auto more = wi + 1 < num_sections;
-        uint32_t width = sections->m_pieces[wi].m_width;
+    for (uint16_t si = 0; si < num_sections;) {
+        auto more = si + 1 < num_sections;
+        uint32_t width = sections->m_pieces[si].m_width;
+
+        if (insert_space) {
+            opaqueness = 0;
+            insert_space = false;
+            width = sections->m_pieces[si+1].m_x - sections->m_pieces[si].m_x - width;
+            si++;
+        } else {
+            opaqueness = given_opaqueness;
+            insert_space = true;
+            if (!more) {
+                si++;
+            }
+        }
+
         while (width) {
             auto offset = x_offset & 3;
             uint32_t sub = 1;
