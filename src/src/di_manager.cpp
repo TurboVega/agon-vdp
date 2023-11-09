@@ -532,27 +532,79 @@ DiPrimitive* DiManager::create_solid_triangle(const OtfCmd_31_Create_primitive_S
 }
 
 DiPrimitive* DiManager::create_triangle_list_outline(const OtfCmd_32_Create_primitive_Triangle_List_Outline* cmd) {
-  return NULL;
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
+
+    auto prim = new DiGeneralLine();
+    auto color = cmd->m_color;
+    uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
+    prim->make_triangle_list_outline(cmd->m_flags, cmd->m_coords, cmd->m_n, color, opaqueness);
+
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_solid_triangle_list(const OtfCmd_33_Create_primitive_Solid_Triangle_List* cmd) {
-  return NULL;  
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
+
+    auto prim = new DiGeneralLine();
+    auto color = cmd->m_color;
+    uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
+    prim->make_solid_triangle_list(cmd->m_flags, cmd->m_coords, cmd->m_n, color, opaqueness);
+
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_triangle_fan_outline(const OtfCmd_34_Create_primitive_Triangle_Fan_Outline* cmd) {
-  return NULL;  
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
+
+    auto prim = new DiGeneralLine();
+    auto color = cmd->m_color;
+    uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
+    prim->make_triangle_fan_outline(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
+      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_solid_triangle_fan(const OtfCmd_35_Create_primitive_Solid_Triangle_Fan* cmd) {
-  return NULL;
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
+
+    auto prim = new DiGeneralLine();
+    auto color = cmd->m_color;
+    uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
+    prim->make_solid_triangle_fan(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
+      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_triangle_strip_outline(const OtfCmd_36_Create_primitive_Triangle_Strip_Outline* cmd) {
-  return NULL;
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
+
+    auto prim = new DiGeneralLine();
+    auto color = cmd->m_color;
+    uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
+    prim->make_triangle_strip_outline(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
+      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_solid_triangle_strip(const OtfCmd_37_Create_primitive_Solid_Triangle_Strip* cmd) {
-  return NULL;
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
+
+    auto prim = new DiGeneralLine();
+    auto color = cmd->m_color;
+    uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
+    prim->make_solid_triangle_strip(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
+      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
 
 DiPrimitive* DiManager::create_quad_outline(const OtfCmd_60_Create_primitive_Quad_Outline* cmd) {
