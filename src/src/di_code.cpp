@@ -405,21 +405,26 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
     }
 
     for (uint16_t si = 0; si < num_sections;) {
-        auto more = si + 1 < num_sections;
+        auto more = (state != LoopState::ColoredPixels) || (si + 1 < num_sections);
         uint32_t width = sections->m_pieces[si].m_width;
 
         debug_log("\ndraw loop: xo %u si %hu more %i width %u\n",
             x_offset, si, more, width);
 
-        if (insert_space) {
+        if (state == LoopState::InitialSpace) {
             opaqueness = 0;
-            insert_space = false;
             width = space;
-            debug_log("  space %u\n", space);
+            debug_log("  initial space %u\n", space);
+            state = LoopState::ColoredPixels;
+        } else if (state == LoopState::LaterSpace) {
+            opaqueness = 0;
+            width = space;
+            debug_log("  later space %u\n", space);
             si++;
+            state = LoopState::ColoredPixels;
         } else {
             opaqueness = given_opaqueness;
-            insert_space = true;
+            state = LoopState::LaterSpace;
             if (!more) {
                 si++;
             } else {
@@ -430,7 +435,7 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
 
         while (width) {
             auto offset = x_offset & 3;
-            debug_log(" -- x %u + x_offset %u = %u, now at offset %u\n", x, x_offset, x+x_offset, offset);
+            debug_log(" -- x %u + x_offset %u = %u, now at offset %u, width = %u\n", x, x_offset, x+x_offset, offset, width);
             uint32_t sub = 1;
             switch (offset) {
                 case 0:
@@ -551,6 +556,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     case 75: p_fcn = (uint32_t) &fcn_color_blend_75_for_4_pixels_at_offset_0; break;
                                     case 100:
                                         s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
+                                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                                        break;
+                                    default:
                                         addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                                         break;
                                 }
