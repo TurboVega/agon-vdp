@@ -558,9 +558,7 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                         s32i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, 0);
                                         addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                                         break;
-                                    default:
-                                        addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
-                                        break;
+                                    default: addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4); break;
                                 }
                             } else {
                                 switch (opaqueness) {
@@ -584,6 +582,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                 s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                                 break;
                         }
+                        //if (more) {
+                        //    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                        //}
                         sub = 3;
                     } else if (width == 2) {
                         switch (opaqueness) {
@@ -594,6 +595,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                 s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
                                 break;
                         }
+                        //if (more) {
+                        //    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                        //}
                         sub = 2;
                     } else { // width == 1
                         switch (opaqueness) {
@@ -604,6 +608,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                 s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(0));
                                 break;
                         }
+                        //if (more) {
+                        //    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                        //}
                     }
                     break;
 
@@ -619,6 +626,7 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                                     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                                     break;
+                                default: addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4); break;
                             }
                         } else {
                             switch (opaqueness) {
@@ -629,6 +637,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));    
                                     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                                     break;
+                            }
+                            if (more) {
+                                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                             }
                         }
                         sub = 3;                
@@ -642,6 +653,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                 s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                                 break;
                         }
+                        //if (more) {
+                        //    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                        //}
                         sub = 2;
                     } else { // width == 1
                         switch (opaqueness) {
@@ -652,6 +666,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                 s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(1));
                                 break;
                         }
+                        //if (more) {
+                        //    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                        //}
                     }
                     break;
 
@@ -666,6 +683,7 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                                     addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                                     break;
+                                default: addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4); break;
                             }
                         } else {
                             switch (opaqueness) {
@@ -675,6 +693,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                 case 100:
                                     s16i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                                     break;
+                            }
+                            if (more) {
+                                addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                             }
                         }
                         sub = 2;
@@ -687,6 +708,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                 s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(2));
                                 break;
                         }
+                        //if (more) {
+                        //    addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
+                        //}
                     }
                     break;
                 
@@ -700,6 +724,7 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                                 s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
                                 addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                                 break;
+                            default: addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4); break;
                         }
                     } else {
                         switch (opaqueness) {
@@ -709,6 +734,9 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                             case 100:
                                 s8i(REG_PIXEL_COLOR, REG_DST_PIXEL_PTR, FIX_OFFSET(3));
                                 break;
+                        }
+                        if (more) {
+                            addi(REG_DST_PIXEL_PTR, REG_DST_PIXEL_PTR, 4);
                         }
                     }
                     break;
