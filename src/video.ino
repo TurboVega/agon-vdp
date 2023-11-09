@@ -181,6 +181,22 @@ void otf(void * pvParameters) {
 		di_manager->create_solid_triangle(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
 	}
+
+	{
+		uint16_t buffer[128];
+		OtfCmd_32_Create_primitive_Triangle_List_Outline* cmd = (OtfCmd_32_Create_primitive_Triangle_List_Outline*)buffer;
+		cmd->m_id = 7;
+		cmd->m_pid = ROOT_PRIMITIVE_ID;
+		cmd->m_flags = PRIM_FLAGS_DEFAULT;
+		cmd->m_n = 1;
+		cmd->m_coords[0] = 350; cmd->m_coords[1] = 150;
+		cmd->m_coords[2] = 390; cmd->m_coords[3] = 180;
+		cmd->m_coords[4] = 320; cmd->m_coords[5] = 170;
+		cmd->m_color = 0xE3;
+		di_manager->create_triangle_list_outline(cmd);
+		di_manager->generate_code_for_primitive(cmd->m_id);
+	}
+
 /*
 	{
 		OtfCmd_40_Create_primitive_Rectangle_Outline cmd;

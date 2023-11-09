@@ -57,9 +57,9 @@ class DiManager {
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             uint8_t color);
 
-    DiPrimitive* create_rectangle_outline(const OtfCmd_40_Create_primitive_Rectangle_Outline* cmd);
+    DiPrimitive* create_rectangle_outline(OtfCmd_40_Create_primitive_Rectangle_Outline* cmd);
 
-    DiSolidRectangle* create_solid_rectangle(const OtfCmd_41_Create_primitive_Solid_Rectangle* cmd);
+    DiSolidRectangle* create_solid_rectangle(OtfCmd_41_Create_primitive_Solid_Rectangle* cmd);
 
     DiPrimitive* create_ellipse(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
@@ -69,33 +69,33 @@ class DiManager {
                             int32_t x, int32_t y, uint32_t width, uint32_t height,
                             uint8_t color);
 
-    DiPrimitive* create_triangle_outline(const OtfCmd_30_Create_primitive_Triangle_Outline* cmd);
+    DiPrimitive* create_triangle_outline(OtfCmd_30_Create_primitive_Triangle_Outline* cmd);
 
-    DiPrimitive* create_solid_triangle(const OtfCmd_31_Create_primitive_Solid_Triangle* cmd);
+    DiPrimitive* create_solid_triangle(OtfCmd_31_Create_primitive_Solid_Triangle* cmd);
 
-    DiPrimitive* create_triangle_list_outline(const OtfCmd_32_Create_primitive_Triangle_List_Outline* cmd);
+    DiPrimitive* create_triangle_list_outline(OtfCmd_32_Create_primitive_Triangle_List_Outline* cmd);
     
-    DiPrimitive* create_solid_triangle_list(const OtfCmd_33_Create_primitive_Solid_Triangle_List* cmd);
+    DiPrimitive* create_solid_triangle_list(OtfCmd_33_Create_primitive_Solid_Triangle_List* cmd);
 
-    DiPrimitive* create_triangle_fan_outline(const OtfCmd_34_Create_primitive_Triangle_Fan_Outline* cmd);
+    DiPrimitive* create_triangle_fan_outline(OtfCmd_34_Create_primitive_Triangle_Fan_Outline* cmd);
 
-    DiPrimitive* create_solid_triangle_fan(const OtfCmd_35_Create_primitive_Solid_Triangle_Fan* cmd);
+    DiPrimitive* create_solid_triangle_fan(OtfCmd_35_Create_primitive_Solid_Triangle_Fan* cmd);
 
-    DiPrimitive* create_triangle_strip_outline(const OtfCmd_36_Create_primitive_Triangle_Strip_Outline* cmd);
+    DiPrimitive* create_triangle_strip_outline(OtfCmd_36_Create_primitive_Triangle_Strip_Outline* cmd);
 
-    DiPrimitive* create_solid_triangle_strip(const OtfCmd_37_Create_primitive_Solid_Triangle_Strip* cmd);
+    DiPrimitive* create_solid_triangle_strip(OtfCmd_37_Create_primitive_Solid_Triangle_Strip* cmd);
 
-    DiPrimitive* create_quad_outline(const OtfCmd_60_Create_primitive_Quad_Outline* cmd);
+    DiPrimitive* create_quad_outline(OtfCmd_60_Create_primitive_Quad_Outline* cmd);
 
-    DiPrimitive* create_solid_quad(const OtfCmd_61_Create_primitive_Solid_Quad* cmd);
+    DiPrimitive* create_solid_quad(OtfCmd_61_Create_primitive_Solid_Quad* cmd);
 
-    DiPrimitive* create_quad_list_outline(const OtfCmd_62_Create_primitive_Quad_List_Outline* cmd);
+    DiPrimitive* create_quad_list_outline(OtfCmd_62_Create_primitive_Quad_List_Outline* cmd);
     
-    DiPrimitive* create_solid_quad_list(const OtfCmd_63_Create_primitive_Solid_Quad_List* cmd);
+    DiPrimitive* create_solid_quad_list(OtfCmd_63_Create_primitive_Solid_Quad_List* cmd);
 
-    DiPrimitive* create_quad_strip_outline(const OtfCmd_64_Create_primitive_Quad_Strip_Outline* cmd);
+    DiPrimitive* create_quad_strip_outline(OtfCmd_64_Create_primitive_Quad_Strip_Outline* cmd);
 
-    DiPrimitive* create_solid_quad_strip(const OtfCmd_65_Create_primitive_Solid_Quad_Strip* cmd);
+    DiPrimitive* create_solid_quad_strip(OtfCmd_65_Create_primitive_Solid_Quad_Strip* cmd);
 
     DiTileMap* create_tile_map(uint16_t id, uint16_t parent, uint16_t flags,
                             int32_t screen_width, int32_t screen_height,

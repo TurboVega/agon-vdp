@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <string.h>
 extern void debug_log(const char* fmt, ...);
+
 typedef union {
   int64_t value64;
   struct {
@@ -34,7 +35,7 @@ typedef union {
 } Overlay;
 
 void DiLineSections::add_piece(int16_t x, uint16_t width, bool solid) {
-  debug_log("DiLineSections::add_piece(%hi, %hu, %i)\n", x, width, solid);
+  //debug_log("DiLineSections::add_piece(%hi, %hu, %i)\n", x, width, solid);
   auto x_extent = x + width;
   for (auto piece = m_pieces.begin(); piece != m_pieces.end(); piece++) {
     auto piece_extent = piece->m_x + piece->m_width;
@@ -85,7 +86,7 @@ DiLineDetails::~DiLineDetails() {
 }
 
 void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool solid) {
-  debug_log("\nDiLineDetails::make_line(%hi, %hi, %hi, %hi, %i)\n", x1, y1, x2, y2, solid);
+  //debug_log("\nDiLineDetails::make_line(%hi, %hi, %hi, %hi, %i)\n", x1, y1, x2, y2, solid);
   auto min_x = MIN(x1, x2);
   auto max_x = MAX(x1, x2);
   auto min_y = MIN(y1, y2);
@@ -219,7 +220,7 @@ void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int1
 }
 
 void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) {
-  debug_log("DiLineDetails::add_piece(%hi, %hi, %hu, %i)\n", x, y, width, solid);
+  //debug_log("DiLineDetails::add_piece(%hi, %hi, %hu, %i)\n", x, y, width, solid);
   if (m_sections.size()) {
     // determine whether to add a new section
     if (y < m_min_y) {
@@ -251,133 +252,3 @@ void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) 
     m_max_y = y;
   }
 }
-
-/*
-extern void debug_log(const char* fmt, ...);
-void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
-  DiLineDetails lp[3];
-  lp[0].make_line(x1, y1, x2, y2);
-  lp[1].make_line(x2, y2, x3, y3);
-  lp[2].make_line(x3, y3, x1, y1);
-
-  auto min_x = MIN(x1, x2);
-  auto max_x = MAX(x1, x2);
-  auto min_y = MIN(y1, y2);
-  auto max_y = MAX(y1, y2);
-  m_min_x = MIN(min_x, x3);
-  m_max_x = MAX(max_x, x3);
-  m_min_y = MIN(min_y, y3);
-  m_max_y = MAX(max_y, y3);
-
-  // An outline has separate pieces for left and right lines.
-  auto num_pieces = m_max_y - m_min_y + 1;
-  m_num_pieces = num_pieces * 2;
-  m_pieces = new DiLinePiece[num_pieces];
-  debug_log("np %u, mnp %u\n", num_pieces, m_num_pieces);
-
-  uint16_t imp = 0;
-  for (uint16_t i = 0; i < num_pieces; i++) {
-    auto merge_piece = &m_pieces[imp++];
-    merge_piece->m_y = m_min_y + i;
-    merge_piece->m_flags = 0;
-    merge_piece = &m_pieces[imp++];
-    merge_piece->m_y = m_min_y + i;
-    merge_piece->m_flags = 0;
-  }
-
-  for (uint16_t line = 0; line < 3; line++) {
-    auto lpn = &lp[line];
-
-    debug_log("\n");
-    for (uint16_t i = 0; i < lpn->m_num_pieces; i++) {
-      auto piece = &lpn->m_pieces[i];
-      debug_log("lp[%hu] i %hu, y %hu x %hu w %hu\n", line, i, piece->m_y, piece->m_x, piece->m_width);
-    }
-    debug_log("\n");
-
-    for (uint16_t i = 0; i < lpn->m_num_pieces; i++) {
-      auto line_piece = &lpn->m_pieces[i];
-      auto merge_index = (line_piece->m_y - m_min_y) * 2;
-      auto merge_piece = &m_pieces[merge_index];
-      if (merge_piece->m_flags) {
-        // This is the second piece at this Y position.
-        // We must order them for left vs right.
-        if (merge_piece->m_x < line_piece->m_x ||
-            (merge_piece->m_x == line_piece->m_x &&
-             merge_piece->m_width < line_piece->m_width)) {
-          // Already in good order. Set the second piece in the pair.
-          merge_piece++;
-          merge_piece->m_x = line_piece->m_x;
-          merge_piece->m_width = line_piece->m_width;
-        } else {
-          // Order needs to be reversed, so move the first piece.
-          auto second_piece = merge_piece + 1;
-          second_piece->m_x = merge_piece->m_x;
-          second_piece->m_width = merge_piece->m_width;
-          // Set the first piece.
-          merge_piece->m_x = line_piece->m_x;
-          merge_piece->m_width = line_piece->m_width;
-        }
-      } else {
-        // Both pieces in the pair are empty, so set one of them.
-        merge_piece->m_x = line_piece->m_x;
-        merge_piece->m_width = line_piece->m_width;
-        merge_piece->m_flags = 1;
-      }
-    }
-  }
-
-  for (uint16_t i = 0; i < m_num_pieces; i++) {
-    auto piece = &m_pieces[i];
-    debug_log("i %hu, left x %hu w %hu", i, piece->m_x, piece->m_width);
-    piece = &m_pieces[++i];
-    debug_log(", right x %hu w %hu\n", piece->m_x, piece->m_width);
-  }
-}
-
-void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
-  DiLineDetails lp[3];
-  lp[0].make_line(x1, y1, x2, y2);
-  lp[1].make_line(x2, y2, x3, y3);
-  lp[2].make_line(x3, y3, x1, y1);
-
-  int16_t min_x = MIN(x1, x2);
-  int16_t max_x = MAX(x1, x2);
-  int16_t min_y = MIN(y1, y2);
-  int16_t max_y = MAX(y1, y2);
-  m_min_x = MIN(min_x, x3);
-  m_max_x = MAX(max_x, x3);
-  m_min_y = MIN(min_y, y3);
-  m_max_y = MAX(max_y, y3);
-
-  m_num_pieces = m_max_y - m_min_y + 1;
-  m_pieces = new DiLinePiece[m_num_pieces];
-
-  for (uint16_t i = 0; i < m_num_pieces; i++) {
-    DiLinePiece* merge_piece = &m_pieces[i];
-    merge_piece->m_y = m_min_y + i;
-    merge_piece->m_flags = 0;
-  }
-
-  for (uint16_t line = 0; line < 3; line++) {
-    DiLineDetails* lpn = &lp[line];
-    for (uint16_t i = 0; i < lpn->m_num_pieces; i++) {
-      DiLinePiece* line_piece = &lpn->m_pieces[i];
-      uint16_t merge_index = line_piece->m_y - m_min_y;
-      DiLinePiece* merge_piece = &m_pieces[merge_index];
-      if (merge_piece->m_flags) {
-        uint16_t left = MIN(line_piece->m_x, merge_piece->m_x);
-        uint16_t right1 = line_piece->m_x + line_piece->m_width - 1;
-        uint16_t right2 = merge_piece->m_x + merge_piece->m_width - 1;
-        uint16_t right = MAX(right1, right2);
-        merge_piece->m_x = left;
-        merge_piece->m_width = right - left + 1;
-      } else {
-        merge_piece->m_x = line_piece->m_x;
-        merge_piece->m_width = line_piece->m_width;
-        merge_piece->m_flags = 1;
-      }
-    }
-  }
-}
-*/
