@@ -188,10 +188,13 @@ void otf(void * pvParameters) {
 		cmd->m_id = 7;
 		cmd->m_pid = ROOT_PRIMITIVE_ID;
 		cmd->m_flags = PRIM_FLAGS_DEFAULT;
-		cmd->m_n = 1;
+		cmd->m_n = 2;
 		cmd->m_coords[0] = 350; cmd->m_coords[1] = 150;
 		cmd->m_coords[2] = 390; cmd->m_coords[3] = 180;
 		cmd->m_coords[4] = 320; cmd->m_coords[5] = 170;
+		cmd->m_coords[6] = 355; cmd->m_coords[7] = 155;
+		cmd->m_coords[8] = 395; cmd->m_coords[9] = 185;
+		cmd->m_coords[10] = 325; cmd->m_coords[11] = 175;
 		cmd->m_color = 0xE3;
 		di_manager->create_triangle_list_outline(cmd);
 		di_manager->generate_code_for_primitive(cmd->m_id);
