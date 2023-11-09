@@ -24,7 +24,7 @@
 #include "di_line_pieces.h"
 #include <cstddef>
 #include <string.h>
-
+extern void debug_log(const char* fmt, ...);
 typedef union {
   int64_t value64;
   struct {
@@ -34,6 +34,7 @@ typedef union {
 } Overlay;
 
 void DiLineSections::add_piece(int16_t x, uint16_t width, bool solid) {
+  debug_log("DiLineSections::add_piece(%hi, %hu, %i)\n", x, width, solid);
   auto x_extent = x + width;
   for (auto piece = m_pieces.begin(); piece != m_pieces.end(); piece++) {
     auto piece_extent = piece->m_x + piece->m_width;
@@ -84,6 +85,7 @@ DiLineDetails::~DiLineDetails() {
 }
 
 void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool solid) {
+  debug_log("\nDiLineDetails::make_line(%hi, %hi, %hi, %hi, %i)\n", x1, y1, x2, y2, solid);
   auto min_x = MIN(x1, x2);
   auto max_x = MAX(x1, x2);
   auto min_y = MIN(y1, y2);
@@ -196,6 +198,15 @@ void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, in
   make_line(x1, y1, x2, y2, false);
   make_line(x2, y2, x3, y3, false);
   make_line(x3, y3, x1, y1, false);
+
+  debug_log("\n%hi,%hi to %hi,%hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
+  for (auto sections = m_sections.begin(); sections != m_sections.end(); sections++) {
+    for (auto piece = sections->m_pieces.begin();
+          piece != sections->m_pieces.end();
+          piece++) {
+      debug_log("  %hi %hu\n", piece->m_x, piece->m_width);
+    }
+  }
 }
 
 void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
@@ -205,6 +216,7 @@ void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int1
 }
 
 void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) {
+  debug_log("DiLineDetails::add_piece(%hi, %hi, %hu, %i)\n", x, y, width, solid);
   if (m_sections.size()) {
     // determine whether to add a new section
     if (y < m_min_y) {
@@ -227,6 +239,7 @@ void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) 
     // add the first section
     DiLineSections new_section;
     new_section.add_piece(x, width, solid);
+    m_sections.push_back(new_section);
     m_min_x = x;
     m_min_y = y;
     m_max_x = x;
