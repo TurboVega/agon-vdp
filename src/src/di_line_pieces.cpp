@@ -190,8 +190,8 @@ void DiLineDetails::make_line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, bo
 
   m_min_x = MIN(m_min_x, min_x);  
   m_min_y = MIN(m_min_y, min_y);  
-  m_max_x = MIN(m_max_x, max_x);  
-  m_max_y = MIN(m_max_y, max_y);  
+  m_max_x = MAX(m_max_x, max_x);  
+  m_max_y = MAX(m_max_y, max_y);  
 }
 
 void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
@@ -200,12 +200,15 @@ void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, in
   make_line(x3, y3, x1, y1, false);
 
   debug_log("\n%hi,%hi to %hi,%hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
+  auto y = m_min_y;
   for (auto sections = m_sections.begin(); sections != m_sections.end(); sections++) {
+    debug_log(" -- y %hi --\n", y);
     for (auto piece = sections->m_pieces.begin();
           piece != sections->m_pieces.end();
           piece++) {
-      debug_log("  %hi %hu\n", piece->m_x, piece->m_width);
+      debug_log("  %hi,%hi %hu\n", piece->m_x, y, piece->m_width);
     }
+    y++;
   }
 }
 
@@ -225,12 +228,14 @@ void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) 
       DiLineSections new_sections;
       m_sections.insert(m_sections.begin(), new_count, new_sections);
       m_sections[0].add_piece(x, width, solid);
+      m_min_y = y;
     } else if (y > m_max_y) {
       // insert one or more new sections at higher Y values
       auto new_count = y - m_max_y;
       DiLineSections new_sections;
       m_sections.resize(m_sections.size() + new_count);
       m_sections[m_sections.size() - 1].add_piece(x, width, solid);
+      m_max_y = y;
     } else {
       // reuse an existing section with the same Y value
       m_sections[y - m_min_y].add_piece(x, width, solid);
