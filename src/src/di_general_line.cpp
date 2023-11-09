@@ -97,6 +97,68 @@ void DiGeneralLine::make_solid_triangle(uint16_t flags, int32_t x1, int32_t y1,
   create_functions();
 }
 
+void DiGeneralLine::make_triangle_list_outline(uint16_t flags, const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_solid_triangle_list(uint16_t flags, const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_triangle_fan_outline(uint16_t flags,
+          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
+          const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_solid_triangle_fan(uint16_t flags,
+          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
+          const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_triangle_strip_outline(uint16_t flags,
+          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
+          const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_solid_triangle_strip(uint16_t flags,
+          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
+          const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_quad_outline(uint16_t flags, int32_t x1, int32_t y1, int32_t x2,
+          int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, 
+          uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_solid_quad(uint16_t flags, int32_t x1, int32_t y1, int32_t x2,
+          int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+          uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_quad_list_outline(uint16_t flags, const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_solid_quad_list(uint16_t flags, const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_quad_strip_outline(uint16_t flags,
+          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
+          const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
+void DiGeneralLine::make_solid_quad_strip(uint16_t flags,
+          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
+          const uint16_t* coords,
+          uint16_t n, uint8_t color, uint8_t opaqueness) {
+}
+
 void IRAM_ATTR DiGeneralLine::delete_instructions() {
   if (m_flags & PRIM_FLAG_H_SCROLL_1) {
     for (uint32_t pos = 0; pos < 4; pos++) {
