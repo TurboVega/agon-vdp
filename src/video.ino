@@ -169,7 +169,7 @@ void otf(void * pvParameters) {
 		di_manager->generate_code_for_primitive(cmd.m_id);
 	}
 
-	/*{
+	{
 		OtfCmd_31_Create_primitive_Solid_Triangle cmd;
 		cmd.m_id = 6;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
@@ -180,7 +180,7 @@ void otf(void * pvParameters) {
 		cmd.m_color = 0xE0;
 		di_manager->create_solid_triangle(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
-	}*/
+	}
 /*
 	{
 		OtfCmd_40_Create_primitive_Rectangle_Outline cmd;
