@@ -219,10 +219,10 @@ void otf(void * pvParameters) {
 		cmd.m_id = 9;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
 		cmd.m_flags = PRIM_FLAGS_DEFAULT;
-		cmd.m_x1 = 350; cmd.m_y1 = 250;
-		cmd.m_x2 = 390; cmd.m_y2 = 280;
-		cmd.m_x3 = 360; cmd.m_y3 = 297;
-		cmd.m_x4 = 320; cmd.m_y4 = 270;
+		cmd.m_x1 = 250; cmd.m_y1 = 250;
+		cmd.m_x2 = 290; cmd.m_y2 = 280;
+		cmd.m_x3 = 260; cmd.m_y3 = 297;
+		cmd.m_x4 = 220; cmd.m_y4 = 270;
 		cmd.m_color = 0xC4;
 		di_manager->create_solid_quad(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
