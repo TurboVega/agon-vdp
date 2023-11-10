@@ -512,8 +512,7 @@ DiPrimitive* DiManager::create_triangle_outline(OtfCmd_30_Create_primitive_Trian
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_triangle_outline(cmd->m_flags, cmd->m_x1, cmd->m_y1,
-        cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, color, opaqueness);
+    prim->make_triangle_outline(cmd->m_flags, &cmd->m_x1, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
@@ -525,8 +524,7 @@ DiPrimitive* DiManager::create_solid_triangle(OtfCmd_31_Create_primitive_Solid_T
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_solid_triangle(cmd->m_flags, cmd->m_x1, cmd->m_y1,
-        cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, color, opaqueness);
+    prim->make_solid_triangle(cmd->m_flags, &cmd->m_x1, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
@@ -562,8 +560,7 @@ DiPrimitive* DiManager::create_triangle_fan_outline(OtfCmd_34_Create_primitive_T
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_triangle_fan_outline(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
-      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+    prim->make_triangle_fan_outline(cmd->m_flags, &cmd->m_sx0, cmd->m_n, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
@@ -575,8 +572,7 @@ DiPrimitive* DiManager::create_solid_triangle_fan(OtfCmd_35_Create_primitive_Sol
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_solid_triangle_fan(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
-      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+    prim->make_solid_triangle_fan(cmd->m_flags, &cmd->m_sx0, cmd->m_n, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
@@ -588,8 +584,7 @@ DiPrimitive* DiManager::create_triangle_strip_outline(OtfCmd_36_Create_primitive
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_triangle_strip_outline(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
-      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+    prim->make_triangle_strip_outline(cmd->m_flags, &cmd->m_sx0, cmd->m_n, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
@@ -601,8 +596,7 @@ DiPrimitive* DiManager::create_solid_triangle_strip(OtfCmd_37_Create_primitive_S
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_solid_triangle_strip(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
-      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+    prim->make_solid_triangle_strip(cmd->m_flags, &cmd->m_sx0, cmd->m_n, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
@@ -614,8 +608,7 @@ DiPrimitive* DiManager::create_quad_outline(OtfCmd_60_Create_primitive_Quad_Outl
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_quad_outline(cmd->m_flags, cmd->m_x1, cmd->m_y1,
-        cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_x4, cmd->m_y4, color, opaqueness);
+    prim->make_quad_outline(cmd->m_flags, &cmd->m_x1, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
@@ -627,8 +620,7 @@ DiPrimitive* DiManager::create_solid_quad(OtfCmd_61_Create_primitive_Solid_Quad*
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_solid_quad(cmd->m_flags, cmd->m_x1, cmd->m_y1,
-        cmd->m_x2, cmd->m_y2, cmd->m_x3, cmd->m_y3, cmd->m_x4, cmd->m_y4, color, opaqueness);
+    prim->make_solid_quad(cmd->m_flags, &cmd->m_x1, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
@@ -664,8 +656,7 @@ DiPrimitive* DiManager::create_quad_strip_outline(OtfCmd_64_Create_primitive_Qua
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_quad_strip_outline(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
-      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+    prim->make_quad_strip_outline(cmd->m_flags, &cmd->m_sx0, cmd->m_n, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
@@ -677,8 +668,7 @@ DiPrimitive* DiManager::create_solid_quad_strip(OtfCmd_65_Create_primitive_Solid
     auto prim = new DiGeneralLine();
     auto color = cmd->m_color;
     uint8_t opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
-    prim->make_solid_quad_strip(cmd->m_flags, cmd->m_sx0, cmd->m_sy0,
-      cmd->m_sx1, cmd->m_sy1, cmd->m_coords, cmd->m_n, color, opaqueness);
+    prim->make_solid_quad_strip(cmd->m_flags, &cmd->m_sx0, cmd->m_n, color, opaqueness);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }

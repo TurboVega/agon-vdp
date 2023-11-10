@@ -59,61 +59,31 @@ static int16_t max_of_pairs(const int16_t* coords, uint16_t n) {
 
 DiGeneralLine::DiGeneralLine() {}
 
-void DiGeneralLine::make_line(uint16_t flags, int32_t x1, int32_t y1,
-          int32_t x2, int32_t y2, uint8_t color, uint8_t opaqueness) {
-  m_flags = flags;
-  m_opaqueness = opaqueness;
-  m_rel_x = MIN(x1,x2);
-  m_rel_y = MIN(y1,y2);
-  m_width = MAX(x1,x2) - m_rel_x + 1;
-  m_height = MAX(y1,y2) - m_rel_y + 1;
-  color &= 0x3F; // remove any alpha bits
-  m_color = PIXEL_COLOR_X4(color);
-  x1 -= m_rel_x;
-  y1 -= m_rel_y;
-  x2 -= m_rel_x;
-  y2 -= m_rel_y;
-  m_line_details.make_line(x1, y1, x2, y2, true);
+void DiGeneralLine::make_line(uint16_t flags, int16_t x1, int16_t y1, int16_t x2, int16_t y2,
+                uint8_t color, uint8_t opaqueness) {
+  int16_t coords[4];
+  coords[0] = x1;
+  coords[1] = y1;
+  coords[2] = x2;
+  coords[3] = y2;
+  make_line(flags, coords, color, opaqueness);
+}
+
+void DiGeneralLine::make_line(uint16_t flags, int16_t* coords, uint8_t color, uint8_t opaqueness) {
+  init_from_coords(flags, coords, 2, color, opaqueness);
+  m_line_details.make_line(coords[0], coords[1], coords[2], coords[3], true);
   create_functions();
 }
 
-void DiGeneralLine::make_triangle_outline(uint16_t flags, int32_t x1, int32_t y1,
-  int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color, uint8_t opaqueness) {
-  m_flags = flags;
-  m_opaqueness = opaqueness;
-  m_rel_x = min3(x1,x2,x3);
-  m_rel_y = min3(y1,y2,y3);
-  m_width = max3(x1,x2,x3) - m_rel_x + 1;
-  m_height = max3(y1,y2,y3) - m_rel_y + 1;
-  color &= 0x3F; // remove any alpha bits
-  m_color = PIXEL_COLOR_X4(color); 
-  x1 -= m_rel_x;
-  y1 -= m_rel_y;
-  x2 -= m_rel_x;
-  y2 -= m_rel_y;
-  x3 -= m_rel_x;
-  y3 -= m_rel_y;
-  m_line_details.make_triangle_outline(x1, y1, x2, y2, x3, y3);
+void DiGeneralLine::make_triangle_outline(uint16_t flags, int16_t* coords, uint8_t color, uint8_t opaqueness) {
+  init_from_coords(flags, coords, 3, color, opaqueness);
+  m_line_details.make_triangle_outline(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
   create_functions();
 }
 
-void DiGeneralLine::make_solid_triangle(uint16_t flags, int32_t x1, int32_t y1,
-  int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint8_t color, uint8_t opaqueness) {
-  m_flags = flags;
-  m_opaqueness = opaqueness;
-  m_rel_x = min3(x1,x2,x3);
-  m_rel_y = min3(y1,y2,y3);
-  m_width = max3(x1,x2,x3) - m_rel_x + 1;
-  m_height = max3(y1,y2,y3) - m_rel_y + 1;
-  color &= 0x3F; // remove any alpha bits
-  m_color = PIXEL_COLOR_X4(color); 
-  x1 -= m_rel_x;
-  y1 -= m_rel_y;
-  x2 -= m_rel_x;
-  y2 -= m_rel_y;
-  x3 -= m_rel_x;
-  y3 -= m_rel_y;
-  m_line_details.make_solid_triangle(x1, y1, x2, y2, x3, y3);
+void DiGeneralLine::make_solid_triangle(uint16_t flags, int16_t* coords, uint8_t color, uint8_t opaqueness) {
+  init_from_coords(flags, coords, 3, color, opaqueness);
+  m_line_details.make_solid_triangle(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
   create_functions();
 }
 
@@ -121,15 +91,14 @@ void DiGeneralLine::init_from_coords(uint16_t flags, int16_t* coords,
           uint16_t n, uint8_t color, uint8_t opaqueness) {
   m_flags = flags;
   m_opaqueness = opaqueness;
-  auto nc = n * 3;
-  m_rel_x = min_of_pairs(coords, nc);
-  m_rel_y = min_of_pairs(coords+1, nc);
-  m_width = max_of_pairs(coords, nc) - m_rel_x + 1;
-  m_height = max_of_pairs(coords+1, nc) - m_rel_y + 1;
+  m_rel_x = min_of_pairs(coords, n);
+  m_rel_y = min_of_pairs(coords+1, n);
+  m_width = max_of_pairs(coords, n) - m_rel_x + 1;
+  m_height = max_of_pairs(coords+1, n) - m_rel_y + 1;
   color &= 0x3F; // remove any alpha bits
   m_color = PIXEL_COLOR_X4(color);
 
-  while (nc--) {
+  while (n--) {
     *coords++ -= m_rel_x;
     *coords++ -= m_rel_y;
   }
@@ -137,7 +106,7 @@ void DiGeneralLine::init_from_coords(uint16_t flags, int16_t* coords,
 
 void DiGeneralLine::make_triangle_list_outline(uint16_t flags, int16_t* coords,
           uint16_t n, uint8_t color, uint8_t opaqueness) {
-  init_from_coords(flags, coords, n, color, opaqueness);
+  init_from_coords(flags, coords, n*3, color, opaqueness);
 
   while (n--) {
     m_line_details.make_triangle_outline(coords[0], coords[1],
@@ -149,7 +118,7 @@ void DiGeneralLine::make_triangle_list_outline(uint16_t flags, int16_t* coords,
 
 void DiGeneralLine::make_solid_triangle_list(uint16_t flags, int16_t* coords,
           uint16_t n, uint8_t color, uint8_t opaqueness) {
-  init_from_coords(flags, coords, n, color, opaqueness);
+  init_from_coords(flags, coords, n*3, color, opaqueness);
 
   while (n--) {
     m_line_details.make_solid_triangle(coords[0], coords[1],
@@ -160,10 +129,14 @@ void DiGeneralLine::make_solid_triangle_list(uint16_t flags, int16_t* coords,
 }
 
 void DiGeneralLine::make_triangle_fan_outline(uint16_t flags,
-          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
-          int16_t* coords,
-          uint16_t n, uint8_t color, uint8_t opaqueness) {
+          int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness) {
   init_from_coords(flags, coords, n, color, opaqueness);
+
+  auto sx0 = coords[0];
+  auto sy0 = coords[1];
+  auto sx1 = coords[2];
+  auto sy1 = coords[3];
+  coords += 4;
 
   while (n--) {
     m_line_details.make_triangle_outline(sx0, sy0, sx1, sy1, coords[0], coords[1]);
@@ -175,11 +148,15 @@ void DiGeneralLine::make_triangle_fan_outline(uint16_t flags,
 }
 
 void DiGeneralLine::make_solid_triangle_fan(uint16_t flags,
-          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
-          int16_t* coords,
-          uint16_t n, uint8_t color, uint8_t opaqueness) {
+          int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness) {
   init_from_coords(flags, coords, n, color, opaqueness);
 
+  auto sx0 = coords[0];
+  auto sy0 = coords[1];
+  auto sx1 = coords[2];
+  auto sy1 = coords[3];
+  coords += 4;
+  
   while (n--) {
     m_line_details.make_solid_triangle(sx0, sy0, sx1, sy1, coords[0], coords[1]);
     sx1 = coords[0];
@@ -190,11 +167,15 @@ void DiGeneralLine::make_solid_triangle_fan(uint16_t flags,
 }
 
 void DiGeneralLine::make_triangle_strip_outline(uint16_t flags,
-          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
-          int16_t* coords,
-          uint16_t n, uint8_t color, uint8_t opaqueness) {
+          int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness) {
   init_from_coords(flags, coords, n, color, opaqueness);
 
+  auto sx0 = coords[0];
+  auto sy0 = coords[1];
+  auto sx1 = coords[2];
+  auto sy1 = coords[3];
+  coords += 4;
+  
   while (n--) {
     m_line_details.make_triangle_outline(sx0, sy0, sx1, sy1, coords[0], coords[1]);
     sx0 = sx1;
@@ -207,11 +188,15 @@ void DiGeneralLine::make_triangle_strip_outline(uint16_t flags,
 }
 
 void DiGeneralLine::make_solid_triangle_strip(uint16_t flags,
-          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
-          int16_t* coords,
-          uint16_t n, uint8_t color, uint8_t opaqueness) {
+          int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness) {
   init_from_coords(flags, coords, n, color, opaqueness);
 
+  auto sx0 = coords[0];
+  auto sy0 = coords[1];
+  auto sx1 = coords[2];
+  auto sy1 = coords[3];
+  coords += 4;
+  
   while (n--) {
     m_line_details.make_solid_triangle(sx0, sy0, sx1, sy1, coords[0], coords[1]);
     sx0 = sx1;
@@ -223,57 +208,19 @@ void DiGeneralLine::make_solid_triangle_strip(uint16_t flags,
   create_functions();
 }
 
-void DiGeneralLine::make_quad_outline(uint16_t flags, int32_t x1, int32_t y1, int32_t x2,
-          int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4, 
+void DiGeneralLine::make_quad_outline(uint16_t flags, int16_t* coords, 
           uint8_t color, uint8_t opaqueness) {
-  m_flags = flags;
-  m_opaqueness = opaqueness;
-  auto min_x = min3(x1,x2,x3);
-  auto min_y = min3(y1,y2,y3);
-  auto max_x = max3(x1,x2,x3);
-  auto max_y = max3(y1,y2,y3);
-  m_rel_x = MIN(min_x, x4);
-  m_rel_y = MIN(min_y, y4);
-  m_width = MAX(max_x, x4) - m_rel_x + 1;
-  m_height = MAX(max_y, y4) - m_rel_y + 1;
-  color &= 0x3F; // remove any alpha bits
-  m_color = PIXEL_COLOR_X4(color); 
-  x1 -= m_rel_x;
-  y1 -= m_rel_y;
-  x2 -= m_rel_x;
-  y2 -= m_rel_y;
-  x3 -= m_rel_x;
-  y3 -= m_rel_y;
-  x4 -= m_rel_x;
-  y4 -= m_rel_y;
-  m_line_details.make_quad_outline(x1, y1, x2, y2, x3, y3, x4, y4);
+  init_from_coords(flags, coords, 4, color, opaqueness);
+  m_line_details.make_quad_outline(coords[0], coords[1], coords[2], coords[3],
+    coords[4], coords[5], coords[6], coords[7]);
   create_functions();
 }
 
-void DiGeneralLine::make_solid_quad(uint16_t flags, int32_t x1, int32_t y1, int32_t x2,
-          int32_t y2, int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+void DiGeneralLine::make_solid_quad(uint16_t flags, int16_t* coords,
           uint8_t color, uint8_t opaqueness) {
-  m_flags = flags;
-  m_opaqueness = opaqueness;
-  auto min_x = min3(x1,x2,x3);
-  auto min_y = min3(y1,y2,y3);
-  auto max_x = max3(x1,x2,x3);
-  auto max_y = max3(y1,y2,y3);
-  m_rel_x = MIN(min_x, x4);
-  m_rel_y = MIN(min_y, y4);
-  m_width = MAX(max_x, x4) - m_rel_x + 1;
-  m_height = MAX(max_y, y4) - m_rel_y + 1;
-  color &= 0x3F; // remove any alpha bits
-  m_color = PIXEL_COLOR_X4(color); 
-  x1 -= m_rel_x;
-  y1 -= m_rel_y;
-  x2 -= m_rel_x;
-  y2 -= m_rel_y;
-  x3 -= m_rel_x;
-  y3 -= m_rel_y;
-  x4 -= m_rel_x;
-  y4 -= m_rel_y;
-  m_line_details.make_solid_quad(x1, y1, x2, y2, x3, y3, x4, y4);
+  init_from_coords(flags, coords, 4, color, opaqueness);
+  m_line_details.make_solid_quad(coords[0], coords[1], coords[2], coords[3],
+    coords[4], coords[5], coords[6], coords[7]);
   create_functions();
 }
 
@@ -302,11 +249,15 @@ void DiGeneralLine::make_solid_quad_list(uint16_t flags, int16_t* coords,
 }
 
 void DiGeneralLine::make_quad_strip_outline(uint16_t flags,
-          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
-          int16_t* coords,
-          uint16_t n, uint8_t color, uint8_t opaqueness) {
+          int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness) {
   init_from_coords(flags, coords, n, color, opaqueness);
 
+  auto sx0 = coords[0];
+  auto sy0 = coords[1];
+  auto sx1 = coords[2];
+  auto sy1 = coords[3];
+  coords += 4;
+  
   while (n--) {
     m_line_details.make_quad_outline(sx0, sy0, sx1, sy1, coords[0], coords[1], coords[2], coords[3]);
     sx0 = coords[1];
@@ -319,11 +270,15 @@ void DiGeneralLine::make_quad_strip_outline(uint16_t flags,
 }
 
 void DiGeneralLine::make_solid_quad_strip(uint16_t flags,
-          int16_t sx0, int16_t sy0, int16_t sx1, int16_t sy1,
-          int16_t* coords,
-          uint16_t n, uint8_t color, uint8_t opaqueness) {
+          int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness) {
   init_from_coords(flags, coords, n, color, opaqueness);
 
+  auto sx0 = coords[0];
+  auto sy0 = coords[1];
+  auto sx1 = coords[2];
+  auto sy1 = coords[3];
+  coords += 4;
+  
   while (n--) {
     m_line_details.make_solid_quad(sx0, sy0, sx1, sy1, coords[0], coords[1], coords[2], coords[3]);
     sx0 = coords[1];
