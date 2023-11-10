@@ -193,7 +193,7 @@ void otf(void * pvParameters) {
 		cmd->m_coords[2] = 390; cmd->m_coords[3] = 180;
 		cmd->m_coords[4] = 320; cmd->m_coords[5] = 170;
 		cmd->m_coords[6] = 355; cmd->m_coords[7] = 130;
-		cmd->m_coords[8] = 385+2; cmd->m_coords[9] = 165;
+		cmd->m_coords[8] = 385; cmd->m_coords[9] = 165;
 		cmd->m_coords[10] = 305; cmd->m_coords[11] = 160;
 		cmd->m_color = 0xE3;
 		di_manager->create_triangle_list_outline(cmd);

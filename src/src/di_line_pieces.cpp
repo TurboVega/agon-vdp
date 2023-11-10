@@ -36,9 +36,10 @@ typedef union {
 
 void DiLineSections::add_piece(int16_t x, uint16_t width, bool solid) {
   ////debug_log("DiLineSections::add_piece(%hi, %hu, %i)\n", x, width, solid);
-  auto x_extent = x + width;
+  auto xe = x + width;
   for (auto piece = m_pieces.begin(); piece != m_pieces.end(); piece++) {
-    auto piece_extent = piece->m_x + piece->m_width;
+    auto px = piece->m_x;
+    auto pe = px + piece->m_width;
     // (a)  px----------pe
     //            x-----------xe
     //
@@ -50,16 +51,37 @@ void DiLineSections::add_piece(int16_t x, uint16_t width, bool solid) {
     // (d)   x-------xe
     //     px--------pe
     if (solid ||
-        x >= piece->m_x && x <= piece_extent || // case (a)
-        x_extent >= piece->m_x && x_extent <= piece_extent || // case (b)
-        piece->m_x >= x && piece->m_x <= x_extent || // case (c)
-        piece_extent >= x && piece_extent <= x_extent) { // case (d)
+        x >= px && x <= pe || // case (a)
+        xe >= px && xe <= pe || // case (b)
+        px >= x && px <= xe || // case (c)
+        pe >= x && pe <= xe) { // case (d)
       // merge the new piece with the old piece
-      piece->m_x = MIN(piece->m_x, x);
-      auto extent = MAX(x_extent, piece_extent);
-      piece->m_width = extent - piece->m_x;
+      px = MIN(x, px);
+      piece->m_x = px;
+      auto extent = MAX(xe, pe);
+      piece->m_width = extent - px;
+
+      // check whether to merge with the next piece
+      while (true) {
+        auto next_piece = piece + 1;
+        if (next_piece == m_pieces.end()) {
+          break;
+        }
+        auto pe = piece->m_x + piece->m_width;
+        if (pe >= next_piece->m_x) {
+          auto ne = next_piece->m_x + next_piece->m_width;
+          debug_log("== merging ne %hi\n", ne);
+          auto nw = ne - piece->m_x;
+          debug_log(" nw %hi\n", nw);
+          piece->m_width = MAX(piece->m_width, nw);
+          debug_log(" pw %hi\n", piece->m_width);
+          m_pieces.erase(next_piece);
+        } else {
+          break;
+        }
+      }
       return;
-    } else if (x_extent < piece->m_x) {
+    } else if (xe < px) {
       // insert a new piece before the old piece
       DiLinePiece new_piece;
       new_piece.m_x = x;
