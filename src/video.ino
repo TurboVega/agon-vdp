@@ -200,7 +200,7 @@ void otf(void * pvParameters) {
 		di_manager->generate_code_for_primitive(cmd->m_id);
 	}*/
 
-	/*{
+	{
 		OtfCmd_60_Create_primitive_Quad_Outline cmd;
 		cmd.m_id = 8;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
@@ -212,9 +212,9 @@ void otf(void * pvParameters) {
 		cmd.m_color = 0xC4;
 		di_manager->create_quad_outline(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
-	}*/
+	}
 
-	/*{
+	{
 		OtfCmd_61_Create_primitive_Solid_Quad cmd;
 		cmd.m_id = 9;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
@@ -226,7 +226,7 @@ void otf(void * pvParameters) {
 		cmd.m_color = 0xC4;
 		di_manager->create_solid_quad(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
-	}*/
+	}
 
 /*
 	{
