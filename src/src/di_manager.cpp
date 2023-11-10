@@ -32,8 +32,6 @@
 #include "soc/io_mux_reg.h"
 #include "fabgl_pieces.h"
 
-#include "di_diag_left_line.h"
-#include "di_diag_right_line.h"
 #include "di_general_line.h"
 #include "di_horiz_line.h"
 #include "di_set_pixel.h"
@@ -260,6 +258,16 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
 
     m_primitives[prim->get_id()] = prim;
     recompute_primitive(prim, 0, -1, -1);
+
+    debug_log("\n-- Groups\n");
+    for (int i = 0; i < 600; i++) {
+      auto g = &m_groups[i];
+      for (auto p = g->begin(); p != g->end(); p++) {
+        if ((*p)->get_id() > 2) {
+          debug_log("[%i] %u\n", i, (*p)->get_id());
+        }
+      }
+    }
 }
 
 void DiManager::remove_primitive(DiPrimitive* prim) {
@@ -432,9 +440,6 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
             prim = line;
         } else if (y1 < y2) {
             if (y2 - y1 == x2 - x1) {
-                //auto line = new DiDiagonalRightLine();
-                //line->make_line(flags, x1, y1, x2 - x1 + 1, color);
-                //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
                 line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
@@ -445,9 +450,6 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
             }
         } else {
             if (y2 - y1 == x2 - x1) {
-                //auto line = new DiDiagonalLeftLine();
-                //line->make_line(flags, x2, y1, x2 - x1 + 1, color);
-                //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
                 line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
@@ -464,9 +466,6 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
             prim = line;
         } else if (y1 < y2) {
             if (y2 - y1 == x1 - x2) {
-                //auto line = new DiDiagonalLeftLine();
-                //line->make_line(flags, x1, y1, x1 - x2 + 1, color);
-                //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
                 line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;
@@ -477,9 +476,6 @@ DiPrimitive* DiManager::create_line(uint16_t id, uint16_t parent, uint16_t flags
             }
         } else {
             if (y2 - y1 == x1 - x2) {
-                //auto line = new DiDiagonalRightLine();
-                //line->make_line(flags, x2, y1, x1 - x2 + 1, color);
-                //flags |= PRIM_FLAGS_X;
                 auto line = new DiGeneralLine();
                 line->make_line(flags, x1, y1, x2, y2, sep_color, opaqueness);
                 prim = line;

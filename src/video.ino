@@ -153,10 +153,10 @@ void otf(void * pvParameters) {
 
 	di_manager->create_point(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 300, 0xFF);
 	di_manager->generate_code_for_primitive(3);
-	di_manager->create_line(4, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 50, 210, 60, 215, 0xC3);
-	di_manager->generate_code_for_primitive(4);
+	//di_manager->create_line(4, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 50, 210, 60, 215, 0xC3);
+	//di_manager->generate_code_for_primitive(4);
 
-	{
+	/*{
 		OtfCmd_30_Create_primitive_Triangle_Outline cmd;
 		cmd.m_id = 5;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
@@ -180,7 +180,7 @@ void otf(void * pvParameters) {
 		cmd.m_color = 0xE0;
 		di_manager->create_solid_triangle(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
-	}
+	}*/
 
 	{
 		uint16_t buffer[64];
@@ -188,12 +188,12 @@ void otf(void * pvParameters) {
 		cmd->m_id = 7;
 		cmd->m_pid = ROOT_PRIMITIVE_ID;
 		cmd->m_flags = PRIM_FLAGS_DEFAULT;
-		cmd->m_n = 1;
+		cmd->m_n = 2;
 		cmd->m_coords[0] = 350; cmd->m_coords[1] = 150;
 		cmd->m_coords[2] = 390; cmd->m_coords[3] = 180;
 		cmd->m_coords[4] = 320; cmd->m_coords[5] = 170;
 		cmd->m_coords[6] = 355; cmd->m_coords[7] = 130;
-		cmd->m_coords[8] = 385; cmd->m_coords[9] = 165;
+		cmd->m_coords[8] = 385+2; cmd->m_coords[9] = 165;
 		cmd->m_coords[10] = 305; cmd->m_coords[11] = 160;
 		cmd->m_color = 0xE3;
 		di_manager->create_triangle_list_outline(cmd);

@@ -24,7 +24,7 @@
 #include "di_line_pieces.h"
 #include <cstddef>
 #include <string.h>
-//extern void debug_log(const char* fmt, ...);
+extern void debug_log(const char* fmt, ...);
 
 typedef union {
   int64_t value64;
@@ -269,6 +269,8 @@ void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) 
       // reuse an existing section with the same Y value
       m_sections[y - m_min_y].add_piece(x, width, solid);
     }
+    m_min_x = MIN(m_min_x, x);
+    m_max_x = MAX(m_max_x, x);
   } else {
     // add the first section
     DiLineSections new_section;
@@ -279,4 +281,5 @@ void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) 
     m_max_x = x;
     m_max_y = y;
   }
+  debug_log("min %hi %hi, max %hi %hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
 }
