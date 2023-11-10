@@ -24,7 +24,7 @@
 #include "di_line_pieces.h"
 #include <cstddef>
 #include <string.h>
-extern void debug_log(const char* fmt, ...);
+//extern void debug_log(const char* fmt, ...);
 
 typedef union {
   int64_t value64;
@@ -35,7 +35,7 @@ typedef union {
 } Overlay;
 
 void DiLineSections::add_piece(int16_t x, uint16_t width, bool solid) {
-  //debug_log("DiLineSections::add_piece(%hi, %hu, %i)\n", x, width, solid);
+  ////debug_log("DiLineSections::add_piece(%hi, %hu, %i)\n", x, width, solid);
   auto x_extent = x + width;
   for (auto piece = m_pieces.begin(); piece != m_pieces.end(); piece++) {
     auto piece_extent = piece->m_x + piece->m_width;
@@ -200,14 +200,14 @@ void DiLineDetails::make_triangle_outline(int16_t x1, int16_t y1, int16_t x2, in
   make_line(x2, y2, x3, y3, false);
   make_line(x3, y3, x1, y1, false);
 
-  debug_log("\n%hi,%hi to %hi,%hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
+  //debug_log("\n%hi,%hi to %hi,%hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
   auto y = m_min_y;
   for (auto sections = m_sections.begin(); sections != m_sections.end(); sections++) {
-    debug_log(" -- y %hi --\n", y);
+    //debug_log(" -- y %hi --\n", y);
     for (auto piece = sections->m_pieces.begin();
           piece != sections->m_pieces.end();
           piece++) {
-      debug_log("  %hi,%hi %hu\n", piece->m_x, y, piece->m_width);
+      //debug_log("  %hi,%hi %hu\n", piece->m_x, y, piece->m_width);
     }
     y++;
   }
@@ -219,18 +219,36 @@ void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int1
   make_line(x3, y3, x1, y1, true);
 }
 
-void make_quad_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2,
+void DiLineDetails::make_quad_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2,
         int16_t x3, int16_t y3, int16_t x4, int16_t y4) {
+  make_line(x1, y1, x2, y2, false);
+  make_line(x2, y2, x3, y3, false);
+  make_line(x3, y3, x4, y4, false);
+  make_line(x4, y4, x1, y1, false);
 
+  //debug_log("\n%hi,%hi to %hi,%hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
+  auto y = m_min_y;
+  for (auto sections = m_sections.begin(); sections != m_sections.end(); sections++) {
+    //debug_log(" -- y %hi --\n", y);
+    for (auto piece = sections->m_pieces.begin();
+          piece != sections->m_pieces.end();
+          piece++) {
+      //debug_log("  %hi,%hi %hu\n", piece->m_x, y, piece->m_width);
+    }
+    y++;
+  }
 }
 
-void make_solid_quad(int16_t x1, int16_t y1, int16_t x2, int16_t y2,
+void DiLineDetails::make_solid_quad(int16_t x1, int16_t y1, int16_t x2, int16_t y2,
         int16_t x3, int16_t y3, int16_t x4, int16_t y4) {
-
+  make_line(x1, y1, x2, y2, true);
+  make_line(x2, y2, x3, y3, true);
+  make_line(x3, y3, x4, y4, true);
+  make_line(x4, y4, x1, y1, true);
 }
 
 void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) {
-  //debug_log("DiLineDetails::add_piece(%hi, %hi, %hu, %i)\n", x, y, width, solid);
+  ////debug_log("DiLineDetails::add_piece(%hi, %hi, %hu, %i)\n", x, y, width, solid);
   if (m_sections.size()) {
     // determine whether to add a new section
     if (y < m_min_y) {
