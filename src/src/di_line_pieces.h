@@ -76,6 +76,14 @@ class DiLineDetails {
   // This function creates a solid (filled) triangle from three points.
   void make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3);
 
+  // This function creates a quad outline from four points.
+  void make_quad_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2,
+          int16_t x3, int16_t y3, int16_t x4, int16_t y4);
+
+  // This function creates a solid (filled) quad from four points.
+  void make_solid_quad(int16_t x1, int16_t y1, int16_t x2, int16_t y2,
+          int16_t x3, int16_t y3, int16_t x4, int16_t y4);
+
   // Each added piece represents colored pixels, meaning
   // pixels that are drawn.
   void add_piece(int16_t x, int16_t y, uint16_t width, bool solid);

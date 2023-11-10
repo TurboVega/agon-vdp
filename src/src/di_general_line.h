@@ -137,5 +137,6 @@ class DiGeneralLine: public DiPrimitive {
   protected:
   EspFunction* m_paint_fcn;
 
+  void init_from_coords(uint16_t flags, int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness);
   void create_functions();
 };

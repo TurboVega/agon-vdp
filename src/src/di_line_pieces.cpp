@@ -219,6 +219,16 @@ void DiLineDetails::make_solid_triangle(int16_t x1, int16_t y1, int16_t x2, int1
   make_line(x3, y3, x1, y1, true);
 }
 
+void make_quad_outline(int16_t x1, int16_t y1, int16_t x2, int16_t y2,
+        int16_t x3, int16_t y3, int16_t x4, int16_t y4) {
+
+}
+
+void make_solid_quad(int16_t x1, int16_t y1, int16_t x2, int16_t y2,
+        int16_t x3, int16_t y3, int16_t x4, int16_t y4) {
+
+}
+
 void DiLineDetails::add_piece(int16_t x, int16_t y, uint16_t width, bool solid) {
   //debug_log("DiLineDetails::add_piece(%hi, %hi, %hu, %i)\n", x, y, width, solid);
   if (m_sections.size()) {
