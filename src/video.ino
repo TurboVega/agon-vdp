@@ -156,7 +156,7 @@ void otf(void * pvParameters) {
 	//di_manager->create_line(4, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 50, 210, 60, 215, 0xC3);
 	//di_manager->generate_code_for_primitive(4);
 
-	/*{
+	{
 		OtfCmd_30_Create_primitive_Triangle_Outline cmd;
 		cmd.m_id = 5;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
@@ -180,7 +180,7 @@ void otf(void * pvParameters) {
 		cmd.m_color = 0xE0;
 		di_manager->create_solid_triangle(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
-	}*/
+	}
 
 	{
 		uint16_t buffer[64];
@@ -200,9 +200,27 @@ void otf(void * pvParameters) {
 		di_manager->generate_code_for_primitive(cmd->m_id);
 	}
 
-	/*{
+	{
+		uint16_t buffer[64];
+		OtfCmd_33_Create_primitive_Solid_Triangle_List* cmd = (OtfCmd_33_Create_primitive_Solid_Triangle_List*)buffer;
+		cmd->m_id = 8;
+		cmd->m_pid = ROOT_PRIMITIVE_ID;
+		cmd->m_flags = PRIM_FLAGS_DEFAULT;
+		cmd->m_n = 2;
+		cmd->m_coords[0] = 450; cmd->m_coords[1] = 150;
+		cmd->m_coords[2] = 490; cmd->m_coords[3] = 180;
+		cmd->m_coords[4] = 420; cmd->m_coords[5] = 170;
+		cmd->m_coords[6] = 455; cmd->m_coords[7] = 130;
+		cmd->m_coords[8] = 485; cmd->m_coords[9] = 165;
+		cmd->m_coords[10] = 405; cmd->m_coords[11] = 160;
+		cmd->m_color = 0xE3;
+		di_manager->create_solid_triangle_list(cmd);
+		di_manager->generate_code_for_primitive(cmd->m_id);
+	}
+
+	{
 		OtfCmd_60_Create_primitive_Quad_Outline cmd;
-		cmd.m_id = 8;
+		cmd.m_id = 9;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
 		cmd.m_flags = PRIM_FLAGS_DEFAULT;
 		cmd.m_x1 = 150; cmd.m_y1 = 250;
@@ -216,7 +234,7 @@ void otf(void * pvParameters) {
 
 	{
 		OtfCmd_61_Create_primitive_Solid_Quad cmd;
-		cmd.m_id = 9;
+		cmd.m_id = 10;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
 		cmd.m_flags = PRIM_FLAGS_DEFAULT;
 		cmd.m_x1 = 250; cmd.m_y1 = 250;
@@ -226,15 +244,54 @@ void otf(void * pvParameters) {
 		cmd.m_color = 0xC4;
 		di_manager->create_solid_quad(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
-	}*/
+	}
 
-/*
+	{
+		uint16_t buffer[64];
+		OtfCmd_62_Create_primitive_Quad_List_Outline* cmd = (OtfCmd_62_Create_primitive_Quad_List_Outline*)buffer;
+		cmd->m_id = 11;
+		cmd->m_pid = ROOT_PRIMITIVE_ID;
+		cmd->m_flags = PRIM_FLAGS_DEFAULT;
+		cmd->m_n = 2;
+		cmd->m_coords[0] = 350; cmd->m_coords[1] = 250;
+		cmd->m_coords[2] = 390; cmd->m_coords[3] = 280;
+		cmd->m_coords[4] = 320; cmd->m_coords[5] = 270;
+		cmd->m_coords[6] = 333; cmd->m_coords[7] = 260;
+		cmd->m_coords[8] = 355; cmd->m_coords[9] = 230;
+		cmd->m_coords[10] = 385; cmd->m_coords[11] = 265;
+		cmd->m_coords[12] = 305; cmd->m_coords[13] = 260;
+		cmd->m_coords[14] = 300; cmd->m_coords[15] = 240;
+		cmd->m_color = 0xFF;
+		di_manager->create_quad_list_outline(cmd);
+		di_manager->generate_code_for_primitive(cmd->m_id);
+	}
+
+	{
+		uint16_t buffer[64];
+		OtfCmd_63_Create_primitive_Solid_Quad_List* cmd = (OtfCmd_63_Create_primitive_Solid_Quad_List*)buffer;
+		cmd->m_id = 12;
+		cmd->m_pid = ROOT_PRIMITIVE_ID;
+		cmd->m_flags = PRIM_FLAGS_DEFAULT;
+		cmd->m_n = 2;
+		cmd->m_coords[0] = 450; cmd->m_coords[1] = 250;
+		cmd->m_coords[2] = 490; cmd->m_coords[3] = 280;
+		cmd->m_coords[4] = 420; cmd->m_coords[5] = 270;
+		cmd->m_coords[6] = 433; cmd->m_coords[7] = 260;
+		cmd->m_coords[8] = 455; cmd->m_coords[9] = 230;
+		cmd->m_coords[10] = 485; cmd->m_coords[11] = 265;
+		cmd->m_coords[12] = 405; cmd->m_coords[13] = 260;
+		cmd->m_coords[14] = 400; cmd->m_coords[15] = 240;
+		cmd->m_color = 0xFF;
+		di_manager->create_solid_quad_list(cmd);
+		di_manager->generate_code_for_primitive(cmd->m_id);
+	}
+
 	{
 		OtfCmd_40_Create_primitive_Rectangle_Outline cmd;
-		cmd.m_id = 7;
+		cmd.m_id = 13;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
 		cmd.m_flags = PRIM_FLAGS_DEFAULT;
-		cmd.m_x = 350; cmd.m_y = 150;
+		cmd.m_x = 350; cmd.m_y = 350;
 		cmd.m_w = 85; cmd.m_h = 77;
 		cmd.m_color = 0xC4;
 		di_manager->create_rectangle_outline(&cmd);
@@ -243,16 +300,16 @@ void otf(void * pvParameters) {
 
 	{
 		OtfCmd_41_Create_primitive_Solid_Rectangle cmd;
-		cmd.m_id = 8;
+		cmd.m_id = 14;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
 		cmd.m_flags = PRIM_FLAGS_DEFAULT;
-		cmd.m_x = 450; cmd.m_y = 150;
+		cmd.m_x = 450; cmd.m_y = 350;
 		cmd.m_w = 85; cmd.m_h = 77;
 		cmd.m_color = 0xC4;
 		di_manager->create_solid_rectangle(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
 	}
-*/
+
 /*
     for (uint16_t group = 0; group < 3; group++) {
 		auto base_bmid = group * 12 + 10;
