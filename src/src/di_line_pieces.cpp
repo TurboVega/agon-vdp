@@ -34,9 +34,21 @@ typedef union {
   } value32;
 } Overlay;
 
+std::vector<DiLinePiece>::iterator enclosed(std::vector<DiLinePiece>::iterator piece,
+  std::vector<DiLinePiece>::iterator end, uint8_t id) {
+  while (++piece != end) {
+    if (piece->m_id == id) {
+      break;
+    }
+  }
+  return piece;
+}
+
 void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width, bool solid) {
   ////debug_log("DiLineSections::add_piece(%hi, %hu, %i)\n", x, width, solid);
   auto xe = x + width;
+  auto encloser = m_pieces.end();
+
   for (auto piece = m_pieces.begin(); piece != m_pieces.end(); piece++) {
     auto px = piece->m_x;
     auto pe = px + piece->m_width;
@@ -60,12 +72,14 @@ void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width, bool solid
         xe >= px && xe <= pe || // case (b)
         px >= x && px <= xe || // case (c)
         pe >= x && pe <= xe || // case (d)
-        enclosed) { // case (e)
+        (solid &&
+         ((encloser = enclosed(piece, m_pieces.end(), id)) != m_pieces.end()) &&
+         px >= x && pe <= encloser->m_x + encloser->m_width)) { // case (e)
       // merge the new piece with the old piece
       px = MIN(x, px);
       piece->m_x = px;
-      auto extent = MAX(xe, pe);
-      piece->m_width = extent - px;
+      pe = MAX(xe, pe);
+      piece->m_width = pe - px;
 
       // check whether to merge with the next piece
       while (true) {
@@ -74,7 +88,9 @@ void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width, bool solid
           break;
         }
         auto pe = piece->m_x + piece->m_width;
-        if (pe >= next_piece->m_x) {
+        if (pe >= next_piece->m_x ||
+          (solid && ((encloser = enclosed(piece, m_pieces.end(), id)) != m_pieces.end()) &&
+            px >= x && pe <= encloser->m_x + encloser->m_width)) {
           auto ne = next_piece->m_x + next_piece->m_width;
           debug_log("== merging ne %hi\n", ne);
           auto nw = ne - piece->m_x;
