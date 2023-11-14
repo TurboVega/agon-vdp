@@ -210,9 +210,9 @@ void otf(void * pvParameters) {
 		cmd->m_coords[0] = 450; cmd->m_coords[1] = 150;
 		cmd->m_coords[2] = 490; cmd->m_coords[3] = 180;
 		cmd->m_coords[4] = 420; cmd->m_coords[5] = 170;
-		cmd->m_coords[6] = 455; cmd->m_coords[7] = 130;
-		cmd->m_coords[8] = 485; cmd->m_coords[9] = 165;
-		cmd->m_coords[10] = 405; cmd->m_coords[11] = 160;
+		cmd->m_coords[6] = 555; cmd->m_coords[7] = 130;
+		cmd->m_coords[8] = 585; cmd->m_coords[9] = 165;
+		cmd->m_coords[10] = 505; cmd->m_coords[11] = 160;
 		cmd->m_color = 0xE3;
 		di_manager->create_solid_triangle_list(cmd);
 		di_manager->generate_code_for_primitive(cmd->m_id);

@@ -71,7 +71,7 @@ void DiGeneralLine::make_line(uint16_t flags, int16_t x1, int16_t y1, int16_t x2
 
 void DiGeneralLine::make_line(uint16_t flags, int16_t* coords, uint8_t color, uint8_t opaqueness) {
   init_from_coords(flags, coords, 2, color, opaqueness);
-  m_line_details.make_line(1, coords[0], coords[1], coords[2], coords[3]);
+  m_line_details.make_line(1, coords[0], coords[1], coords[2], coords[3], false);
   create_functions();
 }
 
@@ -128,9 +128,11 @@ void DiGeneralLine::make_solid_triangle_list(uint16_t flags, int16_t* coords,
 
   uint8_t id = 1;
   while (n--) {
-    m_line_details.make_solid_triangle(id++, coords[0], coords[1],
+    DiLineDetails details;
+    details.make_solid_triangle(id++, coords[0], coords[1],
       coords[2], coords[3], coords[4], coords[5]);
     coords += 6;
+    m_line_details.merge(details);
   }
   create_functions();
 }
@@ -167,10 +169,12 @@ void DiGeneralLine::make_solid_triangle_fan(uint16_t flags,
   
   uint8_t id = 1;
   while (n--) {
-    m_line_details.make_solid_triangle(id++, sx0, sy0, sx1, sy1, coords[0], coords[1]);
+    DiLineDetails details;
+    details.make_solid_triangle(id++, sx0, sy0, sx1, sy1, coords[0], coords[1]);
     sx1 = coords[0];
     sy1 = coords[1];
     coords += 2;
+    m_line_details.merge(details);
   }
   create_functions();
 }
@@ -209,12 +213,14 @@ void DiGeneralLine::make_solid_triangle_strip(uint16_t flags,
   
   uint8_t id = 1;
   while (n--) {
-    m_line_details.make_solid_triangle(id++, sx0, sy0, sx1, sy1, coords[0], coords[1]);
+    DiLineDetails details;
+    details.make_solid_triangle(id++, sx0, sy0, sx1, sy1, coords[0], coords[1]);
     sx0 = sx1;
     sy0 = sy1;
     sx1 = coords[0];
     sy1 = coords[1];
     coords += 2;
+    m_line_details.merge(details);
   }
   create_functions();
 }
@@ -254,9 +260,11 @@ void DiGeneralLine::make_solid_quad_list(uint16_t flags, int16_t* coords,
 
   uint8_t id = 1;
   while (n--) {
-    m_line_details.make_solid_quad(id++, coords[0], coords[1],
+    DiLineDetails details;
+    details.make_solid_quad(id++, coords[0], coords[1],
       coords[2], coords[3], coords[4], coords[5], coords[6], coords[7]);
     coords += 8;
+    m_line_details.merge(details);
   }
   create_functions();
 }
@@ -295,12 +303,14 @@ void DiGeneralLine::make_solid_quad_strip(uint16_t flags,
   
   uint8_t id = 1;
   while (n--) {
-    m_line_details.make_solid_quad(id++, sx0, sy0, sx1, sy1, coords[0], coords[1], coords[2], coords[3]);
+    DiLineDetails details;
+    details.make_solid_quad(id++, sx0, sy0, sx1, sy1, coords[0], coords[1], coords[2], coords[3]);
     sx0 = coords[1];
     sy0 = coords[0];
     sx1 = coords[0];
     sy1 = coords[1];
     coords += 2;
+    m_line_details.merge(details);
   }
   create_functions();
 }

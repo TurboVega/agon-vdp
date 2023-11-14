@@ -259,7 +259,7 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
     m_primitives[prim->get_id()] = prim;
     recompute_primitive(prim, 0, -1, -1);
 
-    debug_log("\n-- Groups\n");
+    /*debug_log("\n-- Groups\n");
     for (int i = 0; i < 600; i++) {
       auto g = &m_groups[i];
       for (auto p = g->begin(); p != g->end(); p++) {
@@ -267,7 +267,7 @@ void DiManager::add_primitive(DiPrimitive* prim, DiPrimitive* parent) {
           debug_log("[%i] %u\n", i, (*p)->get_id());
         }
       }
-    }
+    }*/
 }
 
 void DiManager::remove_primitive(DiPrimitive* prim) {

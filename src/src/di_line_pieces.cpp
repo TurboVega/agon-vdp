@@ -34,17 +34,7 @@ typedef union {
   } value32;
 } Overlay;
 
-/*std::vector<DiLinePiece>::iterator enclosed(std::vector<DiLinePiece>::iterator piece,
-  std::vector<DiLinePiece>::iterator end, uint8_t id) {
-  while (++piece != end) {
-    if (piece->m_id == id) {
-      break;
-    }
-  }
-  return piece;
-}*/
-
-void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width) {
+void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width, bool solid) {
   ////debug_log("DiLineSections::add_piece(%hi, %hu)\n", x, width);
   auto xe = x + width;
   auto encloser = m_pieces.end();
@@ -64,7 +54,8 @@ void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width) {
     // (d)   x-------xe
     //     px--------pe
     //
-    if (x >= px && x <= pe || // case (a)
+    if (solid ||
+        x >= px && x <= pe || // case (a)
         xe >= px && xe <= pe || // case (b)
         px >= x && px <= xe || // case (c)
         pe >= x && pe <= xe) { // case (d)
@@ -81,7 +72,7 @@ void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width) {
           break;
         }
         auto pe = piece->m_x + piece->m_width;
-        if (pe >= next_piece->m_x) {
+        if (solid || pe >= next_piece->m_x) {
           auto ne = next_piece->m_x + next_piece->m_width;
           debug_log("== merging ne %hi\n", ne);
           auto nw = ne - piece->m_x;
@@ -112,6 +103,8 @@ void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width) {
   m_pieces.push_back(new_piece);
 }
 
+//-------------------------------------------------------------------------------
+
 DiLineDetails::DiLineDetails() {
   m_min_x = 0;
   m_min_y = 0;
@@ -122,7 +115,7 @@ DiLineDetails::DiLineDetails() {
 DiLineDetails::~DiLineDetails() {
 }
 
-void DiLineDetails::make_line(uint8_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
+void DiLineDetails::make_line(uint8_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool solid) {
   //debug_log("\nDiLineDetails::make_line(%hi, %hi, %hi, %hi)\n", x1, y1, x2, y2);
   auto min_x = MIN(x1, x2);
   auto max_x = MAX(x1, x2);
@@ -136,7 +129,7 @@ void DiLineDetails::make_line(uint8_t id, int16_t x1, int16_t y1, int16_t x2, in
   int16_t delta = MAX(dx, dy);
 
   if (!delta) {
-    add_piece(id, x1, y1, 1);
+    add_piece(id, x1, y1, 1, solid);
     return;
   }
   
@@ -201,7 +194,7 @@ void DiLineDetails::make_line(uint8_t id, int16_t x1, int16_t y1, int16_t x2, in
         //
         first_x = min_x + (dx - (first_x - min_x)) - width + 1;
       }
-      add_piece(id, (int16_t)first_x, (int16_t)first_y, width);
+      add_piece(id, (int16_t)first_x, (int16_t)first_y, width, solid);
       
       first_x = nx.value32.high;
       first_y = ny.value32.high;
@@ -224,7 +217,7 @@ void DiLineDetails::make_line(uint8_t id, int16_t x1, int16_t y1, int16_t x2, in
   } else if (flip_horizontally) {
     first_x = min_x + (dx - (first_x - min_x)) - width + 1;    
   }
-  add_piece(id, (int16_t)first_x, (int16_t)first_y, width);
+  add_piece(id, (int16_t)first_x, (int16_t)first_y, width, solid);
 
   m_min_x = MIN(m_min_x, min_x);  
   m_min_y = MIN(m_min_y, min_y);  
@@ -233,9 +226,9 @@ void DiLineDetails::make_line(uint8_t id, int16_t x1, int16_t y1, int16_t x2, in
 }
 
 void DiLineDetails::make_triangle_outline(uint8_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
-  make_line(id, x1, y1, x2, y2);
-  make_line(id, x2, y2, x3, y3);
-  make_line(id, x3, y3, x1, y1);
+  make_line(id, x1, y1, x2, y2, false);
+  make_line(id, x2, y2, x3, y3, false);
+  make_line(id, x3, y3, x1, y1, false);
 
   //debug_log("\n%hi,%hi to %hi,%hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
   auto y = m_min_y;
@@ -251,17 +244,17 @@ void DiLineDetails::make_triangle_outline(uint8_t id, int16_t x1, int16_t y1, in
 }
 
 void DiLineDetails::make_solid_triangle(uint8_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3) {
-  make_line(id, x1, y1, x2, y2);
-  make_line(id, x2, y2, x3, y3);
-  make_line(id, x3, y3, x1, y1);
+  make_line(id, x1, y1, x2, y2, true);
+  make_line(id, x2, y2, x3, y3, true);
+  make_line(id, x3, y3, x1, y1, true);
 }
 
 void DiLineDetails::make_quad_outline(uint8_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2,
         int16_t x3, int16_t y3, int16_t x4, int16_t y4) {
-  make_line(id, x1, y1, x2, y2);
-  make_line(id, x2, y2, x3, y3);
-  make_line(id, x3, y3, x4, y4);
-  make_line(id, x4, y4, x1, y1);
+  make_line(id, x1, y1, x2, y2, false);
+  make_line(id, x2, y2, x3, y3, false);
+  make_line(id, x3, y3, x4, y4, false);
+  make_line(id, x4, y4, x1, y1, false);
 
   //debug_log("\n%hi,%hi to %hi,%hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
   auto y = m_min_y;
@@ -278,13 +271,13 @@ void DiLineDetails::make_quad_outline(uint8_t id, int16_t x1, int16_t y1, int16_
 
 void DiLineDetails::make_solid_quad(uint8_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2,
         int16_t x3, int16_t y3, int16_t x4, int16_t y4) {
-  make_line(id, x1, y1, x2, y2);
-  make_line(id, x2, y2, x3, y3);
-  make_line(id, x3, y3, x4, y4);
-  make_line(id, x4, y4, x1, y1);
+  make_line(id, x1, y1, x2, y2, true);
+  make_line(id, x2, y2, x3, y3, true);
+  make_line(id, x3, y3, x4, y4, true);
+  make_line(id, x4, y4, x1, y1, true);
 }
 
-void DiLineDetails::add_piece(uint8_t id, int16_t x, int16_t y, uint16_t width) {
+void DiLineDetails::add_piece(uint8_t id, int16_t x, int16_t y, uint16_t width, bool solid) {
   ////debug_log("DiLineDetails::add_piece(%hi, %hi, %hu)\n", x, y, width);
   if (m_sections.size()) {
     // determine whether to add a new section
@@ -293,30 +286,46 @@ void DiLineDetails::add_piece(uint8_t id, int16_t x, int16_t y, uint16_t width) 
       auto new_count = m_min_y - y;
       DiLineSections new_sections;
       m_sections.insert(m_sections.begin(), new_count, new_sections);
-      m_sections[0].add_piece(id, x, width);
+      m_sections[0].add_piece(id, x, width, solid);
       m_min_y = y;
     } else if (y > m_max_y) {
       // insert one or more new sections at higher Y values
       auto new_count = y - m_max_y;
       DiLineSections new_sections;
       m_sections.resize(m_sections.size() + new_count);
-      m_sections[m_sections.size() - 1].add_piece(id, x, width);
+      m_sections[m_sections.size() - 1].add_piece(id, x, width, solid);
       m_max_y = y;
     } else {
       // reuse an existing section with the same Y value
-      m_sections[y - m_min_y].add_piece(id, x, width);
+      m_sections[y - m_min_y].add_piece(id, x, width, solid);
     }
     m_min_x = MIN(m_min_x, x);
     m_max_x = MAX(m_max_x, x);
   } else {
     // add the first section
     DiLineSections new_section;
-    new_section.add_piece(id, x, width);
+    new_section.add_piece(id, x, width, solid);
     m_sections.push_back(new_section);
     m_min_x = x;
     m_min_y = y;
     m_max_x = x;
     m_max_y = y;
   }
-  debug_log("min %hi %hi, max %hi %hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
+  //debug_log("min %hi %hi, max %hi %hi\n", m_min_x, m_min_y, m_max_x, m_max_y);
+}
+
+void DiLineDetails::merge(const DiLineDetails& details) {
+  auto y = details.m_min_y;
+  debug_log("\nmerge %hi\n", y);
+  for (auto sections = details.m_sections.begin();
+      sections != details.m_sections.end();
+      sections++) {
+    for (auto piece = sections->m_pieces.begin();
+          piece != sections->m_pieces.end();
+          piece++) {
+      debug_log(" add id=%hu x=%hi y=%hi w=%hu\n",piece->m_id, piece->m_x, y, piece->m_width);
+      add_piece(piece->m_id, piece->m_x, y, piece->m_width, false);
+    }
+    y++;
+  }
 }
