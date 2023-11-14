@@ -48,7 +48,7 @@ class DiLineSections {
 
   // Each added piece represents colored pixels, meaning
   // pixels that are drawn.
-  void add_piece(uint8_t id, int16_t x, uint16_t width, bool solid);
+  void add_piece(uint8_t id, int16_t x, uint16_t width);
 };
 
 // This class represents enough details to draw a set of lines,
@@ -69,7 +69,7 @@ class DiLineDetails {
   ~DiLineDetails();
 
   // This function creates line sections for a line from two points.
-  void make_line(uint8_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2, bool solid);
+  void make_line(uint8_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2);
 
   // This function creates a triangle outline from three points.
   void make_triangle_outline(uint8_t id, int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t x3, int16_t y3);
@@ -87,5 +87,5 @@ class DiLineDetails {
 
   // Each added piece represents colored pixels, meaning
   // pixels that are drawn.
-  void add_piece(uint8_t id, int16_t x, int16_t y, uint16_t width, bool solid);
+  void add_piece(uint8_t id, int16_t x, int16_t y, uint16_t width);
 };

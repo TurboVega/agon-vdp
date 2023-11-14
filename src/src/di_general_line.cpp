@@ -71,7 +71,7 @@ void DiGeneralLine::make_line(uint16_t flags, int16_t x1, int16_t y1, int16_t x2
 
 void DiGeneralLine::make_line(uint16_t flags, int16_t* coords, uint8_t color, uint8_t opaqueness) {
   init_from_coords(flags, coords, 2, color, opaqueness);
-  m_line_details.make_line(1, coords[0], coords[1], coords[2], coords[3], true);
+  m_line_details.make_line(1, coords[0], coords[1], coords[2], coords[3]);
   create_functions();
 }
 
