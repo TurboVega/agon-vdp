@@ -218,7 +218,7 @@ void otf(void * pvParameters) {
 		di_manager->generate_code_for_primitive(cmd->m_id);
 	}
 
-	/*{
+	{
 		OtfCmd_60_Create_primitive_Quad_Outline cmd;
 		cmd.m_id = 9;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
@@ -256,11 +256,11 @@ void otf(void * pvParameters) {
 		cmd->m_coords[0] = 350; cmd->m_coords[1] = 250;
 		cmd->m_coords[2] = 390; cmd->m_coords[3] = 280;
 		cmd->m_coords[4] = 320; cmd->m_coords[5] = 270;
-		cmd->m_coords[6] = 333; cmd->m_coords[7] = 260;
+		cmd->m_coords[6] = 333; cmd->m_coords[7] = 255;
 		cmd->m_coords[8] = 355; cmd->m_coords[9] = 230;
 		cmd->m_coords[10] = 385; cmd->m_coords[11] = 265;
 		cmd->m_coords[12] = 305; cmd->m_coords[13] = 260;
-		cmd->m_coords[14] = 300; cmd->m_coords[15] = 240;
+		cmd->m_coords[14] = 300; cmd->m_coords[15] = 235;
 		cmd->m_color = 0xFF;
 		di_manager->create_quad_list_outline(cmd);
 		di_manager->generate_code_for_primitive(cmd->m_id);
@@ -276,11 +276,11 @@ void otf(void * pvParameters) {
 		cmd->m_coords[0] = 450; cmd->m_coords[1] = 250;
 		cmd->m_coords[2] = 490; cmd->m_coords[3] = 280;
 		cmd->m_coords[4] = 420; cmd->m_coords[5] = 270;
-		cmd->m_coords[6] = 433; cmd->m_coords[7] = 260;
+		cmd->m_coords[6] = 433; cmd->m_coords[7] = 255;
 		cmd->m_coords[8] = 455; cmd->m_coords[9] = 230;
 		cmd->m_coords[10] = 485; cmd->m_coords[11] = 265;
 		cmd->m_coords[12] = 405; cmd->m_coords[13] = 260;
-		cmd->m_coords[14] = 400; cmd->m_coords[15] = 240;
+		cmd->m_coords[14] = 400; cmd->m_coords[15] = 235;
 		cmd->m_color = 0xFF;
 		di_manager->create_solid_quad_list(cmd);
 		di_manager->generate_code_for_primitive(cmd->m_id);
@@ -308,7 +308,7 @@ void otf(void * pvParameters) {
 		cmd.m_color = 0xC4;
 		di_manager->create_solid_rectangle(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
-	}*/
+	}
 
 /*
     for (uint16_t group = 0; group < 3; group++) {

@@ -34,9 +34,40 @@ void DiRectangle::make_rectangle_outline(uint16_t flags, int32_t x, int32_t y, u
   m_rel_y = y;
   m_width = width;
   m_height = height;
-  color &= 0x3F; // remove any alpha bits
+  m_opaqueness = DiPrimitive::normal_alpha_to_opaqueness(color);
   m_color = PIXEL_COLOR_X4(color);
 }
 
+void IRAM_ATTR DiRectangle::delete_instructions() {
+  m_paint_fcn[0].clear();
+  m_paint_fcn[1].clear();
+}
+
+void IRAM_ATTR DiRectangle::generate_instructions() {
+  delete_instructions();
+  if (m_flags & PRIM_FLAGS_CAN_DRAW) {
+    EspFixups fixups;
+    auto width = (uint16_t)m_width;
+    {
+      DiLineSections sections;
+      sections.add_piece(1, 0, width, false);
+      m_paint_fcn[0].draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, &sections, m_flags, m_opaqueness);
+      m_paint_fcn[0].do_fixups(fixups);
+    }
+    {
+      DiLineSections sections;
+      sections.add_piece(1, 0, 1, false);
+      sections.add_piece(1, width-1, 1, false);
+      m_paint_fcn[1].draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, &sections, m_flags, m_opaqueness);
+      m_paint_fcn[1].do_fixups(fixups);
+    }
+  }
+}
+
 void IRAM_ATTR DiRectangle::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
+  if (line_index == m_abs_y || line_index + 1 == m_y_extent) {
+    m_paint_fcn[0].call(this, p_scan_line, line_index);
+  } else {
+    m_paint_fcn[1].call(this, p_scan_line, line_index);
+  }
 }

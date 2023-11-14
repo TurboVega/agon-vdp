@@ -34,7 +34,6 @@ void DiHorizontalLine::make_line(uint16_t flags, int32_t x, int32_t y, uint32_t 
   m_rel_y = y;
   m_width = width;
   m_height = 1;
-  color &= 0x3F; // remove any alpha bits
   m_color = PIXEL_COLOR_X4(color);
   m_paint_fcn.enter_and_leave_outer_function();
 }
