@@ -49,7 +49,7 @@ void IRAM_ATTR DiSolidRectangle::generate_instructions() {
     EspFixups fixups;
     auto width = (uint16_t)m_width;
     DiLineSections sections;
-    sections.add_piece(0, 1, (m_opaqueness == 100));
+    sections.add_piece(1, 0, 1, (m_opaqueness == 100));
     m_paint_fcn.draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, &sections, m_flags, m_opaqueness);
     m_paint_fcn.do_fixups(fixups);
   }
