@@ -28,7 +28,7 @@ a whole word (4 bytes) at a time, when drawing, regardless of the destination by
 
 # OTF Function Codes
 
-The OTF mode uses <b>VDU 23, 0, 30</b> as its command signature for defining and processing drawing primitives.
+The OTF mode uses <b>VDU 23, 30</b> as its command signature for defining and processing drawing primitives.
 Most links below point to document sections describing the available commands in OTF mode;
 <b>however, not all of these commands have
 been implemented yet, and the sections are subject to change!</b>

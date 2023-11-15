@@ -1,5 +1,5 @@
 ## Create primitive: Group
-<b>VDU 23, 30, 110, id; pid; flags; x; y;</b> : Create primitive: Group
+<b>VDU 23, 30, 140, id; pid; flags; x; y;</b> : Create primitive: Group
 
 This commmand creates a primitive that groups its child primitives,
 for the purposes of motion and clipping. If a group node has
