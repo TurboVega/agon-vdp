@@ -2,6 +2,7 @@
 11 CLS: REM VDU 23,1,0;0;0;0;
 12 FREE_ID%=3
 13 FDFLT%=&000F
+14 FGRP%=&0007
 20 GRP_PT% = FN_Points(9,0,10)
 30 GRP_LIN% = FN_Lines(9,10,10)
 40 GRP_TRI_OUT% = FN_TriangleOutline(9,20,10)
@@ -60,16 +61,17 @@
 1330 ENDPROC
 1399 REM -----------
 1400 DEF PROC_SetArea(GRP%,R%,C%,W%)
+1405 IF INKEY(100)<0 THEN GOTO 1405
 1410 AreaX1%=C%*8
 1420 AreaY2%=(R%+1)*8
 1430 AreaX2%=AreaX1%+W%*8
 1440 IF R%>=50 THEN AreaY1%=AreaY2%-20*8 ELSE AreaY1%=AreaY2%-10*8
 1450 AreaWidth%=AreaX2%-AreaX1%
 1460 AreaHeight%=AreaY2%-AreaY1%
-1465 VDU 23,30,110,GRP%;0;FDFLT%;AreaX1%;AreaY1%;
+1465 VDU 23,30,140,GRP%;0;FGRP%;AreaX1%;AreaY1%;AreaWidth%;AreaHeight%;
 1470 ID%=FN_GetID
-1480 VDU 23,30,40,ID%;GRP%;FDFLT%;AreaX1%;AreaY1%;AreaWidth%;AreaHeight%;&D5
-1490 VDU 23,30,4,GRP%;: VDU 23,30,4,ID%;
+1480 VDU 23,30,40,ID%;GRP%;FDFLT%;0;0;AreaWidth%;AreaHeight%;&D5
+1490 VDU 23,30,4,ID%;
 1498 ENDPROC
 1499 REM -----------
 10000 DEF FN_Points(R%,C%,W%)

@@ -27,7 +27,8 @@
 #include <cstring>
 
 DiPrimitive::DiPrimitive() {
-  memset(this, 0, sizeof(DiPrimitive));
+  // Zero out everything but the vtable pointer.
+  memset(((uint8_t*)this)+sizeof(DiPrimitive*), 0, sizeof(DiPrimitive)-sizeof(DiPrimitive*));
   m_flags = PRIM_FLAGS_DEFAULT;
 }
 
@@ -102,6 +103,12 @@ void IRAM_ATTR DiPrimitive::set_relative_deltas(int32_t rel_dx, int32_t rel_dy, 
   m_rel_dy = rel_dy;
   m_auto_moves = auto_moves;
 }
+
+void IRAM_ATTR DiPrimitive::set_size(uint32_t width, uint32_t height) {
+  m_width = width;
+  m_height = height;
+}
+
 //extern void debug_log(const char* fmt, ...);
 void IRAM_ATTR DiPrimitive::compute_absolute_geometry(
   int32_t view_x, int32_t view_y, int32_t view_x_extent, int32_t view_y_extent) {

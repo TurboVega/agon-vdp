@@ -145,7 +145,7 @@ class DiManager {
                             uint32_t width, uint32_t height, uint8_t color);
 
     DiPrimitive* create_primitive_group(uint16_t id, uint16_t parent, uint16_t flags,
-                            int32_t x, int32_t y);
+                            int32_t x, int32_t y, uint32_t width, uint32_t height);
 
     // Set the flags for an existing primitive.
     void set_primitive_flags(uint16_t id, uint16_t flags);

@@ -284,21 +284,21 @@ void otf(void * pvParameters) {
 		cmd->m_color = 0xFF;
 		di_manager->create_solid_quad_list(cmd);
 		di_manager->generate_code_for_primitive(cmd->m_id);
-	}
+	}*/
 
 	{
 		OtfCmd_40_Create_primitive_Rectangle_Outline cmd;
 		cmd.m_id = 13;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
 		cmd.m_flags = PRIM_FLAGS_DEFAULT;
-		cmd.m_x = 350; cmd.m_y = 350;
-		cmd.m_w = 85; cmd.m_h = 77;
+		cmd.m_x = 1; cmd.m_y = 1;
+		cmd.m_w = 80; cmd.m_h = 80;
 		cmd.m_color = 0xC4;
 		di_manager->create_rectangle_outline(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
 	}
 
-	{
+	/*{
 		OtfCmd_41_Create_primitive_Solid_Rectangle cmd;
 		cmd.m_id = 14;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;

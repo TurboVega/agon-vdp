@@ -79,7 +79,7 @@ DiBitmap::~DiBitmap() {
   }
 }
 
-void DiBitmap::set_relative_position(int32_t x, int32_t y) {
+void IRAM_ATTR DiBitmap::set_relative_position(int32_t x, int32_t y) {
   DiPrimitive::set_relative_position(x, y);
   m_visible_start = m_pixels;
 }

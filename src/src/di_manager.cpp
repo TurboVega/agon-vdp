@@ -1943,7 +1943,7 @@ bool DiManager::handle_otf_cmd() {
       case 140: {
         auto cmd = &cu->m_140_Create_primitive_Group;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_primitive_group(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y);
+          create_primitive_group(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h);
           m_incoming_command.clear();
           return true;
         }
@@ -2250,6 +2250,7 @@ DiPrimitive* DiManager::create_rectangle_outline(OtfCmd_40_Create_primitive_Rect
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
 
     auto prim = new DiRectangle();
+    debug_log("%hX %hi %hi %hu %hu %02hX\n",cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
     prim->make_rectangle_outline(cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h, cmd->m_color);
 
     return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
@@ -2420,12 +2421,13 @@ DiRender* DiManager::create_transparent_render(uint16_t id, uint16_t parent, uin
 }
 
 DiPrimitive* DiManager::create_primitive_group(uint16_t id, uint16_t parent, uint16_t flags,
-                        int32_t x, int32_t y) {
+                        int32_t x, int32_t y, uint32_t width, uint32_t height) {
     if (!validate_id(id)) return NULL;
     DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
 
     DiPrimitive* prim = new DiPrimitive();
     prim->set_relative_position(x, y);
+    prim->set_size(width, height);
 
     return finish_create(id, flags, prim, parent_prim);
 }

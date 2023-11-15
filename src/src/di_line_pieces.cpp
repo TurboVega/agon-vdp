@@ -35,7 +35,7 @@ typedef union {
 } Overlay;
 
 void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width, bool solid) {
-  ////debug_log("DiLineSections::add_piece(%hi, %hu)\n", x, width);
+  debug_log("\n====\nDiLineSections::add_piece(%hu, %hi, %hu, %i)\n", id, x, width, solid);
   auto xe = x + width;
   auto encloser = m_pieces.end();
 
@@ -278,7 +278,7 @@ void DiLineDetails::make_solid_quad(uint8_t id, int16_t x1, int16_t y1, int16_t 
 }
 
 void DiLineDetails::add_piece(uint8_t id, int16_t x, int16_t y, uint16_t width, bool solid) {
-  ////debug_log("DiLineDetails::add_piece(%hi, %hi, %hu)\n", x, y, width);
+  //debug_log("DiLineDetails::add_piece(%hu, %hi, %hi, %hu, %i)\n", id, x, y, width, solid);
   if (m_sections.size()) {
     // determine whether to add a new section
     if (y < m_min_y) {

@@ -67,6 +67,9 @@ class DiPrimitive {
   // These values are used to update the relative position automatically, frame-by-frame.
   void IRAM_ATTR set_relative_deltas(int32_t rel_dx, int32_t rel_dy, uint32_t auto_moves);
 
+  // Set the size of the primitive. This only used for certain types of primitives.
+  virtual void IRAM_ATTR set_size(uint32_t width, uint32_t height);
+
   // Compute the absolute position and related data members, based on the
   // current position, relative to the parent primitive. The viewport of
   // this primitive is based on the given viewport parameters and certain flags.
