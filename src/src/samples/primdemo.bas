@@ -1,5 +1,7 @@
 10 REM OTF Primitives Demo
+11 CLS: VDU 23,1,0;0;0;0;
 12 FREE_ID%=3
+13 FDFLT%=&000F
 20 GRP_PT% = FN_Points(9,0,10)
 30 GRP_LIN% = FN_Lines(9,10,10)
 40 GRP_TRI_OUT% = FN_TriangleOutline(9,20,10)
@@ -33,191 +35,205 @@
 320 GRP_SOL_REN% = FN_Solid3DRender(69,40,20)
 330 GRP_MSK_REN% = FN_Masked3DRender(69,60,20)
 340 GRP_TRN_REN% = FN_Transparent3DRender(69,80,20)
-399 GOTO 399
+397 IF INKEY="" THEN GOTO 399
+398 VDU 23,1,1;0;0;0;
+399 END
 999 REM -----------
-1000 DEF FN_GetID()
+1000 DEF FN_GetID
 1010 ID%=FREE_ID%
 1020 FREE_ID%=FREE_ID%+1
 1030 =ID%
 1099 REM -----------
 1100 DEF PROC_Title(R%,C%,W%,T$)
-1110 TAB(R%,C%+(W%-LEN(T$))/2)
-1120 PRINT T$;
-1130 END
+1110 PRINT TAB(C%+(W%-LEN(T$))/2,R%);T$
+1120 ENDPROC
 1199 REM -----------
 1200 DEF PROC_Title2(R%,C%,W%,T1$,T2$)
 1210 PROC_Title(R%-1,C%,W%,T1$)
 1220 PROC_Title(R%,C%,W%,T2$)
-1230 END
+1230 ENDPROC
 1299 REM -----------
 1300 DEF PROC_Title3(R%,C%,W%,T1$,T2$,T3$)
 1310 PROC_Title(R%-2,C%,W%,T1$)
 1320 PROC_Title(R%-1,C%,W%,T2$)
 1330 PROC_Title(R%,C%,W%,T3$)
-1330 END
+1330 ENDPROC
 1399 REM -----------
+1400 DEF PROC_SetArea(GRP%,R%,C%,W%)
+1410 AreaX1%=C%*8
+1420 AreaY2%=(R%+1)*8
+1430 AreaX2%=AreaX1%+W%*8
+1440 IF R%>=50 THEN AreaY1%=AreaY2%-20*8 ELSE AreaY1%=AreaY2%-10*8
+1450 AreaWidth%=AreaX2%-AreaX1%
+1460 AreaHeight%=AreaY2%-AreaY1%
+1465 VDU 23,30,110,GRP%;0;FDFLT%;AreaX1%;AreaY1;
+1470 ID%=FN_GetID()
+1480 VDU 23,30,40,ID%;GRP%;FDFLT%;AreaX1%;AreaY1;AreaWidth%;AreaHeight%;&D5
+1490 VDU 23,30,4,ID%;
+1498 ENDPROC
+1499 REM -----------
 10000 DEF FN_Points(R%,C%,W%)
-10010 GRP%=FN_GetID()
-10020 FN_Title(R%,C%,W%,"Point")
+10010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+10020 PROC_Title(R%,C%,W%,"Point")
 10998 =GRP%
-10999 REM -------------
+10999 REM -----------
 11000 DEF FN_Lines(R%,C%,W%)
-11010 GRP%=FN_GetID()
-11020 FN_Title(R%,C%,W%,"Line")
+11010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+11020 PROC_Title(R%,C%,W%,"Line")
 11998 =GRP%
-11999 REM -------------
+11999 REM -----------
 12000 DEF FN_TriangleOutline(R%,C%,W%)
-12010 GRP%=FN_GetID()
-12020 FN_Title2(R%,C%,W%,"Triangle","Outline")
+12010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+12020 PROC_Title2(R%,C%,W%,"Triangle","Outline")
 12998 =GRP%
-12999 REM -------------
+12999 REM -----------
 13000 DEF FN_SolidTriangle(R%,C%,W%)
-13010 GRP%=FN_GetID()
-13020 FN_Title2(R%,C%,W%,"Solid","Triangle")
+13010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+13020 PROC_Title2(R%,C%,W%,"Solid","Triangle")
 13998 =GRP%
-13999 REM -------------
+13999 REM -----------
 14000 DEF FN_TriangleListOutline(R%,C%,W%)
-14010 GRP%=FN_GetID()
-14020 FN_Title3(R%,C%,W%,"Triangle","List","Outline")
+14010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+14020 PROC_Title3(R%,C%,W%,"Triangle","List","Outline")
 14998 =GRP%
-14999 REM -------------
+14999 REM -----------
 15000 DEF FN_SolidTriangleList(R%,C%,W%)
-15010 GRP%=FN_GetID()
-15020 FN_Title3(R%,C%,W%,"Solid","Triangle","List")
+15010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+15020 PROC_Title3(R%,C%,W%,"Solid","Triangle","List")
 15998 =GRP%
-15999 REM -------------
+15999 REM -----------
 16000 DEF FN_TriangleFanOutline(R%,C%,W%)
-16010 GRP%=FN_GetID()
-16020 FN_Title3(R%,C%,W%,"Triangle","Fan","Outline")
+16010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+16020 PROC_Title3(R%,C%,W%,"Triangle","Fan","Outline")
 16998 =GRP%
-16999 REM -------------
+16999 REM -----------
 17000 DEF FN_SolidTriangleFan(R%,C%,W%)
-17010 GRP%=FN_GetID()
-17020 FN_Title3(R%,C%,W%,"Solid","Triangle","Fan")
+17010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+17020 PROC_Title3(R%,C%,W%,"Solid","Triangle","Fan")
 17998 =GRP%
-17999 REM -------------
+17999 REM -----------
 18000 DEF FN_TriangleStripOutline(R%,C%,W%)
-18010 GRP%=FN_GetID()
-18020 FN_Title3(R%,C%,W%,"Triangle","Strip","Outline")
+18010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+18020 PROC_Title3(R%,C%,W%,"Triangle","Strip","Outline")
 18998 =GRP%
-18999 REM -------------
+18999 REM -----------
 19000 DEF FN_SolidTriangleStrip(R%,C%,W%)
-19010 GRP%=FN_GetID()
-19020 FN_Title3(R%,C%,W%,"Solid","Triangle","Strip")
+19010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+19020 PROC_Title3(R%,C%,W%,"Solid","Triangle","Strip")
 19998 =GRP%
-19999 REM -------------
+19999 REM -----------
 20000 DEF FN_QuadOutline(R%,C%,W%)
-20010 GRP%=FN_GetID()
-20020 FN_Title2(R%,C%,W%,"Quad","Outline")
+20010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+20020 PROC_Title2(R%,C%,W%,"Quad","Outline")
 20998 =GRP%
-20999 REM -------------
+20999 REM -----------
 21000 DEF FN_SolidQuad(R%,C%,W%)
-21010 GRP%=FN_GetID()
-21020 FN_Title2(R%,C%,W%,"Solid","Quad")
+21010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+21020 PROC_Title2(R%,C%,W%,"Solid","Quad")
 21998 =GRP%
-21999 REM -------------
+21999 REM -----------
 22000 DEF FN_QuadListOutline(R%,C%,W%)
-22010 GRP%=FN_GetID()
-22020 FN_Title3(R%,C%,W%,"Quad","List","Outline")
+22010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+22020 PROC_Title3(R%,C%,W%,"Quad","List","Outline")
 22998 =GRP%
-22999 REM -------------
+22999 REM -----------
 23000 DEF FN_SolidQuadList(R%,C%,W%)
-23010 GRP%=FN_GetID()
-23020 FN_Title3(R%,C%,W%,"Solid","Quad","List")
+23010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+23020 PROC_Title3(R%,C%,W%,"Solid","Quad","List")
 23998 =GRP%
-23999 REM -------------
+23999 REM -----------
 24000 DEF FN_QuadStripOutline(R%,C%,W%)
-24010 GRP%=FN_GetID()
-24020 FN_Title3(R%,C%,W%,"Quad","Strip","Outline")
+24010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+24020 PROC_Title3(R%,C%,W%,"Quad","Strip","Outline")
 24998 =GRP%
-24999 REM -------------
+24999 REM -----------
 25000 DEF FN_SolidQuadStrip(R%,C%,W%)
-25010 GRP%=FN_GetID()
-25020 FN_Title3(R%,C%,W%,"Solid","Quad","Strip")
+25010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+25020 PROC_Title3(R%,C%,W%,"Solid","Quad","Strip")
 25998 =GRP%
-25999 REM -------------
+25999 REM -----------
 26000 DEF FN_RectangleOutline(R%,C%,W%)
-26010 GRP%=FN_GetID()
-26020 FN_Title2(R%,C%,W%,"Rectangle","Outline")
+26010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+26020 PROC_Title2(R%,C%,W%,"Rectangle","Outline")
 26998 =GRP%
-26999 REM -------------
+26999 REM -----------
 27000 DEF FN_SolidRectangle(R%,C%,W%)
-27010 GRP%=FN_GetID()
-27020 FN_Title2(R%,C%,W%,"Solid","Rectangle")
+27010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+27020 PROC_Title2(R%,C%,W%,"Solid","Rectangle")
 27998 =GRP%
-27999 REM -------------
+27999 REM -----------
 28000 DEF FN_CircleOutline(R%,C%,W%)
-28010 GRP%=FN_GetID()
-28020 FN_Title2(R%,C%,W%,"Circle","Outline")
+28010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+28020 PROC_Title2(R%,C%,W%,"Circle","Outline")
 28998 =GRP%
-28999 REM -------------
+28999 REM -----------
 29000 DEF FN_SolidCircle(R%,C%,W%)
-29010 GRP%=FN_GetID()
-29020 FN_Title2(R%,C%,W%,"Solid","Circle")
+29010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+29020 PROC_Title2(R%,C%,W%,"Solid","Circle")
 29998 =GRP%
-29999 REM -------------
+29999 REM -----------
 30000 DEF FN_EllipseOutline(R%,C%,W%)
-30010 GRP%=FN_GetID()
-30020 FN_Title2(R%,C%,W%,"Ellipse","Outline")
+30010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+30020 PROC_Title2(R%,C%,W%,"Ellipse","Outline")
 30998 =GRP%
-30999 REM -------------
+30999 REM -----------
 31000 DEF FN_SolidEllipse(R%,C%,W%)
-31010 GRP%=FN_GetID()
-31020 FN_Title2(R%,C%,W%,"Solid","Ellipse")
+31010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+31020 PROC_Title2(R%,C%,W%,"Solid","Ellipse")
 31998 =GRP%
-31999 REM -------------
+31999 REM -----------
 32000 DEF FN_TerminalSmallFont(R%,C%,W%)
-32010 GRP%=FN_GetID()
-32020 FN_Title(R%,C%,W%,"Terminal Small Font")
+32010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+32020 PROC_Title(R%,C%,W%,"Terminal Small Font")
 32998 =GRP%
-32999 REM -------------
+32999 REM -----------
 33000 DEF FN_SolidBitmap(R%,C%,W%)
-33010 GRP%=FN_GetID()
-33020 FN_Title2(R%,C%,W%,"Solid","Bitmap")
+33010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+33020 PROC_Title2(R%,C%,W%,"Solid","Bitmap")
 33998 =GRP%
-33999 REM -------------
+33999 REM -----------
 34000 DEF FN_MaskedBitmap(R%,C%,W%)
-34010 GRP%=FN_GetID()
-34020 FN_Title2(R%,C%,W%,"Masked","Bitmap")
+34010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+34020 PROC_Title2(R%,C%,W%,"Masked","Bitmap")
 34998 =GRP%
-34999 REM -------------
+34999 REM -----------
 35000 DEF FN_BitmapFrames(R%,C%,W%)
-35010 GRP%=FN_GetID()
-35020 FN_Title2(R%,C%,W%,"Bitmap","Frames")
+35010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+35020 PROC_Title2(R%,C%,W%,"Bitmap","Frames")
 35998 =GRP%
-35999 REM -------------
+35999 REM -----------
 36000 DEF FN_BitmapScroll(R%,C%,W%)
-36010 GRP%=FN_GetID()
-36020 FN_Title2(R%,C%,W%,"Bitmap","Scroll")
+36010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+36020 PROC_Title2(R%,C%,W%,"Bitmap","Scroll")
 36998 =GRP%
-36999 REM -------------
+36999 REM -----------
 37000 DEF FN_GroupMove(R%,C%,W%)
-37010 GRP%=FN_GetID()
-37020 FN_Title2(R%,C%,W%,"Group","Move")
+37010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+37020 PROC_Title2(R%,C%,W%,"Group","Move")
 37998 =GRP%
-37999 REM -------------
+37999 REM -----------
 38000 DEF FN_TerminalBigFont(R%,C%,W%)
-38010 GRP%=FN_GetID()
-38020 FN_Title(R%,C%,W%,"Terminal Large Font")
+38010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+38020 PROC_Title(R%,C%,W%,"Terminal Large Font")
 38998 =GRP%
-38999 REM -------------
+38999 REM -----------
 39000 DEF FN_TransparentBitmaps(R%,C%,W%)
-39010 GRP%=FN_GetID()
-39020 FN_Title(R%,C%,W%,"Transparent Bitmaps")
+39010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+39020 PROC_Title(R%,C%,W%,"Transparent Bitmaps")
 39998 =GRP%
-39999 REM -------------
+39999 REM -----------
 40000 DEF FN_Solid3DRender(R%,C%,W%)
-40010 GRP%=FN_GetID()
-40020 FN_Title2(R%,C%,W%,"Solid","3D Render")
+40010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+40020 PROC_Title2(R%,C%,W%,"Solid","3D Render")
 40998 =GRP%
-40999 REM -------------
+40999 REM -----------
 41000 DEF FN_Masked3DRender(R%,C%,W%)
-41010 GRP%=FN_GetID()
-41020 FN_Title2(R%,C%,W%,"Masked","3D Render")
+41010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+41020 PROC_Title2(R%,C%,W%,"Masked","3D Render")
 41998 =GRP%
-41999 REM -------------
+41999 REM -----------
 42000 DEF FN_Transparent3DRender(R%,C%,W%)
-42010 GRP%=FN_GetID()
-42020 FN_Title2(R%,C%,W%,"Transparent","3D Render")
+42010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
+42020 PROC_Title2(R%,C%,W%,"Transparent","3D Render")
 42998 =GRP%
-42999 REM -------------
+42999 REM -----------

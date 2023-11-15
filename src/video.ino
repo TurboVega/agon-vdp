@@ -151,12 +151,12 @@ void otf(void * pvParameters) {
 	boot_screen();
 	print("** Test of OTF 800x600x64 mode **\r\n");
 
-	di_manager->create_point(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 300, 0xFF);
-	di_manager->generate_code_for_primitive(3);
+	//di_manager->create_point(3, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 400, 300, 0xFF);
+	//di_manager->generate_code_for_primitive(3);
 	//di_manager->create_line(4, ROOT_PRIMITIVE_ID, PRIM_FLAGS_DEFAULT, 50, 210, 60, 215, 0xC3);
 	//di_manager->generate_code_for_primitive(4);
 
-	{
+	/*{
 		OtfCmd_30_Create_primitive_Triangle_Outline cmd;
 		cmd.m_id = 5;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
@@ -308,7 +308,7 @@ void otf(void * pvParameters) {
 		cmd.m_color = 0xC4;
 		di_manager->create_solid_rectangle(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
-	}
+	}*/
 
 /*
     for (uint16_t group = 0; group < 3; group++) {
