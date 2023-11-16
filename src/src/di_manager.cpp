@@ -935,6 +935,7 @@ VDU 31, x, y: TAB(x, y)
 VDU 127: Backspace
 */
 bool DiManager::process_character(uint8_t character) {
+  //debug_log("[%02hX]", character);
   if (m_incoming_command.size()) {
     switch (m_incoming_command[0]) {
       case 0x11: return ignore_cmd(character, 2);
@@ -1094,10 +1095,13 @@ bool DiManager::handle_udg_sys_cmd(uint8_t character) {
     // VDU 23, 1, enable; 0; 0; 0;: Text Cursor Control
     if (m_incoming_command.size() >= 10) {
       if (m_terminal) {
+        cursorEnabled = (get_param_8(2) != 0);
         auto flags = m_cursor->get_flags();
-        if (get_param_8(2) != 0 && cursorEnabled && (flags & PRIM_FLAG_PAINT_THIS == 0)) {
-          // turn ON cursor
-          set_primitive_flags(m_cursor->get_id(), flags | PRIM_FLAG_PAINT_THIS);
+        if (cursorEnabled) {
+          if (flags & PRIM_FLAG_PAINT_THIS == 0) {
+            // turn ON cursor
+            set_primitive_flags(m_cursor->get_id(), flags | PRIM_FLAG_PAINT_THIS);
+          }
         } else {
           if (flags & PRIM_FLAG_PAINT_THIS != 0) {
             // turn OFF cursor
@@ -1105,6 +1109,7 @@ bool DiManager::handle_udg_sys_cmd(uint8_t character) {
           }
         }
       }
+      m_incoming_command.clear();
       return true;
     }
     return false;

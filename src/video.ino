@@ -317,7 +317,7 @@ void otf(void * pvParameters) {
 1490 VDU 23,30,4,ID%;
 */
 
-	{
+	/*{
 		OtfCmd_140_Create_primitive_Group cmd;
 		cmd.m_id = 100;
 		cmd.m_pid = ROOT_PRIMITIVE_ID;
@@ -339,7 +339,7 @@ void otf(void * pvParameters) {
 		cmd.m_color = 0xC4;
 		di_manager->create_rectangle_outline(&cmd);
 		di_manager->generate_code_for_primitive(cmd.m_id);
-	}
+	}*/
 /*
     for (uint16_t group = 0; group < 3; group++) {
 		auto base_bmid = group * 12 + 10;

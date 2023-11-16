@@ -1,5 +1,5 @@
 10 REM OTF Primitives Demo
-11 CLS: REM VDU 23,1,0;0;0;0;
+11 CLS: VDU 23,1,0;0;0;0;
 12 FREE_ID%=3
 13 FDFLT%=&000F
 14 FGRP%=&000E
@@ -37,7 +37,7 @@
 330 GRP_MSK_REN% = FN_Masked3DRender(69,60,20)
 340 GRP_TRN_REN% = FN_Transparent3DRender(69,80,20)
 397 IF INKEY(100)<0 THEN GOTO 399
-398 REM VDU 23,1,1;0;0;0;
+398 VDU 23,1,1;0;0;0;
 399 END
 999 REM -----------
 1000 DEF FN_GetID
@@ -61,9 +61,8 @@
 1330 ENDPROC
 1399 REM -----------
 1400 DEF PROC_SetArea(GRP%,R%,C%,W%)
-1405 IF INKEY(100)<0 THEN GOTO 1405
 1410 AreaX1%=C%*8
-1420 AreaY2%=(R%+1)*8
+1420 AreaY2%=(R%+1)*8+1
 1430 AreaX2%=AreaX1%+W%*8
 1440 IF R%>=50 THEN AreaY1%=AreaY2%-20*8 ELSE AreaY1%=AreaY2%-10*8
 1450 AreaWidth%=AreaX2%-AreaX1%
@@ -96,32 +95,32 @@
 13999 REM -----------
 14000 DEF FN_TriangleListOutline(R%,C%,W%)
 14010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-14020 PROC_Title3(R%,C%,W%,"Triangle","List","Outline")
+14020 PROC_Title(R%,C%,W%,"Triangle List Outline")
 14998 =GRP%
 14999 REM -----------
 15000 DEF FN_SolidTriangleList(R%,C%,W%)
 15010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-15020 PROC_Title3(R%,C%,W%,"Solid","Triangle","List")
+15020 PROC_Title(R%,C%,W%,"Solid Triangle List")
 15998 =GRP%
 15999 REM -----------
 16000 DEF FN_TriangleFanOutline(R%,C%,W%)
 16010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-16020 PROC_Title3(R%,C%,W%,"Triangle","Fan","Outline")
+16020 PROC_Title(R%,C%,W%,"Triangle Fan Outline")
 16998 =GRP%
 16999 REM -----------
 17000 DEF FN_SolidTriangleFan(R%,C%,W%)
 17010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-17020 PROC_Title3(R%,C%,W%,"Solid","Triangle","Fan")
+17020 PROC_Title(R%,C%,W%,"Solid Triangle Fan")
 17998 =GRP%
 17999 REM -----------
 18000 DEF FN_TriangleStripOutline(R%,C%,W%)
 18010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-18020 PROC_Title3(R%,C%,W%,"Triangle","Strip","Outline")
+18020 PROC_Title(R%,C%,W%,"Triangle Strip Outline")
 18998 =GRP%
 18999 REM -----------
 19000 DEF FN_SolidTriangleStrip(R%,C%,W%)
 19010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-19020 PROC_Title3(R%,C%,W%,"Solid","Triangle","Strip")
+19020 PROC_Title(R%,C%,W%,"Solid Triangle Strip")
 19998 =GRP%
 19999 REM -----------
 20000 DEF FN_QuadOutline(R%,C%,W%)
@@ -136,22 +135,22 @@
 21999 REM -----------
 22000 DEF FN_QuadListOutline(R%,C%,W%)
 22010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-22020 PROC_Title3(R%,C%,W%,"Quad","List","Outline")
+22020 PROC_Title(R%,C%,W%,"Quad List Outline")
 22998 =GRP%
 22999 REM -----------
 23000 DEF FN_SolidQuadList(R%,C%,W%)
 23010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-23020 PROC_Title3(R%,C%,W%,"Solid","Quad","List")
+23020 PROC_Title(R%,C%,W%,"Solid Quad List")
 23998 =GRP%
 23999 REM -----------
 24000 DEF FN_QuadStripOutline(R%,C%,W%)
 24010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-24020 PROC_Title3(R%,C%,W%,"Quad","Strip","Outline")
+24020 PROC_Title(R%,C%,W%,"Quad Strip Outline")
 24998 =GRP%
 24999 REM -----------
 25000 DEF FN_SolidQuadStrip(R%,C%,W%)
 25010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-25020 PROC_Title3(R%,C%,W%,"Solid","Quad","Strip")
+25020 PROC_Title(R%,C%,W%,"Solid Quad Strip")
 25998 =GRP%
 25999 REM -----------
 26000 DEF FN_RectangleOutline(R%,C%,W%)
@@ -226,12 +225,12 @@
 39999 REM -----------
 40000 DEF FN_Solid3DRender(R%,C%,W%)
 40010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-40020 PROC_Title2(R%,C%,W%,"Solid","3D Render")
+40020 PROC_Title(R%,C%,W%,"Solid 3D Render")
 40998 =GRP%
 40999 REM -----------
 41000 DEF FN_Masked3DRender(R%,C%,W%)
 41010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
-41020 PROC_Title2(R%,C%,W%,"Masked","3D Render")
+41020 PROC_Title(R%,C%,W%,"Masked 3D Render")
 41998 =GRP%
 41999 REM -----------
 42000 DEF FN_Transparent3DRender(R%,C%,W%)
