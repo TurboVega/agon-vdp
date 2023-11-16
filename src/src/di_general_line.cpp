@@ -96,7 +96,7 @@ void DiGeneralLine::init_from_coords(uint16_t flags, int16_t* coords,
   m_rel_y = min_of_pairs(coords+1, n);
   m_width = max_of_pairs(coords, n) - m_rel_x + 1;
   m_height = max_of_pairs(coords+1, n) - m_rel_y + 1;
-  debug_log("%hi %hi, w %hi, h %i\n", m_rel_x, m_rel_y, m_width, m_height);
+  //debug_log("%hi %hi, w %hi, h %i\n", m_rel_x, m_rel_y, m_width, m_height);
   color &= 0x3F; // remove any alpha bits
   m_color = PIXEL_COLOR_X4(color);
 
@@ -112,14 +112,14 @@ void DiGeneralLine::make_triangle_list_outline(uint16_t flags, int16_t* coords,
 
   uint8_t id = 1;
   while (n--) {
-    debug_log("%hi %hi %hi %hi %hi %hi\n", coords[0], coords[1],
+    debug_log("tri %hi %hi %hi %hi %hi %hi\n", coords[0], coords[1],
       coords[2], coords[3], coords[4], coords[5]);
     m_line_details.make_triangle_outline(id++, coords[0], coords[1],
       coords[2], coords[3], coords[4], coords[5]);
     coords += 6;
   }
   create_functions();
-  debug_log("prim x %i y %i w %u h %u\n", m_rel_x, m_rel_y, m_width, m_height);
+  debug_log("prim x %i y %i w %u h %u ld %u\n", m_rel_x, m_rel_y, m_width, m_height, m_line_details.m_sections.size());
 }
 
 void DiGeneralLine::make_solid_triangle_list(uint16_t flags, int16_t* coords,
@@ -347,20 +347,20 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
         //debug_log("id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
       }
     } else {
-        //debug_log("\nid=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
+        debug_log("\ngen id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
         EspFixups fixups;
         auto num_sections = (uint32_t)m_line_details.m_sections.size();
         uint32_t at_jump_table = m_paint_fcn[0].init_jump_table(num_sections);
         for (uint32_t i = 0; i < num_sections; i++) {
           auto sections = &m_line_details.m_sections[i];
-          //debug_log("\n > section [%i] ", i);
+          debug_log("\n > section [%i] ", i);
           m_paint_fcn[0].align32();
           m_paint_fcn[0].j_to_here(at_jump_table + i * sizeof(uint32_t));
           m_paint_fcn[0].draw_line_as_inner_fcn(fixups, 0, 0,
             sections, m_flags, m_opaqueness);
         }
         m_paint_fcn[0].do_fixups(fixups);
-        //debug_log("id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
+        debug_log("    id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
       }
     }
 }
