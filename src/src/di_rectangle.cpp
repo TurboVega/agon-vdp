@@ -46,15 +46,16 @@ void IRAM_ATTR DiRectangle::delete_instructions() {
 void IRAM_ATTR DiRectangle::generate_instructions() {
   delete_instructions();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
-    EspFixups fixups;
     auto width = (uint16_t)m_width;
     {
+      EspFixups fixups;
       DiLineSections sections;
       sections.add_piece(1, 0, width, false);
       m_paint_fcn[0].draw_line_as_outer_fcn(fixups, m_draw_x, m_draw_x, &sections, m_flags, m_opaqueness);
       m_paint_fcn[0].do_fixups(fixups);
     }
     {
+      EspFixups fixups;
       DiLineSections sections;
       sections.add_piece(1, 0, 1, false);
       sections.add_piece(1, width-1, 1, false);
