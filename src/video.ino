@@ -311,6 +311,36 @@ void otf(void * pvParameters) {
 	}*/
 
 /*
+1465 VDU 23,30,140,GRP%;0;FGRP%;AreaX1%;AreaY1%;AreaWidth%;AreaHeight%;
+1470 ID%=FN_GetID
+1480 VDU 23,30,40,ID%;GRP%;FDFLT%;0;0;AreaWidth%;AreaHeight%;&D5
+1490 VDU 23,30,4,ID%;
+*/
+
+	{
+		OtfCmd_140_Create_primitive_Group cmd;
+		cmd.m_id = 100;
+		cmd.m_pid = ROOT_PRIMITIVE_ID;
+		cmd.m_flags = 0xE;
+		cmd.m_x = 0;
+		cmd.m_y = 0;
+		cmd.m_w = 80;
+		cmd.m_h = 80;
+		di_manager->create_primitive_group(&cmd);
+	}
+
+	{
+		OtfCmd_40_Create_primitive_Rectangle_Outline cmd;
+		cmd.m_id = 101;
+		cmd.m_pid = 100;
+		cmd.m_flags = PRIM_FLAGS_DEFAULT;
+		cmd.m_x = 0; cmd.m_y = 0;
+		cmd.m_w = 80; cmd.m_h = 80;
+		cmd.m_color = 0xC4;
+		di_manager->create_rectangle_outline(&cmd);
+		di_manager->generate_code_for_primitive(cmd.m_id);
+	}
+/*
     for (uint16_t group = 0; group < 3; group++) {
 		auto base_bmid = group * 12 + 10;
 		for (uint16_t i = 0; i < 12; i++) {

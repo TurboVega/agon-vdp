@@ -803,26 +803,28 @@ void IRAM_ATTR DiManager::loop() {
 
       loop_state = LoopState::ProcessingIncomingData;
       
-    } else if (descr_index >= DMA_TOTAL_DESCR - DMA_ACT_LINES - 1) {
-      // Prepare the start of the next frame.
-      for (current_line_index = 0, current_buffer_index = 0;
-            current_buffer_index < NUM_ACTIVE_BUFFERS;
-            current_line_index++, current_buffer_index++) {
-        volatile DiVideoBuffer* vbuf = &m_video_buffer[current_buffer_index];
-        draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
-        draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
-      }
-
-      loop_state = LoopState::NearNewFrameStart;
-      current_line_index = 0;
-      current_buffer_index = 0;
-
     } else if (loop_state == LoopState::ProcessingIncomingData) {
-      // Keep handling incoming characters
-      if (ESPSerial.available() > 0) {
-        process_character(ESPSerial.read());
+      if (descr_index >= DMA_TOTAL_DESCR - DMA_ACT_LINES - 1) {
+        // Prepare the start of the next frame.
+        for (current_line_index = 0, current_buffer_index = 0;
+              current_buffer_index < NUM_ACTIVE_BUFFERS;
+              current_line_index++, current_buffer_index++) {
+          volatile DiVideoBuffer* vbuf = &m_video_buffer[current_buffer_index];
+          draw_primitives(vbuf->get_buffer_ptr_0(), current_line_index);
+          draw_primitives(vbuf->get_buffer_ptr_1(), ++current_line_index);
+        }
+
+        loop_state = LoopState::NearNewFrameStart;
+        current_line_index = 0;
+        current_buffer_index = 0;
+      } else {
+        // Keep handling incoming characters
+        if (ESPSerial.available() > 0) {
+          process_character(ESPSerial.read());
+        }
       }
     } else {
+      // LoopState::NearNewFrameStart
       // Keep storing incoming characters
       if (ESPSerial.available() > 0) {
         store_character(ESPSerial.read());
@@ -1943,7 +1945,7 @@ bool DiManager::handle_otf_cmd() {
       case 140: {
         auto cmd = &cu->m_140_Create_primitive_Group;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          create_primitive_group(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_x, cmd->m_y, cmd->m_w, cmd->m_h);
+          create_primitive_group(cmd);
           m_incoming_command.clear();
           return true;
         }
@@ -2420,16 +2422,15 @@ DiRender* DiManager::create_transparent_render(uint16_t id, uint16_t parent, uin
     return prim;
 }
 
-DiPrimitive* DiManager::create_primitive_group(uint16_t id, uint16_t parent, uint16_t flags,
-                        int32_t x, int32_t y, uint32_t width, uint32_t height) {
-    if (!validate_id(id)) return NULL;
-    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(parent))) return NULL;
+DiPrimitive* DiManager::create_primitive_group(OtfCmd_140_Create_primitive_Group* cmd) {
+    if (!validate_id(cmd->m_id)) return NULL;
+    DiPrimitive* parent_prim; if (!(parent_prim = get_safe_primitive(cmd->m_pid))) return NULL;
 
     DiPrimitive* prim = new DiPrimitive();
-    prim->set_relative_position(x, y);
-    prim->set_size(width, height);
+    prim->set_relative_position(cmd->m_x, cmd->m_y);
+    prim->set_size(cmd->m_w, cmd->m_h);
 
-    return finish_create(id, flags, prim, parent_prim);
+    return finish_create(cmd->m_id, cmd->m_flags, prim, parent_prim);
 }
 
 void DiManager::slice_solid_bitmap_absolute(uint16_t id, int32_t x, int32_t y, int32_t start_line, int32_t height) {
