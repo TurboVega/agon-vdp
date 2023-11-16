@@ -24,7 +24,7 @@
 #include "di_line_pieces.h"
 #include <cstddef>
 #include <string.h>
-extern void debug_log(const char* fmt, ...);
+//extern void debug_log(const char* fmt, ...);
 
 typedef union {
   int64_t value64;
@@ -35,7 +35,7 @@ typedef union {
 } Overlay;
 
 void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width, bool solid) {
-  debug_log("\n====\nDiLineSections::add_piece(%hu, %hi, %hu, %i)\n", id, x, width, solid);
+  //debug_log("\n====\nDiLineSections::add_piece(%hu, %hi, %hu, %i)\n", id, x, width, solid);
   auto xe = x + width;
   auto encloser = m_pieces.end();
 
@@ -74,11 +74,11 @@ void DiLineSections::add_piece(uint8_t id, int16_t x, uint16_t width, bool solid
         auto pe = piece->m_x + piece->m_width;
         if (solid || pe >= next_piece->m_x) {
           auto ne = next_piece->m_x + next_piece->m_width;
-          debug_log("== merging ne %hi\n", ne);
+          //debug_log("== merging ne %hi\n", ne);
           auto nw = ne - piece->m_x;
-          debug_log(" nw %hi\n", nw);
+          //debug_log(" nw %hi\n", nw);
           piece->m_width = MAX(piece->m_width, nw);
-          debug_log(" pw %hi\n", piece->m_width);
+          //debug_log(" pw %hi\n", piece->m_width);
           m_pieces.erase(next_piece);
         } else {
           break;
@@ -316,14 +316,14 @@ void DiLineDetails::add_piece(uint8_t id, int16_t x, int16_t y, uint16_t width, 
 
 void DiLineDetails::merge(const DiLineDetails& details) {
   auto y = details.m_min_y;
-  debug_log("\nmerge %hi\n", y);
+  //debug_log("\nmerge %hi\n", y);
   for (auto sections = details.m_sections.begin();
       sections != details.m_sections.end();
       sections++) {
     for (auto piece = sections->m_pieces.begin();
           piece != sections->m_pieces.end();
           piece++) {
-      debug_log(" add id=%hu x=%hi y=%hi w=%hu\n",piece->m_id, piece->m_x, y, piece->m_width);
+      //debug_log(" add id=%hu x=%hi y=%hi w=%hu\n",piece->m_id, piece->m_x, y, piece->m_width);
       add_piece(piece->m_id, piece->m_x, y, piece->m_width, false);
     }
     y++;

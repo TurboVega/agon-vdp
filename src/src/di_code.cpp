@@ -414,18 +414,18 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
         auto more = (state != LoopState::ColoredPixels) || (si + 1 < num_sections);
         uint32_t width = sections->m_pieces[si].m_width;
 
-        debug_log("\ndraw loop: xo %u si %hu more %i width %u\n",
-            x_offset, si, more, width);
+        //debug_log("\ndraw loop: xo %u si %hu more %i width %u\n",
+        //    x_offset, si, more, width);
 
         if (state == LoopState::InitialSpace) {
             opaqueness = 0;
             width = space;
-            debug_log("  initial space %u\n", space);
+            //debug_log("  initial space %u\n", space);
             state = LoopState::ColoredPixels;
         } else if (state == LoopState::LaterSpace) {
             opaqueness = 0;
             width = space;
-            debug_log("  later space %u\n", space);
+            //debug_log("  later space %u\n", space);
             si++;
             state = LoopState::ColoredPixels;
         } else {
@@ -435,14 +435,14 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
                 si++;
             } else {
                 space = sections->m_pieces[si+1].m_x - sections->m_pieces[si].m_x - width;
-                debug_log("  need space from %hi to %hi, w %hu\n",
-                    sections->m_pieces[si].m_x + width, sections->m_pieces[si+1].m_x, space);
+                //debug_log("  need space from %hi to %hi, w %hu\n",
+                //    sections->m_pieces[si].m_x + width, sections->m_pieces[si+1].m_x, space);
             }
         }
 
         while (width) {
             auto offset = x_offset & 3;
-            debug_log(" -- x %u, xo %u, now at offset %u, width = %u, op = %hu\n", x, x_offset, offset, width, opaqueness);
+            //debug_log(" -- x %u, xo %u, now at offset %u, width = %u, op = %hu\n", x, x_offset, offset, width, opaqueness);
             uint32_t sub = 1;
             switch (offset) {
                 case 0:
@@ -752,7 +752,7 @@ void EspFunction::draw_line_loop(EspFixups& fixups, uint32_t draw_x, uint32_t x,
             x_offset += sub;
             if (p_fcn) {
                 fixups.push_back(EspFixup { get_code_index(), p_fcn });
-                debug_log(" >%X ", p_fcn);
+                //debug_log(" >%X ", p_fcn);
                 call0(0);
                 p_fcn = 0;
             }
@@ -1267,12 +1267,12 @@ void EspFunction::set_reg_dst_pixel_ptr_for_copy(uint16_t flags) {
 
 void EspFunction::call_inner_fcn(uint32_t real_address) {
     uint32_t offset = (real_address - 4 - (get_real_address(get_code_index() & 0xFFFFFFFC))) & 0xFFFFF;
-    debug_log(" @%X ", real_address);
+    //debug_log(" @%X ", real_address);
     call0(offset);
 }
 
 void EspFunction::store(uint8_t instr_byte) {
-    debug_log(" [%04X] %02hX", m_code_index, instr_byte);
+    //debug_log(" [%04X] %02hX", m_code_index, instr_byte);
     auto i = m_code_index >> 2;
     switch (m_code_index & 3) {
         case 0:
@@ -1369,7 +1369,7 @@ uint32_t EspFunction::write8(const char* mnemonic, instr_t data) {
     allocate(1);
     auto at_data = get_code_index();
     store((uint8_t)(data & 0xFF));
-    debug_log(" %s\n", mnemonic);
+    //debug_log(" %s\n", mnemonic);
     return at_data;
 }
 
@@ -1378,7 +1378,7 @@ uint32_t EspFunction::write16(const char* mnemonic, instr_t data) {
     auto at_data = get_code_index();
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
-    debug_log(" %s\n", mnemonic);
+    //debug_log(" %s\n", mnemonic);
     return at_data;
 }
 
@@ -1388,7 +1388,7 @@ uint32_t EspFunction::write24(const char* mnemonic, instr_t data) {
     store((uint8_t)(data & 0xFF));
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
-    debug_log(" %s\n", mnemonic);
+    //debug_log(" %s\n", mnemonic);
     return at_data;
 }
 
@@ -1399,7 +1399,7 @@ uint32_t EspFunction::write32(const char* mnemonic, instr_t data) {
     store((uint8_t)((data >> 8) & 0xFF));
     store((uint8_t)((data >> 16) & 0xFF));
     store((uint8_t)((data >> 24) & 0xFF));
-    debug_log(" %s\n", mnemonic);
+    //debug_log(" %s\n", mnemonic);
     return at_data;
 }
 

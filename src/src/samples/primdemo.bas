@@ -3,6 +3,7 @@
 12 FREE_ID%=3
 13 FDFLT%=&000F
 14 FGRP%=&000E
+15 OTF%=&1E17
 20 GRP_PT% = FN_Points(9,0,10)
 30 GRP_LIN% = FN_Lines(9,10,10)
 40 GRP_TRI_OUT% = FN_TriangleOutline(9,20,10)
@@ -67,15 +68,22 @@
 1440 IF R%>=50 THEN AreaY1%=AreaY2%-20*8 ELSE AreaY1%=AreaY2%-10*8
 1450 AreaWidth%=AreaX2%-AreaX1%
 1460 AreaHeight%=AreaY2%-AreaY1%
-1465 VDU 23,30,140,GRP%;0;FGRP%;AreaX1%;AreaY1%;AreaWidth%;AreaHeight%;
+1465 VDU OTF%;140,GRP%;0;FGRP%;AreaX1%;AreaY1%;AreaWidth%;AreaHeight%;
 1470 ID%=FN_GetID
-1480 VDU 23,30,40,ID%;GRP%;FDFLT%;0;0;AreaWidth%;AreaHeight%;&D5
-1490 VDU 23,30,4,ID%;
+1480 VDU OTF%;40,ID%;GRP%;FDFLT%;0;0;AreaWidth%;AreaHeight%;&D5
+1490 VDU OTF%;4,ID%;
 1498 ENDPROC
 1499 REM -----------
 10000 DEF FN_Points(R%,C%,W%)
 10010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
 10020 PROC_Title(R%,C%,W%,"Point")
+10030 FOR I%=0 TO 9
+10040 ID%=FN_GetID
+10050 X%=RND(70)+5
+10060 Y%=RND(70)+5
+10070 VDU OTF%;10,ID%;GRP%;FDFLT%;X%;Y%;&C0+RND(62)
+10080 VDU OTF%;4,ID%;
+10090 NEXT I%
 10998 =GRP%
 10999 REM -----------
 11000 DEF FN_Lines(R%,C%,W%)
