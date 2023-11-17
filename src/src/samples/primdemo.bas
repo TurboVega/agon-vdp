@@ -1,4 +1,9 @@
-10 REM OTF Primitives Demo
+5 REM OTF Primitives Demo
+6 REM This demo shows various primitives in On-the-Fly mode.
+7 REM Each type of primitive is in its own group, for testing purposes,
+8 REM although that is not necessary for most of them. Also, the
+9 REM program is verbose in order to illustrate concepts. It could
+10 REM be leaner, in terms of code lines and variables.
 11 CLS: VDU 23,1,0;0;0;0;
 12 FREE_ID%=3
 13 FDFLT%=&000F
@@ -38,7 +43,7 @@
 330 GRP_MSK_REN% = FN_Masked3DRender(69,60,20)
 340 GRP_TRN_REN% = FN_Transparent3DRender(69,80,20)
 397 IF INKEY(100)<0 THEN GOTO 399
-398 VDU 23,1,1;0;0;0;
+398 CLS: VDU 23,1,1;0;0;0;
 399 END
 999 REM -----------
 1000 DEF FN_GetID
@@ -288,11 +293,33 @@
 24000 DEF FN_QuadStripOutline(R%,C%,W%)
 24010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
 24020 PROC_Title(R%,C%,W%,"Quad Strip Outline")
+24030 ID%=FN_GetID
+24040 VDU OTF%;64,ID%;GRP%;FDFLT%;6;FN_Color
+24050 SX0%=20: SY0%=65
+24060 SX1%=25: SY1%=20
+24070 VDU SX0%;SY0%;SX1%;SY1%;
+24080 FOR I%=0 TO 5
+24090 X1%=30+I%*20: Y1%=10-((I% AND 3)*2)
+24100 X2%=30+I%*22: Y2%=65-((I% AND 3)*3)
+24110 VDU X1%;Y1%;X2%;Y2%;
+24120 NEXT I%
+24130 VDU OTF%;4,ID%;
 24998 =GRP%
 24999 REM -----------
 25000 DEF FN_SolidQuadStrip(R%,C%,W%)
 25010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
 25020 PROC_Title(R%,C%,W%,"Solid Quad Strip")
+25030 ID%=FN_GetID
+25040 VDU OTF%;65,ID%;GRP%;FDFLT%;6;FN_Color
+25050 SX0%=20: SY0%=65
+25060 SX1%=25: SY1%=20
+25070 VDU SX0%;SY0%;SX1%;SY1%;
+25080 FOR I%=0 TO 5
+25090 X1%=30+I%*20: Y1%=10-((I% AND 3)*2)
+25100 X2%=30+I%*22: Y2%=65-((I% AND 3)*3)
+25110 VDU X1%;Y1%;X2%;Y2%;
+25120 NEXT I%
+25130 VDU OTF%;4,ID%;
 25998 =GRP%
 25999 REM -----------
 26000 DEF FN_RectangleOutline(R%,C%,W%)

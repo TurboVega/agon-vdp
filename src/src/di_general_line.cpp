@@ -278,45 +278,45 @@ void DiGeneralLine::make_solid_quad_list(uint16_t flags, int16_t* coords,
 
 void DiGeneralLine::make_quad_strip_outline(uint16_t flags,
           int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness) {
-  init_from_coords(flags, coords, n+2, color, opaqueness);
+  init_from_coords(flags, coords, n*2+2, color, opaqueness);
 
   auto sx0 = coords[0];
   auto sy0 = coords[1];
   auto sx1 = coords[2];
   auto sy1 = coords[3];
   coords += 4;
-  
+
   uint8_t id = 1;
   while (n--) {
     m_line_details.make_quad_outline(id++, sx0, sy0, sx1, sy1, coords[0], coords[1], coords[2], coords[3]);
-    sx0 = coords[1];
-    sy0 = coords[0];
+    sx0 = coords[2];
+    sy0 = coords[3];
     sx1 = coords[0];
     sy1 = coords[1];
-    coords += 2;
+    coords += 4;
   }
   create_functions();
 }
 
 void DiGeneralLine::make_solid_quad_strip(uint16_t flags,
           int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness) {
-  init_from_coords(flags, coords, n+2, color, opaqueness);
+  init_from_coords(flags, coords, n*2+2, color, opaqueness);
 
   auto sx0 = coords[0];
   auto sy0 = coords[1];
   auto sx1 = coords[2];
   auto sy1 = coords[3];
   coords += 4;
-  
+
   uint8_t id = 1;
   while (n--) {
     DiLineDetails details;
     details.make_solid_quad(id++, sx0, sy0, sx1, sy1, coords[0], coords[1], coords[2], coords[3]);
-    sx0 = coords[1];
-    sy0 = coords[0];
+    sx0 = coords[2];
+    sy0 = coords[3];
     sx1 = coords[0];
     sy1 = coords[1];
-    coords += 2;
+    coords += 4;
     m_line_details.merge(details);
   }
   create_functions();
