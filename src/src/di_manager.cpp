@@ -1361,7 +1361,7 @@ bool DiManager::handle_otf_cmd() {
             return true;
           }
         } else if (m_incoming_command.size() == 5) {
-          m_command_data_index = 0; <<??? still needed?
+          m_command_data_index = 0;
         }
       } break;
 

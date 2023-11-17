@@ -1,10 +1,10 @@
 ## Create primitive: Triangle Outline
-<b>VDU 23, 30, 30, id; pid; flags; x1; y1; x2; y2; x3; y3; color</b> : Create primitive: Triangle Outline
+<b>VDU 23, 30, 30, id; pid; flags; color, x1; y1; x2; y2; x3; y3;</b> : Create primitive: Triangle Outline
 
 This commmand creates a primitive that draws the outline of a triangle. The triangle is not filled.
 
 ## Create primitive: Solid Triangle
-<b>VDU 23, 30, 31, id; pid; flags; x1; y1; x2; y2; x3; y3; color</b> : Create primitive: Solid Triangle
+<b>VDU 23, 30, 31, id; pid; flags; color, x1; y1; x2; y2; x3; y3;</b> : Create primitive: Solid Triangle
 
 This commmand creates a primitive that draws a solid, filled
 traingle. The triangle does not have a distinct outline with
