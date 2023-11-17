@@ -139,8 +139,14 @@ void DiGeneralLine::make_solid_triangle_list(uint16_t flags, int16_t* coords,
 
 void DiGeneralLine::make_triangle_fan_outline(uint16_t flags,
           int16_t* coords, uint16_t n, uint8_t color, uint8_t opaqueness) {
+
+  debug_log("init (%hu) %hi %hi %hi %hi\n", n, coords[0], coords[1], coords[2], coords[3]);
+  for (uint16_t i = 4; i<n*2+4; i+=2) {
+    debug_log(" %hi %hi\n", coords[i], coords[i+1]);
+  }
   init_from_coords(flags, coords, n+2, color, opaqueness);
 
+  
   auto sx0 = coords[0];
   auto sy0 = coords[1];
   auto sx1 = coords[2];
@@ -149,6 +155,7 @@ void DiGeneralLine::make_triangle_fan_outline(uint16_t flags,
 
   uint8_t id = 1;
   while (n--) {
+    debug_log("fan %hi %hi %hi %hi %hi %hi\n",sx0, sy0, sx1, sy1, coords[0], coords[1]);
     m_line_details.make_triangle_outline(id++, sx0, sy0, sx1, sy1, coords[0], coords[1]);
     sx1 = coords[0];
     sy1 = coords[1];
@@ -347,20 +354,20 @@ void IRAM_ATTR DiGeneralLine::generate_instructions() {
         //debug_log("id=%hu pos=%u code=%X %X\n", m_id, pos, &m_paint_fcn[pos], m_paint_fcn[pos].get_real_address(0));
       }
     } else {
-        debug_log("\ngen id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
+        //debug_log("\ngen id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
         EspFixups fixups;
         auto num_sections = (uint32_t)m_line_details.m_sections.size();
         uint32_t at_jump_table = m_paint_fcn[0].init_jump_table(num_sections);
         for (uint32_t i = 0; i < num_sections; i++) {
           auto sections = &m_line_details.m_sections[i];
-          debug_log("\n > section [%i] ", i);
+          //debug_log("\n > section [%i] ", i);
           m_paint_fcn[0].align32();
           m_paint_fcn[0].j_to_here(at_jump_table + i * sizeof(uint32_t));
           m_paint_fcn[0].draw_line_as_inner_fcn(fixups, 0, 0,
             sections, m_flags, m_opaqueness);
         }
         m_paint_fcn[0].do_fixups(fixups);
-        debug_log("    id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
+        //debug_log("    id=%hu code=%X %X\n", m_id, m_paint_fcn, m_paint_fcn[0].get_real_address(0));
       }
     }
 }

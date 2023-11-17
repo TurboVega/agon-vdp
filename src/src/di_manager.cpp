@@ -1323,9 +1323,7 @@ bool DiManager::handle_otf_cmd() {
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
           auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 3 * 2 * sizeof(uint16_t));
-          debug_log(" %u/%u ", len, total_size);
           if (len >= total_size) {
-            debug_log("\n\n");
             create_triangle_list_outline(cmd);
             m_incoming_command.clear();
             return true;
@@ -1354,14 +1352,16 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_34_Create_primitive_Triangle_Fan_Outline;
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
-          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n + 2) * 2 * sizeof(uint16_t));
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 2 * sizeof(uint16_t));
+          debug_log(" %u/%u ", len, total_size);
           if (len >= total_size) {
+            debug_log("\n\n");
             create_triangle_fan_outline(cmd);
             m_incoming_command.clear();
             return true;
           }
         } else if (m_incoming_command.size() == 5) {
-          m_command_data_index = 0;
+          m_command_data_index = 0; <<??? still needed?
         }
       } break;
 
@@ -1369,7 +1369,7 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_35_Create_primitive_Solid_Triangle_Fan;
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
-          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n + 2) * 2 * sizeof(uint16_t));
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 2 * sizeof(uint16_t));
           if (len >= total_size) {
             create_solid_triangle_fan(cmd);
             m_incoming_command.clear();
@@ -1384,7 +1384,7 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_36_Create_primitive_Triangle_Strip_Outline;
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
-          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n + 2) * 2 * sizeof(uint16_t));
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 2 * sizeof(uint16_t));
           if (len >= total_size) {
             create_triangle_strip_outline(cmd);
             m_incoming_command.clear();
@@ -1399,7 +1399,7 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_37_Create_primitive_Solid_Triangle_Strip;
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
-          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n + 2) * 2 * sizeof(uint16_t));
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 2 * sizeof(uint16_t));
           if (len >= total_size) {
             create_solid_triangle_strip(cmd);
             m_incoming_command.clear();
@@ -1500,7 +1500,7 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_64_Create_primitive_Quad_Strip_Outline;
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
-          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n * 2 + 2) * 2 * sizeof(uint16_t));
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n * 2) * 2 * sizeof(uint16_t));
           if (len >= total_size) {
             create_quad_strip_outline(cmd);
             m_incoming_command.clear();
@@ -1515,7 +1515,7 @@ bool DiManager::handle_otf_cmd() {
         auto cmd = &cu->m_65_Create_primitive_Solid_Quad_Strip;
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
-          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n * 2 + 2) * 2 * sizeof(uint16_t));
+          auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + (((uint32_t)cmd->m_n * 2) * 2 * sizeof(uint16_t));
           if (len >= total_size) {
             create_solid_quad_strip(cmd);
             m_incoming_command.clear();
@@ -2249,7 +2249,7 @@ void DiManager::delete_primitive(uint16_t id) {
 }
 
 void DiManager::generate_code_for_primitive(uint16_t id) {
-  debug_log("\nGEN CODE FOR %hu\n", id);
+  //debug_log("\nGEN CODE FOR %hu\n", id);
   DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
   prim->delete_instructions();
   prim->generate_instructions();
