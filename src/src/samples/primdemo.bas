@@ -325,11 +325,25 @@
 26000 DEF FN_RectangleOutline(R%,C%,W%)
 26010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
 26020 PROC_Title2(R%,C%,W%,"Rectangle","Outline")
+26030 FOR I%=0 TO 4
+26040 ID%=FN_GetID
+26050 X%=RND(30)+10:Y%=RND(30)+5
+26060 W%=RND(20)+10:H%=RND(10)+5
+26070 VDU OTF%;40,ID%;GRP%;FDFLT%;X%;Y%;W%;H%;FN_Color
+26080 VDU OTF%;4,ID%;
+26090 NEXT I%
 26998 =GRP%
 26999 REM -----------
 27000 DEF FN_SolidRectangle(R%,C%,W%)
 27010 GRP%=FN_GetID: PROC_SetArea(GRP%,R%,C%,W%)
 27020 PROC_Title2(R%,C%,W%,"Solid","Rectangle")
+27030 FOR I%=0 TO 4
+27040 ID%=FN_GetID
+27050 X%=RND(30)+10:Y%=RND(30)+5
+27060 W%=RND(20)+10:H%=RND(10)+5
+27070 VDU OTF%;41,ID%;GRP%;FDFLT%;X%;Y%;W%;H%;FN_Color
+27080 VDU OTF%;4,ID%;
+27090 NEXT I%
 27998 =GRP%
 27999 REM -----------
 28000 DEF FN_CircleOutline(R%,C%,W%)
