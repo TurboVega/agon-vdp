@@ -1807,6 +1807,7 @@ bool DiManager::handle_otf_cmd() {
         if (m_incoming_command.size() == sizeof(*cmd)) {
           slice_solid_bitmap_absolute(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_s, cmd->m_h);
           m_incoming_command.clear();
+          debug_log(".");
           return true;
         }
       } break;

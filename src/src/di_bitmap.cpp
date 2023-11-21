@@ -193,10 +193,9 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
   }
   debug_log(" @%i ",__LINE__);
 }
-extern "C" { extern void delay(uint32_t); }
+
 void IRAM_ATTR DiBitmap::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
   auto y_offset_within_bitmap = (int32_t)line_index - m_abs_y;
-  if (m_id>=106) {debug_log(" d x %i yo %i ", m_draw_x, y_offset_within_bitmap); delay(10); }
   auto src_pixels = m_visible_start + y_offset_within_bitmap * m_words_per_line;
   m_paint_fcn[m_draw_x & 3].call_a5_a6(this, p_scan_line, line_index, m_draw_x, (uint32_t)src_pixels);
 }
