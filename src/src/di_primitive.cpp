@@ -147,10 +147,10 @@ void IRAM_ATTR DiPrimitive::compute_absolute_geometry(
   m_draw_x_word = m_draw_x & 0xFFFFFFFC;
   m_draw_x_word_offset = m_draw_x_word - m_abs_x_word;
 
-  if (m_id>2) debug_log(" GEO id %hu rel(%i,%i) abs(%i,%i), w=%hu, h=%hu, d(%i,%i), de(%i,%i), aw=%i, dxo=%i, dyo=%i, dxw=%i, dxwo=%o\n",
-    m_id, m_rel_x, m_rel_y, m_abs_x, m_abs_y, m_width, m_height,
-    m_draw_x, m_draw_y, m_draw_x_extent, m_draw_y_extent,
-    m_abs_x_word, m_draw_x_offset, m_draw_y_offset, m_draw_x_word, m_draw_x_word_offset);
+  //if (m_id>2) debug_log(" GEO id %hu rel(%i,%i) abs(%i,%i), w=%hu, h=%hu, d(%i,%i), de(%i,%i), aw=%i, dxo=%i, dyo=%i, dxw=%i, dxwo=%o\n",
+  //  m_id, m_rel_x, m_rel_y, m_abs_x, m_abs_y, m_width, m_height,
+  //  m_draw_x, m_draw_y, m_draw_x_extent, m_draw_y_extent,
+  //  m_abs_x_word, m_draw_x_offset, m_draw_y_offset, m_draw_x_word, m_draw_x_word_offset);
 
   DiPrimitive* child = m_first_child;
   while (child) {

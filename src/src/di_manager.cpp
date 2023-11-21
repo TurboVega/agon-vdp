@@ -300,7 +300,7 @@ void DiManager::remove_primitive(DiPrimitive* prim) {
 
 void DiManager::recompute_primitive(DiPrimitive* prim, uint16_t old_flags,
                                     int32_t old_min_group, int32_t old_max_group) {
-  if (prim->get_id()>2) debug_log("RECOMPUTE id %hu f %04hX g %i %i ... ", prim->get_id(), old_flags, old_min_group, old_max_group);
+  //if (prim->get_id()>2) debug_log("RECOMPUTE id %hu f %04hX g %i %i ... ", prim->get_id(), old_flags, old_min_group, old_max_group);
   auto parent = prim->get_parent();
   prim->compute_absolute_geometry(parent->get_view_x(), parent->get_view_y(),
     parent->get_view_x_extent(), parent->get_view_y_extent());
@@ -395,7 +395,7 @@ void DiManager::recompute_primitive(DiPrimitive* prim, uint16_t old_flags,
       //prim->delete_instructions();
     }
   }
-  if (prim->get_id()>2) debug_log(" computed id %hu f %04hX g %i %i\n", prim->get_id(), prim->get_flags(), new_min_group, new_max_group);
+  //if (prim->get_id()>2) debug_log(" computed id %hu f %04hX g %i %i\n", prim->get_id(), prim->get_flags(), new_min_group, new_max_group);
 }
 
 DiPrimitive* DiManager::finish_create(uint16_t id, uint16_t flags, DiPrimitive* prim, DiPrimitive* parent_prim) {
@@ -1355,9 +1355,9 @@ bool DiManager::handle_otf_cmd() {
         auto len = m_incoming_command.size();
         if (len >= sizeof(*cmd)) {
           auto total_size = sizeof(*cmd) - sizeof(cmd->m_coords) + ((uint32_t)cmd->m_n * 2 * sizeof(uint16_t));
-          debug_log(" %u/%u ", len, total_size);
+          //debug_log(" %u/%u ", len, total_size);
           if (len >= total_size) {
-            debug_log("\n\n");
+            //debug_log("\n\n");
             create_triangle_fan_outline(cmd);
             m_incoming_command.clear();
             return true;
@@ -1774,9 +1774,9 @@ bool DiManager::handle_otf_cmd() {
       case 120: {
         auto cmd = &cu->m_120_Create_primitive_Solid_Bitmap;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          debug_log("csb %hu %hu %04hX %u %u\n", cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h);
+          //debug_log("csb %hu %hu %04hX %u %u\n", cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h);
           create_solid_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h);
-          debug_log("csb done\n");
+          //debug_log("csb done\n");
           m_incoming_command.clear();
           return true;
         }
@@ -1794,9 +1794,9 @@ bool DiManager::handle_otf_cmd() {
       case 122: {
         auto cmd = &cu->m_122_Create_primitive_Transparent_Bitmap;
         if (m_incoming_command.size() == sizeof(*cmd)) {
-          debug_log("ctb %hu %hu %04hX %u %u %02hX\n", cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h, cmd->m_color);
+          //debug_log("ctb %hu %hu %04hX %u %u %02hX\n", cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h, cmd->m_color);
           create_transparent_bitmap(cmd->m_id, cmd->m_pid, cmd->m_flags, cmd->m_w, cmd->m_h, cmd->m_color);
-          debug_log("ctb done\n");
+          //debug_log("ctb done\n");
           m_incoming_command.clear();
           return true;
         }
@@ -1807,7 +1807,6 @@ bool DiManager::handle_otf_cmd() {
         if (m_incoming_command.size() == sizeof(*cmd)) {
           slice_solid_bitmap_absolute(cmd->m_id, cmd->m_x, cmd->m_y, cmd->m_s, cmd->m_h);
           m_incoming_command.clear();
-          debug_log(".");
           return true;
         }
       } break;
@@ -2259,10 +2258,10 @@ void DiManager::delete_primitive(uint16_t id) {
 
 void DiManager::generate_code_for_primitive(uint16_t id) {
   DiPrimitive* prim; if (!(prim = (DiPrimitive*)get_safe_primitive(id))) return;
-  debug_log("\nGEN CODE FOR %hu at x %i y %i dx %i dy %i\n", id, prim->get_absolute_x(), prim->get_absolute_y(), prim->get_draw_x(), prim->get_draw_y());
+  //debug_log("\nGEN CODE FOR %hu at x %i y %i dx %i dy %i\n", id, prim->get_absolute_x(), prim->get_absolute_y(), prim->get_draw_x(), prim->get_draw_y());
   prim->delete_instructions();
   prim->generate_instructions();
-  debug_log("\n gen end\n");
+  //debug_log("\n gen end\n");
 }
 
 DiPrimitive* DiManager::create_rectangle_outline(OtfCmd_40_Create_primitive_Rectangle_Outline* cmd) {
