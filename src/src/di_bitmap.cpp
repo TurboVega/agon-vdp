@@ -32,8 +32,10 @@
 #include "di_bitmap.h"
 #include "esp_heap_caps.h"
 #include <cstring>
+extern void debug_log(const char* fmt, ...);
 
 DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint16_t flags) {
+  debug_log(" @%i ",__LINE__);
   m_width = width;
   m_height = height;
   m_save_height = height;
@@ -47,6 +49,9 @@ DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint16_t flags) {
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
       m_pixels = new uint32_t[m_words_per_position * 4];
       memset(m_pixels, 0x00, m_bytes_per_position * 4);
+      for (uint32_t pos = 0; pos < 4; pos++) {
+        m_paint_fcn[pos].enter_and_leave_outer_function();
+      }
   } else {
       m_words_per_line = ((width + sizeof(uint32_t) - 1) / sizeof(uint32_t));
       m_bytes_per_line = m_words_per_line * sizeof(uint32_t);
@@ -54,11 +59,14 @@ DiBitmap::DiBitmap(uint32_t width, uint32_t height, uint16_t flags) {
       m_bytes_per_position = m_words_per_position * sizeof(uint32_t);
       m_pixels = new uint32_t[m_words_per_position];
       memset(m_pixels, 0x00, m_bytes_per_position);
+      m_paint_fcn[0].enter_and_leave_outer_function();
   }
   m_visible_start = m_pixels;
+  debug_log(" @%i ",__LINE__);
 }
 
 DiBitmap::DiBitmap(uint16_t flags, DiBitmap* ref_bitmap) {
+  debug_log(" @%i ",__LINE__);
   m_width = ref_bitmap->m_width;
   m_height = ref_bitmap->m_height;
   m_save_height = ref_bitmap->m_save_height;
@@ -70,6 +78,7 @@ DiBitmap::DiBitmap(uint16_t flags, DiBitmap* ref_bitmap) {
   m_bytes_per_position = ref_bitmap->m_bytes_per_position;
   m_pixels = ref_bitmap->m_pixels;
   m_visible_start = m_pixels;
+  debug_log(" @%i ",__LINE__);
 }
 
 
@@ -80,14 +89,18 @@ DiBitmap::~DiBitmap() {
 }
 
 void IRAM_ATTR DiBitmap::set_relative_position(int32_t x, int32_t y) {
+  debug_log(" @%i ",__LINE__);
   DiPrimitive::set_relative_position(x, y);
   m_visible_start = m_pixels;
+  debug_log(" @%i ",__LINE__);
 }
 
 void DiBitmap::set_slice_position(int32_t x, int32_t y, uint32_t start_line, uint32_t height) {
+  debug_log(" @%i ",__LINE__);
   DiPrimitive::set_relative_position(x, y);
   m_height = height;
   m_visible_start = m_pixels + start_line * m_words_per_line;
+  debug_log(" @%i ",__LINE__);
 }
 
 void DiBitmap::set_transparent_pixel(int32_t x, int32_t y, uint8_t color) {
@@ -117,12 +130,15 @@ void DiBitmap::set_pixel(int32_t x, int32_t y, uint8_t color) {
 }
 
 void IRAM_ATTR DiBitmap::delete_instructions() {
+  debug_log(" @%i ",__LINE__);
   for (uint32_t pos = 0; pos < 4; pos++) {
     m_paint_fcn[pos].clear();
   }
+  debug_log(" @%i ",__LINE__);
 }
 
 void IRAM_ATTR DiBitmap::generate_instructions() {
+  debug_log(" @%i ",__LINE__);
   delete_instructions();
   if (m_flags & PRIM_FLAGS_CAN_DRAW) {
     if (m_flags & PRIM_FLAG_H_SCROLL_1) {
@@ -166,9 +182,21 @@ void IRAM_ATTR DiBitmap::generate_instructions() {
       }
       paint_fcn->do_fixups(fixups);
     }
+  } else {
+    if (m_flags & PRIM_FLAG_H_SCROLL_1) {
+      for (uint32_t pos = 0; pos < 4; pos++) {
+        m_paint_fcn[pos].enter_and_leave_outer_function();
+      }
+    } else {
+      m_paint_fcn[0].enter_and_leave_outer_function();
+    }
   }
+  debug_log(" @%i ",__LINE__);
 }
-
+extern "C" { extern void delay(uint32_t); }
 void IRAM_ATTR DiBitmap::paint(volatile uint32_t* p_scan_line, uint32_t line_index) {
-  m_paint_fcn[m_draw_x & 3].call(this, p_scan_line, line_index);
+  auto y_offset_within_bitmap = (int32_t)line_index - m_abs_y;
+  if (m_id>=106) {debug_log(" d x %i yo %i ", m_draw_x, y_offset_within_bitmap); delay(10); }
+  auto src_pixels = m_visible_start + y_offset_within_bitmap * m_words_per_line;
+  m_paint_fcn[m_draw_x & 3].call_a5_a6(this, p_scan_line, line_index, m_draw_x, (uint32_t)src_pixels);
 }
