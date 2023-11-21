@@ -9,7 +9,6 @@
 13 FDFLT%=&000F: FGRP%=&000E: FSAME%=&0200
 15 OTF%=&1E17
 16 DIR%=1
-17 GOTO 250
 20 GRP_PT% = FN_Points(9,0,10)
 30 GRP_LIN% = FN_Lines(9,10,10)
 40 GRP_TRI_OUT% = FN_TriangleOutline(9,20,10)
@@ -35,7 +34,6 @@
 240 GRP_TER_SML% = FN_TerminalSmallFont(39,60,40)
 250 GRP_SOL_BMP% = FN_SolidBitmap(49,0,10)
 260 GRP_MSK_BMP% = FN_MaskedBitmap(49,10,10)
-265 GOTO 400
 270 GRP_BMP_FRM% = FN_BitmapFrames(49,20,10)
 280 GRP_BMP_SCR% = FN_BitmapScroll(49,30,10)
 290 GRP_GRP_MOV% = FN_GroupMove(49,40,10)
@@ -48,7 +46,6 @@
 355 REM ANIMATIONS
 357 REM -----------
 400 IF INKEY(100)>=0 THEN GOTO 997
-401 GOTO 400
 405 *FX 19
 410 REM Flip bitmap Frames
 420 SLICE%=SLICE%+50: IF SLICE%>=250 THEN SLICE%=0
@@ -83,7 +80,7 @@
 1330 ENDPROC
 1399 REM -----------
 1400 DEF PROC_SetArea(GRP%,R%,C%,W%)
-1405 PROC_Title(R%-2,C%,W%,STR$(GRP%))
+1405 REM PROC_Title(R%-2,C%,W%,STR$(GRP%))
 1410 AreaX1%=C%*8
 1420 AreaY2%=(R%+1)*8+1
 1430 AreaX2%=AreaX1%+W%*8
